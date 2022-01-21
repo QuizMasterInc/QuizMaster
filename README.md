@@ -5,7 +5,7 @@ Our team will be working on QuizMaster. QuizMaster will be an HTTP based web ser
 ### Credits
 Matthew Stewart (email Matt [here](mailto:matthewjstewart@lewisu.edu))
 Katelyn Correa (email: katelynrcorrea@lewisu.edu)
-Henri Alvarez (email: henrialvarez@lewisu.edu)
+Henri Alvarez (email: henrialvarez@lewisu.edu)(https://github.com/henrisky)
 
 
 ### Process
