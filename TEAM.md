@@ -2,3 +2,7 @@ Scrum will be implemented by assigning the following roles: Product Owner, Scrum
 
 
 Henri Alvarez - Product Owner
+
+Matt Stewart - Scrum Master
+
+Kate Correa - Development Team
