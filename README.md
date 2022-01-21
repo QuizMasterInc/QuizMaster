@@ -1,5 +1,6 @@
 # QuizMaster
 
+Our team will be working on QuizMaster. QuizMaster will be an HTTP based web service through Azure that will be using HTML, CSS, JavaScript, React, MERN, and Go. 
 
 ### Credits
 Matthew Stewart (email Matt [here](mailto:matthewjstewart@lewisu.edu))
