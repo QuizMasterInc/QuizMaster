@@ -1,0 +1,172 @@
+/*Menu bar styles*/
+
+*,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #ebebeb;
+    font-family: 'Fira Sans', sans-serif;
+}
+
+
+/* the container for the main menu properties.  */
+
+.main-menu {
+    background-color: #6FB3B8;
+    /*border-top-right-radius: 10px*/
+    /*border-bottom-right-radius: 10px; Commented out to take rounding off menu bar. Leaves no whitespace
+        where header meets menu bar.
+    */
+    box-shadow: 0px 0px 20px #BADFE7;
+    width: 65px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    white-space: nowrap;
+    transition: .3s ease;
+}
+
+
+/* When hovering over main menu, expand the width to display menu options. */
+
+.main-menu:hover {
+    width: 250px;
+    overflow-y: scroll;
+}
+
+
+/* Removing anchor tag underline and blue color under .home class. */
+
+.home a {
+    text-decoration: none;
+    color: #F6F6F2;
+}
+
+/* Removing anchor tag underline and blue color under .home class. */
+
+.menu-options a {
+    text-decoration: none;
+    color: #F6F6F2;
+}
+
+
+/* Properties for the home menu item section. */
+
+.main-menu .home .menu-item {
+    background-color: #388087;
+    color: #F6F6F2;
+    font-size: 16px;
+}
+
+
+/* Properties for the menu items. */
+
+.main-menu .menu-item {
+    background-color: #6FB3B8;
+    padding: 10px;
+    font-size: 16px;
+
+}
+
+
+/* when hovering over home menu items. */
+
+.main-menu .home .menu-item:hover {
+    color: black;
+}
+
+
+/* Properties for menu items during hovering. */
+
+.main-menu .menu-item:hover {
+    background-color: #BADFE7;
+    cursor: pointer;
+}
+
+
+/* Properties when hovered over menu items inside fa class. */
+
+.main-menu .menu-item:hover > .fa {
+    color: #388087;
+}
+
+
+/* Properties for the fa class */
+
+.main-menu .menu-item .fa {
+    color: #BADFE7;
+    width: 40px;
+    font-size: 25px;
+    padding: 10px;
+    margin-right: 30px;
+}
+
+
+/* Scroll bar */
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+
+/* Progress bar */
+
+::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+
+/* Draggable scrolling handle */
+
+::-webkit-scrollbar-thumb {
+    background: #BADFE7;
+    border-radius: 10px;
+}
+
+
+/* Properties for dropdown content */
+
+.dropdown {
+    color:#F6F6F2
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #BADFE7;
+    min-width: 250px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    font-size: 16px;
+    text-align:center
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+
+/* Properties when hover over dropdown content */
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #3e8e41;
+}
+
+
+/*End of menu bar*/

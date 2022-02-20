@@ -1,0 +1,49 @@
+{
+"quizName" : "quiz1",
+"quizQuestions" : [
+		{
+			"q1" :{
+				"question" : "Generally, if a conflict exists when applying rules using CSS, the most specific or smallest scope rule is chosen.",
+				"options" : ["True", "False"],
+				"answer" : "True"
+			},
+			"q2" : {
+				"question" : "Which of the following levels of style sheets should be used when the same styles should be applied to multiple documents?",
+				"options" : [ "External style sheet", "Inline style", "Document-level style sheet", "Outline style sheet"],
+				"answer" : "External style sheet"
+			
+			},
+			"q3" : {
+				"question" : "This is used to customize the style of a web page.",
+				"options" : ["CSS", "JavaScript", "HTML", "Python", "Java"],
+				"answer" : "CSS"
+			},			
+			"q4" : {
+				"question" : "This is part of an HTML tag and provides additional information about the element.",
+				"options" : ["HTML", "Tag", "Attribute", "Markup Language", "Hypertext"],
+				"answer" : "Attribute"
+			
+			},			
+			"q5" : {
+				"question" : "Which of the following would modify the style of an HTML element with an id of button?",
+				"options" : ["#button{\nheight: 50px;\nwidth: 100px;\nbackground-color:#bdc3c7;\n}", ".button{\nheight: 50px;\nwidth: 100px;\nbackground-color:#bdc3c7;\n}", "button{\nheight: 50px;\nwidth: 100px;\nbackground-color:#bdc3c7;\n}"],
+				"answer" : "button{\nheight: 50px;\nwidth: 100px;\nbackground-color:#bdc3c7;\n}"
+			
+			},		
+			"q6" : {
+				"question" : "HTML is a programming language.",
+				"options" : ["True", "False"],
+				"answer" : "False"
+			
+			},			
+			"q7" : {
+				"question" : "In an HTML link element, this attribute identifies the web page that will be displayed when the link is clicked.",
+				"options" : ["img", "file", "src", "href"],
+				"answer" : "href"
+			
+			}
+		}
+	]
+
+
+}

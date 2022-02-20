@@ -1,0 +1,27 @@
+/*only adding components specific to the body of the page. The rest of the css can imported with the index*/
+
+img {
+    border: 5px solid black;
+    height: 240px;
+    width: 260px;
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+#teamPictures {
+    margin-top: 100px;
+    margin-left: 65px; /*Moved away from menu bar*/
+    /*margin-right: 15px;*/
+    text-align: center;
+}
+
+figure {
+    display: inline-block;
+    margin: 5px;
+}
+
+figcaption {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: x-large
+}

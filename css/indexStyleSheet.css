@@ -1,0 +1,126 @@
+﻿
+Skip to content
+Pull requests
+Issues
+Marketplace
+Explore
+@Matt-J-Stewart
+KateCore /
+QuizMaster
+Public
+
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+
+Insights
+
+QuizMaster/css/indexStyleSheet.css
+Yasir Tahir corrected dropdown, footer and added link to the GitHub repository.
+Latest commit 7ba4f18 11 hours ago
+History
+2 contributors
+@KateCore
+@henrisky
+84 lines (65 sloc) 1.48 KB
+﻿ /*Last edited 02/19/2022*/
+/*Examine need for style. Was used for float tutorial*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box
+}
+
+body {
+    background-color: #F6F6F2;
+    height: 100%;
+}
+
+#pageElements {
+    height: inherit
+}
+
+a:hover {
+    color: #C2EDCE
+}
+
+a {
+    text-decoration: none;
+    color: #F6F6F2
+}
+
+
+/*Title style
+    margin adjusted to account for nav bar.
+*/
+
+#siteHeading {
+    background-color: #388087;
+    text-align: center;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    margin-left: 65px;
+}
+
+
+/*Main content styling.
+    Now floated right for menu bar.
+*/
+
+#siteDescription {
+    background-color: #F6F6F2;
+    float: center;
+    /*Float right now to account for menu bar.*/
+    margin-left: 65px;
+    /*Adjusted to account for menu bar size.*/
+    text-align: center;
+    color: #388087;
+    padding: 15px 15px;
+}
+
+
+/*Cleared of all floats to cover bottom portion of screen. Block display allows link and text on one line.
+    Adjusted margin to account for menu bar.
+*/
+
+.footer {
+    background-color: #388087;
+    text-align: center;
+    clear: both;
+    display: block;
+    height: 30px;
+    overflow: hidden;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /*position: absolute;  I though this would make the footer stay at the bottom but it failed. fix later.
+     I think I have fized the footer, let me know if still needs to be fixed. Yasir */
+}
+
+
+/*Fix at later date*/
+
+p.footer {
+    vertical-align: text-top;
+    display: inline-block;
+}
+
+© 2022 GitHub, Inc.
+
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+
+Loading complete
