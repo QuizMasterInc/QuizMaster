@@ -87,28 +87,6 @@ a {
     Adjusted margin to account for menu bar.
 */
 
-.footer {
-    background-color: #388087;
-    text-align: center;
-    clear: both;
-    display: block;
-    height: 30px;
-    overflow: hidden;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    /*position: absolute;  I though this would make the footer stay at the bottom but it failed. fix later.
-     I think I have fized the footer, let me know if still needs to be fixed. Yasir */
-}
-
-
-/*Fix at later date*/
-
-p.footer {
-    vertical-align: text-top;
-    display: inline-block;
-}
-
 © 2022 GitHub, Inc.
 
 Terms

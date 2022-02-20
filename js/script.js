@@ -2,3 +2,9 @@
 $(function(){
     $('#main-menu').load('../common/navbar.html');
 })
+
+
+// Function to load the footer bar onto #footer id tag in html files.
+$(function(){
+    $('#footer').load('../common/footer.html');
+})

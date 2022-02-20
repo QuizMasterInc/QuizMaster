@@ -1,0 +1,44 @@
+/* Heading for the site */
+#siteHeading {
+    background-color: #388087;
+    text-align: center;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    margin-bottom: 45px;
+}
+
+/* Wrapper containing all content */
+#wrapper {
+    text-align: center;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
+/* info-div class contains the text on the left side of each div*/
+.info-div{
+	font-size: 22px;
+    text-align: left;
+}
+
+/* Using flex to place divs next to each other*/
+.flex-parent-element {
+    display: flex;
+    width: 100%;
+    height: 400px;
+}
+
+/* child div*/
+.flex-child-element {
+flex: 1;
+margin: 10px;
+}
+
+/* first child of flex element*/
+.flex-child-element:first-child {
+margin-right: 20px;
+}
+
+/* div child elements inside of flex */
+.side-elements{
+    margin-top: 5%;
+}
