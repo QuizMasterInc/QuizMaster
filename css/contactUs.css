@@ -1,7 +1,7 @@
 /*only adding components specific to the body of the page. The rest of the css can imported with the index*/
 
 img {
-    border: 5px solid black;
+    border: 5px solid #BADFE7;
     height: 240px;
     width: 260px;
     padding-right: 0px;
@@ -24,4 +24,13 @@ figcaption {
     text-align: center;
     margin-bottom: 10px;
     font-size: x-large
+}
+
+.emails{
+    background-color:#6FB3B8;
+}
+
+#contact-us-paragraph {
+    text-align: center;
+    margin-top: 10px;
 }
