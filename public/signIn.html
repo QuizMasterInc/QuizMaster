@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up</title>
+    <link rel="stylesheet" href="./css/indexStyleSheet.css" />
+    <link rel="stylesheet" href="./css/signUp.css" />
+</head>
+<body>
+    <!--id main-menu is referenced by jquery to load the menu bar.-->
+    <div id="main-menu"></div>
+
+    <!--siteHeading div controls the title of the webpage.-->
+    <div id="siteHeading">
+        <h1>Sign In</h1>
+        <h2>This site is still in develpment</h2>
+    </div>
+    <!-- wrapper for body -->
+    <div id = "form-wrapper">
+        <!-- Sign in form -->
+        <form class="log-in">
+            <!-- email section containing label and input -->
+            <div class="email-section">
+                <label for="email">Email:</label>
+                <input type="email" name="email" size="29" >
+                <br/>
+            </div>
+            <!-- password section containing label and input -->
+            <div class="password-section">
+                <label for="password">Password:</label>
+                <input type="password" name="password" size="25" >
+                <br/>
+            </div>
+            <button class = "sign-in">sign in</button>
+        </form>
+    </div>
+
+    <!--Footer being referenced by jQuery to open up footer html-->
+    <div id="footer"></div>
+    <!--jQuery source file-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous">
+    </script>
+    <!--JavaScript project file-->
+    <script src="./dist/bundle.js"></script>
+</body>
+</html>

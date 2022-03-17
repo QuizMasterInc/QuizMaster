@@ -1,4 +1,4 @@
-﻿
+﻿/*
 Skip to content
 Pull requests
 Issues
@@ -28,16 +28,24 @@ History
 @henrisky
 84 lines (65 sloc) 1.48 KB
 ﻿ /*Last edited 02/19/2022*/
+
+
 /*Examine need for style. Was used for float tutorial*/
+
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box
 }
 
+html,
 body {
-    background-color: #F6F6F2;
     height: 100%;
+    background-color: #F6F6F2;
+}
+
+#wrapper {
+    min-height: 100%;
+    overflow: auto;
 }
 
 #pageElements {
@@ -87,18 +95,5 @@ a {
     Adjusted margin to account for menu bar.
 */
 
-© 2022 GitHub, Inc.
-
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-
-Loading complete
+© 2022 GitHub,
+Inc. Terms Privacy Security Status Docs Contact GitHub Pricing API Training Blog About Loading complete

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Quizzes Home Page</title>
+
+    <link rel="stylesheet" href="./css/indexStyleSheet.css" />
+    <link rel="stylesheet" href="./css/subjects.css" />
+</head>
+
+<body>
+    <div id="wrapper">
+        <!--siteHeading div controls the title of the webpage.-->
+        <div id="siteHeading">
+            <h1>Quiz Master</h1>
+            <h2>This site is still in develpment</h2>
+        </div>
+
+        <!--The menu bar and the main content of the page are stored in a container div.
+            This helps ensure a column style layout.-->
+        <div id="pageElements"></div>
+
+        <!--Menu bar to go in this space.-->
+        <!--id main-menu is referenced by jquery to load the menu bar.-->
+        <div id="main-menu"></div>
+
+        <div id="heading">
+            <h1>Subjects</h1>
+        </div>
+        <!--Main content of homepage goes here.-->
+        <div id="courses">
+            <div class="course">
+                <h3>Science</h3>
+                <div class="course-content">
+                    <p>
+                        Science education is the teaching and learning of science to school children, college students, or adults within the general public. The field of science education includes work in science content, science process (the scientific method), some social
+                        science, and some teaching pedagogy. The standards for science education provide expectations for the development of understanding for students through the entire course of their K-12 education and beyond. The traditional subjects
+                        included in the standards are physical, life, earth, space, and human sciences.
+                        <p><br></p>
+                    </p>
+                    <ul>
+                        <a href="#">
+                            <li>Sample Quiz</li>
+                        </a>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="course">
+                <h3>Mathematics</h3>
+                <div class="course-content">
+                    <p>Mathematics is the science and study of quality, structure, space, and change. Mathematicians seek out patterns, formulate new conjectures, and establish truth by rigorous deduction from appropriately chosen axioms and definitions.</p>
+                    <p><br></p>
+                    <ul>
+                        <a href="#">
+                            <li>Sample Quiz</li>
+                        </a>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="course">
+                <h3>History</h3>
+                <div class="course-content">
+                    <p>History is the study of change over time, and it covers all aspects of human society. Political, social, economic, scientific, technological, medical, cultural, intellectual, religious and military developments are all part of history.
+                    </p>
+                    <p><br></p>
+                    <ul>
+                        <a href="#">
+                            <li>Sample Quiz</li>
+                        </a>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="course">
+                <h3>Engineering</h3>
+                <div class="course-content">
+                    <p>Students who study general engineering take a wide range of courses in math, natural science, and humanities and social science. More specific engineering principles are taught in concentrations or minors tracks, which include biotechnology,
+                        imaging, structural mechanics, environmental engineering, computer engineering, information science and nanotechnology. This major prepares students for many areas of the field with skills like analysis and problem-solving, teamwork
+                        and leadership.</p>
+                    <p><br></p>
+                    <ul>
+                        <a href="#">
+                            <li>Sample Quiz</li>
+                        </a>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!--Footer being referenced by jQuery to open up footer html-->
+    <div id="footer"></div>
+    <!--jQuery source file-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous">
+    </script>
+    <!--JavaScript project file-->
+    <script src="./dist/bundle.js"></script>
+    </div>
+</body>
+
+</html>

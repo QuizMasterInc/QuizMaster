@@ -1,4 +1,15 @@
 /* Heading for the site */
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+}
+
 #siteHeading {
     background-color: #388087;
     text-align: center;
@@ -7,38 +18,52 @@
     margin-bottom: 45px;
 }
 
+
 /* Wrapper containing all content */
+
 #wrapper {
+    min-height: 92.5%;
+    overflow: auto;
     text-align: center;
     margin-left: 15%;
     margin-right: 15%;
 }
 
+
 /* info-div class contains the text on the left side of each div*/
-.info-div{
-	font-size: 22px;
+
+.info-div {
+    font-size: 22px;
     text-align: left;
 }
 
+
 /* Using flex to place divs next to each other*/
+
 .flex-parent-element {
     display: flex;
     width: 100%;
     height: 400px;
 }
 
+
 /* child div*/
+
 .flex-child-element {
-flex: 1;
-margin: 10px;
+    flex: 1;
+    margin: 10px;
 }
+
 
 /* first child of flex element*/
+
 .flex-child-element:first-child {
-margin-right: 20px;
+    margin-right: 20px;
 }
 
+
 /* div child elements inside of flex */
-.side-elements{
+
+.side-elements {
     margin-top: 5%;
 }
