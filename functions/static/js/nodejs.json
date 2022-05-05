@@ -1,0 +1,118 @@
+{
+    "quizName": "CIS02",
+    "category" : "CIS",
+    "description" : "This tests your knowledge of Nodejs.",
+    "totalPoints" : "30",
+    "quizQuestions": {
+        "q1": {
+            "question": "How do we return a path string from the given path object in Node.js ?",
+            "options": [
+                "path.get()",
+                "path.set()",
+                "path.format()",
+                "path.return()"
+                ],
+            "answer": "path.format()",
+	    "value" : "3"
+        },
+        "q2": {
+            "question": "Node.js is written in?",
+            "options": [
+                "JavaScript",
+                "C",
+                "C++",
+                "All of the above"
+                ],
+            "answer": "All of the above",
+	    "value" : "3"
+        },
+        "q3": {
+            "question": "How modules in Node.js can be connected from one component to another ??",
+            "options": [
+                "Expose",
+                "Module",
+                "Exports",
+                "All of the above"
+                ],
+            "answer": "Exports",
+	    "value" : "3"
+        },
+        "q4": {
+            "question": "Which of the below modules is not a built-in module in Node.js ?",
+            "options": [
+                "fsread",
+                "dgram",
+		"HTTPS",
+		"zlib"
+                ],
+            "answer": "fsread",
+	    "value" : "3"
+        },
+        "q5": {
+            "question": "Which of the below command will show all the modules installed locally ?",
+            "options": [
+                "npm ls -g",
+                "npm ls",
+                "node ls -g",
+                "node ls",
+                ],
+            "answer": "npm ls",
+	    "value" : "3"
+        },
+        "q6": {
+            "question": "Which of the below fs module is used to truncate a file ?",
+            "options": [
+                "fs.delete(fd, len, callback)",
+                "fs.remove(fd, len, callback)",
+                "fs.ftruncate(fd, len, callback)",
+                "None of the above."
+                ],
+            "answer": "fs.ftruncate(fd, len, callback)",
+	    "value" : "3"
+        },
+        "q7": {
+            "question": "Which template engines can be used with Node.js ?",
+            "options": [
+                "Jade",
+                "Vash",
+                "Handlebars",
+                "All of the above"
+                ],
+            "answer": "Handlebars",
+	    "value" : "3"
+        },
+		"q8": {
+            "question": "What is the default scope in the Node.js application ?",
+            "options": [
+                "Global",
+                "Local",
+                "Global Function",
+                "Local to object"
+                ],
+            "answer": "Local",
+	    "value" : "3"
+        },
+		"q9": {
+            "question": "Which of the below method is used to return the current working directory of the process ?",
+            "options": [
+                "cwd();",
+                "cmd();",
+                "pwd();",
+                "None of the above"
+                ],
+            "answer": "cwd();",
+	    "value" : "3"
+        },
+		"q10": {
+            "question": "Which below method is used to check whether the given path is an absolute path or not in Node.js ?",
+            "options": [
+                "path.Query()",
+                "path.render()",
+                "path.isAbsolute()",
+                "path.Absolute()"
+                ],
+            "answer": "path.isAbsolute()",
+	    "value" : "3"
+        }
+    }
+}

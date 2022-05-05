@@ -1,0 +1,54 @@
+/*only adding components specific to the body of the page. The rest of the css can imported with the index*/
+
+html,
+body {
+    height: auto;
+}
+
+#courses {
+    min-height: 100%;
+    overflow: auto;
+    scrollbar-face-color: #388087;
+    padding-bottom: 150px;
+    text-align: center;
+    margin-top: 50px;
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+
+/*taking this out because the addition of page headings on each page*/
+
+
+/* #subject_heading h1 {
+    text-align: left;
+    padding-bottom: 20px;
+    text-decoration: underline;
+} */
+
+.course {
+    border: solid 5px;
+    border-color: #388087;
+    text-align: left;
+    padding: 20px;
+    background-color: #badfe7;
+    margin-bottom: 20px;
+}
+
+.course h3 {
+    margin-left: 10px;
+    text-align: left;
+}
+
+.course p {
+    padding-left: 10px;
+}
+
+.course a {
+    color: black;
+    text-decoration: underline;
+}
+
+.course li {
+    margin-left: 15px;
+}

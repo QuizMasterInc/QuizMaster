@@ -1,0 +1,102 @@
+<!--last updated 2/20/2022
+    This update is post merge with the main branch for sprint 3-->
+<!--Current layout is based on floating style framework.-->
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <title>QuizMaster-Mathematics</title>
+
+    <link rel="stylesheet" href="./css/indexStyleSheet.css" />
+    <link rel="stylesheet" href="./css/coursePage.css" />
+    <!--jQuery source file-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <!--siteHeading div controls the title of the webpage.-->
+        <div id="header"></div>
+        <div id="pageHeading">
+            <h1>Mathematics Quizzes</h1>
+        </div>
+
+        <!--The menu bar and the main content of the page are stored in a container div.
+            This helps ensure a column style layout.-->
+        <div id="pageElements"></div>
+        <!--Menu bar to go in this space.-->
+        <!--id main-menu is referenced by jquery to load the menu bar.-->
+        <div id="main-menu"></div>
+
+        <!--Main content here.-->
+
+        <!-- The Modal -->
+        <div id="quizModal1" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <p>You're about to take a quiz.</p>
+                <button type="button" id="ok1">Ok</button>
+                <button type="button" id="cancel1">Cancel</button>
+            </div>
+        </div>
+
+        <div id="quizModal2" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <p>You're about to take a quiz.</p>
+                <button type="button" id="ok2">Ok</button>
+                <button type="button" id="cancel2">Cancel</button>
+            </div>
+        </div>
+
+        <div id="quizList">
+            <div id="quizBox">
+                <div id="MTH01">
+                    <!--math 1 quiz data-->
+                    <h4 class="title"></h4>
+                    <p class="description"></p>
+                    <p class="numQuestions"></p>
+                    <p class="totalPoints"></p>
+
+                    <p>Time Limit: None</p>
+                    <p>Attempts: Unlimited</p>
+                    <div id="startButton">
+                        <!--id confirmStart is referenced by jquery to load a confirm form and redirect to quiz page-->
+                        <button id="btnMath1" name="start" type="button">Start</button>
+                    </div>
+                </div>
+            </div>
+            <div id="quizBox">
+                <div id="MTH02">
+                    <!--math 2 quiz data-->
+                    <h4 class="title"></h4>
+                    <p class="description"></p>
+                    <p class="numQuestions"></p>
+                    <p class="totalPoints"></p>
+
+                    <p>Time Limit: None</p>
+                    <p>Attempts: Unlimited</p>
+                    <div id="startButton">
+                        <!--id confirmStart is referenced by jquery to load a confirm form and redirect to quiz page-->
+                        <button id="btnMath2" name="start" type="button">Start</button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div></div>
+            </div>
+        </div>
+        <!--Footer being referenced by jQuery to open up footer html-->
+        <div id="footer"></div>
+        <!--jQuery source file-->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <!--JavaScript project file-->
+        <script type="module" src="js/script.js"></script>
+        <script type="module" src="js/functions.js"></script>
+        <script type="module" src="js/authentication.js"></script>
+</body>
+
+</html>

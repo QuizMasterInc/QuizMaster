@@ -1,0 +1,77 @@
+/* Heading for the site */
+
+
+/* We are already getting this stuff from the indexStyleSheet.css so we don't need to add this here again that's why I have commented out it(yasir)*/
+
+
+/*
+* {
+    margin: 0;
+    padding: 0;
+}
+*/
+
+html,
+body {
+    height: auto;
+}
+
+#siteHeading {
+    background-color: #388087;
+    text-align: center;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    margin-bottom: 45px;
+}
+
+
+/* Wrapper containing all content */
+
+#wrapper {
+    min-height: 89.5%;
+    overflow: auto;
+    text-align: center;
+    margin-left: 15%;
+    margin-right: 15%;
+    padding-top: 20px;
+    padding-bottom: 100px;
+}
+
+
+/* info-div class contains the text on the left side of each div*/
+
+.info-div {
+    font-size: 22px;
+    text-align: left;
+}
+
+
+/* Using flex to place divs next to each other*/
+
+.flex-parent-element {
+    display: flex;
+    width: 100%;
+    height: 400px;
+}
+
+
+/* child div*/
+
+.flex-child-element {
+    flex: 1;
+    margin: 10px;
+}
+
+
+/* first child of flex element*/
+
+.flex-child-element:first-child {
+    margin-right: 20px;
+}
+
+
+/* div child elements inside of flex */
+
+.side-elements {
+    margin-top: 5%;
+}

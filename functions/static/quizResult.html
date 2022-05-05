@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+Expand
+message.txt8 KB
+MattStewart
+ — 
+Today at 4:22 PM
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Quiz Results</title>
+
+    <link rel="stylesheet" href="css/indexStyleSheet.css" />
+    <link rel="stylesheet" href="css/quizResult.css" />
+</head>
+
+<body>
+    <div id="wrapper">
+        <!--header id reference to load site logo-->
+        <div id="header"></div>
+        <!--pageHeading div controls the title of the webpage.-->
+        <div id="pageHeading">
+        <h1>Quiz Results</h1>
+        </div>
+        <!--The menu bar and the main content of the page are stored in a container div.
+            This helps ensure a column style layout.-->
+            <div id="pageElements">
+            <!--Menu bar to go in this space.-->
+            <!--id main-menu is referenced by jquery to load the menu bar.-->
+            <div id="main-menu"></div>
+
+            <!--Main content of homepage goes here.-->
+            <div id="result">
+                <div id="resultBox">
+                    <div id="questionBlock">
+                        <h3 id="quizName">Quiz Name</h3>
+                        <section id="totalPoints">Total</section>
+                    </div>
+                    
+
+                    <div id="questionBlock">
+                        <p id="question1">Question 1</p>
+                        <p id="userAnswer1"></p>
+                        <div id="points1">PTS</div>
+                    </div>
+                    
+                    <div id="questionBlock">
+                        <p id="question2">Question 2</p>
+                        <p id="userAnswer2"></p>
+                        <div id="points2">PTS</div>
+                    </div>
+
+                    <div id="questionBlock">
+                        <p id="question3">Question 3</p>
+                        <p id="userAnswer3">Your Answer:</p>
+                        <div id="points3">PTS</div>
+                    </div>
+
+                    <div id="questionBlock">
+                        <p id="question4">Question 4</p>
+                        <p id="userAnswer4">Your Answer:</p>
+                        <div id="points4">PTS</div>
+                    </div>
+
+                    <div id="questionBlock">
+                        <p id="question5">Question 5</p>
+                        <p id="userAnswer5">Your Answer:</p>
+                        <div id="points5">PTS</div>
+                    </div>
+
+                    <div id="questionBlock">
+                        <p id="question6">Question 6</p>
+                        <p id="userAnswer6">Your Answer:</p>
+                        <div id="points6">PTS</div>
+                    </div>
+
+                    <!-- <div id="questionBlock">
+                        <p id="question7">Question 7</p>
+                        <p id="userAnswer7">Your Answer:</p>
+                        <div id="points7">PTS</div>
+                    </div> -->
+                </div>
+                
+            </div>
+        </div>
+
+    </div>
+    <!--Footer being referenced by jQuery to open up footer html-->
+    <div id="footer"></div>
+    <!--jQuery source file-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <!--JavaScript project file-->
+    <script type="module" src="js/script.js"></script>
+    <script type="module" src="js/authentication.js"></script>
+    <script type="module" src="js/functions.js"></script>
+
+</body>
+
+</html>

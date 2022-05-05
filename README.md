@@ -19,7 +19,7 @@ Find team information [here](TEAM.md)
 ### Minimum Viable Product
 Find MVP proposal [here](MVP.md)
 
-##Azure Links
-master azure link- https://theproctors-quizmaster.azurewebsites.net
-testing azure link- https://wonderful-sand-0ff281010.1.azurestaticapps.net
+## Firebase Link
+Deployed Site- https://us-central1-testingwithnode.cloudfunctions.net/app/home
+## Azure Link
 flyer azure link- https://yellow-ocean-0e45b7910.1.azurestaticapps.net/

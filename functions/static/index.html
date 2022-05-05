@@ -1,0 +1,141 @@
+<!doctype html>
+<head>
+    <title>QuizMasterHome</title>
+    <link rel="stylesheet" href="./css/indexStyleSheet.css" />
+
+    <!-- CSS links for images slideshow -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.5.9/slick.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.5.9/slick-theme.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css" />
+
+    <!-- JS links for image slideshow -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.5.9/slick.min.js"></script>
+
+</head>
+<body>
+   
+        <div id="wrapper">
+        <!--header being referenced by jQuery to open up header html-->
+        <div id="header"></div>
+        <!--pageHeading div controls the title of the webpage.-->
+        <div id="pageHeading">
+            <p>
+                Welcome to Quiz Master<span class="welcome"></span>!
+            </p>
+        </div>
+        <!--The menu bar and the main content of the page are stored in a container div.
+            This helps ensure a column style layout.-->
+        <div id="pageElements">
+        <!--Menu bar to go in this space.-->
+        <!--id main-menu is referenced by jquery to load the menu bar.-->
+        <div id="main-menu"></div>
+
+        <!--Main content of homepage goes here.-->
+       
+        <div id="siteBody">
+            <div id="news">
+                <h4>Latest Quizzes</h4>
+                <p>Following quizzes has been added recently.</p>
+                <div id="latest_quiz_images">
+                    <div>
+                        <p>Science Quiz 1</p>
+                        <img src="img/quiz_images/chemistry.jpg" />
+                    </div>
+                    <div>
+                        <p>Science Quiz 2</p>
+                        <img src="img/quiz_images/cs.jpg" />
+                    </div>
+                    <div>
+                        <p>Maths Quiz 1</p>
+                        <img src="img/quiz_images/algebra.jpg" />
+                    </div>
+                    <div>
+                        <p>Maths Quiz 2</p>
+                        <img src="img/quiz_images/calculus.jpg" />
+                    </div>
+                    <div>
+                        <p>History Quiz 1</p>
+                        <img src="img/quiz_images/history.jpeg" />
+                    </div>
+                    <div>
+                        <p>History Quiz 2</p>
+                        <img src="img/quiz_images/history2.jpg" />
+                    </div>
+                    <div>
+                        <p>Engineering Quiz 1</p>
+                        <img src="img/quiz_images/electrical.jpg" />
+                    </div>
+                    <div>
+                        <p>Engineering Quiz 2</p>
+                        <img src="img/quiz_images/engineering.jpg" />
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                $("#latest_quiz_images").slick({
+                    autoplay: true,
+                    autoplaySpeed: 1000,
+                    slidesToShow: 4,
+                    slidesToScroll: 1,
+                    arrows: false,
+                });
+            </script>
+
+            <div id="news">
+                <h4>Trending Quizzes</h4>
+                <p>These are our most trending quizzes.</p>
+                <div id="trending_quiz_images">
+                    <div>
+                        <p>Science Quiz 2</p>
+                        <img src="img/quiz_images/cs.jpg" />
+                    </div>
+                    <div>
+                        <p>Maths Quiz 2</p>
+                        <img src="img/quiz_images/calculus.jpg" />
+                    </div>
+                    <div>
+                        <p>History Quiz 1</p>
+                        <img src="img/quiz_images/history.jpeg" />
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                $("#trending_quiz_images").slick({
+                    autoplay: true,
+                    autoplaySpeed: 1000,
+                    slidesToShow: 4,
+                    slidesToScroll: 1,
+                    arrows: false,
+                });
+            </script>
+            <div id="sample_quiz">
+                <p style="font-weight: bold">Take a sample quiz.</p>
+                <button name="start" type="button" onclick="sampleQuiz()">
+            Sample Quiz
+          </button>
+            </div>
+            <script>
+                function sampleQuiz() {
+                    let confirmAction = confirm("You're about to take a sample quiz.");
+                    if (confirmAction) {
+                        window.open("sampleQuiz.html");
+                    } else {
+                        alert("Action canceled");
+                    }
+                }
+            </script>
+        </div>
+        </div>
+    </div>
+    <!--Footer being referenced by jQuery to open up footer html-->
+    <div id="footer"></div>
+    <!--jQuery source file-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script type="module" src="js/script.js"></script>
+    <script type="module" src="js/authentication.js"></script>
+        <script type="module" src="js/functions.js"></script>
+</body>
+</html>

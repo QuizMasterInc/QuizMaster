@@ -1,0 +1,13 @@
+.header {
+    background-color: #388087; 
+    text-align: center;
+    clear: both;
+    display: block;
+    padding-bottom: 39px;
+    padding-top: 10px;
+    margin-left: 65px;
+}
+
+.logo {
+    margin-right: 60px;
+}
