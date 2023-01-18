@@ -10,7 +10,7 @@ import (
 
 func main() {
 	opt := option.WithCredentialsFile("../key.json")
-	_, err := firebase.NewApp(context.Background(), nil, opt) //replace _ with app when we want to use it :)
+	_, err := firebase.NewApp(context.Background(), nil, opt) //replace _ with "app" when we want to use it :)
 	if err != nil {
 		fmt.Errorf("error initializing app: %v", err)
 	}
