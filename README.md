@@ -4,9 +4,9 @@
 
 Using React and borrowing from the previous group. 
 ### Credits
-Anthony Mastores (email:anthonyjmastores@lewisu.edu)(https://github.com/AnthonyMastores),
-Maximus Lewis (email: maximusslewis@lewisu.edu)(https://github.com/MattEspinos),
-Matthew Espinos (email: matthewwespinosz@lewisu.edu)(https://github.com/mslew)
+Anthony Mastores (email:anthonyjmastores@lewisu.edu) (https://github.com/AnthonyMastores),
+Maximus Lewis (email: maximusslewis@lewisu.edu) (https://github.com/mslew), 
+Matthew Espinos (email: matthewwespinosz@lewisu.edu) (https://github.com/MattEspinos)
 
 
 ### Process
