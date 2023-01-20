@@ -26,13 +26,13 @@ Guest will be added as users with a guest perspective. This way they will not be
 
 Here is our definition of done.
 
-• The hypothetical user in the story can successfully complete the desired action.
+• The code is well commented/documented.
 
 • The user story or the desired feature can be executed via the production branch by a user.
 
 • The code is error free when run in the testing branch.
 
-• The code is well commented/documented.
+• The hypothetical user in the story can successfully complete the desired action.
 
 • The code has been reviewed by another team member.
 
