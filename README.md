@@ -12,5 +12,11 @@ Matthew Espinos (email: matthewwespinos@lewisu.edu) (https://github.com/MattEspi
 ### Process
 Find the process and CI/CD configuration file [here](PROCESS.md)
 
+### MVP
+Find our Minimum Viable Product [here](MVP.md)
+
 ### Team
 Find team information [here](TEAM.md)
+
+
+
