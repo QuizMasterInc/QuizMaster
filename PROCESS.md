@@ -16,13 +16,13 @@ To separate testing from production, this repository has two branches. The main 
 
 The CI/CD is set up and properly connected to the repository for QuizMaster. The application is set up as a single page web application. There is a generic index.html for main. React doesn't use multiple html pages and they inject new pages through JavaScript. 
 
+### New Team Member Configuration
+
+Each member was invited to become a user through Firebase and GitHub organization to access the production environment for the project. It is to our discretion the amount of permissions they have within our Firebase project, and GitHub organization.  
+
 ### New User Configuration
 
-Each member was invited to become a user through Firebase to access the production environment for the project. Each user will have full capabilities. 
-
-### New Guest Configuration
-
-Guest will be added as users with a guest perspective. This way they will not be able to access the same abilities as the team. 
+When a new user comes to our product, we plan on having clear instruction on how the product works. We also plan on encouraging the correct usage of the product, and to authenticate themselves. 
 
 ### Definition of Done
 
