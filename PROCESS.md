@@ -10,7 +10,7 @@ The team uses GitHub projects for management of the developement of this project
 
 ### Plans for CI/CD
 
-To separate testing from production, this repository has two branches. The main branch will hold production code. Only code that is set to be used by consumers should be pushed to this branch. All other code will be pushed to the "staging" branch. This will ensure that once a site is live and usable, the team can work on adding features or functionality to the project without breaking what currently works. Team members can update the staging branch during a sprint and when the team is satisfied with the changes, these changes can finally be merged with the main branch. This setup will require developers to make sure they pull from the staging branch prior to altering the code so that the development code is not changed by mistake.
+To separate testing from production, this repository has two branches. The main branch will hold production code. Only code that is set to be used by consumers should be pushed to this branch. All other code will be pushed to the "testing" branch. This will ensure that once a site is live and usable, the team can work on adding features or functionality to the project without breaking what currently works. Team members can update the testing branch during a sprint and when the team is satisfied with the changes, these changes can finally be merged with the main branch. This setup will require developers to make sure they pull from the testing branch prior to altering the code so that the development code is not changed by mistake. Furthermore, the testing branch will have its own URL, letting users test the new changes. 
 
 ### System Process and Configuration with Firebase 
 
