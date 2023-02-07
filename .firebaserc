@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "quizmaster-c66a2"
-  }
+  },
+  "targets": {
+    "quizmaster-c66a2": {
+      "hosting": {
+        "prod": [
+          "quizmaster-c66a2"
+        ],
+        "testing": [
+          "quizmaster-testing-ee900"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

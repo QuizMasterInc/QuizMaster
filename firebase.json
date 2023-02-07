@@ -15,7 +15,8 @@
       ]
     }
   ],
-  "hosting": {
+  "hosting": [{
+    "target": "prod",
     "public": "dist",
     "ignore": [
       "firebase.json",
@@ -29,6 +30,22 @@
       }
     ]
   },
+  {
+    "target": "testing",
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+  ],
   "emulators": {
     "auth": {
       "port": 9099
