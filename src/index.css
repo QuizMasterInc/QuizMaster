@@ -2,8 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+.navbar-icon-button{
+  @apply flex flex-col items-center m-2 bg-transparent p-2 rounded-3xl hover:bg-gray-600 bg-gray-800
+}
+
 .navbar-icon{
-  @apply flex flex-col items-center m-1 bg-transparent p-2 rounded-md hover:bg-gray-300
+  @apply w-10 h-10 fill-gray-300
 }
 
 .navbar-tooltip{
