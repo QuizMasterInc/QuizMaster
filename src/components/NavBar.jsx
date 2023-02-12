@@ -6,6 +6,7 @@ import School from "./icons/School";
 import Q from "./icons/Q";
 import SignOut from "./icons/SignOut";
 import NavBarIcon from "./NavBarIcon";
+import { NavLink } from "react-router-dom";
 
 export default function NavBar() {
     return(
@@ -13,11 +14,21 @@ export default function NavBar() {
             <div className="flex flex-col items-center p-2 mt-4 rounded-md">
                 <Q />
             </div>
-            <NavBarIcon icon={<House className={"navbar-icon"} />} text={"Home"} /> 
-            <NavBarIcon icon={<Info className={"navbar-icon"} />} text={"Information"} /> 
-            <NavBarIcon icon={<School className={"navbar-icon"} />} text={"Take a Quiz!"} /> 
-            <NavBarIcon icon={<SignIn className={"navbar-icon"} />} text={"Sign In"} /> 
-            <NavBarIcon icon={<SignOut className={"navbar-icon"} />} text={"Sign Out"} />
+            <NavLink to="/">
+                <NavBarIcon icon={<House className={"navbar-icon"} />} text={"Home"} />
+            </NavLink>
+            <NavLink to="/about">
+                <NavBarIcon icon={<Info className={"navbar-icon"} />} text={"Information"} />
+            </NavLink>
+            <NavLink to="/quizzes">
+                <NavBarIcon icon={<School className={"navbar-icon"} />} text={"Take a Quiz!"} path={"/quizzes"} /> 
+            </NavLink>
+            <NavLink to="/signin">
+                <NavBarIcon icon={<SignIn className={"navbar-icon"} />} text={"Sign In"} path={"/signin"} /> 
+            </NavLink>
+            <NavLink to="/signout">
+                <NavBarIcon icon={<SignOut className={"navbar-icon"} />} text={"Sign Out"} path={"/signout"} />
+            </NavLink>
         </div>
     )
 }
