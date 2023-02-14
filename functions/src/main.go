@@ -14,4 +14,5 @@ func main() {
 	if err != nil {
 		fmt.Errorf("error initializing app: %v", err)
 	}
+
 }
