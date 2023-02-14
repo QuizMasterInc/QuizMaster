@@ -1,4 +1,7 @@
 import React from "react";
+import max from "./img/max.jpg"
+import anthony from "./img/anthony.jpg"
+import matt from "./img/matt.jpg"
 
 const Contact = () => {
   return (
@@ -20,7 +23,7 @@ const Contact = () => {
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="flex flex-col items-center">
-            <img src="img/max.jpg" alt="headshot" className="w-48 h-48 rounded-full object-cover" />
+            <img src={max} alt="headshot" className="w-48 h-48 rounded-full object-cover" />
             <h3 className="mt-4 text-lg font-medium text-gray-900">Maximus Lewis</h3>
             <div className="mt-2 text-gray-600">
               <a href="mailto:maximusslewis@lewisu.edu" className="hover:underline">
@@ -29,7 +32,7 @@ const Contact = () => {
             </div>
           </div>
           <div className="flex flex-col items-center">
-            <img src="img/Anthony.jpg" alt="anthony"  className="w-48 h-48 rounded-full object-cover" />
+            <img src={anthony} alt="anthony"  className="w-48 h-48 rounded-full object-cover" />
             <h3 className="mt-4 text-lg font-medium text-gray-900">Anthony Mastores</h3>
             <div className="mt-2 text-gray-600">
               <a href="mailto:anthonyjmastores@lewisu.edu" className="hover:underline">
@@ -38,7 +41,7 @@ const Contact = () => {
             </div>
           </div>
           <div className="flex flex-col items-center">
-            <img src="img/matt.jpg" alt="matthew" className="w-48 h-48 rounded-full object-cover" />
+            <img src={matt} alt="matthew" className="w-48 h-48 rounded-full object-cover" />
             <h3 className="mt-4 text-lg font-medium text-gray-900">Matthew Espinos</h3>
             <div className="mt-2 text-gray-600">
               <a href="mailto:matthewwespinos@lewisu.edu" className="hover:underline">
