@@ -1,10 +1,10 @@
 import React from "react";
-import House from "./icons/House";
-import Info from "./icons/Info";
-import SignIn from "./icons/SignIn";
-import School from "./icons/School";
-import Q from "./icons/Q";
-import SignOut from "./icons/SignOut";
+import House from "../icons/House";
+import Info from "../icons/Info";
+import SignIn from "../icons/SignIn";
+import School from "../icons/School";
+import Q from "../icons/Q";
+import SignOut from "../icons/SignOut";
 import NavBarIcon from "./NavBarIcon";
 import { NavLink } from "react-router-dom";
 
