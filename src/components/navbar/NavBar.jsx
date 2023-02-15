@@ -3,7 +3,6 @@ import House from "../icons/House";
 import Info from "../icons/Info";
 import SignIn from "../icons/SignIn";
 import School from "../icons/School";
-import Email from "../icons/Email";
 import Q from "../icons/Q";
 import SignOut from "../icons/SignOut";
 import NavBarIcon from "./NavBarIcon";
@@ -20,9 +19,6 @@ export default function NavBar() {
             </NavLink>
             <NavLink to="/about" className={"flex flex-col items-center"}>
                 <NavBarIcon icon={<Info className={"navbar-icon"} />} text={"Information"} />
-            </NavLink>
-           < NavLink to="/contact" className={"flex flex-col items-center"}>
-                <NavBarIcon icon={<Email className={"navbar-icon"} />} text={"Contact Us"} />
             </NavLink>
             <NavLink to="/quizzes" className={"flex flex-col items-center"}>
                 <NavBarIcon icon={<School className={"navbar-icon"} />} text={"Take a Quiz!"} /> 
