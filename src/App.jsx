@@ -4,6 +4,7 @@ import { Route, Routes} from "react-router-dom";
 import Test from './components/Test';
 import Test2 from './components/Test2';
 import NotFound from './components/404/NotFound'
+import SelectQuiz from './components/quizselect/SelectQuiz';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Test />}/>
         <Route path="/about" element={<Test2 />} />
+        <Route path="/quizzes" element={<SelectQuiz />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <NavBar />
