@@ -5,6 +5,7 @@ import SignIn from "../icons/SignIn";
 import School from "../icons/School";
 import Q from "../icons/Q";
 import SignOut from "../icons/SignOut";
+import Email from "../icons/Email"
 import NavBarIcon from "./NavBarIcon";
 import { NavLink } from "react-router-dom";
 

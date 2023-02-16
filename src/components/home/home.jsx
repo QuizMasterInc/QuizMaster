@@ -4,18 +4,8 @@ import Student from "../../assets/student.jpg";
 import Quiz from "../../assets/quiz.png";
 
 
-function App() {
-  const [count, setCount] = useState(0)
-  const [quizCategories, setQuizCategories] = useState([
-    'History',
-    'Geography',
-    'Science',
-    'Sports',
-    'Entertainment'
-  ]);
-
-  return (
-    <div className="pt-12 text-gray-300 bg-gray-800 shadow-lg hover:shadow-x">
+const Home = ({}) => (  
+    <div className="pt-12 text-gray-300 bg-gray-800 shadow-lg hover:shadow-xl">
       <div className='flex'>
       <div className="flex items-center justify-center w-1/2">
         <img src={Logo} alt="logo" className="h-64 mx-auto w-76" />
@@ -47,7 +37,6 @@ function App() {
       </div>
       </div>
     </div>
-  );
-};
+);
 
-export default App
+export default Home;
