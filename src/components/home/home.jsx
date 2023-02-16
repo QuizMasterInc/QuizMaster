@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import Logo from "../../../public/img/logo.jpg"
-import Student from "../../../public/img/student.jpg";
-import Quiz from "../../../public/img/quiz.png";
+import Logo from "../../assets/logo.jpg"
+import Student from "../../assets/student.jpg";
+import Quiz from "../../assets/quiz.png";
 
 
 function App() {

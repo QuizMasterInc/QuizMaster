@@ -1,7 +1,7 @@
 import React from "react";
-import max from "../../../public/img/max.jpg"
-import anthony from "../../../public/img/anthony.jpg"
-import matt from "../../../public/img/matt.jpg"
+import max from "../../assets/max.jpg"
+import anthony from "../../assets/anthony.jpg"
+import matt from "../../assets/matt.jpg"
 
 const Contact = () => {
   return (
