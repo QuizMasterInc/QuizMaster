@@ -4,9 +4,9 @@ import { Route, Routes } from "react-router-dom";
 import NotFound from './components/404/NotFound';
 import SelectQuiz from './components/quizselect/SelectQuiz';
 import QuizTest from './components/quiz/QuizTest';
-import Home from './components/home/Home';
-import About from './components/about/About';
-import Contact from './components/contact/Contact';
+import Home from './components/home/home';
+import About from './components/about/about';
+import Contact from './components/contact/contact';
 
 
 function App() {
