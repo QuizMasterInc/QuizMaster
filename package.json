@@ -9,9 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "16": "^0.0.2",
     "firebase": "^9.15.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
+    "nvm": "^0.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.1",
@@ -23,6 +25,7 @@
     "@vitejs/plugin-react": "^3.0.0",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.21",
+    "react-router-dom": "^6.8.1",
     "tailwindcss": "^3.2.4",
     "vite": "^4.0.0"
   }
