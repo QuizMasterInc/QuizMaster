@@ -10,8 +10,6 @@ const About = ({}) => (
       <div className="flex items-center justify-center ">
         <h1 className="pt-5 mb-4 text-5xl font-bold text-center">About Us</h1>
       </div>
-
- 
       <div className="flex flex-col mb-4 md:flex-row md:items-center" >
         <div className="flex-1">
           <div className="info-div">
