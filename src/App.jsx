@@ -1,5 +1,5 @@
 import './App.css'
-import NavBar from './components/navbar/Navbar'
+import NavBar from './components/navbar/NavBar'
 import { Route, Routes } from "react-router-dom";
 import NotFound from './components/404/NotFound';
 import SelectQuiz from './components/quizselect/SelectQuiz';
