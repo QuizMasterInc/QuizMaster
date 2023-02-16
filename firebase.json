@@ -51,13 +51,13 @@
       "port": 9099
     },
     "functions": {
-      "port": 5001
+      "port": 6001
     },
     "firestore": {
       "port": 8080
     },
     "hosting": {
-      "port": 5000
+      "port": 6002
     },
     "ui": {
       "enabled": true

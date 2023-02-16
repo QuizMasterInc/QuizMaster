@@ -10,7 +10,7 @@ import { NavLink } from "react-router-dom";
 
 export default function NavBar() {
     return(
-        <div className="fixed z-10 flex flex-col w-20 pb-4 space-y-4 bg-gray-900 rounded-md shadow-lg left-2 top-2">
+        <div className="fixed z-10 flex flex-col w-20 pb-4 space-y-4 bg-gray-900 rounded-md shadow-lg left-2 top-2 -sm:w-16 -sm:space-y-1">
             <div className="flex flex-col items-center p-2 mt-4 rounded-md">
                 <Q />
             </div>
