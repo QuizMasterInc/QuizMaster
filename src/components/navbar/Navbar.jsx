@@ -21,7 +21,7 @@ export default function NavBar() {
             <NavLink to="/about" className={"flex flex-col items-center"}>
                 <NavBarIcon icon={<Info className={"navbar-icon"} />} text={"Information"} />
             </NavLink>
-           < NavLink to="/contact" className={"flex flex-col items-center"}>
+            <NavLink to="/contact" className={"flex flex-col items-center"}>
                 <NavBarIcon icon={<Email className={"navbar-icon"} />} text={"Contact Us"} />
             </NavLink>
             <NavLink to="/quizzes" className={"flex flex-col items-center"}>
