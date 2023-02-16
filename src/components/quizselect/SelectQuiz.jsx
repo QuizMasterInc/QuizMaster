@@ -18,12 +18,12 @@ function SelectQuiz() {
   ]);
 
   const [icons] = useState([
-    <Book className={"w-10 h-10 fill-gray-300"}/>,
-    <World className={"w-10 h-10 fill-gray-300"}/>,
-    <FlaskVial className={"w-10 h-10 fill-gray-300"}/>,
-    <Basketball className={"w-10 h-10 fill-gray-300"}/>,
-    <Ticket className={"w-10 h-10 fill-gray-300"}/>,
-    <Calculator className={"w-10 h-10 fill-gray-300"}/>
+    <Book className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>,
+    <World className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
+    <FlaskVial className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
+    <Basketball className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
+    <Ticket className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
+    <Calculator className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>
   ]);
 
   const [destinations] = useState([
@@ -36,22 +36,22 @@ function SelectQuiz() {
   ]);
 
   return (
-    <div className="flex flex-col items-center h-full">
-      <div className="w-3/4 mb-10">
+    <>
+      <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
         <h2 className="text-2xl font-bold text-gray-300">Choose Your Quiz Category</h2>
         <div className="flex flex-wrap">
           {quizCategories.map((category, index) => (
             <QuizSelectButton category={category} key={index} icon={icons[index]} destination={destinations[index]}/>
           ))}
         </div>
-      </div>
-      <p className="text-sm text-gray-300">
+        <p className="text-sm text-gray-300 -sm:mt-4">
         Not finding the quiz you're looking for?{' '}
         <a href="" className="text-gray-300 underline">
           Suggest a quiz
         </a>
       </p>
-    </div>
+      </div>
+    </>
   );
 };
 
