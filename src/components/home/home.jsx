@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import Logo from "../../assets/logo.jpg"
 import Student from "../../assets/student.jpg";
 import Quiz from "../../assets/quiz.png";
