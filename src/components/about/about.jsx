@@ -1,6 +1,5 @@
-import React from 'react';
+import React from "react";
 import Logo from "../../assets/logo.jpg";
-
 
 const About = ({}) => (
     <div className="py-12 text-gray-300 bg-gray-800 shadow-lg hover:shadow-x">

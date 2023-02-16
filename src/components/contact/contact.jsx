@@ -3,8 +3,7 @@ import max from "../../assets/max.jpg"
 import anthony from "../../assets/anthony.jpg"
 import matt from "../../assets/matt.jpg"
 
-const Contact = () => {
-  return (
+const Contact = ({}) => (
     <div className="text-gray-300 bg-gray-800 shadow-lg hover:shadow-x pt-15">
       <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="grid grid-cols-2">
@@ -50,7 +49,6 @@ const Contact = () => {
         </div>
       </div>
     </div>
-  );
-}
+)
 
 export default Contact;
