@@ -2,8 +2,7 @@ import React from 'react';
 import Logo from "../../../public/img/logo.jpg";
 
 
-function About() {
-  return (
+const About = ({}) => (
     <div className="py-12 text-gray-300 bg-gray-800 shadow-lg hover:shadow-x">
       <div className="flex items-center justify-center">
         <img src={Logo} alt="logo" className="h-64 mx-auto w-76" />
@@ -35,7 +34,6 @@ function About() {
         </div>
       </div>
     </div>
-  );
-}
+)
 
 export default About;
