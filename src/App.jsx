@@ -6,9 +6,9 @@ import SelectQuiz from './components/quizselect/SelectQuiz';
 import QuizTest from './components/quiz/QuizTest';
 import Login from './components/login/Login';
 import Register from './components/login/Register';
-import Home from './components/home/home';
-import About from './components/about/about';
-import Contact from './components/contact/contact';
+import Home from './components/home/Home';
+import About from './components/about/About';
+import Contact from './components/contact/Contact';
 import { AuthProvider } from './contexts/AuthContext';
 import Signout from './components/login/Signout'
 import PrivateRoute from './components/PrivateRoute';
