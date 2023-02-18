@@ -30,5 +30,5 @@ Here is our definition of done.
 
 - In production
 - Can be demoed
-- Everyone agrees that it is done
+- Everyone agrees that it meets the expectations outlined in the story 
 
