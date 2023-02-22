@@ -3,7 +3,7 @@ import NavBar from './components/navbar/NavBar'
 import { Route, Routes } from "react-router-dom";
 import NotFound from './components/404/NotFound';
 import SelectQuiz from './components/quizselect/SelectQuiz';
-import QuizTest from './components/quiz/QuizTest';
+import QuizActivity from './components/quiz/QuizActivity';
 import Login from './components/login/Login';
 import Register from './components/login/Register';
 import Home from './components/home/Home';
@@ -22,7 +22,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/quizzes" element={<SelectQuiz />} />
-          <Route path="/quizzes/:quiz" element={<QuizTest />}/>
+          <Route path="/quizzes/:quiz" element={<QuizActivity />}/>
           <Route path='/signin' element={<Login />}/>
           <Route path='/register' element={<Register />}/>
           <Route path='/signout' element={
