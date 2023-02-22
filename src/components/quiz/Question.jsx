@@ -12,7 +12,6 @@ function Question ({questionText, choices, answer}){
             <QuestionChoice key={index} choiceText={choice} isSelected={activeIndex === index} onSelect={() => setActiveIndex(index)}/>
         ))} 
     </div>
-    <p>{answer}</p>
     </>
     )
 }
