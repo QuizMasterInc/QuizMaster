@@ -12,6 +12,7 @@ import Contact from './components/contact/Contact';
 import { AuthProvider } from './contexts/AuthContext';
 import Signout from './components/login/Signout'
 import PrivateRoute from './components/PrivateRoute';
+import PrivateSigninRoute from './components/PrivateSigninRoute'
 
 function App() {
   return (
@@ -23,8 +24,16 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/quizzes" element={<SelectQuiz />} />
           <Route path="/quizzes/:quiz" element={<QuizTest />}/>
-          <Route path='/signin' element={<Login />}/>
-          <Route path='/register' element={<Register />}/>
+          <Route path='/signin' element={
+            <PrivateSigninRoute>
+              <Login />
+            </PrivateSigninRoute>
+          }/>
+          <Route path='/register' element={
+            <PrivateSigninRoute>
+            <Register />
+          </PrivateSigninRoute>
+          }/>
           <Route path='/signout' element={
             <PrivateRoute>
               <Signout />

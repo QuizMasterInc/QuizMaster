@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "16": "^0.0.2",
+    "@esbuild/win32-x64": "^0.17.10",
     "firebase": "^9.15.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
