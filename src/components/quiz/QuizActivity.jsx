@@ -5,7 +5,7 @@ import Question from "./Question";
 import QuizModal from './QuizModal';
 
 function QuizActivity({}){
-    const { category } = useLocation();
+    const { category } = useLocation().state;
     const [questionText] = useState([
         "Test",
         "Test22"
@@ -32,10 +32,10 @@ function QuizActivity({}){
         </button>
         {modalActive && <QuizModal isActive={setModalActive}/>}
         {questionText.map((text, index) => (
-            <Question questionText={text} choices={choices[index]} answer={answers[index]}/>
+            <Question number={index} questionText={text} choices={choices[index]} answer={answers[index]}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg">
-            Submit
+            Submit!
         </button>
     </div>
     )
