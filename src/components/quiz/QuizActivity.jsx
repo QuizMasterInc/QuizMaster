@@ -1,38 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Question from "./Question";
 import QuizModal from './QuizModal';
 
-async function grabQuiz(category){
-    console.log(category.toLowerCase())
-    const quiz = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabQuiz?quiz=' + category.toLowerCase(), {mode:'cors'})
-                .then((response) => response.json)
-                .then((data) => console.log(data))
-    return quiz
-}
-
 function QuizActivity({}){
     const { category } = useLocation().state;
-    grabQuiz(category)
-    const [questionText, setQuestionText] = useState([
-        "Test",
-        "Test22"
-    ])
+    const [questionText, setQuestionText] = useState([])
 
-    const [choices, setChoices] = useState([
-        ["Test1", "Test2", "Test3", "Test4"],
-        ["Test11", "Test22", "Test33", "Test44"],
-    ])
+    const [choices, setChoices] = useState([])
 
-    const [answers, setAnswers] = useState([
-        "beeshk",
-        "test"
-    ])
+    const [answers, setAnswers] = useState([])
     
     const [modalActive, setModalActive] =  useState(false)
 
-    
+    useEffect(() => {
+        async function fetchQuiz(category) {
+            const data = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabQuiz?quiz=' + category.toLowerCase())
+            .then(res => res.json())
+            .then(data => {
+                return data
+            }).catch(err => {
+                console.log(err)
+            })
+            setQuestionText(Object.keys(data))
+            setChoices(Object.values(data))
+            setAnswers(Object.values(data)[4])
+            console.log(Object.keys(data))
+            return data 
+        }
+        const data = fetchQuiz(category)
+    }, [])
 
     return (
     <div className="flex flex-col items-center justify-center">
