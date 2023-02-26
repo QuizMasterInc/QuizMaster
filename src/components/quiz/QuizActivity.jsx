@@ -4,24 +4,35 @@ import { useLocation } from "react-router-dom";
 import Question from "./Question";
 import QuizModal from './QuizModal';
 
+async function grabQuiz(category){
+    console.log(category.toLowerCase())
+    const quiz = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabQuiz?quiz=' + category.toLowerCase(), {mode:'cors'})
+                .then((response) => response.json)
+                .then((data) => console.log(data))
+    return quiz
+}
+
 function QuizActivity({}){
     const { category } = useLocation().state;
-    const [questionText] = useState([
+    grabQuiz(category)
+    const [questionText, setQuestionText] = useState([
         "Test",
         "Test22"
     ])
 
-    const [choices] = useState([
+    const [choices, setChoices] = useState([
         ["Test1", "Test2", "Test3", "Test4"],
         ["Test11", "Test22", "Test33", "Test44"],
     ])
 
-    const [answers] = useState([
+    const [answers, setAnswers] = useState([
         "beeshk",
         "test"
     ])
     
     const [modalActive, setModalActive] =  useState(false)
+
+    
 
     return (
     <div className="flex flex-col items-center justify-center">
@@ -32,7 +43,7 @@ function QuizActivity({}){
         </button>
         {modalActive && <QuizModal isActive={setModalActive}/>}
         {questionText.map((text, index) => (
-            <Question number={index} questionText={text} choices={choices[index]} answer={answers[index]}/>
+            <Question key={index} number={index} questionText={text} choices={choices[index]} answer={answers[index]}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg">
             Submit!
