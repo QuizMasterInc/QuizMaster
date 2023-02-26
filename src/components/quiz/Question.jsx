@@ -4,6 +4,7 @@ import QuestionChoice from "./QuestionChoice";
 
 function Question ({number, questionText, choices, answer}){
     const [activeIndex, setActiveIndex] = useState(null)
+    
     return (
     <>
     <div className="flex flex-col w-7/12 pb-4 mb-4 bg-gray-900 rounded-lg shadow-lg">
@@ -15,6 +16,8 @@ function Question ({number, questionText, choices, answer}){
             <QuestionChoice key={index} choiceText={choice} isSelected={activeIndex === index} onSelect={() => setActiveIndex(index)}/>
         ))} 
     </div>
+    <p>{choices[activeIndex]}</p>
+    <p>{answer}</p>
     </>
     )
 }
