@@ -6,11 +6,7 @@ import QuizModal from './QuizModal';
 
 function QuizActivity({}){
     const { category } = useLocation().state;
-    const [questionText, setQuestionText] = useState([])
-
-    const [choices, setChoices] = useState([])
-
-    const [answers, setAnswers] = useState([])
+    const [questions, setQuestions] = useState([])
     
     const [modalActive, setModalActive] =  useState(false)
 
@@ -19,17 +15,23 @@ function QuizActivity({}){
             const data = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabQuiz?quiz=' + category.toLowerCase())
             .then(res => res.json())
             .then(data => {
+                console.log("beeshk")
                 return data
             }).catch(err => {
                 console.log(err)
             })
-            setQuestionText(Object.keys(data))
-            setChoices(Object.values(data))
-            setAnswers(Object.values(data)[4])
-            console.log(Object.keys(data))
+            for(let key in data){
+                const list = data[key]
+                const question = {
+                    questionText: key,
+                    choices: list.slice(0, 4),
+                    answer: list.slice(-1).toString()
+                }
+                setQuestions(questions => [...questions, question])
+            }
             return data 
         }
-        const data = fetchQuiz(category)
+        fetchQuiz(category)
     }, [])
 
     return (
@@ -40,8 +42,8 @@ function QuizActivity({}){
             Help
         </button>
         {modalActive && <QuizModal isActive={setModalActive}/>}
-        {questionText.map((text, index) => (
-            <Question key={index} number={index} questionText={text} choices={choices[index]} answer={answers[index]}/>
+        {questions.map((question, index) => (
+            <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg">
             Submit!
