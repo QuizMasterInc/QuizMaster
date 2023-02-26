@@ -7,15 +7,14 @@ import QuizModal from './QuizModal';
 function QuizActivity({}){
     const { category } = useLocation().state;
     const [questions, setQuestions] = useState([])
-    
-    const [modalActive, setModalActive] =  useState(false)
+    const [setCompleted] = useState(false)
+    const [modalActive, setModalActive] =  useState(true)
 
     useEffect(() => {
         async function fetchQuiz(category) {
             const data = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabQuiz?quiz=' + category.toLowerCase())
             .then(res => res.json())
             .then(data => {
-                console.log("beeshk")
                 return data
             }).catch(err => {
                 console.log(err)
@@ -45,7 +44,8 @@ function QuizActivity({}){
         {questions.map((question, index) => (
             <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer}/>
         ))} 
-        <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg">
+        <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg"
+            onClick={() => setCompleted(true)}>
             Submit!
         </button>
     </div>
