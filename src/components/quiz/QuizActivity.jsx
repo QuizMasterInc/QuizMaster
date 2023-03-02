@@ -8,7 +8,7 @@ function QuizActivity({}){
     const { category } = useLocation().state;
     const [questions, setQuestions] = useState([])
     const [setCompleted] = useState(false)
-    const [modalActive, setModalActive] =  useState(true)
+    const [modalActive, setModalActive] =  useState(false)
 
     useEffect(() => {
         async function fetchQuiz(category) {
