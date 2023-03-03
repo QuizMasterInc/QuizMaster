@@ -8,7 +8,7 @@ import QuizModal from './QuizModal';
 function QuizActivity({}){
     const { category } = useLocation().state;
     const [questions, setQuestions] = useState([])
-    const [setCompleted] = useState(false)
+    const [completed, setCompleted] = useState(false)
     const [modalActive, setModalActive] =  useState(false)
     const [loading, setLoading] = useState(true)
     const [loadingColor, setLoadingColor] = useState("#111827")
@@ -23,6 +23,7 @@ function QuizActivity({}){
             }).catch(err => {
                 console.log(err)
             })
+            let i = 0
             for(let key in data){
                 const list = data[key]
                 const question = {
@@ -31,6 +32,7 @@ function QuizActivity({}){
                     answer: list.slice(-1).toString()
                 }
                 setQuestions(questions => [...questions, question])
+                if(i === 2){break}
             }
             setLoading(false)
             return data 
@@ -48,14 +50,14 @@ function QuizActivity({}){
         </button>
         {modalActive && <QuizModal isActive={setModalActive}/>}
         {questions.map((question, index) => (
-            <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer}/>
+            <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} quizComplete={completed}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg"
             onClick={() => setCompleted(true)}>
             Submit!
         </button>
     </div>
-    <ScaleLoader className="block items-center justify-center gray-900" loading={loading} color={loadingColor} width={50} height={200}/>
+    <ScaleLoader className="block items-center justify-center gray-900 mt-8" loading={loading} color={loadingColor} width={50} height={200}/>
     </>
     )
 }

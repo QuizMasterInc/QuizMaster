@@ -2,8 +2,12 @@ import React from "react";
 import { useState } from "react";
 import QuestionChoice from "./QuestionChoice";
 
-function Question ({number, questionText, choices, answer}){
+function Question ({number, questionText, choices, answer, quizComplete}){
     const [activeIndex, setActiveIndex] = useState(null)
+
+    function grade(){
+        return (answer === choices[activeIndex]);
+    }
     
     return (
     <>
@@ -13,7 +17,13 @@ function Question ({number, questionText, choices, answer}){
             <p>{questionText}</p>
         </div>
         {choices.map((choice, index) => (
-            <QuestionChoice key={index} choiceText={choice} isSelected={activeIndex === index} onSelect={() => setActiveIndex(index)}/>
+            <QuestionChoice 
+            key={index}
+            choiceText={choice} 
+            isSelected={activeIndex === index} 
+            onSelect={() => setActiveIndex(index)} 
+            isCorrect={((activeIndex === index) && (quizComplete) && (answer === choices[activeIndex]))}
+            isIncorrect={((activeIndex === index) && (quizComplete) && !(answer === choices[activeIndex]))}/>
         ))} 
     </div>
     <p>{choices[activeIndex]}</p>
