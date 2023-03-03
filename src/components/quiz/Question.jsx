@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import QuestionChoice from "./QuestionChoice";
 
 function Question ({number, questionText, choices, answer, quizComplete}){
     const [activeIndex, setActiveIndex] = useState(null)
+    const [correct, setIsCorrect] = useState(false)
 
-    function grade(){
-        return (answer === choices[activeIndex]);
-    }
+    useEffect(() => {
+        
+    }, [correct, quizComplete])
     
     return (
     <>
@@ -23,11 +24,11 @@ function Question ({number, questionText, choices, answer, quizComplete}){
             isSelected={activeIndex === index} 
             onSelect={() => setActiveIndex(index)} 
             isCorrect={((activeIndex === index) && (quizComplete) && (answer === choices[activeIndex]))}
-            isIncorrect={((activeIndex === index) && (quizComplete) && !(answer === choices[activeIndex]))}/>
+            isIncorrect={((activeIndex === index) && (quizComplete) && !(answer === choices[activeIndex]))}
+            isDisabled={(quizComplete)}/>
         ))} 
     </div>
-    <p>{choices[activeIndex]}</p>
-    <p>{answer}</p>
+    <p>{correct.toString()}</p>
     </>
     )
 }

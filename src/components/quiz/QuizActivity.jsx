@@ -12,6 +12,8 @@ function QuizActivity({}){
     const [modalActive, setModalActive] =  useState(false)
     const [loading, setLoading] = useState(true)
     const [loadingColor, setLoadingColor] = useState("#111827")
+    const [amountCorrect, setAmountCorrect] = useState(0)
+    const [questionAmount, setQuestionAmount] = useState(0)
 
     useEffect(() => {
         async function fetchQuiz(category) {
