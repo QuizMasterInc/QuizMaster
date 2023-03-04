@@ -52,7 +52,7 @@ function QuizActivity({}){
         {modalActive && <QuizModal isActive={setModalActive}/>}
         {questions.slice(0,2).map((question, index) => (
             <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
-            isCompleted={completed} onGraded={() => setCorrectList(corrects => [...corrects, ifCorrect])}/>
+            isCompleted={completed}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg"
             onClick={() => setCompleted(true)}>
