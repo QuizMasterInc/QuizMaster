@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
@@ -12,9 +12,14 @@ function QuizActivity({}){
     const [modalActive, setModalActive] =  useState(false)
     const [loading, setLoading] = useState(true)
     const [loadingColor, setLoadingColor] = useState("#111827")
-    const [correctList, setCorrectList] = useState([])
     const [amountCorrect, setAmountCorrect] = useState(0)
     const [numberOfQuestions, setNumberOfQuestions] = useState(0)
+
+    const grabCorrect = useCallback((correct) =>{
+        if(correct){
+            setAmountCorrect((amountCorrect) => amountCorrect + 1)
+        }
+    }, [amountCorrect])
 
     useEffect(() => {
         async function fetchQuiz(category) {
@@ -34,12 +39,13 @@ function QuizActivity({}){
                     answer: list.slice(-1).toString()
                 }
                 setQuestions(questions => [...questions, question])
+                setNumberOfQuestions((numberOfQuestions) => numberOfQuestions + 1)
             }
             setLoading(false)
             return data 
         }
         fetchQuiz(category)
-    }, [completed])
+    }, [])
 
     return (
     <>
@@ -52,14 +58,14 @@ function QuizActivity({}){
         {modalActive && <QuizModal isActive={setModalActive}/>}
         {questions.slice(0,2).map((question, index) => (
             <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
-            isCompleted={completed}/>
+            isCompleted={completed} callback={grabCorrect}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg"
-            onClick={() => setCompleted(true)}>
+            onClick={() => setCompleted(true)} disabled={completed}>
             Submit!
         </button>
     </div>
-    {correctList.toString()}
+    <p className="text-3xl">{amountCorrect.toString()}</p>
     <ScaleLoader className="block items-center justify-center gray-900 mt-8" loading={loading} color={loadingColor} width={50} height={200}/>
     </>
     )

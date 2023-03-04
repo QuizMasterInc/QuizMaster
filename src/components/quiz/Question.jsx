@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import QuestionChoice from "./QuestionChoice";
 
-function Question ({number, questionText, choices, answer, isCompleted}){
+function Question ({number, questionText, choices, answer, isCompleted, callback}){
     const [activeIndex, setActiveIndex] = useState(null)
     const [correct, setCorrect] = useState(false)
 
@@ -10,12 +10,14 @@ function Question ({number, questionText, choices, answer, isCompleted}){
         function isCorrect(){
             if((answer === choices[activeIndex]) && (isCompleted)){
                 setCorrect(true)
+                return true
             }
             else{
                 setCorrect(false)
+                return false
             }
         }
-        isCorrect()
+        callback(isCorrect())
     }, [isCompleted])
     return (
     <>
@@ -35,7 +37,6 @@ function Question ({number, questionText, choices, answer, isCompleted}){
             isDisabled={(isCompleted)}/>
         ))} 
     </div>
-    <p>{correct.toString()}</p>
     </>
     )
 }
