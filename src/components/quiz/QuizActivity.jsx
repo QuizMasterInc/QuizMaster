@@ -12,6 +12,9 @@ function QuizActivity({}){
     const [modalActive, setModalActive] =  useState(false)
     const [loading, setLoading] = useState(true)
     const [loadingColor, setLoadingColor] = useState("#111827")
+    const [correctList, setCorrectList] = useState([])
+    const [amountCorrect, setAmountCorrect] = useState(0)
+    const [numberOfQuestions, setNumberOfQuestions] = useState(0)
 
     useEffect(() => {
         async function fetchQuiz(category) {
@@ -27,7 +30,7 @@ function QuizActivity({}){
                 const list = data[key]
                 const question = {
                     questionText: key,
-                    choices: list.slice(0, 4),
+                    choices: list.slice(0, -1),
                     answer: list.slice(-1).toString()
                 }
                 setQuestions(questions => [...questions, question])
@@ -36,7 +39,7 @@ function QuizActivity({}){
             return data 
         }
         fetchQuiz(category)
-    }, [])
+    }, [completed])
 
     return (
     <>
@@ -48,13 +51,15 @@ function QuizActivity({}){
         </button>
         {modalActive && <QuizModal isActive={setModalActive}/>}
         {questions.slice(0,2).map((question, index) => (
-            <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} isCompleted={completed}/>
+            <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
+            isCompleted={completed} onGraded={() => setCorrectList(corrects => [...corrects, ifCorrect])}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg"
             onClick={() => setCompleted(true)}>
             Submit!
         </button>
     </div>
+    {correctList.toString()}
     <ScaleLoader className="block items-center justify-center gray-900 mt-8" loading={loading} color={loadingColor} width={50} height={200}/>
     </>
     )

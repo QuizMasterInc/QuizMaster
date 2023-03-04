@@ -9,11 +9,9 @@ function Question ({number, questionText, choices, answer, isCompleted}){
     useEffect(() => {
         function isCorrect(){
             if((answer === choices[activeIndex]) && (isCompleted)){
-                console.log("true")
                 setCorrect(true)
             }
             else{
-                console.log("false")
                 setCorrect(false)
             }
         }
