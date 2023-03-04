@@ -2,16 +2,15 @@ import React from "react";
 import SquareX from "../icons/SquareX";
 import Modal from "react-modal";
 
-const HelpModal = ({isActive}) => (
-    <Modal  isOpen={isActive}
-            contentLabel="Done Modal"
+const HelpModal = ({isActive, active}) => (
+    <Modal  isOpen={active}
+            contentLabel="Help Modal"
             ariaHideApp={false}
             style={{
                 overlay: {
-                backgroundColor: 'transparent',
-                height: 'max-content',
-                width: 'max-content',
-                display: 'block'
+                    backgroundColor: 'transparent',
+                    height: 'max-content',
+                    width: 'max-content',
                 }
     }}>
         <div className="flex fixed z-50 align-middle justify-center w-full p-4 overflow-x-hidden overflow-y-auto h-modal">

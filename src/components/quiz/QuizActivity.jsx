@@ -11,6 +11,7 @@ function QuizActivity({}){
     const [questions, setQuestions] = useState([])
     const [completed, setCompleted] = useState(false)
     const [helpModalActive, setHelpModalActive] =  useState(false)
+    const [doneModalActive, setDoneModalActive] =  useState(false)
     const [loading, setLoading] = useState(true)
     const [loadingColor, setLoadingColor] = useState("#111827")
     const [amountCorrect, setAmountCorrect] = useState(0)
@@ -56,18 +57,18 @@ function QuizActivity({}){
             onClick={() => setHelpModalActive(true)}>
             Help
         </button>
-        {helpModalActive && <HelpModal isActive={setHelpModalActive}/>}
-        {questions.slice(0,numberOfQuestions).map((question, index) => (
+        {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
+        {questions.slice(0,1).map((question, index) => (
             <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
             isCompleted={completed} callback={grabCorrect}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg"
-            onClick={() => setCompleted(true)} disabled={completed}>
+            onClick={() => {setCompleted(true); setDoneModalActive(true)}} disabled={completed}>
             Submit!
         </button>
     </div>
     <ScaleLoader className="block items-center justify-center gray-900 mt-8" loading={loading} color={loadingColor} width={50} height={200}/>
-    {completed && <DoneModal isActive={completed} amountCorrect={amountCorrect} totalAmount={numberOfQuestions}/>}
+    {doneModalActive && <DoneModal isActive={setDoneModalActive} amountCorrect={amountCorrect} totalAmount={numberOfQuestions} active={doneModalActive}/>}
     </>
     )
 }

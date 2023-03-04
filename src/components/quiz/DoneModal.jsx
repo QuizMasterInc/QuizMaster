@@ -3,8 +3,8 @@ import Modal from "react-modal";
 import SquareX from "../icons/SquareX";
 import { Link } from "react-router-dom";
 
-const DoneModal = ({isActive, amountCorrect, totalAmount}) => (
-    <Modal  isOpen={isActive}
+const DoneModal = ({isActive, amountCorrect, totalAmount, active}) => (
+    <Modal  isOpen={active}
             contentLabel="Done Modal"
             ariaHideApp={false}
             style={{
