@@ -1,10 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import QuestionChoice from "./QuestionChoice";
 
-function Question ({number, questionText, choices, answer, quizComplete}){
+function Question ({number, questionText, choices, answer, isCompleted}){
     const [activeIndex, setActiveIndex] = useState(null)
-    
+    const [correct, setCorrect] = useState(false)
+
+    useEffect(() => {
+        function isCorrect(){
+            if((answer === choices[activeIndex]) && (isCompleted)){
+                console.log("true")
+                setCorrect(true)
+            }
+            else{
+                console.log("false")
+                setCorrect(false)
+            }
+        }
+        isCorrect()
+    }, [isCompleted])
     return (
     <>
     <div className="flex flex-col w-7/12 pb-4 mb-4 bg-gray-900 rounded-lg shadow-lg">
@@ -18,11 +32,12 @@ function Question ({number, questionText, choices, answer, quizComplete}){
             choiceText={choice} 
             isSelected={activeIndex === index} 
             onSelect={() => setActiveIndex(index)} 
-            isCorrect={((activeIndex === index) && (quizComplete) && (answer === choices[activeIndex]))}
-            isIncorrect={((activeIndex === index) && (quizComplete) && !(answer === choices[activeIndex]))}
-            isDisabled={(quizComplete)}/>
+            isCorrect={((activeIndex === index) && (isCompleted) && (answer === choices[activeIndex]))}
+            isIncorrect={((activeIndex === index) && (isCompleted) && !(answer === choices[activeIndex]))}
+            isDisabled={(isCompleted)}/>
         ))} 
     </div>
+    <p>{correct.toString()}</p>
     </>
     )
 }
