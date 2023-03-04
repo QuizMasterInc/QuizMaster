@@ -1,14 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useState } from "react";
 import QuestionChoice from "./QuestionChoice";
 
 function Question ({number, questionText, choices, answer, quizComplete}){
     const [activeIndex, setActiveIndex] = useState(null)
-    const [correct, setIsCorrect] = useState(false)
-
-    useEffect(() => {
-        
-    }, [correct, quizComplete])
     
     return (
     <>
@@ -28,7 +23,6 @@ function Question ({number, questionText, choices, answer, quizComplete}){
             isDisabled={(quizComplete)}/>
         ))} 
     </div>
-    <p>{correct.toString()}</p>
     </>
     )
 }

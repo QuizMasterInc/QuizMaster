@@ -12,8 +12,6 @@ function QuizActivity({}){
     const [modalActive, setModalActive] =  useState(false)
     const [loading, setLoading] = useState(true)
     const [loadingColor, setLoadingColor] = useState("#111827")
-    const [amountCorrect, setAmountCorrect] = useState(0)
-    const [questionAmount, setQuestionAmount] = useState(0)
 
     useEffect(() => {
         async function fetchQuiz(category) {
@@ -25,7 +23,6 @@ function QuizActivity({}){
             }).catch(err => {
                 console.log(err)
             })
-            let i = 0
             for(let key in data){
                 const list = data[key]
                 const question = {
@@ -34,7 +31,6 @@ function QuizActivity({}){
                     answer: list.slice(-1).toString()
                 }
                 setQuestions(questions => [...questions, question])
-                if(i === 2){break}
             }
             setLoading(false)
             return data 
@@ -51,7 +47,7 @@ function QuizActivity({}){
             Help
         </button>
         {modalActive && <QuizModal isActive={setModalActive}/>}
-        {questions.map((question, index) => (
+        {questions.slice(0,2).map((question, index) => (
             <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} quizComplete={completed}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg"
