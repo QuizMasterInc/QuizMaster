@@ -14,7 +14,7 @@ const HelpModal = ({isActive, active}) => (
                 }
     }}>
         <div className="flex fixed z-50 align-middle justify-center w-full p-4 overflow-x-hidden overflow-y-auto h-modal">
-            <div className="relative align-middle justify-center w-full h-full max-w-2xl">
+            <div className="flex relative align-middle justify-center w-full h-full max-w-2xl right-16">
                 <div className="relative bg-gray-900 rounded-xl shadow">
                     <div className="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600">
                         <h3 className="text-xl font-semibold text-gray-300">

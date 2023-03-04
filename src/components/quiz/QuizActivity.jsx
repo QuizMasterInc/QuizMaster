@@ -51,9 +51,9 @@ function QuizActivity({}){
 
     return (
     <>
-    <div className="flex flex-col items-center justify-center">
-        <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg">Welcome to the {category} Quiz</h1>
-        <button className="flex flex-row text-xl h-10 mb-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg"
+    <div className="flex flex-col items-center justify-center -md:ml-16">
+        <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg -md:text-sm -md:p-4">Welcome to the {category} Quiz</h1>
+        <button className="flex flex-row text-xl h-10 mb-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-6"
             onClick={() => setHelpModalActive(true)}>
             Help
         </button>
@@ -62,7 +62,7 @@ function QuizActivity({}){
             <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
             isCompleted={completed} callback={grabCorrect}/>
         ))} 
-        <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg"
+        <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
             onClick={() => {setCompleted(true); setDoneModalActive(true)}} disabled={completed}>
             Submit!
         </button>

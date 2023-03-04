@@ -14,9 +14,9 @@ const DoneModal = ({isActive, amountCorrect, totalAmount, active}) => (
                   width: 'max-content',
                 }
     }}>
-        <div className={"flex fixed z-50 align-middle justify-center w-full p-4 overflow-x-hidden overflow-y-auto h-modal mr-6"}>
-            <div className="relative align-middle justify-center w-full h-full max-w-2xl">
-                <div className="relative bg-gray-900 rounded-xl shadow">
+        <div className="flex fixed z-50 align-middle justify-center w-full p-4 overflow-x-hidden overflow-y-auto h-modal">
+            <div className="relative align-middle justify-center w-full h-full max-w-2xl right-16">
+                <div className="relative bg-gray-900 rounded-xl shadow -md:text-small">
                     <div className="flex items-center justify-center p-4 border-b rounded-t dark:border-gray-600">
                         <h3 className="text-2xl font-semibold text-gray-300">
                             Results!

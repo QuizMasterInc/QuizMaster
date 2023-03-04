@@ -20,7 +20,7 @@ function QuestionChoice ({choiceText, isSelected, onSelect, isCorrect, isIncorre
     }
 
     return(
-        <button className={`p-2 mb-3 ml-2 mr-2 text-gray-300 rounded-md shadow-md ${changeColor()}`}
+        <button className={`p-2 mb-3 ml-2 mr-2 text-gray-300 rounded-md shadow-md -md:text-sm ${changeColor()}`}
         onClick={onSelect} disabled={isDisabled}>{choiceText}</button>
     )
 }
