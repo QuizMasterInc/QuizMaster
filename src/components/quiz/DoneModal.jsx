@@ -15,10 +15,10 @@ const DoneModal = ({isActive, amountCorrect, totalAmount, active}) => (
                 }
     }}>
         <div className="flex fixed z-50 align-middle justify-center w-full p-4 overflow-x-hidden overflow-y-auto h-modal">
-            <div className="relative align-middle justify-center w-full h-full max-w-2xl right-16">
+            <div className="relative align-middle justify-center w-full h-full max-w-2xl right-16 -md:ml-20 -md:mr-2 -md:mt-6">
                 <div className="relative bg-gray-900 rounded-xl shadow -md:text-small">
                     <div className="flex items-center justify-center p-4 border-b rounded-t dark:border-gray-600">
-                        <h3 className="text-2xl font-semibold text-gray-300">
+                        <h3 className="text-2xl font-semibold text-gray-300 -md:text-xl">
                             Results!
                         </h3>
                         <button type="button" className="text-gray-300 bg-transparent hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center hover:bg-gray-600"
@@ -27,7 +27,7 @@ const DoneModal = ({isActive, amountCorrect, totalAmount, active}) => (
                         </button>
                     </div>
                     <div className="p-6 space-y-6">
-                        <p className="flex items-center justify-center leading-relaxed text-gray-300 dark:text-gray-400 text-9xl">
+                        <p className="flex items-center justify-center leading-relaxed text-gray-300 dark:text-gray-400 text-9xl -md:text-xl">
                             {amountCorrect.toString()}/{totalAmount.toString()}
                         </p>
                     </div>
