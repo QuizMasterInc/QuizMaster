@@ -11,6 +11,7 @@ import About from './components/about/About';
 import Contact from './components/contact/Contact';
 import { AuthProvider } from './contexts/AuthContext';
 import Signout from './components/login/Signout'
+import ForgotPassword from './components/login/ForgotPassword'
 import PrivateRoute from './components/PrivateRoute';
 import PrivateSigninRoute from './components/PrivateSigninRoute'
 
@@ -27,6 +28,11 @@ function App() {
           <Route path='/signin' element={
             <PrivateSigninRoute>
               <Login />
+            </PrivateSigninRoute>
+          }/>
+          <Route path="forgot-password" element={
+            <PrivateSigninRoute>
+              <ForgotPassword />
             </PrivateSigninRoute>
           }/>
           <Route path='/register' element={
