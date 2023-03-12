@@ -17,6 +17,7 @@
     "nvm": "^0.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-google-button": "^0.7.2",
     "react-router-dom": "^6.8.1",
     "sort-by": "^1.2.0"
   },

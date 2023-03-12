@@ -2,15 +2,15 @@
 import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
+import {GoogleButton} from 'react-google-button';
 
 export default function Login() {
   const emailRef = useRef()
   const passwordRef = useRef()
-  const {login} = useAuth()
+  const {login, googleLogin} = useAuth()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   
-
   async function handleSubmit(e) {
     e.preventDefault()
 
@@ -22,6 +22,20 @@ export default function Login() {
       
     }catch{
         setError("Failed to sign in")
+    }
+    setLoading(false)
+  }
+
+  async function handleGoogleSignIn(e) {
+    e.preventDefault()
+
+    try{
+      setError('')
+      setLoading(true)
+      await googleLogin()
+      
+    }catch{
+        setError("Failed to sign in with google")
     }
     setLoading(false)
   }
@@ -41,9 +55,7 @@ export default function Login() {
             </h2>
             <p className="mt-2 text-center text-sm text-gray-300">
               Or{' '}
-              <a href="/register" className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline">
-                create your account
-              </a>
+              <Link className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline" to="/register">Create your account</Link>
             </p>
             {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3">{error}</label>}
           </div>
@@ -102,6 +114,14 @@ export default function Login() {
                 </button>
               </div>
             </form>
+            <div className="mt-6 text-center flex flex-col items-center">
+              <p className="mt-2 text-sm py-1 text-black font-bold">
+                Or{' '}
+              </p>
+              <div className="mt-2 text-sm py-1" >
+                <GoogleButton onClick={handleGoogleSignIn}/>
+              </div>
+            </div>
           </div>
         </div>
       </div>

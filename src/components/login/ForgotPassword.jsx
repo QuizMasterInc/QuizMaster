@@ -40,6 +40,10 @@ export default function ForgotPassword() {
             <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-300">
               Password Reset
             </h2>
+            <p className="mt-2 text-center text-sm text-gray-300">
+              Already have an account?{' '}
+              <Link className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline" to="/signin">Login here</Link>
+            </p>
             {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3">{error}</label>}
             {message && <label className="block mt-3 font-semi-bold text-center text-black bg-green-400 py-3">{message}</label>}
           </div>
@@ -64,14 +68,6 @@ export default function ForgotPassword() {
                   />
                 </div>
               </div>
-              
-
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-indigo-600 hover:text-indigo-500 hover:underline">
-                  <Link to="/signin">Login</Link>
-                </div>
-              </div>
-
               <div>
                 <button
                   type="submit"
