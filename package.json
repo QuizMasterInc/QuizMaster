@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "16": "^0.0.2",
     "@esbuild/win32-x64": "^0.17.10",
     "esbuild": "^0.17.11",
     "firebase": "^9.15.0",
