@@ -1,6 +1,7 @@
 //Template used from https://tailwindui.com/components/application-ui/forms/sign-in-forms
 import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
+import { Link } from "react-router-dom";
 
 export default function Register() {
   const emailRef = useRef()
@@ -45,9 +46,7 @@ export default function Register() {
             </h2>
             <p className="mt-2 text-center text-sm text-gray-300">
               Already have an account?{' '}
-              <a href="/signin" className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline">
-                Login here
-              </a>
+              <Link className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline" to="/signin">Login here</Link>
             </p>
             {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3">{error}</label>}
           </div>

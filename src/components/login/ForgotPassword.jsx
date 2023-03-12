@@ -2,40 +2,27 @@
 import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
-import {GoogleButton} from 'react-google-button';
 
-export default function Login() {
+export default function ForgotPassword() {
   const emailRef = useRef()
-  const passwordRef = useRef()
-  const {login, googleLogin} = useAuth()
+  const {resetPassword} = useAuth()
   const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   
+
   async function handleSubmit(e) {
     e.preventDefault()
 
     try{
-      setError('')
-      setLoading(true)
-      await login(emailRef.current.value, passwordRef.current.value)
-      window.location.replace('/quizzes')
+        setMessage('')
+        setError('')
+        setLoading(true)
+        await resetPassword(emailRef.current.value)
+        setMessage('Check your inbox for further instructions')
       
     }catch{
-        setError("Failed to sign in")
-    }
-    setLoading(false)
-  }
-
-  async function handleGoogleSignIn(e) {
-    e.preventDefault()
-
-    try{
-      setError('')
-      setLoading(true)
-      await googleLogin()
-      
-    }catch{
-        setError("Failed to sign in with google")
+        setError("Failed to reset password")
     }
     setLoading(false)
   }
@@ -51,13 +38,14 @@ export default function Login() {
               alt="QuizMaster"
             />
             <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-300">
-              Sign in to your account
+              Password Reset
             </h2>
             <p className="mt-2 text-center text-sm text-gray-300">
-              Or{' '}
-              <Link className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline" to="/register">Create your account</Link>
+              Already have an account?{' '}
+              <Link className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline" to="/signin">Login here</Link>
             </p>
             {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3">{error}</label>}
+            {message && <label className="block mt-3 font-semi-bold text-center text-black bg-green-400 py-3">{message}</label>}
           </div>
           <div className="mt-4 bg-gray-300 shadow-md rounded-lg px-10 py-1">
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -79,49 +67,17 @@ export default function Login() {
                     ref={emailRef}
                   />
                 </div>
-                <div>
-                  <label htmlFor="password" className="sr-only">
-                    Password
-                  </label>
-                  <label className="block mt-3 font-semibold text-left">Password</label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    className=" mt-3 relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    placeholder="Password"
-                    ref={passwordRef}
-                  />
-                </div>
               </div>
-              
-
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-indigo-600 hover:text-indigo-500 hover:underline">
-                  <Link to="/forgot-password">Forgot your password?</Link>
-                </div>
-              </div>
-
               <div>
                 <button
                   type="submit"
                   disabled={loading}
                   className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
-                  Sign in
+                  Reset Password
                 </button>
               </div>
             </form>
-            <div className="mt-6 text-center flex flex-col items-center">
-              <p className="mt-2 text-sm py-1 text-black font-bold">
-                Or{' '}
-              </p>
-              <div className="mt-2 text-sm py-1" >
-                <GoogleButton onClick={handleGoogleSignIn}/>
-              </div>
-            </div>
           </div>
         </div>
       </div>
