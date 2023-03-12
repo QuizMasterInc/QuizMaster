@@ -3,7 +3,7 @@ import NavBar from './components/navbar/NavBar'
 import { Route, Routes } from "react-router-dom";
 import NotFound from './components/404/NotFound';
 import SelectQuiz from './components/quizselect/SelectQuiz';
-import QuizTest from './components/quiz/QuizTest';
+import QuizActivity from './components/quiz/QuizActivity';
 import Login from './components/login/Login';
 import Register from './components/login/Register';
 import Home from './components/home/Home';
