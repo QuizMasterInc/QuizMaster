@@ -52,9 +52,9 @@ export function AuthProvider({ children }) {
         googleLogin
     }
 
-  return (
+    return (
     <AuthContext.Provider value={value}>
         {!loading && children}
     </AuthContext.Provider>
-  )
+    )
 }

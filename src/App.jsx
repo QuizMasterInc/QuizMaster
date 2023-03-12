@@ -24,7 +24,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/quizzes" element={<SelectQuiz />} />
-          <Route path="/quizzes/:quiz" element={<QuizTest />}/>
+          <Route path="/quizzes/:quiz" element={<QuizActivity />}/>
           <Route path='/signin' element={
             <PrivateSigninRoute>
               <Login />
@@ -37,8 +37,8 @@ function App() {
           }/>
           <Route path='/register' element={
             <PrivateSigninRoute>
-            <Register />
-          </PrivateSigninRoute>
+              <Register />
+            </PrivateSigninRoute>
           }/>
           <Route path='/signout' element={
             <PrivateRoute>
