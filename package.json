@@ -9,14 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "16": "^0.0.2",
+    "@esbuild/win32-x64": "^0.17.10",
+    "esbuild": "^0.17.11",
     "firebase": "^9.15.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
     "nvm": "^0.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-google-button": "^0.7.2",
+    "react-modal": "^3.16.1",
     "react-router-dom": "^6.8.1",
+    "react-spinners": "^0.13.8",
     "sort-by": "^1.2.0"
   },
   "devDependencies": {

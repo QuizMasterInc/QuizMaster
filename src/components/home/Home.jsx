@@ -2,40 +2,40 @@ import React from "react";
 import Logo from "../../assets/logo.jpg"
 import Student from "../../assets/student.jpg";
 import Quiz from "../../assets/quiz.png";
+import { Link } from "react-router-dom";
 
 const Home = ({}) => (
-    <div className="pt-12 text-gray-300 bg-gray-800 shadow-lg hover:shadow-xl">
-    <div className='flex'>
-      <div className="flex items-center justify-center w-1/2">
+  <div className="pt-12 text-gray-300 bg-gray-800 shadow-lg hover:shadow-xl">
+    <div className="flex flex-col md:flex-row"> {/* Use flex and flex-col classes to arrange elements vertically on small screens and horizontally on larger screens */}
+      <div className="md:w-1/2 flex items-center justify-center"> {/* Use w-1/2 class to take up half the width of the screen on large screens */}
         <img src={Logo} alt="logo" className="h-64 mx-auto w-76" />
       </div>
-      <div className="w-1/2 ">
-      <h1 className="mt-10 text-5xl font-bold text-gray-300 ">Welcome to QuizMaster</h1>
-      <p className="pt-8 mb-10 text-2xl text-gray-300">The ultimate destination for all your quiz needs.</p>
+      <div className="md:w-1/2">
+        <h1 className="mt-10 text-5xl font-bold text-gray-300">Welcome to QuizMaster</h1>
+        <p className="pt-8 mb-10 text-2xl text-gray-300">The ultimate destination for all your quiz needs.</p>
       </div>
+    </div>
+    <div className="flex flex-col md:flex-row">
+      <div className="md:w-1/2 flex items-center justify-center">
+        <h1 className="pl-8 mt-10 text-3xl font-bold text-gray-300">Subjects ranging from Mathematics, Science, English, and More!</h1>
+        <p className="pl-8 mt-10 text-2xl text-gray-300 ">The Perfect Quiz Taking Applicaiton for both Students and Teachers!</p>
       </div>
-      <div className='flex'>
-        <div className="flex items-center justify-center w-1/2">
-          <h1 className="pl-8 mt-10 text-3xl font-bold text-gray-300">Subjects ranging from Mathematics, Science, English, and More!</h1>
-          <p className="pl-8 mt-10 text-2xl text-gray-300 ">The Perfect Quiz Taking Applicaiton for both Students and Teachers!</p>
-        </div>
-        <div className="w-1/2 ">
-          <div className="flex items-center justify-center ">
+      <div className="md:w-1/2">
+        <div className="flex items-center justify-center">
           <img src={Student} alt="student" className="h-64 mx-auto w-76" />
         </div>
-  
-        </div>
       </div>
-      <div className='flex'>
-      <div className="flex items-center justify-center w-1/2">
+    </div>
+    <div className="flex flex-col md:flex-row">
+      <div className="md:w-1/2 flex items-center justify-center">
         <img src={Quiz} alt="quiz" className="h-64 mx-auto w-76" />
       </div>
-      <div className="w-1/2 ">
-      <h1 className="mt-10 text-5xl font-bold text-gray-300 ">Ready to start the QuizMaster Experience? </h1>
-      <p className="pt-8 pr-8 mb-10 text-2xl text-gray-300">Simply <a href = "/register"  className="underline">create an account</a> or <a href = "/login" className="underline">login</a> if you already have an account. Navigate to the <a href = "/quizzes"  className="underline">quizzes</a> page and select a quiz.</p>
+      <div className="md:w-1/2">
+        <h1 className="mt-10 text-5xl font-bold text-gray-300">Ready to start the QuizMaster Experience? </h1>
+        <p className="pt-8 pr-8 mb-10 text-2xl text-gray-300">Simply Create an account <Link to="/register" className="underline">here</Link> if you don't have an account, or <Link to="/login" className="underline">login</Link>if you already have an account. Navigate to the <Link to="/quizzes" className="underline">quizzes</Link>page and select a quiz.page and select a quiz.</p>
       </div>
     </div>
   </div>
-)
+);
 
 export default Home;

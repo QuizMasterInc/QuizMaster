@@ -3,7 +3,7 @@ import NavBar from './components/navbar/NavBar'
 import { Route, Routes } from "react-router-dom";
 import NotFound from './components/404/NotFound';
 import SelectQuiz from './components/quizselect/SelectQuiz';
-import QuizTest from './components/quiz/QuizTest';
+import QuizActivity from './components/quiz/QuizActivity';
 import Login from './components/login/Login';
 import Register from './components/login/Register';
 import Home from './components/home/Home';
@@ -11,7 +11,9 @@ import About from './components/about/About';
 import Contact from './components/contact/Contact';
 import { AuthProvider } from './contexts/AuthContext';
 import Signout from './components/login/Signout'
+import ForgotPassword from './components/login/ForgotPassword'
 import PrivateRoute from './components/PrivateRoute';
+import PrivateSigninRoute from './components/PrivateSigninRoute'
 
 function App() {
   return (
@@ -22,9 +24,22 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/quizzes" element={<SelectQuiz />} />
-          <Route path="/quizzes/:quiz" element={<QuizTest />}/>
-          <Route path='/signin' element={<Login />}/>
-          <Route path='/register' element={<Register />}/>
+          <Route path="/quizzes/:quiz" element={<QuizActivity />}/>
+          <Route path='/signin' element={
+            <PrivateSigninRoute>
+              <Login />
+            </PrivateSigninRoute>
+          }/>
+          <Route path="forgot-password" element={
+            <PrivateSigninRoute>
+              <ForgotPassword />
+            </PrivateSigninRoute>
+          }/>
+          <Route path='/register' element={
+            <PrivateSigninRoute>
+              <Register />
+            </PrivateSigninRoute>
+          }/>
           <Route path='/signout' element={
             <PrivateRoute>
               <Signout />

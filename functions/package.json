@@ -13,9 +13,10 @@
   },
   "main": "src/index.js",
   "dependencies": {
+    "cors": "^2.8.5",
     "firebase-admin": "^11.5.0",
     "firebase-functions": "^4.2.1",
-    "node": "^19.6.0"
+    "node": "^16.6.0"
   },
   "devDependencies": {
     "firebase-functions-test": "^0.2.0"
