@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import QuizSelectButton from './QuizSelectButton';
+import RandomQuizButton from './RandomQuizButton';
 import Book from '../icons/Book';
 import World from '../icons/World';
 import FlaskVial from '../icons/FlaskVial';
 import Basketball from '../icons/Basketball';
 import Ticket from '../icons/Ticket';
 import Calculator from '../icons/Calculator';
+import Random from '../icons/Random';
 
 function SelectQuiz() {
   const [quizCategories] = useState([
@@ -23,7 +25,8 @@ function SelectQuiz() {
     <FlaskVial className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <Basketball className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <Ticket className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
-    <Calculator className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>
+    <Calculator className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
+    <Random className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>
   ]);
 
   const [destinations] = useState([
@@ -33,16 +36,19 @@ function SelectQuiz() {
     'sports',
     'entertainment',
     'mathematics'
-  ]);
+    ]);
+    const randomIndex = Math.floor(Math.random() * quizCategories.length);
+
 
   return (
     <>
       <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
         <h2 className="text-2xl font-bold text-gray-300">Choose Your Quiz Category</h2>
-        <div className="flex flex-wrap">
+        <div className="flex flex-wrap justify-center">
           {quizCategories.map((category, index) => (
             <QuizSelectButton category={category} key={index} icon={icons[index]} destination={destinations[index]}/>
           ))}
+            <RandomQuizButton category={quizCategories[randomIndex]}  icon={<Random/>} destination={destinations[randomIndex]}/>
         </div>
         <p className="text-sm text-gray-300 -sm:mt-4">
         Not finding the quiz you're looking for?{' '}

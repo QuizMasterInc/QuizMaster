@@ -16,6 +16,8 @@ function QuizActivity({}){
     const [loadingColor, setLoadingColor] = useState("#111827")
     const [amountCorrect, setAmountCorrect] = useState(0)
     const [numberOfQuestions, setNumberOfQuestions] = useState(0)
+    const [timeRemaining, setTimeRemaining] = useState(120); 
+
 
     const grabCorrect = useCallback((correct) =>{
         if(correct){
@@ -48,10 +50,26 @@ function QuizActivity({}){
         }
         fetchQuiz(category)
     }, [])
+    useEffect(() => {
+        const timer = setInterval(() => {
+          setTimeRemaining((timeRemaining) => timeRemaining - 1);
+        }, 1000);
+    
+        if (timeRemaining === 0) {
+          clearInterval(timer);
+          setCompleted(true);
+          setDoneModalActive(true);
+        }
+    
+        return () => clearInterval(timer);
+      }, [timeRemaining]);
 
     return (
     <>
     <div className="flex flex-col items-center justify-center -md:ml-16">
+    <div style={{  position: 'fixed',  top: '0', right: '0', padding: '0.5rem',fontSize: '1.5rem',backgroundColor: '#111827',color: '#f9fafb',borderRadius: '0 0 0.5rem 0.5rem',boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)'}}>
+        {Math.floor(timeRemaining / 60).toString().padStart(2, '0')}:{Math.floor(timeRemaining % 60).toString().padStart(2, '0')}
+    </div>
         <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg -md:text-md -md:p-4">Welcome to the {category} Quiz</h1>
         <button className="flex flex-row text-xl h-10 mb-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-8"
             onClick={() => setHelpModalActive(true)}>
