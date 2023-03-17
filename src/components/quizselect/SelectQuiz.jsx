@@ -1,39 +1,9 @@
-import { useState } from 'react'
+import React from 'react';
+import { useCategory } from '../../contexts/CategoryContext';
 import QuizSelectButton from './QuizSelectButton';
-import Book from '../icons/Book';
-import World from '../icons/World';
-import FlaskVial from '../icons/FlaskVial';
-import Basketball from '../icons/Basketball';
-import Ticket from '../icons/Ticket';
-import Calculator from '../icons/Calculator';
 
 function SelectQuiz() {
-  const [quizCategories] = useState([
-    'History',
-    'Geography',
-    'Science',
-    'Sports',
-    'Entertainment',
-    'Mathematics'
-  ]);
-
-  const [icons] = useState([
-    <Book className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>,
-    <World className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
-    <FlaskVial className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
-    <Basketball className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
-    <Ticket className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
-    <Calculator className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>
-  ]);
-
-  const [destinations] = useState([
-    'history',
-    'geography',
-    'science',
-    'sports',
-    'entertainment',
-    'mathematics'
-  ]);
+  const {quizCategories, icons, destinations} = useCategory()
 
   return (
     <>
