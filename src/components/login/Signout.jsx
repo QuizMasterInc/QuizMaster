@@ -1,5 +1,6 @@
 import React, {useState} from 'react'
 import {useAuth} from '../../contexts/AuthContext'
+import { Navigate } from 'react-router-dom'
 
 export default function Signout() {
     const [error, setError] = useState('')
@@ -8,15 +9,20 @@ export default function Signout() {
 
     async function handleLogout(){
         setError('')
-
+         var isAuth = false
         try{
             await logout()
             setLoading(true)
-            window.location.replace('/signin')
+            isAuth = true
         }catch{
             setError("Failed to logout")
         }
         setLoading(false)
+        if(isAuth){
+          return (
+            <Navigate to="/signin" />
+          )
+        }
     }
   return (
     <>
