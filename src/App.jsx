@@ -10,7 +10,7 @@ import Home from './components/home/Home';
 import About from './components/about/About';
 import Contact from './components/contact/Contact';
 import { AuthProvider } from './contexts/AuthContext';
-import Signout from './components/login/Signout'
+import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
 import PrivateRoute from './components/PrivateRoute';
 import PrivateSigninRoute from './components/PrivateSigninRoute'
@@ -47,7 +47,9 @@ function App() {
             }/>
             <Route path='/signout' element={
               <PrivateRoute>
-                <Signout />
+                <CategoryProvider>
+                  <Dashboard />
+                </CategoryProvider>
               </PrivateRoute>
             }/>
             <Route path="*" element={<NotFound />} />

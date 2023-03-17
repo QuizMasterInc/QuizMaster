@@ -1,10 +1,13 @@
 import React, {useState} from 'react'
+import { useCategory } from '../../contexts/CategoryContext'
 import {useAuth} from '../../contexts/AuthContext'
+import { QuizResult } from './QuizResult'
 
-export default function Signout() {
+export default function Dashboard() {
     const [error, setError] = useState('')
     const {currentUser, logout} = useAuth()
     const [loading, setLoading] = useState(false)
+    const {quizCategories, icons} = useCategory()
 
     async function handleLogout(){
         setError('')
@@ -33,7 +36,14 @@ export default function Signout() {
             </h2>
             <h3 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-300">
               Email: {currentUser.email}</h3> 
-            <h2 className="mt-6 text-center text-xl font-bold tracking-tight text-gray-300">WORK IN PROGRESS</h2>
+            <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
+              <h2 className="text-2xl font-bold text-gray-300">Here are your results</h2>
+              <div className="flex flex-wrap">
+                {quizCategories.map((category, index) => (
+                  <QuizResult category={category} key={index} icon={icons[index]}/>
+                ))}
+              </div>
+            </div>
             {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3">{error}</label>}
           </div>
           <div>
