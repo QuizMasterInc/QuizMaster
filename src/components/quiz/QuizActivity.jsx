@@ -16,7 +16,7 @@ function QuizActivity({}){
     const [loadingColor, setLoadingColor] = useState("#111827")
     const [amountCorrect, setAmountCorrect] = useState(0)
     const [numberOfQuestions, setNumberOfQuestions] = useState(0)
-    const [timeRemaining, setTimeRemaining] = useState(120); 
+    const [timeRemaining, setTimeRemaining] = useState(300); 
 
 
     const grabCorrect = useCallback((correct) =>{
