@@ -13,7 +13,7 @@ function QuizActivity({}){
     const [helpModalActive, setHelpModalActive] =  useState(false)
     const [doneModalActive, setDoneModalActive] =  useState(false)
     const [loading, setLoading] = useState(true)
-    const [loadingColor] = useState("#111827")
+    const [loadingColor, setLoadingColor] = useState("#111827")
     const [amountCorrect, setAmountCorrect] = useState(0)
     const [numberOfQuestions, setNumberOfQuestions] = useState(0)
     const [timeRemaining, setTimeRemaining] = useState(300); 
@@ -45,7 +45,6 @@ function QuizActivity({}){
                 setNumberOfQuestions((numberOfQuestions) => numberOfQuestions + 1)
             }
             setLoading(false)
-            setDoneModalActive(false)
             return data 
         }
         fetchQuiz(category)
@@ -64,14 +63,14 @@ function QuizActivity({}){
             setCompleted(true);
           }
 
-        if (completed == true){
+        if (completed){
             clearInterval(timer);
             setDoneModalActive(true)
         }
     
         return () => clearInterval(timer);
       }, [loading, timeRemaining,completed]);
-
+  
     return (
     <>
     <div className="flex flex-col items-center justify-center -md:ml-16">
@@ -89,7 +88,7 @@ function QuizActivity({}){
             isCompleted={completed} callback={grabCorrect}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
-            onClick={() => {setCompleted(true);}} disabled={completed}>
+            onClick={() => {setCompleted(true); }} disabled={completed}>
             Submit!
         </button>
     </div>
