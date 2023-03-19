@@ -23,8 +23,16 @@ function App() {
           <Route path="/" element={<Home />}/>
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/quizzes" element={<SelectQuiz />} />
-          <Route path="/quizzes/:quiz" element={<QuizActivity />}/>
+          <Route path="/quizzes" element={
+            <PrivateRoute>
+              <SelectQuiz />
+            </PrivateRoute>
+          } />
+          <Route path="/quizzes/:quiz" element={
+            <PrivateRoute>
+              <QuizActivity />
+            </PrivateRoute>
+          }/>
           <Route path='/signin' element={
             <PrivateSigninRoute>
               <Login />

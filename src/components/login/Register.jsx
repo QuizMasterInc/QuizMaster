@@ -2,6 +2,7 @@
 import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 export default function Register() {
   const emailRef = useRef()
@@ -13,6 +14,7 @@ export default function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault()
+    var isAuth = false
 
     if(passwordRef.current.value !== confirmPasswordRef.current.value){
         return setError("Passwords do not match.")
@@ -22,14 +24,19 @@ export default function Register() {
       setError('')
       setLoading(true)
       await signup(emailRef.current.value, passwordRef.current.value)
-      window.location.replace('/quizzes')
+      isAuth = true
       
       
     }catch{
         setError("Failed to create an account")
     }
     setLoading(false)
-  }
+    if(isAuth){
+      return (
+        <Navigate to="/quizzes" />
+            )
+      }
+    }
 
   return (
     <>
