@@ -13,11 +13,10 @@ function QuizActivity({}){
     const [helpModalActive, setHelpModalActive] =  useState(false)
     const [doneModalActive, setDoneModalActive] =  useState(false)
     const [loading, setLoading] = useState(true)
-    const [loadingColor, setLoadingColor] = useState("#111827")
+    const [loadingColor] = useState("#111827")
     const [amountCorrect, setAmountCorrect] = useState(0)
     const [numberOfQuestions, setNumberOfQuestions] = useState(0)
     const [timeRemaining, setTimeRemaining] = useState(300); 
-
 
     const grabCorrect = useCallback((correct) =>{
         if(correct){
@@ -46,23 +45,32 @@ function QuizActivity({}){
                 setNumberOfQuestions((numberOfQuestions) => numberOfQuestions + 1)
             }
             setLoading(false)
+            setDoneModalActive(false)
             return data 
         }
         fetchQuiz(category)
     }, [])
+
     useEffect(() => {
-        const timer = setInterval(() => {
-          setTimeRemaining((timeRemaining) => timeRemaining - 1);
-        }, 1000);
-    
-        if (timeRemaining === 0) {
-          clearInterval(timer);
-          setCompleted(true);
-          setDoneModalActive(true);
+        let timer = null;
+        
+        if (loading === false) {
+          timer = setInterval(() => {
+            setTimeRemaining((timeRemaining) => timeRemaining - 1);
+          }, 1000);
+        }
+
+        if (timeRemaining === 0 ) {
+            setCompleted(true);
+          }
+
+        if (completed == true){
+            clearInterval(timer);
+            setDoneModalActive(true)
         }
     
         return () => clearInterval(timer);
-      }, [timeRemaining]);
+      }, [loading, timeRemaining,completed]);
 
     return (
     <>
@@ -81,7 +89,7 @@ function QuizActivity({}){
             isCompleted={completed} callback={grabCorrect}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
-            onClick={() => {setCompleted(true); setDoneModalActive(true)}} disabled={completed}>
+            onClick={() => {setCompleted(true);}} disabled={completed}>
             Submit!
         </button>
     </div>
