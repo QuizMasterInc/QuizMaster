@@ -11,9 +11,8 @@ import { NavLink } from "react-router-dom";
 import {useAuth} from '../../contexts/AuthContext'
 
 export default function NavBar() {
-    var signinAuth = 'visible';
-    var signOutAuth = 'invisible';
     const { currentUser } = useAuth();
+    
     return(
         <div className="fixed z-10 flex flex-col w-20 pb-4 space-y-4 bg-gray-900 rounded-md shadow-lg left-2 top-2 -sm:w-16 -sm:space-y-1">
             <div className="flex flex-col items-center p-2 mt-4 rounded-md">
