@@ -27,7 +27,7 @@ const HelpModal = ({isActive, active}) => (
                     </div>
                     <div className="p-6 space-y-6">
                         <p className="text-base leading-relaxed text-gray-300 dark:text-gray-400">
-                            This is the quiz taking activity. There will be 10 questions per quiz. Each question is multiple choice. 
+                            This is the quiz taking activity. There will be 20 questions per quiz. Each question is multiple choice. 
                             Select the best answer for each question. When you're done, click the button at the end to view your results! 
                         </p>
                     </div>
