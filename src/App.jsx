@@ -10,52 +10,57 @@ import Home from './components/home/Home';
 import About from './components/about/About';
 import Contact from './components/contact/Contact';
 import { AuthProvider } from './contexts/AuthContext';
-import Signout from './components/login/Signout'
+import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
-import PrivateRoute from './components/PrivateRoute';
-import PrivateSigninRoute from './components/PrivateSigninRoute'
+import PrivateRoute from './routes/PrivateRoute';
+import PrivateSigninRoute from './routes/PrivateSigninRoute'
+import { CategoryProvider } from './contexts/CategoryContext';
 
 function App() {
   return (
     <div className="App">
       <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Home />}/>
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/quizzes" element={
-            <PrivateRoute>
-              <SelectQuiz />
-            </PrivateRoute>
-          } />
-          <Route path="/quizzes/:quiz" element={
-            <PrivateRoute>
-              <QuizActivity />
-            </PrivateRoute>
-          }/>
-          <Route path='/signin' element={
-            <PrivateSigninRoute>
-              <Login />
-            </PrivateSigninRoute>
-          }/>
-          <Route path="forgot-password" element={
-            <PrivateSigninRoute>
-              <ForgotPassword />
-            </PrivateSigninRoute>
-          }/>
-          <Route path='/register' element={
-            <PrivateSigninRoute>
-              <Register />
-            </PrivateSigninRoute>
-          }/>
-          <Route path='/signout' element={
-            <PrivateRoute>
-              <Signout />
-            </PrivateRoute>
-          }/>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <NavBar />
+          <Routes>
+            <Route path="/" element={<Home />}/>
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/quizzes" element={
+              <PrivateRoute>
+                <CategoryProvider>
+                  <SelectQuiz />
+                </CategoryProvider>
+              </PrivateRoute>
+            }/>
+            <Route path="/quizzes/:quiz" element={
+              <PrivateRoute>
+                <QuizActivity />
+              </PrivateRoute>
+            }/>
+            <Route path='/signin' element={
+              <PrivateSigninRoute>
+                <Login />
+              </PrivateSigninRoute>
+            }/>
+            <Route path="forgotpassword" element={
+              <PrivateSigninRoute>
+                <ForgotPassword />
+              </PrivateSigninRoute>
+            }/>
+            <Route path='/register' element={
+              <PrivateSigninRoute>
+                <Register />
+              </PrivateSigninRoute>
+            }/>
+            <Route path='/dashboard' element={
+              <PrivateRoute>
+                <CategoryProvider>
+                  <Dashboard />
+                </CategoryProvider>
+              </PrivateRoute>
+            }/>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <NavBar/>
       </AuthProvider>
     </div>
   )

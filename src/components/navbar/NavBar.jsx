@@ -36,11 +36,10 @@ export default function NavBar() {
             </NavLink>
             )}
             {!currentUser ? null:(
-            <NavLink to="/signout" className={`flex flex-col items-center`}>
-                <NavBarIcon icon={<SignOut className={"navbar-icon"} />} text={"Sign Out"} />
+            <NavLink to="/dashboard" className={`flex flex-col items-center`}>
+                <NavBarIcon icon={<SignIn className={"navbar-icon"} />} text={"Dashboard"} />
             </NavLink>
             )}
-            
         </div>
     )
 }
