@@ -45,7 +45,7 @@ function App() {
                 <Register />
               </PrivateSigninRoute>
             }/>
-            <Route path='/signout' element={
+            <Route path='/dashboard' element={
               <PrivateRoute>
                 <CategoryProvider>
                   <Dashboard />

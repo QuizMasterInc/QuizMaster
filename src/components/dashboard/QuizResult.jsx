@@ -6,7 +6,7 @@ export const QuizResult = ({index, category, icon}) => {
         <div className="flex flex-col items-center p-4 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600">
             <div className="-sm:text-sm">{category}</div>
             <div>{icon}</div>
-            <p className='text-3xl'>{'2/10'}</p>
+            <p className='text-3xl'>{'Saved scores coming soon!'}</p>
         </div>
     </div>
   )

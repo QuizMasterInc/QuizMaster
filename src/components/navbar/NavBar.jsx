@@ -30,7 +30,7 @@ export default function NavBar() {
             <NavLink to="/signin" className={"flex flex-col items-center"}>
                 <NavBarIcon icon={<SignIn className={"navbar-icon"} />} text={"Sign In"} /> 
             </NavLink>
-            <NavLink to="/signout" className={"flex flex-col items-center"}>
+            <NavLink to="/dashboard" className={"flex flex-col items-center"}>
                 <NavBarIcon icon={<SignOut className={"navbar-icon"} />} text={"Sign Out"} />
             </NavLink>
         </div>
