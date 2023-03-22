@@ -10,6 +10,7 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState()
+    const [isGoogleAuth, setIsGoogleAuth] = useState(false)
     const [loading, setLoading] = useState(true)
 
     function signup(email, password){
@@ -33,10 +34,21 @@ export function AuthProvider({ children }) {
         return signInWithPopup(auth, provider)
     }
 
+    function updateEmail(email){
+        return currentUser.updateEmail(email)
+    }
+
+    function updatePassword(password){
+       return currentUser.updatePassword(password)
+    }
+  
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             setCurrentUser(user)
             setLoading(false)
+            if(user){
+                setIsGoogleAuth(user.providerData[0].providerId === 'google.com')
+            }
         })
 
         return unsubscribe
@@ -45,11 +57,14 @@ export function AuthProvider({ children }) {
 
     const value = {
         currentUser,
+        isGoogleAuth,
         login,
         signup,
         logout,
         resetPassword,
-        googleLogin
+        googleLogin,
+        updateEmail,
+        updatePassword
     }
 
     return (
