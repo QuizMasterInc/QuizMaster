@@ -26,17 +26,17 @@ export default function UpdateProfile() {
     setError('')
     setMessage('')
 
+    if(newPasswordRef.current.value){
+      promises.push(updatePassword(newPasswordRef.current.value))
+  }
     if(newEmailRef.current.value !== currentUser.email){
         promises.push(updateEmail(newEmailRef.current.value))
-    }
-    if(newPasswordRef.current.value){
-        promises.push(updatePassword(newPasswordRef.current.value))
     }
 
     Promise.all(promises).then(() => {
         setMessage('Profile has been updated')
     }).catch(() => {
-        setError("Failed to update account")
+        setError("Failed to update account. (Try logging out and updating again)")
     }).finally(() => {
         setLoading(false)
     })
