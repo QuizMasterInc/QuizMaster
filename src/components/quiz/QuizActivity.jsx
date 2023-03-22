@@ -16,6 +16,7 @@ function QuizActivity({}){
     const [loadingColor, setLoadingColor] = useState("#111827")
     const [amountCorrect, setAmountCorrect] = useState(0)
     const [numberOfQuestions, setNumberOfQuestions] = useState(0)
+    const [timeRemaining, setTimeRemaining] = useState(300); 
 
     const grabCorrect = useCallback((correct) =>{
         if(correct){
@@ -49,9 +50,33 @@ function QuizActivity({}){
         fetchQuiz(category)
     }, [])
 
+    useEffect(() => {
+        let timer = null;
+        
+        if (loading === false) {
+          timer = setInterval(() => {
+            setTimeRemaining((timeRemaining) => timeRemaining - 1);
+          }, 1000);
+        }
+
+        if (timeRemaining === 0 ) {
+            setCompleted(true);
+          }
+
+        if (completed){
+            clearInterval(timer);
+            setDoneModalActive(true)
+        }
+    
+        return () => clearInterval(timer);
+      }, [loading, timeRemaining,completed]);
+  
     return (
     <>
     <div className="flex flex-col items-center justify-center -md:ml-16">
+    <div style={{  position: 'fixed',  top: '0', right: '0', padding: '0.5rem',fontSize: '1.5rem',backgroundColor: '#111827',color: '#f9fafb',borderRadius: '0 0 0.5rem 0.5rem',boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)'}}>
+        {Math.floor(timeRemaining / 60).toString().padStart(2, '0')}:{Math.floor(timeRemaining % 60).toString().padStart(2, '0')}
+    </div>
         <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg -md:text-md -md:p-4">Welcome to the {category} Quiz</h1>
         <button className="flex flex-row text-xl h-10 mb-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-8"
             onClick={() => setHelpModalActive(true)}>
@@ -63,7 +88,7 @@ function QuizActivity({}){
             isCompleted={completed} callback={grabCorrect}/>
         ))} 
         <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
-            onClick={() => {setCompleted(true); setDoneModalActive(true)}} disabled={completed}>
+            onClick={() => {setCompleted(true); }} disabled={completed}>
             Submit!
         </button>
     </div>

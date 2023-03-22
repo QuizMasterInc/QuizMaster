@@ -3,6 +3,7 @@ import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
 import {GoogleButton} from 'react-google-button';
+import { Navigate } from "react-router-dom";
 
 export default function Login() {
   const emailRef = useRef()
@@ -13,18 +14,24 @@ export default function Login() {
   
   async function handleSubmit(e) {
     e.preventDefault()
+    var isAuth = false
 
     try{
       setError('')
       setLoading(true)
       await login(emailRef.current.value, passwordRef.current.value)
-      window.location.replace('/quizzes')
+      isAuth = true
       
     }catch{
         setError("Failed to sign in")
     }
     setLoading(false)
-  }
+    if(isAuth){
+      return (
+        <Navigate to="/quizzes" />
+            )
+      }
+    }
 
   async function handleGoogleSignIn(e) {
     e.preventDefault()
@@ -100,7 +107,7 @@ export default function Login() {
 
               <div className="flex items-center justify-between">
                 <div className="text-sm text-indigo-600 hover:text-indigo-500 hover:underline">
-                  <Link to="/forgot-password">Forgot your password?</Link>
+                  <Link to="/forgotpassword">Forgot your password?</Link>
                 </div>
               </div>
 

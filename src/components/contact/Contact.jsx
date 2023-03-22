@@ -30,7 +30,7 @@ const Contact = ({}) => (
           </div>
         </div>
         <div className="flex flex-col items-center">
-          <a href="https://white-mud-0bcdbb710.1.azurestaticapps.net/" target="_blank">
+          <a href="https://anthonymastores.github.io/getting-to-know-eachother/" target="_blank">
             <img src={anthony} alt="anthony" className="object-cover w-48 h-48 rounded-full" />
           </a>
           <h3 className="mt-4 text-lg font-medium text-gray-300">Anthony Mastores</h3>
