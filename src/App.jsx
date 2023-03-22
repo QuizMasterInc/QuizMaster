@@ -12,6 +12,7 @@ import Contact from './components/contact/Contact';
 import { AuthProvider } from './contexts/AuthContext';
 import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
+import UpdateProfile from './components/login/UpdateProfile'
 import PrivateRoute from './routes/PrivateRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import { CategoryProvider } from './contexts/CategoryContext';
@@ -34,6 +35,11 @@ function App() {
             <Route path="/quizzes/:quiz" element={
               <PrivateRoute>
                 <QuizActivity />
+              </PrivateRoute>
+            }/>
+            <Route path="/update-profile" element={
+              <PrivateRoute>
+                <UpdateProfile />
               </PrivateRoute>
             }/>
             <Route path='/signin' element={
