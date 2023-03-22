@@ -87,15 +87,14 @@ function QuizActivity({}){
             <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
             isCompleted={completed} callback={grabCorrect}/>
         ))} 
-        <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
+        {!loading && <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
             onClick={() => {setCompleted(true); }} disabled={completed}>
             Submit!
-        </button>
+        </button>}
     </div>
     <ScaleLoader className="block items-center justify-center gray-900 mt-8 -md:ml-16" loading={loading} color={loadingColor} width={25} height={100}/>
     {doneModalActive && <DoneModal isActive={setDoneModalActive} amountCorrect={amountCorrect} totalAmount={numberOfQuestions} active={doneModalActive}/>}
     </>
     )
 }
-
 export default QuizActivity;

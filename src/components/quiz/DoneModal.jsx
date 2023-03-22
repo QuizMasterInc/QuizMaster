@@ -31,13 +31,17 @@ const DoneModal = ({isActive, amountCorrect, totalAmount, active}) => (
                             {amountCorrect.toString()}/{totalAmount.toString()}
                         </p>
                     </div>
-                    <div className="flex items-center justify-center p-6 border-t rounded-b border-gray-600">
+                    <div className="flex items-center justify-center p-6 border-t rounded-b border-gray-600 space-x-8">
                         <Link to={'/quizzes'}>
-                        <div type="button" className="text-gray-300 bg-gray-700 hover:bg-gray-600 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                        <div type="button" className="text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                         onClick={() => isActive(false)}>
                             Take Another Quiz!
                         </div>
                         </Link>
+                        <button type="button" className="text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                        onClick={() => isActive(false)}>
+                            View Results!
+                        </button>
                     </div>
                 </div>
             </div>
