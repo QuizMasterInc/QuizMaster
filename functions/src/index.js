@@ -13,9 +13,11 @@ exports.grabQuiz = functions.https.onRequest(async (req, res) => {
 
 exports.saveResults = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
-        const data = req.get('content-type')
-        if(data === 'application/json'){
-            res.json(data.body)
+        const dataType = req.get('content-type')
+        if(dataType === 'application/json'){
+            const data = JSON.parse(JSON.stringify(req.body))
+            console.log(data)
+            //res.json(data.body)
         }
     })
 })

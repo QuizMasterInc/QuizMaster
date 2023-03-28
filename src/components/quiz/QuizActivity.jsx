@@ -28,7 +28,7 @@ function QuizActivity({}){
 
     const resultData = {
         uid: currentUser.uid,
-        category: category,
+        category: category.toLowerCase(),
         amountCorrect: amountCorrect,
         numberOfQuestions: numberOfQuestions
     }
