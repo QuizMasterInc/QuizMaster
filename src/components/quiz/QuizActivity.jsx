@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
+import { useAuth } from "../../contexts/AuthContext";
 import Question from "./Question";
 import DoneModal from "./DoneModal";
 import HelpModal from './HelpModal';
@@ -17,12 +18,20 @@ function QuizActivity({}){
     const [amountCorrect, setAmountCorrect] = useState(0)
     const [numberOfQuestions, setNumberOfQuestions] = useState(0)
     const [timeRemaining, setTimeRemaining] = useState(300); 
+    const { currentUser } = useAuth()
 
     const grabCorrect = useCallback((correct) =>{
         if(correct){
             setAmountCorrect((amountCorrect) => amountCorrect + 1)
         }
     }, [amountCorrect])
+
+    const resultData = {
+        uid: currentUser.uid,
+        category: category,
+        amountCorrect: amountCorrect,
+        numberOfQuestions: numberOfQuestions
+    }
 
     useEffect(() => {
         async function fetchQuiz(category) {
@@ -70,6 +79,24 @@ function QuizActivity({}){
     
         return () => clearInterval(timer);
       }, [loading, timeRemaining,completed]);
+
+      useEffect(() => {
+        async function sendResult() {
+            if(completed){
+                await fetch('http://127.0.0.1:6001/quizmaster-c66a2/us-central1/saveResults', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(resultData)
+                })
+                .then(response => console.log(response.json()))
+                .catch(console.log("error"))
+            }
+        }
+        sendResult()
+      }, [completed])
   
     return (
     <>
