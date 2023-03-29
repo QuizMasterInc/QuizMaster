@@ -59,3 +59,24 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
         }
     })
 })
+
+exports.grabResults = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const dataType = req.get('content-type')
+        if(dataType === 'application/json'){
+            const data = JSON.parse(JSON.stringify(req.body))
+            try{
+                const resultsRef = await admin.firestore().collection('results').doc(data.uid).collection('quizzes').doc(data.category).get()
+                console.log(resultsRef.data())
+                if(!resultsRef.exists){
+                    //doc doesnt exist
+                    res.json({score: 0})
+                }else{
+                    //doc exists 
+                    res.json(resultsRef.data())
+                }
+            }catch(error){
+            }
+        }
+    })
+})

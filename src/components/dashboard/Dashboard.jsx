@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { useCategory } from '../../contexts/CategoryContext'
 import {useAuth} from '../../contexts/AuthContext'
 import { QuizResult } from './QuizResult'
@@ -10,6 +10,7 @@ export default function Dashboard() {
     const {currentUser, logout} = useAuth()
     const [loading, setLoading] = useState(false)
     const {quizCategories, icons} = useCategory()
+    const [results, setResults] = useState([])
 
     async function handleLogout(){
       setError('')
@@ -28,6 +29,47 @@ export default function Dashboard() {
         )
       }
   }
+
+  function searchResults(category){
+    for(let i = 0; i < results.length; i++){
+      console.log(results[i])
+      if(results[i].category === category.toLowerCase()){
+        return results[i].score
+      }
+    }
+  }
+
+  useEffect(() => {
+    async function fetchResults(uid) {
+      quizCategories.map(async (category) => {
+        const data = {
+          uid: uid,
+          category: category.toLowerCase()
+        }
+        await fetch('http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabResults', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(res => res.json())
+                .then(data => {
+                  setResults(results => [...results, 
+                    {
+                      category: category.toLowerCase(),
+                      score: data.score 
+                    }])
+
+                })
+      })
+    }
+    fetchResults(currentUser.uid)
+    console.log(quizCategories)
+    console.log(results)
+}, [])
+
   return (
     <>
     <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -45,7 +87,7 @@ export default function Dashboard() {
               <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Here are your results</h2>
               <div className="flex flex-wrap">
                 {quizCategories.map((category, index) => (
-                  <QuizResult category={category} key={index} icon={icons[index]}/>
+                  <QuizResult category={category} key={index} icon={icons[index]} score={Math.round(searchResults(category) * 100)}/>
                 ))}
               </div>
             </div>
