@@ -29,8 +29,7 @@ function QuizActivity({}){
     const resultData = {
         uid: currentUser.uid,
         category: category.toLowerCase(),
-        amountCorrect: amountCorrect,
-        numberOfQuestions: numberOfQuestions
+        score: (amountCorrect / numberOfQuestions) 
     }
 
     useEffect(() => {
@@ -91,7 +90,7 @@ function QuizActivity({}){
                     },
                     body: JSON.stringify(resultData)
                 })
-                .then(response => console.log(response.json()))
+                .then(response => console.log(JSON.stringify(response.json())))
                 .catch(console.log("error"))
             }
         }
