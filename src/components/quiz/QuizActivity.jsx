@@ -19,6 +19,7 @@ function QuizActivity({}){
     const [numberOfQuestions, setNumberOfQuestions] = useState(0)
     const [timeRemaining, setTimeRemaining] = useState(300);
     const [uploadedResult, setUploadedResult] = useState(false)
+    const [resultData, setResultData] = useState()
     const { currentUser } = useAuth()
 
     const grabCorrect = useCallback((correct) =>{
@@ -26,12 +27,6 @@ function QuizActivity({}){
             setAmountCorrect((amountCorrect) => amountCorrect + 1)
         }
     }, [amountCorrect])
-
-    const resultData = {
-        uid: currentUser.uid,
-        category: category.toLowerCase(),
-        score: (amountCorrect / numberOfQuestions) 
-    }
 
     useEffect(() => {
         async function fetchQuiz(category) {
@@ -78,29 +73,34 @@ function QuizActivity({}){
         }
     
         return () => clearInterval(timer);
-      }, [loading, timeRemaining,completed]);
+      }, [loading, timeRemaining, completed]); 
 
       useEffect(() => {
+        const data = {
+            uid: currentUser.uid,
+            category: category.toLowerCase(),
+            score: (amountCorrect / numberOfQuestions)
+        }
+        console.log(data)
         async function sendResult() {
             if(completed){
-                await fetch('http://127.0.0.1:6001/quizmaster-c66a2/us-central1/saveResults', {
+                await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/saveResults', {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(resultData)
+                    body: JSON.stringify(data)
                 })
                 .then(res => res.json())
                 .then(data => {
                     setUploadedResult(data.result)
                     console.log(data.result)
                 })
-                .catch(console.log("error uploading"))
             }
         }
         sendResult()
-      }, [completed])
+      }, [amountCorrect])
   
     return (
     <>
@@ -114,7 +114,7 @@ function QuizActivity({}){
             Help
         </button>
         {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
-        {questions.slice(0, numberOfQuestions).map((question, index) => (
+        {questions.slice(0, 3).map((question, index) => (
             <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
             isCompleted={completed} callback={grabCorrect}/>
         ))} 
