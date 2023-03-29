@@ -38,11 +38,9 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
                     const newScore = data.score
                     const uid = data.uid
                     const category = data.category
-                    console.log("aint here bub")
                     setNewScore(newScore, uid, category)
                 }else{
                     //doc exists 
-                    console.log("it is here hahahahah")
                     if(!resultsRef.data().score){
                         await admin.firestore().collection('results').doc(data.uid).collection('quizzes').doc(data.category).update({
                             score: data.score

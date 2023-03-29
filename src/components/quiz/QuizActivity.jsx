@@ -17,7 +17,8 @@ function QuizActivity({}){
     const [loadingColor, setLoadingColor] = useState("#111827")
     const [amountCorrect, setAmountCorrect] = useState(0)
     const [numberOfQuestions, setNumberOfQuestions] = useState(0)
-    const [timeRemaining, setTimeRemaining] = useState(300); 
+    const [timeRemaining, setTimeRemaining] = useState(300);
+    const [uploadedResult, setUploadedResult] = useState(false)
     const { currentUser } = useAuth()
 
     const grabCorrect = useCallback((correct) =>{
@@ -90,8 +91,12 @@ function QuizActivity({}){
                     },
                     body: JSON.stringify(resultData)
                 })
-                .then(response => console.log(JSON.stringify(response.json())))
-                .catch(console.log("error"))
+                .then(res => res.json())
+                .then(data => {
+                    setUploadedResult(data.result)
+                    console.log(data.result)
+                })
+                .catch(console.log("error uploading"))
             }
         }
         sendResult()
