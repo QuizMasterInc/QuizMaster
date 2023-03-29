@@ -76,6 +76,7 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
                     res.json(resultsRef.data())
                 }
             }catch(error){
+                console.log(error)
             }
         }
     })
