@@ -4,38 +4,53 @@ import { Link } from "react-router-dom";
 
 export default function UpdateProfile() {
   const newEmailRef = useRef()
+  const currentPasswordRef = useRef()
   const newPasswordRef = useRef()
   const confirmNewPasswordRef = useRef()
-  const {currentUser, updateEmail, updatePassword, isGoogleAuth} = useAuth()
+  const {currentUser, updateEmail, updatePassword, isGoogleAuth, reAuthUser} = useAuth()
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e) {
-    e.preventDefault()  
+  async function handleSubmit(e) {
+    e.preventDefault()
 
-    if(isGoogleAuth){
+    if(isGoogleAuth){     
         return setError("Can not update Google account")
     }
     if(newPasswordRef.current.value !== confirmNewPasswordRef.current.value){
         return setError("New Passwords do not match")
     }
 
+    let reAuth = true
+    await reAuthUser(currentPasswordRef.current.value)
+      .then(() => {
+        console.log("User Authenticated")
+      })
+      .catch(error => {
+        reAuth = false
+      })
+    if(!reAuth){
+      return setError("Current password is incorrect")
+    }
+     
     const promises = []
     setLoading(true)
     setError('')
     setMessage('')
 
     if(newPasswordRef.current.value){
-      promises.push(updatePassword(newPasswordRef.current.value))
+      promises.push(reAuthUser(currentPasswordRef.current.value).then(() => {
+        return updatePassword(newPasswordRef.current.value)}))
   }
     if(newEmailRef.current.value !== currentUser.email){
         promises.push(updateEmail(newEmailRef.current.value))
     }
 
-    Promise.all(promises).then(() => {
+    await Promise.all(promises).then(() => {
         setMessage('Profile has been updated')
-    }).catch(() => {
+    }).catch(error => {
+        console.log(error.code)
         setError("Failed to update account. (Try logging out and updating again)")
     }).finally(() => {
         setLoading(false)
@@ -75,6 +90,19 @@ export default function UpdateProfile() {
                     className=" mt-3 relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     defaultValue={currentUser.email}
                     ref={newEmailRef}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="password" className="sr-only">
+                    Current Password
+                  </label>
+                  <label className="block mt-3 font-semibold text-left">Current Password</label>
+                  <input
+                    id="current-password"
+                    name="password"
+                    type="password"      
+                    className=" mt-3 relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                    ref={currentPasswordRef}
                   />
                 </div>
                 <div>
