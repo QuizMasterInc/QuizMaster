@@ -4,6 +4,7 @@ import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
 import {GoogleButton} from 'react-google-button';
 import { Navigate } from "react-router-dom";
+import Q from '../icons/Q';
 
 export default function Login() {
   const emailRef = useRef()
@@ -52,21 +53,19 @@ export default function Login() {
       <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div>
-            <img
-              className="mx-auto h-12 w-auto"
-              src="../../logo.svg"
-              alt="QuizMaster"
-            />
-            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-300">
+            <div className='flex flex-row justify-center align-middle -xl:ml-20'>
+              <Q />
+            </div>
+            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-300 -md:text-lg -xl:ml-20">
               Sign in to your account
             </h2>
-            <p className="mt-2 text-center text-sm text-gray-300">
+            <p className="mt-2 text-center text-sm text-gray-300 tracking-tight -xl:ml-20">
               Or{' '}
               <Link className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline" to="/register">Create your account</Link>
             </p>
-            {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3">{error}</label>}
+            {error && <label className="block mt-3 font-semi-bold text-center tracking-tight -xl:ml-20 text-black bg-red-400 py-3">{error}</label>}
           </div>
-          <div className="mt-4 bg-gray-300 shadow-md rounded-lg px-10 py-1">
+          <div className="mt-4 bg-gray-300 shadow-md rounded-lg px-10 py-1 tracking-tight -xl:ml-20">
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
               <input type="hidden" name="remember" defaultValue="true" />
               <div className="-space-y-px rounded-md shadow-sm">
@@ -125,8 +124,8 @@ export default function Login() {
               <p className="mt-2 text-sm py-1 text-black font-bold">
                 Or{' '}
               </p>
-              <div className="mt-2 text-sm py-1" >
-                <GoogleButton onClick={handleGoogleSignIn}/>
+              <div>
+              <GoogleButton onClick={handleGoogleSignIn} className="block mt-3 font-semi-bold tracking-tight -xl:ml-20 align-middle"/>
               </div>
             </div>
           </div>
