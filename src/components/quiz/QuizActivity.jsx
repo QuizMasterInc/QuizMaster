@@ -82,7 +82,9 @@ function QuizActivity({}){
         }
         async function sendResult() {
             if(completed){
-                await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/saveResults', {
+                //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/saveResults
+                //https://us-central1-quizmaster-c66a2.cloudfunctions.net/saveResults
+                await fetch('http://127.0.0.1:6001/quizmaster-c66a2/us-central1/saveResults', {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',

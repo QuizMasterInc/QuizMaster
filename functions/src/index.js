@@ -32,7 +32,6 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
             const data = JSON.parse(JSON.stringify(req.body))
             try{
                 const resultsRef = await admin.firestore().collection('results').doc(data.uid).collection('quizzes').doc(data.category).get()
-                console.log(resultsRef.data())
                 if(!resultsRef.exists){
                     //doc doesnt exist
                     const newScore = data.score
@@ -67,7 +66,6 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
             const data = JSON.parse(JSON.stringify(req.body))
             try{
                 const resultsRef = await admin.firestore().collection('results').doc(data.uid).collection('quizzes').doc(data.category).get()
-                console.log(resultsRef.data())
                 if(!resultsRef.exists){
                     //doc doesnt exist
                     res.json({score: 0})

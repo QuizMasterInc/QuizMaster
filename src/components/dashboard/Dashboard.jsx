@@ -47,7 +47,7 @@ export default function Dashboard() {
         }
         //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabResults
         //https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults
-        await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults', {
+        await fetch('http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabResults', {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
