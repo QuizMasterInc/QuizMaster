@@ -112,7 +112,7 @@ function QuizActivity({}){
             Help
         </button>
         {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
-        {questions.slice(0, 3).map((question, index) => (
+        {questions.slice(0, numberOfQuestions).map((question, index) => (
             <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
             isCompleted={completed} callback={grabCorrect}/>
         ))} 
