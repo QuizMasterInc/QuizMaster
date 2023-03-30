@@ -32,7 +32,6 @@ export default function Dashboard() {
 
   function searchResults(category){
     for(let i = 0; i < results.length; i++){
-      console.log(results[i])
       if(results[i].category === category.toLowerCase()){
         return results[i].score
       }
@@ -46,6 +45,8 @@ export default function Dashboard() {
           uid: uid,
           category: category.toLowerCase()
         }
+        //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabResults
+        //https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults
         await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults', {
                     method: 'POST',
                     headers: {
@@ -66,9 +67,7 @@ export default function Dashboard() {
       })
     }
     fetchResults(currentUser.uid)
-    console.log(quizCategories)
-    console.log(results)
-}, [])
+  }, [])
 
   return (
     <>

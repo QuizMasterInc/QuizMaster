@@ -80,7 +80,6 @@ function QuizActivity({}){
             category: category.toLowerCase(),
             score: (amountCorrect / numberOfQuestions)
         }
-        console.log(data)
         async function sendResult() {
             if(completed){
                 await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/saveResults', {
