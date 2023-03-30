@@ -4,11 +4,13 @@ import {useAuth} from '../../contexts/AuthContext'
 import { QuizResult } from './QuizResult'
 import { Link } from 'react-router-dom'
 import Q from '../icons/Q'
+import { ScaleLoader } from 'react-spinners'
 
 export default function Dashboard() {
     const [error, setError] = useState('')
     const {currentUser, logout} = useAuth()
     const [loading, setLoading] = useState(false)
+    const [loadingColor, setLoadingColor] = useState("#111827")
     const {quizCategories, icons} = useCategory()
     const [results, setResults] = useState([])
 
@@ -40,6 +42,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchResults(uid) {
+      setLoading(true)
       quizCategories.map(async (category) => {
         const data = {
           uid: uid,
@@ -47,7 +50,7 @@ export default function Dashboard() {
         }
         //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabResults
         //https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults
-        await fetch('http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabResults', {
+        await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults', {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/json',
@@ -67,6 +70,7 @@ export default function Dashboard() {
       })
     }
     fetchResults(currentUser.uid)
+    setLoading(false)
   }, [])
 
   return (
@@ -85,7 +89,8 @@ export default function Dashboard() {
             <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
               <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Here are your results</h2>
               <div className="flex flex-wrap">
-                {quizCategories.map((category, index) => (
+              <ScaleLoader className="block items-center justify-center gray-900 mt-8 -md:ml-16" loading={loading} color={loadingColor} width={25} height={100}/>
+                {!loading && quizCategories.map((category, index) => (
                   <QuizResult category={category} key={index} icon={icons[index]} score={Math.round(searchResults(category) * 100)}/>
                 ))}
               </div>

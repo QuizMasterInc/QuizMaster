@@ -3,6 +3,7 @@ import { useCategory } from '../../contexts/CategoryContext';
 import QuizSelectButton from './QuizSelectButton';
 import RandomQuizButton from './RandomQuizButton';
 import Random from '../icons/Random';
+import { Link } from 'react-router-dom';
 
 function SelectQuiz() {
   const {quizCategories, icons, destinations} = useCategory()
@@ -20,10 +21,10 @@ function SelectQuiz() {
         </div>
         <p className="text-sm text-gray-300 -sm:mt-4">
         Not finding the quiz you're looking for?{' '}
-        <a href="" className="text-gray-300 underline">
-          Suggest a quiz
-        </a>
-      </p>
+        </p>
+        <Link to={'/contact'}>
+          <p className='underline text-sm text-gray-300 -sm:mt-4'>Suggest a quiz</p>
+        </Link>
       </div>
     </>
   );
