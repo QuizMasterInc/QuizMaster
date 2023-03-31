@@ -50,22 +50,22 @@ export default function Login() {
 
   return (
     <>
-      <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col md:flex-row min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div>
-            <div className='flex flex-row justify-center align-middle -xl:ml-20'>
+            <div className='flex flex-row justify-center align-middle -xl:ml-16'>
               <Q />
             </div>
-            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-300 -md:text-lg -xl:ml-20">
+            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-300 -md:text-lg -xl:ml-16">
               Sign in to your account
             </h2>
-            <p className="mt-2 text-center text-sm text-gray-300 tracking-tight -xl:ml-20">
+            <p className="mt-2 text-center text-sm text-gray-300 tracking-tight -xl:ml-16">
               Or{' '}
               <Link className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline" to="/register">Create your account</Link>
             </p>
-            {error && <label className="block mt-3 font-semi-bold text-center tracking-tight -xl:ml-20 text-black bg-red-400 py-3">{error}</label>}
+            {error && <label className="block mt-3 font-semi-bold text-center tracking-tight -xl:ml-16 text-black bg-red-400 py-3">{error}</label>}
           </div>
-          <div className="mt-4 bg-gray-300 shadow-md rounded-lg px-10 py-1 tracking-tight -xl:ml-20">
+          <div className="mt-4 bg-gray-300 shadow-md rounded-lg px-10 py-1 tracking-tight -xl:ml-16">
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
               <input type="hidden" name="remember" defaultValue="true" />
               <div className="-space-y-px rounded-md shadow-sm">
@@ -102,14 +102,11 @@ export default function Login() {
                   />
                 </div>
               </div>
-              
-
               <div className="flex items-center justify-between">
                 <div className="text-sm text-indigo-600 hover:text-indigo-500 hover:underline">
                   <Link to="/forgotpassword">Forgot your password?</Link>
                 </div>
               </div>
-
               <div>
                 <button
                   type="submit"
@@ -124,8 +121,8 @@ export default function Login() {
               <p className="mt-2 text-sm py-1 text-black font-bold">
                 Or{' '}
               </p>
-              <div>
-              <GoogleButton onClick={handleGoogleSignIn} className="block mt-3 font-semi-bold tracking-tight -xl:ml-20 align-middle"/>
+              <div className="flex flex-col items-center ">
+              <GoogleButton onClick={handleGoogleSignIn} />
               </div>
             </div>
           </div>
