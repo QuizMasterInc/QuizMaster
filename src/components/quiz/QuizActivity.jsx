@@ -18,7 +18,6 @@ function QuizActivity({}){
     const [amountCorrect, setAmountCorrect] = useState(0)
     const [numberOfQuestions, setNumberOfQuestions] = useState(0)
     const [timeRemaining, setTimeRemaining] = useState(300)
-    const [doneSending, setDoneSending] = useState(false)
     const { currentUser } = useAuth()
 
     const grabCorrect = useCallback((correct) =>{
@@ -94,9 +93,6 @@ function QuizActivity({}){
                 })
                 .then(res => res.json())
                 .then(data => {
-                    console.log(data.result)
-                    setDoneSending(data.result)
-                    console.log(doneSending)
                 })
             }
         }
@@ -115,7 +111,7 @@ function QuizActivity({}){
             Help
         </button>
         {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
-        {questions.slice(0, 3).map((question, index) => (
+        {questions.slice(0, numberOfQuestions).map((question, index) => (
             <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
             isCompleted={completed} callback={grabCorrect}/>
         ))} 
@@ -125,7 +121,7 @@ function QuizActivity({}){
         </button>}
     </div>
     <ScaleLoader className="block items-center justify-center gray-900 mt-8 -md:ml-16" loading={loading} color={loadingColor} width={25} height={100}/>
-    {doneModalActive && <DoneModal isActive={setDoneModalActive} amountCorrect={amountCorrect} totalAmount={numberOfQuestions} active={doneModalActive} loading={doneSending}/>}
+    {doneModalActive && <DoneModal isActive={setDoneModalActive} amountCorrect={amountCorrect} totalAmount={numberOfQuestions} active={doneModalActive} />}
     </>
     )
 }

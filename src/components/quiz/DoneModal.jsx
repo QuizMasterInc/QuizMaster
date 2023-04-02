@@ -3,11 +3,8 @@ import { useState } from "react";
 import Modal from "react-modal";
 import SquareX from "../icons/SquareX";
 import { Link } from "react-router-dom";
-import { ClipLoader } from "react-spinners";
 
 const DoneModal = ({isActive, amountCorrect, totalAmount, active, loading}) => {
-    const [loadingColor, setLoadingColor] = useState("d1d5db")
-
     return (
     <Modal  isOpen={active}
             contentLabel="Done Modal"
@@ -38,7 +35,7 @@ const DoneModal = ({isActive, amountCorrect, totalAmount, active, loading}) => {
                     </div>
                     <div className="p-6 space-y-6">
                         <div className="flex items-center justify-center leading-relaxed text-gray-300 dark:text-gray-400 text-9xl -md:text-xl">
-                            {!loading ? <ClipLoader loading={loading} color={loadingColor} width={50} height={150}/> : <div>{amountCorrect.toString()}/{totalAmount.toString()}</div>}
+                            <div>{amountCorrect.toString()}/{totalAmount.toString()}</div>
                         </div>
                     </div>
                     <div className="flex items-center justify-center p-6 border-t rounded-b border-gray-600 space-x-8">
