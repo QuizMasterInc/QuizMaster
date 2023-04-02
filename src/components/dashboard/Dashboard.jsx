@@ -2,13 +2,13 @@ import React, {useState, useEffect} from 'react'
 import { useCategory } from '../../contexts/CategoryContext'
 import {useAuth} from '../../contexts/AuthContext'
 import { QuizResult } from './QuizResult'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import Q from '../icons/Q'
 import { Navigate } from 'react-router-dom'
 
 export default function Dashboard() {
     const [error, setError] = useState('')
-    const {currentUser, logout} = useAuth()
+    const {currentUser, logout, isGoogleAuth} = useAuth()
     const [loading, setLoading] = useState(false)
     const {quizCategories, icons} = useCategory()
     const [results, setResults] = useState([])
@@ -30,6 +30,7 @@ export default function Dashboard() {
         )
       }
   }
+
   return (
     <>
     <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -59,6 +60,11 @@ export default function Dashboard() {
                     Take another quiz!
                   </div>
             </Link>
+            {!isGoogleAuth && <Link to={'/update-profile'}>
+                  <div className='flex relative items-center mb-4 p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
+                    Update Profile
+                  </div>
+                  </Link>}
             <button
                 disabled={loading}
                 onClick={handleLogout}
