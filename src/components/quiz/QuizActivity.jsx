@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
+import { useAuth } from "../../contexts/AuthContext";
 import Question from "./Question";
 import DoneModal from "./DoneModal";
 import HelpModal from './HelpModal';
@@ -19,9 +20,8 @@ function QuizActivity({}){
     const [loadingColor, setLoadingColor] = useState("#111827")
     const [amountCorrect, setAmountCorrect] = useState(0)
     const [numberOfQuestions, setNumberOfQuestions] = useState(0)
+    const { currentUser } = useAuth()
     const [timerFinished, setTimerFinished] = useState(false);
-
-
 
     const grabCorrect = useCallback((correct) =>{
         if(correct){
@@ -84,8 +84,7 @@ function QuizActivity({}){
         setCompleted(true);
       }
     }, [timerFinished, completed]);
-
-
+    
     const handleTimeUp = useCallback(() => {
       setCompleted(true);
       setDoneModalActive(true);
@@ -94,9 +93,33 @@ function QuizActivity({}){
       setTimerFinished(true);
       
     };
-  
 
-
+      useEffect(() => {
+        const data = {
+            uid: currentUser.uid,
+            category: category.toLowerCase(),
+            score: (amountCorrect / numberOfQuestions)
+        }
+        async function sendResult() {
+            if(completed){
+                //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/saveResults
+                //https://us-central1-quizmaster-c66a2.cloudfunctions.net/saveResults
+                await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/saveResults', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(res => res.json())
+                .then(data => {
+                })
+            }
+        }
+        sendResult()
+      }, [amountCorrect])
+    
     return (
     <>
     <div className="flex flex-col items-center justify-center -md:ml-16">
@@ -120,21 +143,19 @@ function QuizActivity({}){
             <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
             isCompleted={completed} callback={grabCorrect}/>
         ))} 
-        <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
+        {!loading && <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
             onClick={() => {
               setCompleted(true);
               setDoneModalActive(true);
               setTimerFinished(true); 
-              
             }}
             disabled={completed} >
             Submit!
-        </button>
+        </button>}
     </div>
     <ScaleLoader className="block items-center justify-center gray-900 mt-8 -md:ml-16" loading={loading} color={loadingColor} width={25} height={100}/>
-    {doneModalActive && <DoneModal isActive={setDoneModalActive} amountCorrect={amountCorrect} totalAmount={numberOfQuestions} active={doneModalActive}/>}
+    {doneModalActive && <DoneModal isActive={setDoneModalActive} amountCorrect={amountCorrect} totalAmount={numberOfQuestions} active={doneModalActive} />}
     </>
     )
 }
-
 export default QuizActivity;

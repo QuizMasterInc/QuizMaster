@@ -1,15 +1,17 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { useCategory } from '../../contexts/CategoryContext'
 import {useAuth} from '../../contexts/AuthContext'
 import { QuizResult } from './QuizResult'
 import { Link, Navigate } from 'react-router-dom'
 import Q from '../icons/Q'
+import { Navigate } from 'react-router-dom'
 
 export default function Dashboard() {
     const [error, setError] = useState('')
     const {currentUser, logout, isGoogleAuth} = useAuth()
     const [loading, setLoading] = useState(false)
     const {quizCategories, icons} = useCategory()
+    const [results, setResults] = useState([])
 
     async function handleLogout(){
       setError('')
@@ -45,8 +47,8 @@ export default function Dashboard() {
             <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
               <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Here are your results</h2>
               <div className="flex flex-wrap">
-                {quizCategories.map((category, index) => (
-                  <QuizResult category={category} key={index} icon={icons[index]}/>
+              {quizCategories.map((category, index) => (
+                  <QuizResult category={category} key={index} icon={icons[index]} />
                 ))}
               </div>
             </div>
@@ -73,5 +75,6 @@ export default function Dashboard() {
           </div>
         </div>
     </div>
-    </>)
+    </>
+  )
 }
