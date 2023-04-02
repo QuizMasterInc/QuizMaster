@@ -4,7 +4,6 @@ import {useAuth} from '../../contexts/AuthContext'
 import { QuizResult } from './QuizResult'
 import { Link, Navigate } from 'react-router-dom'
 import Q from '../icons/Q'
-import { Navigate } from 'react-router-dom'
 
 export default function Dashboard() {
     const [error, setError] = useState('')
