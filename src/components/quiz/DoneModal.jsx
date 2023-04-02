@@ -12,6 +12,11 @@ const DoneModal = ({isActive, amountCorrect, totalAmount, active}) => (
                   backgroundColor: 'transparent',
                   height: 'max-content',
                   width: 'max-content',
+                },
+                content: {
+                    background: 'transparent',
+                    outline: 'none',
+                    border: 'none',
                 }
     }}>
         <div className="flex fixed z-50 align-middle justify-center w-full p-4 overflow-x-hidden overflow-y-auto h-modal">

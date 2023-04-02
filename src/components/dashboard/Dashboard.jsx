@@ -38,38 +38,6 @@ export default function Dashboard() {
       }
     }
   }
-
-  useEffect(() => {
-    async function fetchResults(uid) {
-      quizCategories.map(async (category) => {
-        const data = {
-          uid: uid,
-          category: category.toLowerCase()
-        }
-        //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabResults
-        //https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults
-        await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(res => res.json())
-                .then(data => {
-                  setResults(results => [...results, 
-                    {
-                      category: category.toLowerCase(),
-                      score: data.score 
-                    }])
-
-                })
-      })
-    }
-    fetchResults(currentUser.uid)
-  }, [])
-
   return (
     <>
     <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -87,7 +55,7 @@ export default function Dashboard() {
               <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Here are your results</h2>
               <div className="flex flex-wrap">
               {quizCategories.map((category, index) => (
-                  <QuizResult category={category} key={index} icon={icons[index]} score={Math.round(searchResults(category) * 100) ? Math.round(searchResults(category) * 100) : 0}/>
+                  <QuizResult category={category} key={index} icon={icons[index]} />
                 ))}
               </div>
             </div>
