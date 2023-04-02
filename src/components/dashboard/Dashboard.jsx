@@ -30,14 +30,6 @@ export default function Dashboard() {
         )
       }
   }
-
-  function searchResults(category){
-    for(let i = 0; i < results.length; i++){
-      if(results[i].category === category.toLowerCase()){
-        return results[i].score
-      }
-    }
-  }
   return (
     <>
     <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
