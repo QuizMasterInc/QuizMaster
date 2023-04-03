@@ -12,9 +12,15 @@ export default function UpdateProfile() {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [currentPasswordDefault, setCurrentPasswordDefault] = useState('')
+  const [newPasswordDefault, setNewPasswordDefault] = useState('')
+  const [confirmNewPasswordDefault, setConfirmNewPasswordDefault] = useState('')
 
   async function handleSubmit(e) {
     e.preventDefault()
+
+    setError('')
+    setMessage('')
 
     if(isGoogleAuth){     
         return setError("Can not update Google account")
@@ -37,8 +43,6 @@ export default function UpdateProfile() {
      
     const promises = []
     setLoading(true)
-    setError('')
-    setMessage('')
 
     if(newPasswordRef.current.value){
       promises.push(reAuthUser(currentPasswordRef.current.value).then(() => {
@@ -50,6 +54,9 @@ export default function UpdateProfile() {
 
     await Promise.all(promises).then(() => {
         setMessage('Profile has been updated')
+        setCurrentPasswordDefault('')
+        setNewPasswordDefault('')
+        setConfirmNewPasswordDefault('')
     }).catch(error => {
         console.log(error.code)
         setError("Failed to update account. (Try logging out and updating again)")
@@ -85,6 +92,7 @@ export default function UpdateProfile() {
                     id="new-email-address"
                     name="email"
                     type="email"
+                    required
                     autoComplete="email"
                     className=" mt-3 relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     defaultValue={currentUser.email}
@@ -99,7 +107,10 @@ export default function UpdateProfile() {
                   <input
                     id="current-password"
                     name="password"
-                    type="password"      
+                    type="password"
+                    required
+                    value={currentPasswordDefault}
+                    onChange={(e) => setCurrentPasswordDefault(e.target.value)}
                     className=" mt-3 relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     ref={currentPasswordRef}
                   />
@@ -115,6 +126,8 @@ export default function UpdateProfile() {
                     type="password"
                     autoComplete="current-password"
                     placeholder="Leave blank to keep the same"
+                    value={newPasswordDefault}
+                    onChange={(e) => setNewPasswordDefault(e.target.value)}
                     className=" mt-3 relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     ref={newPasswordRef}
                   />
@@ -129,6 +142,8 @@ export default function UpdateProfile() {
                     name="confirm-password"
                     type="password"
                     autoComplete="current-password"
+                    value={confirmNewPasswordDefault}
+                    onChange={(e) => setConfirmNewPasswordDefault(e.target.value)}
                     className=" mt-3 relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     placeholder="Leave blank to keep the same"
                     ref={confirmNewPasswordRef}
