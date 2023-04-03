@@ -1,41 +1,57 @@
 import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
+import Q from '../icons/Q';
 
 export default function UpdateProfile() {
   const newEmailRef = useRef()
+  const currentPasswordRef = useRef()
   const newPasswordRef = useRef()
   const confirmNewPasswordRef = useRef()
-  const {currentUser, updateEmail, updatePassword, isGoogleAuth} = useAuth()
+  const {currentUser, updateEmail, updatePassword, isGoogleAuth, reAuthUser} = useAuth()
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e) {
-    e.preventDefault()  
+  async function handleSubmit(e) {
+    e.preventDefault()
 
-    if(isGoogleAuth){
+    if(isGoogleAuth){     
         return setError("Can not update Google account")
     }
     if(newPasswordRef.current.value !== confirmNewPasswordRef.current.value){
         return setError("New Passwords do not match")
     }
 
+    let reAuth = true
+    await reAuthUser(currentPasswordRef.current.value)
+      .then(() => {
+        console.log("User Authenticated")
+      })
+      .catch(error => {
+        reAuth = false
+      })
+    if(!reAuth){
+      return setError("Current password is incorrect")
+    }
+     
     const promises = []
     setLoading(true)
     setError('')
     setMessage('')
 
     if(newPasswordRef.current.value){
-      promises.push(updatePassword(newPasswordRef.current.value))
+      promises.push(reAuthUser(currentPasswordRef.current.value).then(() => {
+        return updatePassword(newPasswordRef.current.value)}))
   }
     if(newEmailRef.current.value !== currentUser.email){
         promises.push(updateEmail(newEmailRef.current.value))
     }
 
-    Promise.all(promises).then(() => {
+    await Promise.all(promises).then(() => {
         setMessage('Profile has been updated')
-    }).catch(() => {
+    }).catch(error => {
+        console.log(error.code)
         setError("Failed to update account. (Try logging out and updating again)")
     }).finally(() => {
         setLoading(false)
@@ -47,18 +63,16 @@ export default function UpdateProfile() {
       <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div>
-            <img
-              className="mx-auto h-12 w-auto"
-              src="../../logo.svg"
-              alt="QuizMaster"
-            />
-            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-300">
+          <div className='flex flex-row justify-center align-middle -xl:ml-16'>
+              <Q />
+            </div>
+            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-300 -md:text-lg -xl:ml-16">
               Update Profile
             </h2>
-            {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3">{error}</label>}
-            {message && <label className="block mt-3 font-semi-bold text-center text-black bg-green-400 py-3">{message}</label>}
+            {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3 tracking-tight -xl:ml-16">{error}</label>}
+            {message && <label className="block mt-3 font-semi-bold text-center text-black bg-green-400 py-3 tracking-tight -xl:ml-16">{message}</label>}
           </div>
-          <div className="mt-4 bg-gray-300 shadow-md rounded-lg px-10 py-1">
+          <div className="mt-4 bg-gray-300 shadow-md rounded-lg px-10 py-1 tracking-tight -xl:ml-16">
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
               <input type="hidden" name="remember" defaultValue="true" />
               <div className="-space-y-px rounded-md shadow-sm">
@@ -75,6 +89,19 @@ export default function UpdateProfile() {
                     className=" mt-3 relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     defaultValue={currentUser.email}
                     ref={newEmailRef}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="password" className="sr-only">
+                    Current Password
+                  </label>
+                  <label className="block mt-3 font-semibold text-left">Current Password</label>
+                  <input
+                    id="current-password"
+                    name="password"
+                    type="password"      
+                    className=" mt-3 relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                    ref={currentPasswordRef}
                   />
                 </div>
                 <div>
