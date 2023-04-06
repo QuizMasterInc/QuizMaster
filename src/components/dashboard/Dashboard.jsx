@@ -1,15 +1,16 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { useCategory } from '../../contexts/CategoryContext'
 import {useAuth} from '../../contexts/AuthContext'
 import { QuizResult } from './QuizResult'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import Q from '../icons/Q'
 
 export default function Dashboard() {
     const [error, setError] = useState('')
-    const {currentUser, logout} = useAuth()
+    const {currentUser, logout, isGoogleAuth} = useAuth()
     const [loading, setLoading] = useState(false)
     const {quizCategories, icons} = useCategory()
+    const [results, setResults] = useState([])
 
     async function handleLogout(){
       setError('')
@@ -28,6 +29,7 @@ export default function Dashboard() {
         )
       }
   }
+
   return (
     <>
     <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -44,8 +46,8 @@ export default function Dashboard() {
             <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
               <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Here are your results</h2>
               <div className="flex flex-wrap">
-                {quizCategories.map((category, index) => (
-                  <QuizResult category={category} key={index} icon={icons[index]}/>
+              {quizCategories.map((category, index) => (
+                  <QuizResult category={category} key={index} icon={icons[index]} />
                 ))}
               </div>
             </div>
@@ -57,6 +59,11 @@ export default function Dashboard() {
                     Take another quiz!
                   </div>
             </Link>
+            {!isGoogleAuth && <Link to={'/update-profile'}>
+                  <div className='flex relative items-center mb-4 p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
+                    Update Profile
+                  </div>
+                  </Link>}
             <button
                 disabled={loading}
                 onClick={handleLogout}
@@ -67,5 +74,6 @@ export default function Dashboard() {
           </div>
         </div>
     </div>
-    </>)
+    </>
+  )
 }

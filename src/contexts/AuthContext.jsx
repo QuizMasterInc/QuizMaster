@@ -1,5 +1,5 @@
 import React, {useContext, useState, useEffect} from 'react'
-import {GoogleAuthProvider, signInWithPopup} from 'firebase/auth'
+import {GoogleAuthProvider, signInWithPopup, EmailAuthProvider} from 'firebase/auth'
 import {auth} from '../../firebase'
 
 const AuthContext = React.createContext()
@@ -10,6 +10,7 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState()
+    const [isGoogleAuth, setIsGoogleAuth] = useState(false)
     const [loading, setLoading] = useState(true)
 
     function signup(email, password){
@@ -33,10 +34,29 @@ export function AuthProvider({ children }) {
         return signInWithPopup(auth, provider)
     }
 
+    function updateEmail(email){
+        return currentUser.updateEmail(email)
+    }
+
+    function updatePassword(password){
+       return currentUser.updatePassword(password)
+    }
+    function reAuthUser(password){
+        const credentials = EmailAuthProvider.credential(
+            currentUser.email,
+            password
+        )
+        
+        return currentUser.reauthenticateWithCredential(credentials)
+    }
+  
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             setCurrentUser(user)
             setLoading(false)
+            if(user){
+                setIsGoogleAuth(user.providerData[0].providerId === 'google.com')
+            }
         })
 
         return unsubscribe
@@ -45,11 +65,15 @@ export function AuthProvider({ children }) {
 
     const value = {
         currentUser,
+        isGoogleAuth,
         login,
         signup,
         logout,
         resetPassword,
-        googleLogin
+        googleLogin,
+        updateEmail,
+        updatePassword,
+        reAuthUser
     }
 
     return (

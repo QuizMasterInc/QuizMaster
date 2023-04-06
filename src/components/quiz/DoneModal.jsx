@@ -1,9 +1,11 @@
 import React from "react";
+import { useState } from "react";
 import Modal from "react-modal";
 import SquareX from "../icons/SquareX";
 import { Link } from "react-router-dom";
 
-const DoneModal = ({isActive, amountCorrect, totalAmount, active}) => (
+const DoneModal = ({isActive, amountCorrect, totalAmount, active, loading}) => {
+    return (
     <Modal  isOpen={active}
             contentLabel="Done Modal"
             ariaHideApp={false}
@@ -12,6 +14,11 @@ const DoneModal = ({isActive, amountCorrect, totalAmount, active}) => (
                   backgroundColor: 'transparent',
                   height: 'max-content',
                   width: 'max-content',
+                },
+                content: {
+                    background: 'transparent',
+                    outline: 'none',
+                    border: 'none',
                 }
     }}>
         <div className="flex fixed z-50 align-middle justify-center w-full p-4 overflow-x-hidden overflow-y-auto h-modal">
@@ -27,9 +34,9 @@ const DoneModal = ({isActive, amountCorrect, totalAmount, active}) => (
                         </button>
                     </div>
                     <div className="p-6 space-y-6">
-                        <p className="flex items-center justify-center leading-relaxed text-gray-300 dark:text-gray-400 text-9xl -md:text-xl">
-                            {amountCorrect.toString()}/{totalAmount.toString()}
-                        </p>
+                        <div className="flex items-center justify-center leading-relaxed text-gray-300 dark:text-gray-400 text-9xl -md:text-xl">
+                            <div>{amountCorrect.toString()}/{totalAmount.toString()}</div>
+                        </div>
                     </div>
                     <div className="flex items-center justify-center p-6 border-t rounded-b border-gray-600 space-x-8">
                         <Link to={'/quizzes'}>
@@ -47,6 +54,6 @@ const DoneModal = ({isActive, amountCorrect, totalAmount, active}) => (
             </div>
         </div>
     </Modal>
-)
+)}
 
 export default DoneModal
