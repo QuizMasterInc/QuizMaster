@@ -2,19 +2,19 @@ import React from "react";
 import Logo from "../../assets/logo.jpg";
 
 const About = ({}) => (
-  <div className="py-12 text-gray-300 bg-gray-800 shadow-lg hover:shadow-x">
+  <div className="py-12 text-gray-300 bg-gray-800 shadow-lg hover:shadow-x pl-12">
     <div className="flex items-center justify-center">
       <img src={Logo} alt="logo" className="h-64 mx-auto w-76" />
     </div>
 
     <div className="flex items-center justify-center ">
-      <h1 className="pt-5 mb-4 text-6xl font-bold text-center">About Us</h1>
+      <h1 className="pt-5 mb-4 text-4xl font-bold text-center">About Us</h1>
     </div>
     <div className="flex flex-col mb-4 md:flex-row md:items-center">
       <div className="flex-1">
         <div className="info-div">
           <p className="text-lg md:text-xl lg:text-2xl xl:text-3xl">
-            <b className="text-3xl md:text-4xl lg:text-5xl xl:text-5xl text-gray-300">
+            <b className="text-4xl md:text-3xl lg:text-4xl xl:text-4xl text-gray-300">
               QuizMaster
             </b>{" "}
             is a web based application intended for users to manage, take quizzes,
@@ -30,8 +30,8 @@ const About = ({}) => (
     <div className="flex flex-col mb-4 md:flex-row md:items-center">
       <div className="flex-1">
         <div className="info-div">
-          <p className="py-4 text-lg md:text-xl lg:text-2xl xl:text-3xl">
-            <b className="text-3xl md:text-4xl lg:text-5xl xl:text-5xl text-gray-300">
+          <p className="py-4 text-lg md:text-xl lg:text-2xl xl:text-2xl">
+            <b className="text-4xl md:text-2xl lg:text-4xl xl:text-4xl text-gray-300">
               Our Team
             </b>{" "}
             will be utilizing React.js, Firebase hosting, Tailwind CSS styling, and
