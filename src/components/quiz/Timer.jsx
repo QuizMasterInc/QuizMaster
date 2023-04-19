@@ -4,7 +4,6 @@ function Timer(props) {
   const { timeLimit, onStopTimer, timerFinished  } = props;
   
   const [timeLeft, setTimeLeft] = useState(timeLimit);
-  let timer = null;
 
   useEffect(() => {
     let timer = null;
@@ -13,14 +12,15 @@ function Timer(props) {
         
       onStopTimer();
       
-    } else {
+    } else if (props.loading == false) {
        timer = setTimeout(() => {
+        console.log(props.loading)
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
       return () => clearInterval(timer);
     }
    
-  }, [timeLeft, onStopTimer]);
+  }, [timeLeft, onStopTimer,props.loading]);
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;

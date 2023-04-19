@@ -67,6 +67,19 @@ function QuizActivity({}){
     }
     fetchQuiz(category);
   }, [category]);
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+  
+    window.addEventListener('beforeunload', handleBeforeUnload);
+  
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+  
   
   useEffect(() => {
     if (timerFinished && !completed) {
@@ -121,6 +134,7 @@ function QuizActivity({}){
           onTimeUp={handleTimeUp}
           timerFinished={timerFinished}
           timeLeft={loading ? null : 5}
+          loading = {loading}
         />    
     </div> 
     <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg -md:text-md -md:p-4">Welcome to the {category} Quiz</h1>

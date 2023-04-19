@@ -5,19 +5,19 @@ import matt from "../../assets/matt.jpg"
 
 const Contact = ({}) => (
   <div className="text-gray-300 bg-gray-800 shadow-lg hover:shadow-x pt-15">
-    <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
-      <div className="grid grid-cols-2">
-        <div>
-          <h1 className="text-5xl font-bold text-gray-300">Quiz Master</h1>
-          <h2 className="text-lg font-semibold text-gray-300">This site is still in development</h2>
+  <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 text-center">
+      <div className="pl-10 text-left">
+        <h1 className="text-4xl font-bold text-gray-300">Quiz Master</h1>
+        <h2 className="text-lg font-semibold text-gray-300 ">
+          This site is still in development
+        </h2>
         </div>
-      </div>
-    </div>
-    <div className="flex items-center justify-center ">
-      <h1 className="pt-5 mb-4 text-5xl font-bold text-center">Contact Us</h1>
+        <div className="flex items-center justify-center ">
+          <h1 className="pl-8 pt-5 mb-4 text-5xl font-bold text-center">Contact Us</h1>
+        </div>
     </div>
     <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
-      <div className="grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 flex items-center justify-center">
+      <div className="grid-cols-1 gap-6 flex flex-wrap justify-center">
         <div className="flex flex-col items-center">
           <a href="https://lively-bay-020649610.2.azurestaticapps.net/" target="_blank">
             <img src={max} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
