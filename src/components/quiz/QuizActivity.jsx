@@ -1,3 +1,7 @@
+/**
+ * This is the quiz activity. It is how users take quizzes.
+ */
+
 import React, { useCallback, useEffect } from "react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -22,12 +26,20 @@ function QuizActivity({}){
   const { currentUser } = useAuth()
   const [timerFinished, setTimerFinished] = useState(false);
 
+  /**
+   * Callback function to send state of children question components back up to this parent component
+   */
   const grabCorrect = useCallback((correct) =>{
     if(correct){
       setAmountCorrect((amountCorrect) => amountCorrect + 1)
     }
   }, [amountCorrect])
 
+  /**
+   * Randomizes questions
+   * @param {*} array qustions array
+   * @returns randomized array
+   */
   function shuffle(array) {
     let currentIndex = array.length;
     let temporaryValue, randomIndex;
@@ -40,6 +52,9 @@ function QuizActivity({}){
     }
     return array;
   }
+  /**
+   * This useEffect() will pull questions from the database for each quiz category.
+   */
   useEffect(() => {
     async function fetchQuiz(category) {
       const data = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabQuiz?quiz=" + category.toLowerCase())
@@ -67,6 +82,10 @@ function QuizActivity({}){
     }
     fetchQuiz(category);
   }, [category]);
+
+  /**
+   * This useEffect() will... 
+   */
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       event.preventDefault();
@@ -80,23 +99,35 @@ function QuizActivity({}){
     };
   }, []);
   
-  
+  /**
+   * This useEffect() is called when the timer is finished. it will end the quiz
+   */
   useEffect(() => {
     if (timerFinished && !completed) {
       setDoneModalActive(true);
       setCompleted(true);
     }
   }, [timerFinished, completed]);
-    
+  
+  /**
+   * This sets completed to true and done modal active to true
+   */
   const handleTimeUp = useCallback(() => {
     setCompleted(true);
     setDoneModalActive(true);
   }, []);
 
+  /**
+   * Sets timer finished to true 
+   */
   const handleStopTimer = () => {
     setTimerFinished(true);
   };
 
+  /**
+   * Once the timer is finished, or the user finishes the quiz
+   * this useEffect() gets called to send scores to the database
+   */
   useEffect(() => {
     const data = {
       uid: currentUser.uid,
@@ -122,7 +153,12 @@ function QuizActivity({}){
     }
     sendResult()
   }, [amountCorrect])
-    
+  
+  /**
+   * This is the actual view element. Here we are creating the actual 
+   * style of the component. We are creating a list of questions by mapping
+   * through the questions array. 
+   */
   return (
   <>
   <div className="flex flex-col items-center justify-center -md:ml-16">

@@ -1,3 +1,7 @@
+/**
+ * This is the timer that gets mounted in the QuizActivity component
+ * THis determines how long the user has left in their quiz 
+ */
 import { useState, useEffect } from "react";
 
 function Timer(props) {

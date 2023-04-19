@@ -1,3 +1,6 @@
+/**
+ * This is the help modal. This simply displays instructions for taking the quiz. 
+ */
 import React from "react";
 import SquareX from "../icons/SquareX";
 import Modal from "react-modal";
