@@ -37,13 +37,12 @@ function App() {
               }/>
               
               {destinations.map((destination, index) => {
-                {console.log(destination)}
                 return ( //this return here is extremely important. do not delete it unless you want to go through the same pain i did :)
                 <Route key={index} path={destination} element={
                   <PrivateRoute>
                     <QuizActivity />
                   </PrivateRoute>
-                }/>)
+                } caseSensitive/>)
               })}
             </Route>
             <Route path="/updateprofile" element={

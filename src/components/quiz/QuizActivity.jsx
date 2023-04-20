@@ -58,6 +58,7 @@ function QuizActivity({}){
   }
   /**
    * This useEffect() will pull questions from the database for each quiz category.
+   * This is pulling from the database using a Google FIrebase Function. Defined in the "functions" folder
    */
   useEffect(() => {
     async function fetchQuiz(category) {
@@ -130,7 +131,7 @@ function QuizActivity({}){
 
   /**
    * Once the timer is finished, or the user finishes the quiz
-   * this useEffect() gets called to send scores to the database
+   * this useEffect() gets called to send scores to the database also using a Google Firebase Function
    */
   useEffect(() => {
     const data = {
