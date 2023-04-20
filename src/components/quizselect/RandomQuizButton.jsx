@@ -1,3 +1,6 @@
+/**
+ * This button will send the user to a random quiz
+ */
 import { Link } from "react-router-dom";
 
 const RandomQuizButton = ({ category, icon, destination}) => (
