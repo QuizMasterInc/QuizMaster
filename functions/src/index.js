@@ -1,8 +1,15 @@
+/**
+ * This file are the various firebase functions we are using
+ */
 const functions = require('firebase-functions')
 const admin = require('firebase-admin')
 const cors = require("cors")({origin: true})
 admin.initializeApp()
 
+/**
+ * This will grab the quiz from the database
+ * It takes the category and will take that specific quiz from the DB
+ */
 exports.grabQuiz = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const quiz = req.query.quiz
@@ -11,6 +18,13 @@ exports.grabQuiz = functions.https.onRequest(async (req, res) => {
     })
 })
 
+/**
+ * This function will update the score in the database, if there is one
+ * @param {*} savedScore score from database
+ * @param {*} newScore score from recently taken quiz
+ * @param {*} uid userID
+ * @param {*} category quiz category
+ */
 async function updateScore(savedScore, newScore, uid, category){
     if (savedScore < newScore){
         await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
@@ -19,12 +33,22 @@ async function updateScore(savedScore, newScore, uid, category){
     }
 }
 
+/**
+ * This function will set a new score for a recently taken quiz
+ * @param {*} newScore the new score from a recently taken quiz
+ * @param {*} uid userID
+ * @param {*} category quiz category
+ */
 async function setNewScore(newScore, uid, category){
     await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).set({
         score: newScore
     })
 }
 
+/**
+ * This function will update or set a new score depending on if the user has already taken a quiz or not
+ * This only updates the score if the score was greater than the saved score
+ */
 exports.saveResults = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const dataType = req.get('content-type')
@@ -59,6 +83,10 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
     })
 })
 
+/**
+ * This function grabs the scores for the user from the DB
+ * if they dont exist we return 0 
+ */
 exports.grabResults = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const dataType = req.get('content-type')
