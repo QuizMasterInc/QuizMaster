@@ -4,7 +4,7 @@
 
 import React, { useCallback, useEffect } from "react";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Navigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
 import { useAuth } from "../../contexts/AuthContext";
 import Question from "./Question";
@@ -13,7 +13,11 @@ import HelpModal from './HelpModal';
 import Timer from './Timer';
 
 function QuizActivity({}){
-  const { category } = useLocation().state;
+  /**
+   * These are the state variables.
+   */
+  //const { category } = useLocation().state; //this gets sent here when a user clicks the button for the category. 
+  const category = useLocation().pathname.split("/")[2].charAt(0).toUpperCase() + useLocation().pathname.split("/")[2].slice(1)
   const [questions, setQuestions] = useState([])
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [completed, setCompleted] = useState(false)
@@ -84,7 +88,7 @@ function QuizActivity({}){
   }, [category]);
 
   /**
-   * This useEffect() will... 
+   * This useEffect() will prompt the user before they leave if they want to
    */
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -157,7 +161,8 @@ function QuizActivity({}){
   /**
    * This is the actual view element. Here we are creating the actual 
    * style of the component. We are creating a list of questions by mapping
-   * through the questions array. 
+   * through the questions array. The ScaleLoader gets mounted in the questions are still
+   * loading into from the database
    */
   return (
   <>

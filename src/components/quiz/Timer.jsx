@@ -18,7 +18,6 @@ function Timer(props) {
       
     } else if (props.loading == false) {
        timer = setTimeout(() => {
-        console.log(props.loading)
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
       return () => clearInterval(timer);
