@@ -1,4 +1,7 @@
-//Template used from https://tailwindui.com/components/application-ui/forms/sign-in-forms
+/**
+* Template used from https://tailwindui.com/components/application-ui/forms/sign-in-forms
+* This is used for the login page for email/password and Google signin
+*/
 import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
@@ -13,6 +16,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   
+  //Handles email/password authentication
   async function handleSubmit(e) {
     e.preventDefault()
     var isAuth = false
@@ -34,6 +38,7 @@ export default function Login() {
       }
     }
 
+  //Handles Google authentication
   async function handleGoogleSignIn(e) {
     e.preventDefault()
 

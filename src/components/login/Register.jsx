@@ -1,4 +1,7 @@
-//Template used from https://tailwindui.com/components/application-ui/forms/sign-in-forms
+/**
+* Template used from https://tailwindui.com/components/application-ui/forms/sign-in-forms
+* This is used for account creation via email and password.
+*/
 import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
@@ -13,6 +16,7 @@ export default function Register() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+//Handles form submit
   async function handleSubmit(e) {
     e.preventDefault()
     var isAuth = false
