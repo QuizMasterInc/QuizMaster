@@ -1,3 +1,6 @@
+/**
+ * This context holds all the Firebase authenticate functions for both email/password and Google.
+ */
 import React, {useContext, useState, useEffect} from 'react'
 import {GoogleAuthProvider, signInWithPopup, EmailAuthProvider} from 'firebase/auth'
 import {auth} from '../../firebase'
@@ -41,6 +44,7 @@ export function AuthProvider({ children }) {
     function updatePassword(password){
        return currentUser.updatePassword(password)
     }
+    //Re Authenticate used in UpdateProfile to check if the user entered their current password correctly
     function reAuthUser(password){
         const credentials = EmailAuthProvider.credential(
             currentUser.email,
@@ -54,6 +58,7 @@ export function AuthProvider({ children }) {
         const unsubscribe = auth.onAuthStateChanged(user => {
             setCurrentUser(user)
             setLoading(false)
+            //Will set googleAuth to true if the user is using a Google account.
             if(user){
                 setIsGoogleAuth(user.providerData[0].providerId === 'google.com')
             }
