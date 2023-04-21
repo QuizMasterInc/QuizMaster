@@ -41,9 +41,6 @@ export default function UpdateProfile() {
 //This will check to see if the user entered their current password correctly
     let reAuth = true
     await reAuthUser(currentPasswordRef.current.value)
-      .then(() => {
-        console.log("User Authenticated")
-      })
       .catch(error => {
         reAuth = false
       })
