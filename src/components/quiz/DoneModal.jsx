@@ -1,3 +1,8 @@
+/**
+ * This modal appears when the quiz is completed or the timer is up. 
+ * It simply will host the number of correct questions out of the 
+ * amount of questions. 
+ */
 import React from "react";
 import { useState } from "react";
 import Modal from "react-modal";

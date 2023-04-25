@@ -1,3 +1,7 @@
+/**
+ * This is the dashboard parent component
+ * this will only get mounted if the user is logged in
+ */
 import React, {useState, useEffect} from 'react'
 import { useCategory } from '../../contexts/CategoryContext'
 import {useAuth} from '../../contexts/AuthContext'
@@ -6,12 +10,19 @@ import { Link, Navigate } from 'react-router-dom'
 import Q from '../icons/Q'
 
 export default function Dashboard() {
+  /**
+   * state variables
+   */
     const [error, setError] = useState('')
     const {currentUser, logout, isGoogleAuth} = useAuth()
     const [loading, setLoading] = useState(false)
     const {quizCategories, icons} = useCategory()
     const [results, setResults] = useState([])
 
+    /**
+     * Logout function
+     * @returns to signin once the user logs out
+     */
     async function handleLogout(){
       setError('')
        var isAuth = false
@@ -30,6 +41,10 @@ export default function Dashboard() {
       }
   }
 
+  /**
+   * The view here...
+   * THis will generate a QuizResult for each quiz category
+   */
   return (
     <>
     <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -59,7 +74,7 @@ export default function Dashboard() {
                     Take another quiz!
                   </div>
             </Link>
-            {!isGoogleAuth && <Link to={'/update-profile'}>
+            {!isGoogleAuth && <Link to={'/updateprofile'}>
                   <div className='flex relative items-center mb-4 p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
                     Update Profile
                   </div>

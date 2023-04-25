@@ -1,4 +1,7 @@
-//Template used from https://tailwindui.com/components/application-ui/forms/sign-in-forms
+/**
+* Template used from https://tailwindui.com/components/application-ui/forms/sign-in-forms
+* This is used for if the user forgets their password
+*/
 import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
@@ -11,7 +14,7 @@ export default function ForgotPassword() {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   
-
+//Handles form submit
   async function handleSubmit(e) {
     e.preventDefault()
 

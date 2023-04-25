@@ -1,3 +1,12 @@
+/**
+* Template used from https://tailwindui.com/components/application-ui/forms/sign-in-forms
+* This is used for the update the profile.
+* This only will show up email/password accounts inside the dashboard.
+* Will check if the user is using a Google account and prevent them from changing anything.
+* This will update both email and password at the same time. Or one at a time.
+* Current password is required to change any account email or password.
+*/
+
 import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
@@ -16,24 +25,22 @@ export default function UpdateProfile() {
   const [newPasswordDefault, setNewPasswordDefault] = useState('')
   const [confirmNewPasswordDefault, setConfirmNewPasswordDefault] = useState('')
 
+//Handles form submit
   async function handleSubmit(e) {
     e.preventDefault()
 
     setError('')
     setMessage('')
-
+//If the user if a Google account, stop and return an error
     if(isGoogleAuth){     
         return setError("Can not update Google account")
     }
     if(newPasswordRef.current.value !== confirmNewPasswordRef.current.value){
         return setError("New Passwords do not match")
     }
-
+//This will check to see if the user entered their current password correctly
     let reAuth = true
     await reAuthUser(currentPasswordRef.current.value)
-      .then(() => {
-        console.log("User Authenticated")
-      })
       .catch(error => {
         reAuth = false
       })
@@ -43,15 +50,16 @@ export default function UpdateProfile() {
      
     const promises = []
     setLoading(true)
-
+// If there is a new password entered, add to the promises list
     if(newPasswordRef.current.value){
       promises.push(reAuthUser(currentPasswordRef.current.value).then(() => {
         return updatePassword(newPasswordRef.current.value)}))
   }
+// If there is a new email entered, add to the promises list
     if(newEmailRef.current.value !== currentUser.email){
         promises.push(updateEmail(newEmailRef.current.value))
     }
-
+//Fulfilling the promises
     await Promise.all(promises).then(() => {
         setMessage('Profile has been updated')
         setCurrentPasswordDefault('')

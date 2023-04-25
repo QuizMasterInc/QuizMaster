@@ -1,6 +1,10 @@
+/**
+ * This is the quiz activity. It is how users take quizzes.
+ */
+
 import React, { useCallback, useEffect } from "react";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Navigate } from "react-router-dom";
 import { ScaleLoader } from "react-spinners";
 import { useAuth } from "../../contexts/AuthContext";
 import Question from "./Question";
@@ -9,7 +13,11 @@ import HelpModal from './HelpModal';
 import Timer from './Timer';
 
 function QuizActivity({}){
-  const { category } = useLocation().state;
+  /**
+   * These are the state variables.
+   */
+  //const { category } = useLocation().state; //this gets sent here when a user clicks the button for the category. 
+  const category = useLocation().pathname.split("/")[2].charAt(0).toUpperCase() + useLocation().pathname.split("/")[2].slice(1)
   const [questions, setQuestions] = useState([])
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [completed, setCompleted] = useState(false)
@@ -22,12 +30,20 @@ function QuizActivity({}){
   const { currentUser } = useAuth()
   const [timerFinished, setTimerFinished] = useState(false);
 
+  /**
+   * Callback function to send state of children question components back up to this parent component
+   */
   const grabCorrect = useCallback((correct) =>{
     if(correct){
       setAmountCorrect((amountCorrect) => amountCorrect + 1)
     }
   }, [amountCorrect])
 
+  /**
+   * Randomizes questions
+   * @param {*} array qustions array
+   * @returns randomized array
+   */
   function shuffle(array) {
     let currentIndex = array.length;
     let temporaryValue, randomIndex;
@@ -40,6 +56,10 @@ function QuizActivity({}){
     }
     return array;
   }
+  /**
+   * This useEffect() will pull questions from the database for each quiz category.
+   * This is pulling from the database using a Google FIrebase Function. Defined in the "functions" folder
+   */
   useEffect(() => {
     async function fetchQuiz(category) {
       const data = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabQuiz?quiz=" + category.toLowerCase())
@@ -67,6 +87,10 @@ function QuizActivity({}){
     }
     fetchQuiz(category);
   }, [category]);
+
+  /**
+   * This useEffect() will prompt the user before they leave if they want to
+   */
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       event.preventDefault();
@@ -80,23 +104,35 @@ function QuizActivity({}){
     };
   }, []);
   
-  
+  /**
+   * This useEffect() is called when the timer is finished. it will end the quiz
+   */
   useEffect(() => {
     if (timerFinished && !completed) {
       setDoneModalActive(true);
       setCompleted(true);
     }
   }, [timerFinished, completed]);
-    
+  
+  /**
+   * This sets completed to true and done modal active to true
+   */
   const handleTimeUp = useCallback(() => {
     setCompleted(true);
     setDoneModalActive(true);
   }, []);
 
+  /**
+   * Sets timer finished to true 
+   */
   const handleStopTimer = () => {
     setTimerFinished(true);
   };
 
+  /**
+   * Once the timer is finished, or the user finishes the quiz
+   * this useEffect() gets called to send scores to the database also using a Google Firebase Function
+   */
   useEffect(() => {
     const data = {
       uid: currentUser.uid,
@@ -122,7 +158,13 @@ function QuizActivity({}){
     }
     sendResult()
   }, [amountCorrect])
-    
+  
+  /**
+   * This is the actual view element. Here we are creating the actual 
+   * style of the component. We are creating a list of questions by mapping
+   * through the questions array. The ScaleLoader gets mounted in the questions are still
+   * loading into from the database
+   */
   return (
   <>
   <div className="flex flex-col items-center justify-center -md:ml-16">

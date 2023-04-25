@@ -1,3 +1,6 @@
+/**
+ * This component hosts a button to click for each quiz category
+ */
 import { Link } from "react-router-dom";
 
 const QuizSelectButton = ({index, category, icon, destination}) => (
