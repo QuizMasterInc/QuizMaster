@@ -15,9 +15,11 @@ import ForgotPassword from './components/login/ForgotPassword'
 import UpdateProfile from './components/login/UpdateProfile'
 import PrivateRoute from './routes/PrivateRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
-import { CategoryProvider } from './contexts/CategoryContext';
+import { CategoryProvider, useCategory } from './contexts/CategoryContext';
 
 function App() {
+  const {destinations} = useCategory();
+  
   return (
     <div className="App">
       <AuthProvider>
@@ -25,19 +27,25 @@ function App() {
             <Route path="/" element={<Home />}/>
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/quizzes" element={
-              <PrivateRoute>
-                <CategoryProvider>
-                  <SelectQuiz />
-                </CategoryProvider>
-              </PrivateRoute>
-            }/>
-            <Route path="/quizzes/:quiz" element={
-              <PrivateRoute>
-                <QuizActivity />
-              </PrivateRoute>
-            }/>
-            <Route path="/update-profile" element={
+            <Route path="/quizzes">
+              <Route index element={
+                <PrivateRoute>
+                  <CategoryProvider>
+                    <SelectQuiz />
+                  </CategoryProvider>
+                </PrivateRoute>
+              }/>
+              
+              {destinations.map((destination, index) => {
+                return ( //this return here is extremely important. do not delete it unless you want to go through the same pain i did :)
+                <Route key={index} path={destination} element={
+                  <PrivateRoute>
+                    <QuizActivity />
+                  </PrivateRoute>
+                } caseSensitive/>)
+              })}
+            </Route>
+            <Route path="/updateprofile" element={
               <PrivateRoute>
                 <UpdateProfile />
               </PrivateRoute>
@@ -47,7 +55,7 @@ function App() {
                 <Login />
               </PrivateSigninRoute>
             }/>
-            <Route path="forgotpassword" element={
+            <Route path="/forgotpassword" element={
               <PrivateSigninRoute>
                 <ForgotPassword />
               </PrivateSigninRoute>

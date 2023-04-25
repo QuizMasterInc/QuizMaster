@@ -1,3 +1,7 @@
+/**
+ * This parent component will allow users to navigate to the various quizzes
+ * based on the quiz category
+ */
 import React from 'react';
 import { useCategory } from '../../contexts/CategoryContext';
 import QuizSelectButton from './QuizSelectButton';
@@ -9,6 +13,10 @@ function SelectQuiz() {
   const {quizCategories, icons, destinations} = useCategory()
   const randomIndex = Math.floor(Math.random() * quizCategories.length);
 
+  /**
+   * View
+   * This will generate each QuizSelectButton and the RandomQuizButton
+   */
   return (
     <>
       <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">

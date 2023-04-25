@@ -1,3 +1,7 @@
+/**
+ * This is the timer that gets mounted in the QuizActivity component
+ * THis determines how long the user has left in their quiz 
+ */
 import { useState, useEffect } from "react";
 
 function Timer(props) {
@@ -14,7 +18,6 @@ function Timer(props) {
       
     } else if (props.loading == false) {
        timer = setTimeout(() => {
-        console.log(props.loading)
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
       return () => clearInterval(timer);

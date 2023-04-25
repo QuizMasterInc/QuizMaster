@@ -1,3 +1,7 @@
+/**
+ * This is the question component.
+ * This will host the question and the QuestionChoice component. 
+ */
 import React, { useEffect } from "react";
 import { useState } from "react";
 import QuestionChoice from "./QuestionChoice";
@@ -6,6 +10,10 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
     const [activeIndex, setActiveIndex] = useState(null)
     const [correct, setCorrect] = useState(false)
 
+    /**
+     * This useEffect() is called when the quiz is finished. it is used for grading purposes
+     * If the question is answered correctly or not. 
+     */
     useEffect(() => {
         function isCorrect(){
             if((answer === choices[activeIndex]) && (isCompleted)){

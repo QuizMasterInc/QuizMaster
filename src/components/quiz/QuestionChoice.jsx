@@ -1,7 +1,16 @@
+/**
+ * This is the question choice component. 
+ * This holds the text for each question choice
+ */
 import React from "react";
 
 function QuestionChoice ({choiceText, isSelected, onSelect, isCorrect, isIncorrect, isDisabled}){
 
+    /**
+     * This changes the background color of each question choice depending on if 
+     * the quiz was completed
+     * @returns Tailwind text to be put in the className
+     */
     function changeColor(){
         if (isSelected){
             if(isCorrect){
