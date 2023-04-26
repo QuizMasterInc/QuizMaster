@@ -26,10 +26,8 @@ Team Fun | Software Systems Capstone Project
 </center>
 
 <p align="center">
-Our capstone project that allows users to take quizzes on a variety of different topics. Quiz topics range from mathematics to history.
+Our capstone project that allows users to take quizzes on a variety of different topics. 
 </p>
-
-##
 
 ## Development Team (Team Fun)
 <h4>
@@ -53,6 +51,14 @@ Matthew Espinos
 ```sh
 npm install -g firebase-tools
 ```
+2. Login to Firebase
+```sh
+firebase login
+```
+3. Install Dependencies
+```sh
+npm install
+```
 
 ## Building and Running for Production
 1. Running a local build
@@ -73,8 +79,8 @@ npm run build
 ## Process
 Find the process and CI/CD configuration file [here](PROCESS.md).
 
-## MVP
-Find our Minimum Viable Product [here](MVP.md).
+## Minimum Viable Product
+Find our Minimum Viable Product (MVP) [here](MVP.md).
 
 ## Team
 Find team information [here](TEAM.md).
