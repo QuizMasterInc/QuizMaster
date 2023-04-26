@@ -29,9 +29,9 @@ Team Fun | Software Systems Capstone Project
     <img src="src/assets/logo.jpg">
 </div>
 
-<p align="center">
+<h4 align="center">
 Our capstone project that allows users to take quizzes on a variety of different topics. 
-</p>
+</h4>
 
 ## Development Team (Team Fun)
 <div>
