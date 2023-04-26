@@ -1,3 +1,8 @@
+/**
+ * This is the home page.
+ * There is no fancy JavaScript.
+ * We are simply displaying some HTML here. 
+ */
 import React from "react";
 import Logo from "../../assets/logo.jpg"
 import Student from "../../assets/student.jpg";
@@ -32,7 +37,7 @@ const Home = ({}) => (
       </div>
       <div className="md:w-1/2">
         <h1 className="pl-4 mt-10 text-xl font-bold text-gray-300">Ready to start the QuizMaster Experience? </h1>
-        <p className="pt-8 pr-8 mb-10 text-2xl text-gray-300">Simply Create an account <Link to="/register" className="underline">here</Link> if you don't have an account, or <Link to="/login" className="underline">login</Link> if you already have an account. Navigate to the <Link to="/quizzes" className="underline">quizzes</Link> page and select a quiz.page and select a quiz.</p>
+        <p className="pt-8 pr-8 mb-10 text-2xl text-gray-300">Simply Create an account <Link to="/register" className="underline">here</Link> if you don't have an account, or <Link to="/signin" className="underline">login</Link> if you already have an account. Navigate to the <Link to="/quizzes" className="underline">quizzes</Link> page and select a quiz.page and select a quiz.</p>
       </div>
     </div>
   </div>
