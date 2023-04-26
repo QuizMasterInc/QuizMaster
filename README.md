@@ -6,24 +6,28 @@
 Team Fun | Software Systems Capstone Project 
 </p>
 
-![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white) ![NPM](https://img.shields.io/badge/NPM-%23CB3837.svg?style=for-the-badge&logo=npm&logoColor=white) ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white) 
+<p align="center">
 
-<center>
+![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white) ![NPM](https://img.shields.io/badge/NPM-%23CB3837.svg?style=for-the-badge&logo=npm&logoColor=white) ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white) ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+
+</p> 
+
+<p align="center">
 
 ![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white) ![Google Cloud](https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white)
 
-</center>
+</p>
 
-<center>
+<p align="center">
 
 [![Production](https://img.shields.io/github/actions/workflow/status/QuizMasterInc/QuizMaster/prod.yml?branch=main&label=Production&style=for-the-badge)](https://github.com/QuizMasterInc/QuizMaster/actions/workflows/prod.yml) 
-[![Testing](https://img.shields.io/github/actions/workflow/status/QuizMasterInc/QuizMaster/testing.yml?branch=main&label=Testing&style=for-the-badge)](https://github.com/QuizMasterInc/QuizMaster/actions/workflows/testing.yml)
+[![Testing](https://img.shields.io/github/actions/workflow/status/QuizMasterInc/QuizMaster/testing.yml?branch=testing&label=Testing&style=for-the-badge)](https://github.com/QuizMasterInc/QuizMaster/actions/workflows/testing.yml)
 
-</center>
+</p>
 
-<center>
+<p align="center">
 <img src="src/assets/logo.jpg">
-</center>
+</p>
 
 <p align="center">
 Our capstone project that allows users to take quizzes on a variety of different topics. 
@@ -84,6 +88,3 @@ Find our Minimum Viable Product (MVP) [here](MVP.md).
 
 ## Team
 Find team information [here](TEAM.md).
-
-
-
