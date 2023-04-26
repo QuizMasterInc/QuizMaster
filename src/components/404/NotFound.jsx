@@ -1,3 +1,8 @@
+/**
+ * This component simply contains the 404 page.
+ * This gets displayed when a user enters a route that is not recognized by the application.
+ * This also allows users to go back home via a button. 
+ */
 import React from "react";
 import { Link } from "react-router-dom";
 import Q from "../icons/Q";
