@@ -1,3 +1,10 @@
+/**
+ * This is the main App component.
+ * This is how our application is run.
+ * Some routes are private routes. meaning the user has to be signed in
+ * Notice that some components are enclosed in the contexts, this is how we share state between these components. 
+ * The routes are enclosed in the authprovider, this is how we ensure authenticaiton throughout the application
+ */
 import './App.css'
 import NavBar from './components/navbar/NavBar'
 import { Route, Routes } from "react-router-dom";
@@ -18,6 +25,7 @@ import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
 
 function App() {
+  //importing destinations here from the context. 
   const {destinations} = useCategory();
   
   return (
@@ -37,6 +45,7 @@ function App() {
               }/>
               
               {destinations.map((destination, index) => {
+                //rendering the routes based on the categories we have.
                 return ( //this return here is extremely important. do not delete it unless you want to go through the same pain i did :)
                 <Route key={index} path={destination} element={
                   <PrivateRoute>
