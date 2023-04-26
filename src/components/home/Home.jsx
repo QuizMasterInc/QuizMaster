@@ -1,3 +1,8 @@
+/**
+ * This is the home page.
+ * There is no fancy JavaScript.
+ * We are simply displaying some HTML here. 
+ */
 import React from "react";
 import Logo from "../../assets/logo.jpg"
 import Student from "../../assets/student.jpg";
