@@ -13,10 +13,11 @@ function Timer(props) {
     let timer = null;
 
     if (timeLeft === 0 ||timerFinished) {
-        
+      // Call the onStopTimer function to notify the parent component
       onStopTimer();
       
-    } else if (props.loading == false) {
+    } else if (props.loading == false) {      
+      // If loading is done, set up a timer that decrements timeLeft by 1 every second
        timer = setTimeout(() => {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
