@@ -9,6 +9,7 @@ import {GoogleButton} from 'react-google-button';
 import { Navigate } from "react-router-dom";
 import Q from '../icons/Q';
 
+//State variables
 export default function Login() {
   const emailRef = useRef()
   const passwordRef = useRef()
@@ -26,11 +27,12 @@ export default function Login() {
       setLoading(true)
       await login(emailRef.current.value, passwordRef.current.value)
       isAuth = true
-      
+    //If login fails
     }catch{
         setError("Failed to sign in")
     }
     setLoading(false)
+    //Redirects to quizzes page if router does not work
     if(isAuth){
       return (
         <Navigate to="/quizzes" />
@@ -46,7 +48,7 @@ export default function Login() {
       setError('')
       setLoading(true)
       await googleLogin()
-      
+    //If Google auth fails
     }catch{
         setError("Failed to sign in with google")
     }

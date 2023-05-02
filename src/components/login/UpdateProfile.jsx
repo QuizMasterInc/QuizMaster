@@ -12,6 +12,7 @@ import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
 import Q from '../icons/Q';
 
+//State variables
 export default function UpdateProfile() {
   const newEmailRef = useRef()
   const currentPasswordRef = useRef()
@@ -44,6 +45,7 @@ export default function UpdateProfile() {
       .catch(error => {
         reAuth = false
       })
+    //If re-authentication fails
     if(!reAuth){
       return setError("Current password is incorrect")
     }

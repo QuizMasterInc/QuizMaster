@@ -7,6 +7,7 @@ import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
 import Q from '../icons/Q';
 
+//State variables
 export default function ForgotPassword() {
   const emailRef = useRef()
   const {resetPassword} = useAuth()
@@ -24,7 +25,7 @@ export default function ForgotPassword() {
         setLoading(true)
         await resetPassword(emailRef.current.value)
         setMessage('Check your inbox for further instructions')
-      
+    //If reseting password fails
     }catch{
         setError("Failed to reset password")
     }
