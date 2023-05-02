@@ -1,22 +1,30 @@
 import React from "react";
+
+// Importing images
 import max from "../../assets/max.jpg"
 import anthony from "../../assets/anthony.jpg"
 import matt from "../../assets/matt.jpg"
 
 const Contact = ({}) => (
+    // Top-level container with text and background styling
   <div className="text-gray-300 bg-gray-800 shadow-lg hover:shadow-x pt-15">
-  <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 text-center">
+  {/* Inner container for text content */}
+    <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 text-center">
+    {/* Sub-container for the header and subtitle */}
       <div className="pl-10 text-left">
         <h1 className="text-4xl font-bold text-gray-300">Quiz Master</h1>
         <h2 className="text-lg font-semibold text-gray-300 ">
           This site is still in development
         </h2>
         </div>
+      {/* Sub-container for the "Contact Us" header */}
         <div className="flex items-center justify-center ">
           <h1 className="pl-8 pt-5 mb-4 text-5xl font-bold text-center">Contact Us</h1>
         </div>
     </div>
-    <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+     {/* Container for contact information */}
+     <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+      {/* Grid layout for contact information */}
       <div className="grid-cols-1 gap-6 flex flex-wrap justify-center">
         <div className="flex flex-col items-center">
           <a href="https://lively-bay-020649610.2.azurestaticapps.net/" target="_blank">

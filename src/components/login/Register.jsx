@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import Q from '../icons/Q';
 
+//State variables
 export default function Register() {
   const emailRef = useRef()
   const passwordRef = useRef()
@@ -21,6 +22,7 @@ export default function Register() {
     e.preventDefault()
     var isAuth = false
 
+    //If the passwords do not match
     if(passwordRef.current.value !== confirmPasswordRef.current.value){
         return setError("Passwords do not match.")
     }
@@ -31,11 +33,12 @@ export default function Register() {
       await signup(emailRef.current.value, passwordRef.current.value)
       isAuth = true
       
-      
+    //If signup fails
     }catch{
         setError("Failed to create an account")
     }
     setLoading(false)
+    //Redirects to quizzes page if router does not work
     if(isAuth){
       return (
         <Navigate to="/quizzes" />
