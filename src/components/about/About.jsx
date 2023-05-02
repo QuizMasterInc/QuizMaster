@@ -3,13 +3,17 @@ import Logo from "../../assets/logo.jpg";
 
 const About = ({}) => (
   <div className="py-12 text-gray-300 bg-gray-800 shadow-lg hover:shadow-x pl-12">
+    {/* A div containing an image with the QuizMaster logo */}
     <div className="flex items-center justify-center">
       <img src={Logo} alt="logo" className="h-64 mx-auto w-76" />
     </div>
 
+    {/* A div containing the About Us heading */}
     <div className="flex items-center justify-center ">
       <h1 className="pt-5 mb-4 text-4xl font-bold text-center">About Us</h1>
     </div>
+
+    {/* A div containing information about the QuizMaster application */}
     <div className="flex flex-col mb-4 md:flex-row md:items-center">
       <div className="flex-1">
         <div className="info-div">
@@ -27,6 +31,7 @@ const About = ({}) => (
         </div>
       </div>
     </div>
+  {/* A div containing information about the QuizMaster team and technologies */}
     <div className="flex flex-col mb-4 md:flex-row md:items-center">
       <div className="flex-1">
         <div className="info-div">
