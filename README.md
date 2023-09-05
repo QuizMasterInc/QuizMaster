@@ -64,6 +64,11 @@ Our capstone project that allows users to take quizzes on a variety of different
 
 [![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:jahikstewart@lewis.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/JahiStewart)
 </div>
+<div>
+<h4>Jose Montes De Oca Morfin</h4> 
+
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:joseamontesdeocamo@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/JoseMDO)
+</div>
 
 ## Installation and Setup
 1. Install Firebase CLI 
