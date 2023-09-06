@@ -2,7 +2,7 @@ Scrum will be implemented by assigning the following roles: Product Owner, Scrum
 
 ### Team Roles
 
-Matthew Espino - Scrum Master
+Matthew Senese - Scrum Master
 
 Tyler Zenisek - Product Owner
 
