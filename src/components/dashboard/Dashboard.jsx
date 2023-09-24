@@ -20,7 +20,7 @@ export default function Dashboard() {
     const [results, setResults] = useState([])
 
     /**
-     * Logout function
+     * Logout function.
      * @returns to signin once the user logs out
      */
     async function handleLogout(){
