@@ -2,8 +2,12 @@ Scrum will be implemented by assigning the following roles: Product Owner, Scrum
 
 ### Team Roles
 
-Anthony Mastores - Scrum Master
+Matthew Senese - Scrum Master
 
-Max Lewis - Product Owner 
+Tyler Zenisek - Product Owner
 
-Matthew Espinos - Development Team
+Jahi Stewart - Development Team
+
+Julie Dosher - Development Team
+
+Jose Montes De Oca Morfin - Development Team
