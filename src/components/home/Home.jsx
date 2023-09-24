@@ -36,7 +36,7 @@ const Home = ({}) => (
         <img src={Quiz} alt="quiz" className="h-64 mx-auto w-76" />
       </div>
       <div className="md:w-1/2">
-        <h1 className="pl-4 mt-10 text-3xl font-bold text-gray-300">Are you ready to start the QuizMaster Experience? </h1>
+        <h1 className="pl-4 mt-10 text-3xl font-bold text-gray-300">Are you ready to start the QuizMaster Experience?</h1>
         <p className="pt-8 pr-8 mb-10 text-2xl text-gray-300">Simply Create an account <Link to="/register" className="underline">here</Link> if you don't have one already, or <Link to="/signin" className="underline">login</Link> if you already have an account. Navigate to the <Link to="/quizzes" className="underline">quizzes</Link> page and select a quiz. Enjoy!</p>
       </div>
     </div>
