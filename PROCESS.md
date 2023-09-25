@@ -1,16 +1,16 @@
 ### Overview
 
-The team aims to meet on Tuesday's at 2PM each week in order to review the progress that is made.
+The team plans to meet on Tuesdays at 2PM each week in order to review the progress that has been made.
 
-This way there is communication between teammembers at least once a week and a review of the team's work near the end of the sprint. 
+This way there is in-person communication between team members at least once a week.
 
-We also plan on using our Discord server for contstant communication. 
+We also plan on using our Discord server for consistent communication throughout each sprint. 
 
 The team uses GitHub projects for management of the developement of this project.
 
 ### Plans for CI/CD
 
-To separate testing from production, this repository has two branches. The main branch will hold production code. Only code that is set to be used by consumers should be pushed to this branch. All other code will be pushed to the "testing" branch. This will ensure that once a site is live and usable, the team can work on adding features or functionality to the project without breaking what currently works. Team members can update the testing branch during a sprint and when the team is satisfied with the changes, these changes can finally be merged with the main branch. This setup will require developers to make sure they pull from the testing branch prior to altering the code so that the development code is not changed by mistake. Furthermore, the testing branch will have its own URL, letting users test the new changes. 
+To separate testing from production, this repository has two branches. The main branch will hold production code. Only code that is set to be used by consumers should be pushed to this branch. All other code will be pushed to the "testing" branch. This will ensure that once a site is live and usable, the team can work on adding features or functionality to the project without breaking what currently works. Team members can update the testing branch during a sprint and when the team is satisfied with the changes, these changes can finally be merged with the main branch. This setup will require developers to make sure they pull from the testing branch prior to altering the code so that the development code is not changed by mistake. Furthermore, the testing branch will also be hosted, letting users test the new changes if they so desire. 
 
 ### System Process and Configuration with Firebase 
 
