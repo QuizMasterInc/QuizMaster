@@ -34,6 +34,7 @@ export default function Dashboard() {
           setError("Failed to logout")
       }
       setLoading(false)
+      localStorage.setItem('isAuthenticated', 'false');
       if(isAuth){
         return (
           <Navigate to="/signin" />

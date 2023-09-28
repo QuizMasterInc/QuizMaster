@@ -27,6 +27,11 @@ export default function Login() {
       setLoading(true)
       await login(emailRef.current.value, passwordRef.current.value)
       isAuth = true
+      /* This stores the login status for the users 
+      local device to redirect them to the right page when the 
+      page closes and re opens
+      */
+      localStorage.setItem('isAuthenticated', 'true');
     //If login fails
     }catch{
         setError("Failed to sign in")
@@ -48,6 +53,11 @@ export default function Login() {
       setError('')
       setLoading(true)
       await googleLogin()
+      /* This stores the login status for the users 
+      local device to redirect them to the right page when the 
+      page closes and re opens
+      */
+      localStorage.setItem('isAuthenticated', 'true');
     //If Google auth fails
     }catch{
         setError("Failed to sign in with google")

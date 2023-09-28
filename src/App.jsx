@@ -27,12 +27,25 @@ import { CategoryProvider, useCategory } from './contexts/CategoryContext';
 function App() {
   //importing destinations here from the context. 
   const {destinations} = useCategory();
-  
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+
   return (
     <div className="App">
       <AuthProvider>
           <Routes>
-            <Route path="/" element={<Home />}/>
+            {isAuthenticated ? (
+              <Route path="/" element={
+                <PrivateRoute>
+                  <CategoryProvider>
+                    <Dashboard />
+                  </CategoryProvider>
+                </PrivateRoute>
+              } />
+            ) : (
+              <Route path="/" element={<Home />} />
+            )
+            }
+            <Route path="/home" element={<Home />}/>
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/quizzes">

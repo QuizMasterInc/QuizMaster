@@ -19,7 +19,7 @@ export default function NavBar() {
             <div className="flex flex-col items-center p-2 mt-4 rounded-md">
                 <Q />
             </div>
-            <NavLink to="/" className={"flex flex-col items-center"}>
+            <NavLink to="/home" className={"flex flex-col items-center"}>
                 <NavBarIcon icon={<House className={"navbar-icon"} />} text={"Home"} />
             </NavLink>
             <NavLink to="/quizzes" className={"flex flex-col items-center"}>
