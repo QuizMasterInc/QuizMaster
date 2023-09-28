@@ -4,6 +4,7 @@ import React from "react";
 import max from "../../assets/max.jpg"
 import anthony from "../../assets/anthony.jpg"
 import matt from "../../assets/matt.jpg"
+import jose from "../../assets/jose.jpg"
 
 const Contact = ({}) => (
     // Top-level container with text and background styling
@@ -16,11 +17,86 @@ const Contact = ({}) => (
         <h2 className="text-lg font-semibold text-gray-300 ">
           This site is still in development
         </h2>
-        </div>
+        </div>  
       {/* Sub-container for the "Contact Us" header */}
         <div className="flex items-center justify-center ">
           <h1 className="pl-8 pt-5 mb-4 text-5xl font-bold text-center">Contact Us</h1>
         </div>
+    </div>
+
+    {/* THIS IS THE INFORMATION FOR THE FALL 2023 TEAM*/}
+
+    <div className="flex items-center justify-center ">
+      <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Fall 2023 Team</h1>
+    </div>
+    {/* Container for contact information */}
+    <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+        {/* Grid layout for contact information */}
+        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center">
+          <div className="flex flex-col items-center">
+            <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank">
+              <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3>
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline">
+                joseamontesdeocamo@lewisu.edu
+              </a>
+            </div>
+          </div>
+          <div className="flex flex-col items-center">
+            <a href="https://anthonymastores.github.io/getting-to-know-eachother/" target="_blank">
+              <img src={anthony} alt="anthony" className="object-cover w-48 h-48 rounded-full" />
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Anthony Mastores</h3>
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:anthonyjmastores@lewisu.edu" className="hover:underline">
+                anthonyjmastores@lewisu.edu
+              </a>
+            </div>
+          </div>
+          <div className="flex flex-col items-center">
+            <a href="https://assignment-portfolio-me.azurewebsites.net/getting-to-know-me-version-2.html" target="_blank">
+              <img src={matt} alt="matthew" className="object-cover w-48 h-48 rounded-full" />
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Matthew Espinos</h3>
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:matthewwespinos@lewisu.edu" className="hover:underline">
+                matthewwespinos@lewisu.edu
+              </a>
+            </div>
+          </div>
+          <div className="flex flex-col items-center">
+            <a href="https://lively-bay-020649610.2.azurestaticapps.net/" target="_blank">
+              <img src={max} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Maximus Lewis</h3>
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:maximusslewis@lewisu.edu" className="hover:underline">
+                maximusslewis@lewisu.edu
+              </a>
+            </div>
+          </div>
+          <div className="flex flex-col items-center">
+            <a href="https://lively-bay-020649610.2.azurestaticapps.net/" target="_blank">
+              <img src={max} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Maximus Lewis</h3>
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:maximusslewis@lewisu.edu" className="hover:underline">
+                maximusslewis@lewisu.edu
+              </a>
+            </div>
+          </div>
+        </div>
+    </div>
+
+
+    {/* THIS IS THE INFORMATION FOR THE SPRING 2023 TEAM*/}
+
+
+    <div div className="flex items-center justify-center ">
+      <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2023 Team</h1>
     </div>
      {/* Container for contact information */}
      <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
