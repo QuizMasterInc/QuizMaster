@@ -67,25 +67,25 @@ export default function Login() {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col md:flex-row h-full items-center justify-center mt-20 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div>
             <div className='flex flex-row justify-center align-middle -xl:ml-16'>
-              <Q />
+            <Q />
             </div>
             <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-300 -md:text-lg -xl:ml-16">
               Sign in to your account
             </h2>
             <p className="mt-2 text-center text-sm text-gray-300 tracking-tight -xl:ml-16">
               Or{' '}
-              <Link className="font-medium text-indigo-600 hover:text-indigo-500 hover:underline" to="/register">Create your account</Link>
+              <Link className="font-medium text-base text-indigo-600 hover:text-indigo-500 hover:underline" to="/register">Create your account</Link>
             </p>
             {error && <label className="block mt-3 font-semi-bold text-center tracking-tight -xl:ml-16 text-black bg-red-400 py-3">{error}</label>}
           </div>
           <div className="mt-4 bg-gray-300 shadow-md rounded-lg px-10 py-1 tracking-tight -xl:ml-16">
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
               <input type="hidden" name="remember" defaultValue="true" />
-              <div className="-space-y-px rounded-md shadow-sm">
+              <div className="-space-y-px shadow-sm">
                 <div>
                   <label htmlFor="email-address" className="sr-only">
                     Email
@@ -113,7 +113,7 @@ export default function Login() {
                     type="password"
                     autoComplete="current-password"
                     required
-                    className=" mt-3 relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                    className=" mt-3 relative rounded block w-full appearance-none border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     placeholder="Password"
                     ref={passwordRef}
                   />
@@ -135,10 +135,10 @@ export default function Login() {
               </div>
             </form>
             <div className="mt-6 text-center flex flex-col items-center">
-              <p className="mt-2 text-sm py-1 text-black font-bold">
+              <p className="mt-.5 text-sm py-1 text-black font-bold">
                 Or{' '}
               </p>
-              <div className="flex flex-col items-center ">
+              <div className="flex flex-col items-center my-5">
               <GoogleButton onClick={handleGoogleSignIn} />
               </div>
             </div>
