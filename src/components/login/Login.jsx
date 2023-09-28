@@ -29,9 +29,11 @@ export default function Login() {
       isAuth = true
       /* This stores the login status for the users 
       local device to redirect them to the right page when the 
-      page closes and re opens
+      page closes and re opens. If it is true then they will go 
+      to the dashboard else they will land at the home page
       */
       localStorage.setItem('isAuthenticated', 'true');
+
     //If login fails
     }catch{
         setError("Failed to sign in")
@@ -55,7 +57,8 @@ export default function Login() {
       await googleLogin()
       /* This stores the login status for the users 
       local device to redirect them to the right page when the 
-      page closes and re opens
+      page closes and re opens. If it is true then they will go 
+      to the dashboard else they will land at the home page
       */
       localStorage.setItem('isAuthenticated', 'true');
     //If Google auth fails
