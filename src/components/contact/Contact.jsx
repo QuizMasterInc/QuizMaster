@@ -5,6 +5,7 @@ import max from "../../assets/max.jpg"
 import anthony from "../../assets/anthony.jpg"
 import matt from "../../assets/matt.jpg"
 import jose from "../../assets/jose.jpg"
+import matthew from "../../assets/matthew.jpg"
 
 const Contact = ({}) => (
     // Top-level container with text and background styling
@@ -45,13 +46,13 @@ const Contact = ({}) => (
             </div>
           </div>
           <div className="flex flex-col items-center">
-            <a href="https://anthonymastores.github.io/getting-to-know-eachother/" target="_blank">
-              <img src={anthony} alt="anthony" className="object-cover w-48 h-48 rounded-full" />
+            <a href="https://red-coast-075a6b510.3.azurestaticapps.net" target="_blank">
+              <img src={matthew} alt="Matthew" className="object-cover w-48 h-48 rounded-full" />
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">Anthony Mastores</h3>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Matthew Senese</h3>
             <div className="mt-2 text-gray-300">
-              <a href="mailto:anthonyjmastores@lewisu.edu" className="hover:underline">
-                anthonyjmastores@lewisu.edu
+              <a href="mailto:matthewjsenese@lewisu.edu" className="hover:underline">
+                matthewjsenese@lewisu.edu
               </a>
             </div>
           </div>
@@ -66,6 +67,10 @@ const Contact = ({}) => (
               </a>
             </div>
           </div>
+        </div>
+        
+        {/* SECOND ROW FOR THE FALL 2023 TEAM*/}
+        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center">
           <div className="flex flex-col items-center">
             <a href="https://lively-bay-020649610.2.azurestaticapps.net/" target="_blank">
               <img src={max} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
