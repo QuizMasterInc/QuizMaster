@@ -23,6 +23,7 @@ import UpdateProfile from './components/login/UpdateProfile'
 import PrivateRoute from './routes/PrivateRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
+import CustomQuiz from './components/customquiz/CustomQuiz';
 
 function App() {
   //importing destinations here from the context. 
@@ -67,6 +68,11 @@ function App() {
                 } caseSensitive/>)
               })}
             </Route>
+            <Route path="/customquiz" element={
+              <PrivateRoute>
+                <CustomQuiz />
+              </PrivateRoute>
+            }/>
             <Route path="/updateprofile" element={
               <PrivateRoute>
                 <UpdateProfile />

@@ -3,6 +3,7 @@ import House from "../icons/House";
 import Info from "../icons/Info";
 import SignIn from "../icons/SignIn";
 import School from "../icons/School";
+import Writing from "../icons/Writing"
 import Q from "../icons/Q";
 import SignOut from "../icons/SignOut";
 import Email from "../icons/Email"
@@ -25,6 +26,9 @@ export default function NavBar() {
             <NavLink to="/quizzes" className={"flex flex-col items-center"}>
                 <NavBarIcon icon={<School className={"navbar-icon"} />} text={"Take a Quiz!"} /> 
             </NavLink>
+            <NavLink to="/customquiz" className={"flex flex-col items-center"}>
+                <NavBarIcon icon={<Writing className={"navbar-icon"} />} text={"Create a Quiz!"} /> 
+            </NavLink>
             {/* Conditionally render the sign in button if the user is not currently signed in */}
             {currentUser ? null :(
             <NavLink to="/signin" className={`flex flex-col items-center`}>
@@ -44,5 +48,5 @@ export default function NavBar() {
                 <NavBarIcon icon={<Email className={"navbar-icon"} />} text={"Contact Us"} />
             </NavLink>
         </div>
-    )
+    ) 
 }
