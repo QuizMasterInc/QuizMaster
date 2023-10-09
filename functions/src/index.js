@@ -10,6 +10,8 @@ admin.initializeApp()
  * This will grab the quiz from the database
  * It takes the category and will take that specific quiz from the DB
  */
+
+
 exports.grabQuiz = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const quiz = req.query.quiz
@@ -17,6 +19,31 @@ exports.grabQuiz = functions.https.onRequest(async (req, res) => {
         res.json(grabQuiz.data())
     })
 })
+
+
+/**
+ * Take category
+ * Return subcategories
+ */
+
+exports.grabSub = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const category = req.query.category
+        const quizzes = await admin.firestore().collection('default-questions').where('category', '==', category).get()
+        const subcategories = {}
+        quizzes.forEach((doc) => {
+            const data = doc.data();
+            if (data.category === category) {
+              if (!subcategories[data.subcategory]) {
+                subcategories[data.subcategory] = [];
+              }
+              subcategories[data.subcategory].push(data);
+            }
+          });
+        res.json('subcategories')//uwu
+    })
+})
+
 
 /**
  * This function will update the score in the database, if there is one
