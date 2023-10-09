@@ -10,7 +10,7 @@ import Random from '../icons/Random';
 import { Link } from 'react-router-dom';
 
 function SelectQuiz() {
-  const {quizCategories, icons, destinations} = useCategory()
+  const {quizCategories, icons, destinations, selectCategory, allSubcategories} = useCategory()
   const randomIndex = Math.floor(Math.random() * quizCategories.length);
 
   /**
@@ -23,7 +23,7 @@ function SelectQuiz() {
         <h2 className="text-2xl font-bold text-gray-300">Choose Your Quiz Category</h2>
         <div className="flex flex-wrap justify-center">
           {quizCategories.map((category, index) => (
-            <QuizSelectButton category={category} key={index} icon={icons[index]} destination={destinations[index]}/>
+            <QuizSelectButton category={category} key={index} icon={icons[index]} destination={destinations[index]} selectCategory={selectCategory} allSubcategories={allSubcategories} />
           ))}
             <RandomQuizButton category={quizCategories[randomIndex]} icon={<Random/>} destination={destinations[randomIndex]}/>
         </div>

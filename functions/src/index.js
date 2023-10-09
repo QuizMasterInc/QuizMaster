@@ -32,15 +32,14 @@ exports.grabSub = functions.https.onRequest(async (req, res) => {
         const quizzes = await admin.firestore().collection('default-questions').where('category', '==', category).get()
         const subcategories = {}
         quizzes.forEach((doc) => {
-            const data = doc.data();
-            if (data.category === category) {
-              if (!subcategories[data.subcategory]) {
-                subcategories[data.subcategory] = [];
+            const data = doc.data()
+            const subcategory = data['sub-category']
+            if (!subcategories[subcategory]) {
+                subcategories[subcategory] = []
               }
-              subcategories[data.subcategory].push(data);
-            }
+            subcategories[subcategory].push(data)
           });
-        res.json('subcategories')//uwu
+        res.json(subcategories)
     })
 })
 

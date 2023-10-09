@@ -25,6 +25,9 @@ import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
 import CustomQuiz from './components/customquiz/CustomQuiz';
 
+import SelectSubCategory from './components/quizselect/SelectSubCategory';
+
+
 function App() {
   //importing destinations here from the context. 
   const {destinations} = useCategory();
@@ -57,16 +60,24 @@ function App() {
                   </CategoryProvider>
                 </PrivateRoute>
               }/>
-              
               {destinations.map((destination, index) => {
                 //rendering the routes based on the categories we have.
                 return ( //this return here is extremely important. do not delete it unless you want to go through the same pain i did :)
                 <Route key={index} path={destination} element={
                   <PrivateRoute>
-                    <QuizActivity />
+                    <CategoryProvider>
+                      <SelectSubCategory />
+                    </CategoryProvider>
                   </PrivateRoute>
                 } caseSensitive/>)
               })}
+              <Route path="quizstarted" element={
+                <PrivateRoute>
+                  <CategoryProvider>
+                    <QuizActivity />
+                  </CategoryProvider>
+                </PrivateRoute>
+              }/>
             </Route>
             <Route path="/customquiz" element={
               <PrivateRoute>

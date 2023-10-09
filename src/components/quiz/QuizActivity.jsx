@@ -12,12 +12,14 @@ import DoneModal from "./DoneModal";
 import HelpModal from './HelpModal';
 import Timer from './Timer';
 
+import { useCategory } from '../../contexts/CategoryContext';
+
 function QuizActivity({}){
   /**
    * These are the state variables.
    */
   //const { category } = useLocation().state; //this gets sent here when a user clicks the button for the category. 
-  const category = useLocation().pathname.split("/")[2].charAt(0).toUpperCase() + useLocation().pathname.split("/")[2].slice(1)
+  const {category, subcategories} = useCategory()
   const [questions, setQuestions] = useState([])
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [completed, setCompleted] = useState(false)
@@ -59,10 +61,13 @@ function QuizActivity({}){
   /**
    * This useEffect() will pull questions from the database for each quiz category.
    * This is pulling from the database using a Google FIrebase Function. Defined in the "functions" folder
+   * 
+   * will take subcategory data 
    */
   useEffect(() => {
     async function fetchQuiz(category) {
-      const data = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabQuiz?quiz=" + category.toLowerCase())
+      const data = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabSub?category=" + category.toLowerCase())
+      //const data = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabQuiz?quiz=" + category.toLowerCase())
         .then((res) => res.json())
         .then((data) => {
           return data;
@@ -70,16 +75,36 @@ function QuizActivity({}){
         .catch((err) => {
             console.log(err);
         });
+        console.log('Master Cat: ', category)
+        console.log('Master SubCat: ', subcategories)
+        console.log('Master Data: ', data)
+        let selected = []
+        subcategories.forEach((subcategory) => {
+          selected.push(...data[subcategory])
+        })
+        console.log('Master Chosen: ', selected)
+        //Shuffles question order then questions choices
+        selected = shuffle(selected).slice(0, 20)
         let shuffledQuestions = [];
+        selected.forEach((data) => {
+          const question = {
+            questionText: data.question,
+            choices: shuffle([data.a, data.b, data.c, data.d]),
+            answer: data.correct,//   /
+          }
+          shuffledQuestions.push(question)
+        })
+        /*
           for (let key in data) {
             const list = data[key];
             const question = {
                   questionText: key,
-                  choices: shuffle(list.slice(0, -1)),
-                  answer: list.slice(-1).toString(),
+                  choices: shuffle(list.slice(0, -1)),// _Need to rework. Answer should be its own key/value pair, not part of choice's collection.
+                  answer: list.slice(-1).toString(),//   /
             };
             shuffledQuestions.push(question);
           }
+          */
       setQuestions(shuffle(shuffledQuestions));
       setNumberOfQuestions(shuffledQuestions.length);
       setLoading(false);
