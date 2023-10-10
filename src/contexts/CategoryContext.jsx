@@ -27,10 +27,10 @@ export function CategoryProvider({children}){
   const [quizSubcategories] = useState({
     'history': [],
     'geography': ['world', 'americas'],
-    'science': ['biology'],
+    'science': ['biology', 'chemistry'],
     'sports': [],
     'entertainment': ['tv', 'music', 'movies'],
-    'mathematics': ['alegra', 'geometry'],
+    'mathematics': ['algebra', 'geometry'],
   
   })
   //quiz categories. order matters!
