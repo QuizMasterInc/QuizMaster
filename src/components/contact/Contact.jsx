@@ -74,7 +74,7 @@ const Contact = ({}) => (
         {/* SECOND ROW FOR THE FALL 2023 TEAM*/}
         <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
           <div className="flex flex-col items-center">
-            <a href="https://lively-bay-020649610.2.azurestaticapps.net/" target="_blank">
+            <a href="https://node-js-azure-fa23-tyler-site.azurewebsites.net" target="_blank">
               <img src={tyler} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Tyler Zenisek</h3>
