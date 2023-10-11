@@ -94,6 +94,7 @@ function QuizActivity({}){
           }
           shuffledQuestions.push(question)
         })
+        
         /*
           for (let key in data) {
             const list = data[key];
