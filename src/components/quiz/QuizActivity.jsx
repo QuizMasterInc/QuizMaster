@@ -106,7 +106,7 @@ function QuizActivity({}){
           }
           */
       setQuestions(shuffle(shuffledQuestions));
-      setNumberOfQuestions(shuffledQuestions.length);
+      setNumberOfQuestions(10);
       setLoading(false);
       return data;
     }
