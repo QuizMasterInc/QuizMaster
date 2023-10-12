@@ -7,6 +7,7 @@
  */
 import './App.css'
 import NavBar from './components/navbar/NavBar'
+import NavBarUser from './components/navbar/NavBarUser'
 import { Route, Routes } from "react-router-dom";
 import NotFound from './components/404/NotFound';
 import SelectQuiz from './components/quizselect/SelectQuiz';
@@ -24,7 +25,6 @@ import PrivateRoute from './routes/PrivateRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
 import CustomQuiz from './components/customquiz/CustomQuiz';
-
 import SelectSubCategory from './components/quizselect/SelectSubCategory';
 import TypeOfQuiz from './components/typeofquiz/TypeOfQuiz';
 
@@ -120,6 +120,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           <NavBar/>
+          <NavBarUser/>
       </AuthProvider>
     </div>
   )
