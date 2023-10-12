@@ -7,6 +7,7 @@ import { useCategory } from '../../contexts/CategoryContext';
 import SubCategoryButton from './SubCategoryButton';
 import QuizStartButton from './QuizStartButton';
 import { Link } from 'react-router-dom';
+import QuizBackButton from './QuizBackButton';
 
 function SelectSub() {
 
@@ -31,7 +32,11 @@ function SelectSub() {
           {availbleSubcategories.map((category) => (
             <SubCategoryButton category={category} toggleSubcategory={toggleSubcategory} isSelected={true}/>
           ))}
+          
+        </div>    
+        <div className='flex justify-center items-center w-1/2 p-4 text-center -sm:p-1'>
           <QuizStartButton category={"Start"} destination={"quizstarted"}/>
+          <QuizBackButton />
         </div>
       </div>
     </>
