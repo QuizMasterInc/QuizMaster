@@ -70,7 +70,7 @@ export default function Dashboard() {
             {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3">{error}</label>}
           </div>
           <div className='flex flex-col items-center justify-center'>
-            <Link to={'/quizzes'}>
+            <Link to={'/typeofquiz'}>
                   <div className='flex relative items-center mb-4 p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
                     Take another quiz!
                   </div>

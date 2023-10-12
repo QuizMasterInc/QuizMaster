@@ -23,7 +23,7 @@ export default function NavBar() {
             <NavLink to="/home" className={"flex flex-col items-center"}>
                 <NavBarIcon icon={<House className={"navbar-icon"} />} text={"Home"} />
             </NavLink>
-            <NavLink to="/quizzes" className={"flex flex-col items-center"}>
+            <NavLink to="/typeofquiz" className={"flex flex-col items-center"}>
                 <NavBarIcon icon={<School className={"navbar-icon"} />} text={"Take a Quiz!"} /> 
             </NavLink>
             <NavLink to="/customquiz" className={"flex flex-col items-center"}>

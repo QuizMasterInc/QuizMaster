@@ -44,7 +44,7 @@ function Home () {
               You are Logged in already!
             </h1>
             <p className="pt-8 pr-8 mb-10 text-2xl text-gray-300">
-              Take a quiz <Link to="/quizzes" className="underline">here</Link>  or go to your <Link to="/dashboard" className="underline">dashboard</Link> to see the progress you have made. Enjoy!
+              Take a quiz <Link to="/typeofquiz" className="underline">here</Link>  or go to your <Link to="/dashboard" className="underline">dashboard</Link> to see the progress you have made. Enjoy!
             </p>
           </div>
           ) : (

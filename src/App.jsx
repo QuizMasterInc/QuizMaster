@@ -26,6 +26,7 @@ import { CategoryProvider, useCategory } from './contexts/CategoryContext';
 import CustomQuiz from './components/customquiz/CustomQuiz';
 
 import SelectSubCategory from './components/quizselect/SelectSubCategory';
+import TypeOfQuiz from './components/typeofquiz/TypeOfQuiz';
 
 
 function App() {
@@ -82,6 +83,11 @@ function App() {
             <Route path="/customquiz" element={
               <PrivateRoute>
                 <CustomQuiz />
+              </PrivateRoute>
+            }/>
+            <Route path="/typeofquiz" element={
+              <PrivateRoute>
+                <TypeOfQuiz />
               </PrivateRoute>
             }/>
             <Route path="/updateprofile" element={
