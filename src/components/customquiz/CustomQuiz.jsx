@@ -10,7 +10,7 @@ export default function CustomQuiz () {
    * state variables
    */
   const [error, setError] = useState('')
-  const {currentUser, logout, isGoogleAuth, getUserID} = useAuth()
+  const {currentUser, logout, isGoogleAuth} = useAuth()
   const [loading, setLoading] = useState(false)
   const {quizCategories, icons} = useCategory()
   const [results, setResults] = useState([])
@@ -92,9 +92,9 @@ export default function CustomQuiz () {
     });
   }
 
-  //Used this to make sure the proper quiz was added to the quizDataArray after pressing add question
+  //Used this to make sure the proper question was added to the quizData array after pressing add question
   useEffect(() => {
-    console.log(quizData); // This will show the updated state of quizData
+    console.log(quizData); // This just shows the updated state of quizData which is all the current questions in the array
   }, [quizData]);
   
 
@@ -113,7 +113,7 @@ export default function CustomQuiz () {
                 <input 
                 type="text"
                 placeholder='Quiz Name'
-                className='text-2xl mb-4 rounded-md w-full h-12'
+                className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
                 id="quizName"
                 value={quizName}
                 onChange={(e) => handleQuizNameChange(e)}
@@ -128,7 +128,7 @@ export default function CustomQuiz () {
                   placeholder="Enter your question"
                   value={currentQuestion[0]}
                   onChange={(e) => handleQuestionChange(e, 0)}
-                  className='text-2xl mb-4 rounded-md w-full h-12'
+                  className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
                   required
                 />
                 {[0, 1, 2, 3].map((optionIndex) => (
@@ -139,7 +139,7 @@ export default function CustomQuiz () {
                     placeholder={`Option ${optionIndex + 1}`}
                     value={currentQuestion[optionIndex + 1]}
                     onChange={(e) => handleQuestionChange(e, optionIndex + 1)}
-                    className='text-2xl mb-4 rounded-md w-full h-10'
+                    className='text-2xl mb-4 rounded-md w-full h-10 focus:scale-110 duration-300'
                     required
                   />
                 </div>
@@ -150,7 +150,7 @@ export default function CustomQuiz () {
                   placeholder='Enter the correct Awnser'
                   value={currentQuestion[5]}
                   onChange={(e) => handleQuestionChange(e, 5)}
-                  className='text-2xl mb-4 rounded-md w-full h-10'
+                  className='text-2xl mb-4 rounded-md w-full h-10 focus:scale-110 duration-500'
                   required
                 />
               </div>

@@ -20,33 +20,49 @@ export default function NavBar() {
             <div className="flex flex-col items-center p-2 mt-4 rounded-md">
                 <Q />
             </div>
-            <NavLink to="/home" className={"flex flex-col items-center"}>
-                <NavBarIcon icon={<House className={"navbar-icon"} />} text={"Home"} />
-            </NavLink>
-            <NavLink to="/typeofquiz" className={"flex flex-col items-center"}>
-                <NavBarIcon icon={<School className={"navbar-icon"} />} text={"Take a Quiz!"} /> 
-            </NavLink>
-            <NavLink to="/customquiz" className={"flex flex-col items-center"}>
-                <NavBarIcon icon={<Writing className={"navbar-icon"} />} text={"Create a Quiz!"} /> 
-            </NavLink>
-            {/* Conditionally render the sign in button if the user is not currently signed in */}
-            {currentUser ? null :(
-            <NavLink to="/signin" className={`flex flex-col items-center`}>
-                <NavBarIcon icon={<SignIn className={"navbar-icon"} />} text={"Sign In"} /> 
-            </NavLink>
-            )}
-            {/* Conditionally render the dashboard button if the user is currently signed in */}
-            {!currentUser ? null:(
-            <NavLink to="/dashboard" className={`flex flex-col items-center`}>
-                <NavBarIcon icon={<SignIn className={"navbar-icon"} />} text={"Dashboard"} />
-            </NavLink>
-            )}
-            <NavLink to="/about" className={"flex flex-col items-center"}>
-                <NavBarIcon icon={<Info className={"navbar-icon"} />} text={"Information"} />
-            </NavLink>
-            <NavLink to="/contact" className={"flex flex-col items-center"}>
-                <NavBarIcon icon={<Email className={"navbar-icon"} />} text={"Contact Us"} />
-            </NavLink>
+            <div className="hover:scale-125 duration-300">
+                <NavLink to="/home" className={"flex flex-col items-center"}>
+                    <NavBarIcon icon={<House className={"navbar-icon"} />} text={"Home"} />
+                </NavLink>
+            </div>
+            <div className="hover:scale-125 duration-300">
+                <NavLink to="/typeofquiz" className={"flex flex-col items-center"}>
+                    <NavBarIcon icon={<School className={"navbar-icon"} />} text={"Take a Quiz!"} /> 
+                </NavLink>
+            </div>
+            <div className="hover:scale-125 duration-300">
+                <NavLink to="/customquiz" className={"flex flex-col items-center"}>
+                    <NavBarIcon icon={<Writing className={"navbar-icon"} />} text={"Create a Quiz!"} /> 
+                </NavLink>
+            </div>
+            
+            <div className="hover:scale-125 duration-300">
+                {/* Conditionally render the sign in button if the user is not currently signed in */}
+                {currentUser ? null :(
+                    <NavLink to="/signin" className={`flex flex-col items-center`}>
+                        <NavBarIcon icon={<SignIn className={"navbar-icon"} />} text={"Sign In"} /> 
+                    </NavLink>
+                )}
+                {/* Conditionally render the dashboard button if the user is currently signed in */}
+                {!currentUser ? null:(
+                <NavLink to="/dashboard" className={`flex flex-col items-center`}>
+                    <NavBarIcon icon={<SignIn className={"navbar-icon"} />} text={"Dashboard"} />
+                </NavLink>
+                )}
+            </div>
+            
+            <div className="hover:scale-125 duration-300">
+                <NavLink to="/about" className={"flex flex-col items-center"}>
+                    <NavBarIcon icon={<Info className={"navbar-icon"} />} text={"Information"} />
+                </NavLink>
+            </div>
+            
+            <div className="hover:scale-125 duration-300">
+                <NavLink to="/contact" className={"flex flex-col items-center"}>
+                    <NavBarIcon icon={<Email className={"navbar-icon"} />} text={"Contact Us"} />
+                </NavLink>
+            </div>
+            
         </div>
     ) 
 }
