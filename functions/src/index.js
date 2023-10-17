@@ -3,6 +3,7 @@
  */
 const functions = require('firebase-functions')
 const admin = require('firebase-admin')
+const { defaultBaseSortFn } = require('match-sorter')
 const cors = require("cors")({origin: true})
 admin.initializeApp()
 
@@ -131,5 +132,13 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
                 console.log(error)
             }
         }
+    })
+})
+
+// This function fetches the custom quizzes of a user from the DB 
+// If user doesn't exist or if there are no custom quizzes we return 0
+exports.grabCustomQuizzes = functions.http.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        
     })
 })
