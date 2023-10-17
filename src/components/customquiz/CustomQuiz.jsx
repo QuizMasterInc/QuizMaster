@@ -145,9 +145,9 @@ export default function CustomQuiz () {
                 </div>
                 ))}
                 <input
-                  id="right-awnser"
+                  id="right-answer"
                   type="text"
-                  placeholder='Enter the correct Awnser'
+                  placeholder='Enter the correct Answer'
                   value={currentQuestion[5]}
                   onChange={(e) => handleQuestionChange(e, 5)}
                   className='text-2xl mb-4 rounded-md w-full h-10 focus:scale-110 duration-500'
@@ -190,7 +190,7 @@ export default function CustomQuiz () {
                   <li className='text-white flex justify-start max-w-lg break-words'>Option 2: {quizData[index][2]}</li>
                   <li className='text-white flex justify-start max-w-lg break-words'>Option 3: {quizData[index][3]}</li>
                   <li className='text-white flex justify-start max-w-lg break-words'>Option 4: {quizData[index][4]}</li>
-                  <li className='text-white flex justify-start max-w-lg break-words'>Right Awnser: {quizData[index][5]}</li>
+                  <li className='text-white flex justify-start max-w-lg break-words'>Right Answer: {quizData[index][5]}</li>
                 </ul>
               ))}
             </div>
