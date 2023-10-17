@@ -135,10 +135,34 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
     })
 })
 
-// This function fetches the custom quizzes of a user from the DB 
-// If user doesn't exist or if there are no custom quizzes we return 0
-exports.grabCustomQuizzes = functions.http.onRequest(async (req, res) => {
+exports.addNewUser = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
-        
+        const dataType = req.get('content-type')
+        if(dataType === 'application/json'){
+            const data = JSON.parse(JSON.stringify(req.body))
+            try{
+                const userRef = await admin.firestore().collection(users).doc(data.uid).get()
+                if(!userRef.exists){
+                    //user doesnt exist
+                    await admin.firestore.collection('users').doc(data.uid).set({
+                        email: data.email
+                    })
+                    res.json({result: true})
+                }
+            }catch(error){
+                console.log(error)
+            }
+        }
     })
 })
+
+
+
+
+// This function fetches the custom quizzes of a user from the DB 
+// If user doesn't exist or if there are no custom quizzes we return 0
+// exports.grabCustomQuizzes = functions.http.onRequest(async (req, res) => {
+//     cors(req, res, async () => {
+
+//     })
+// })
