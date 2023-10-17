@@ -24,6 +24,10 @@ export function AuthProvider({ children }) {
 
     function signup(email, password){
         return auth.createUserWithEmailAndPassword(email, password)
+        .then((user) => {
+            // store new user in firestore
+            
+        })
     }
 
     function login(email, password){
@@ -41,6 +45,9 @@ export function AuthProvider({ children }) {
     function googleLogin(){
         const provider = new GoogleAuthProvider();
         return signInWithPopup(auth, provider)
+        .then((user) => {
+
+        })
     }
 
     function updateEmail(email){
