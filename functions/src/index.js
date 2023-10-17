@@ -135,25 +135,14 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
     })
 })
 
-exports.addNewUser = functions.https.onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        const dataType = req.get('content-type')
-        if(dataType === 'application/json'){
-            const data = JSON.parse(JSON.stringify(req.body))
-            try{
-                const userRef = await admin.firestore().collection(users).doc(data.uid).get()
-                if(!userRef.exists){
-                    //user doesnt exist
-                    await admin.firestore.collection('users').doc(data.uid).set({
-                        email: data.email
-                    })
-                    res.json({result: true})
-                }
-            }catch(error){
-                console.log(error)
-            }
-        }
-    })
+// auth trigger (new user registers)
+exports.newUser = functions.auth.user().onCreate((user) => {
+    console.log('user created', user.email, user.uid)
+})
+
+// auth trigger (user deleted)
+exports.deletedUser = functions.auth.user().onDelete((user) => {
+    console.log("user deleted", user.email, user.uid)
 })
 
 
