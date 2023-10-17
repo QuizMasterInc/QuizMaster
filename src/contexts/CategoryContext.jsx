@@ -22,23 +22,24 @@ export function useCategory() {
     return useContext(CategoryContext)
 }
 
-
+// TODO: add questions for history and sports sections
 export function CategoryProvider({children}){
   const [quizSubcategories] = useState({
-    'history': [],
+    //'history': [],
     'geography': ['world', 'americas'],
     'science': ['biology', 'chemistry'],
-    'sports': [],
+    //'sports': [],
     'entertainment': ['tv', 'music', 'movies'],
     'mathematics': ['algebra', 'geometry'],
   
   })
+  // TODO: add questions for history and sports sections
   //quiz categories. order matters!
   const [quizCategories] = useState([
-      'History',
+      //'History',
       'Geography',
       'Science',
-      'Sports',
+      //'Sports',
       'Entertainment',
       'Mathematics'
     ]);
@@ -53,12 +54,13 @@ export function CategoryProvider({children}){
     <Calculator className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>
   ]);
 
+  // TODO: add questions for history and sports sections
   //destinations for each category. order matters!
   const [destinations] = useState([
-    'history',
+    //'history',
     'geography',
     'science',
-    'sports',
+    //'sports',
     'entertainment',
     'mathematics'
   ]);
