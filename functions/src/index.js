@@ -3,7 +3,6 @@
  */
 const functions = require('firebase-functions')
 const admin = require('firebase-admin')
-const { defaultBaseSortFn } = require('match-sorter')
 const cors = require("cors")({origin: true})
 admin.initializeApp()
 
@@ -136,17 +135,21 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
 })
 
 // auth trigger (new user registers)
-exports.newUser = functions.auth.user().onCreate((user) => {
+// adds user to firestore from auth 
+exports.newUser = functions.auth.user().onCreate(user => {
     console.log('user created', user.email, user.uid)
+    return admin.firestore().collection('users').doc(user.uid).set({
+        email: user.email
+    })
 })
 
 // auth trigger (user deleted)
-exports.deletedUser = functions.auth.user().onDelete((user) => {
+// deletes user from firestore
+exports.deletedUser = functions.auth.user().onDelete(user => {
     console.log("user deleted", user.email, user.uid)
+    const doc = admin.firestore().collection('users').doc(user.uid)
+    return doc.delete()
 })
-
-
-
 
 // This function fetches the custom quizzes of a user from the DB 
 // If user doesn't exist or if there are no custom quizzes we return 0
