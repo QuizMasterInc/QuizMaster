@@ -152,6 +152,7 @@ exports.deletedUser = functions.auth.user().onDelete(user => {
     return doc.delete()
 })
 
+// function adds new quiz to the DB and updates in the users collection
 exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const dataType = req.get('content-type')
@@ -173,7 +174,7 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
 
                 const user = await admin.firestore.collection('users').doc(data.creatorID).get()
                 const newArr = user.customQuizzes
-                newArr.push(quiz)
+                newArr.push(quiz.uid)
                 await admin.firestore.collection('users').doc(data.creatorID).update({
                     customQuizzes: newArr
                 })
@@ -184,3 +185,5 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
         }
     })
 })
+
+
