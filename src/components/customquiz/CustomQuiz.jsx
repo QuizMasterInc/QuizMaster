@@ -3,21 +3,25 @@ import { useCategory } from '../../contexts/CategoryContext'
 import {useAuth} from '../../contexts/AuthContext'
 import { Link, Navigate } from 'react-router-dom'
 import Q from '../icons/Q'
+import { data } from 'autoprefixer'
+import { create } from 'express-handlebars'
 
 
 export default function CustomQuiz () {
   /**
    * state variables
    */
+  const {category, subcategories} = useCategory()
   const [error, setError] = useState('')
   const {currentUser, logout, isGoogleAuth} = useAuth()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const {quizCategories, icons} = useCategory()
   const [results, setResults] = useState([])
   const [finishedMakingQuiz, setFinishedMakingQuiz] = useState(false)
   const [currentQuestion, setCurrentQuestion] = useState(["", "", "", "", "", ""]);
   const [quizData, setQuizData] = useState([])
   const [quizName, setQuizName] = useState("")
+  const [completed, setCompleted] = useState(false)
 
   /**
    * Logout function
@@ -61,6 +65,39 @@ export default function CustomQuiz () {
     console.log(quizObject);
     return quizObject;
   }
+
+    /**
+   * Once the user finishes creating their quiz
+   * this useEffect() gets called to send the quiz object to the database also using a Google Firebase Function
+   */
+    useEffect(() => {
+      const data = {
+        uid: currentUser.uid,
+        category: category.toLowerCase(),
+        quiz: quizData,
+        quizName: quizName,
+        questionCount: quizData.length,
+        createdDate: new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+      }
+      async function sendQuiz() {
+        if(completed){
+          //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/addCustomQuiz
+          //https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz
+          await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(data => {
+            })
+        }
+      }
+      sendQuiz()
+    }, [])
 
   
 
@@ -159,7 +196,7 @@ export default function CustomQuiz () {
               <div className='flex relative items-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
                 <button type='submit' onClick={addCurrentQuestion}>Add Question</button>
               </div>
-
+ 
               <div className='flex relative items-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
                 <button onClick={createQuizObject}>Finish Quiz</button>
               </div>
@@ -200,3 +237,17 @@ export default function CustomQuiz () {
     </>
     )
 }
+/** Here is what I was thinking for the finish quiz button, but I couldn't get it to work
+ <div>
+{!loading && 
+<button className='flex relative items-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'
+  onClick={() => {
+  createQuizObject
+  setCompleted(true);
+  }}
+  disabled={completed} >
+  Finish Quiz
+</button>}
+</div>
+
+*/

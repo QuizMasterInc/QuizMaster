@@ -185,5 +185,3 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
         }
     })
 })
-
-
