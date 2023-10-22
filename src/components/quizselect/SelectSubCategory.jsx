@@ -8,10 +8,11 @@ import SubCategoryButton from './SubCategoryButton';
 import QuizStartButton from './QuizStartButton';
 import { Link } from 'react-router-dom';
 import QuizBackButton from './QuizBackButton';
+import StarRating from './DifficultyRating';
 
 function SelectSub() {
 
-  const {quizSubcategories, category, toggleSubcategory, subcategories} = useCategory()
+  const {quizSubcategories, category, toggleSubcategory, subcategories, difficulty, selectDifficulty} = useCategory()
 
   console.log('Category: ', category)
   console.log('SubCategories: ', quizSubcategories)
@@ -33,6 +34,9 @@ function SelectSub() {
             <SubCategoryButton category={category} toggleSubcategory={toggleSubcategory} isSelected={true}/>
           ))}
           
+        </div>
+        <div>
+        <StarRating difficulty={difficulty} selectDifficulty={selectDifficulty}/>
         </div>    
         <div className='flex justify-center items-center w-1/2 p-4 text-center -sm:p-1'>
           <QuizStartButton category={"Start"} destination={"quizstarted"}/>

@@ -19,7 +19,7 @@ function QuizActivity({}){
    * These are the state variables.
    */
   //const { category } = useLocation().state; //this gets sent here when a user clicks the button for the category. 
-  const {category, subcategories} = useCategory()
+  const {category, subcategories, difficulty} = useCategory()
   const [questions, setQuestions] = useState([])
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [completed, setCompleted] = useState(false)
@@ -75,14 +75,20 @@ function QuizActivity({}){
         .catch((err) => {
             console.log(err);
         });
-        console.log('Master Cat: ', category)
-        console.log('Master SubCat: ', subcategories)
-        console.log('Master Data: ', data)
+        console.log('Final Cat: ', category)
+        console.log('Final SubCat: ', subcategories)
+        console.log('Final Data: ', data)
+        console.log('Final Difficulty: ', difficulty)
         let selected = []
         subcategories.forEach((subcategory) => {
           selected.push(...data[subcategory])
         })
-        console.log('Master Chosen: ', selected)
+        if (difficulty > 0) {
+          selected = selected.filter((question) => {
+            return question.difficulty == difficulty;
+          })
+        }
+        console.log('Final Chosen: ', selected)
         //Shuffles question order then questions choices
         selected = shuffle(selected).slice(0, 20)
         let shuffledQuestions = [];
@@ -93,6 +99,7 @@ function QuizActivity({}){
             answer: data.correct,//   /
           }
           shuffledQuestions.push(question)
+          console.log(data.difficulty)
         })
         
         /*
