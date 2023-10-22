@@ -3,8 +3,7 @@ import { useCategory } from '../../contexts/CategoryContext'
 import {useAuth} from '../../contexts/AuthContext'
 import { Link, Navigate } from 'react-router-dom'
 import Q from '../icons/Q'
-import { data } from 'autoprefixer'
-import { create } from 'express-handlebars'
+
 
 
 export default function CustomQuiz () {
