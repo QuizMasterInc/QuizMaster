@@ -49,9 +49,10 @@ export default function Dashboard() {
     <>
     <div className="flex min-h-full items-center justify-around py-12 px-4 sm:px-6 lg:px-8">
         <div className="">
-          <h1 className="text-white">Custom Quizzes</h1>
-          {/* Table of Custom Quizzes here */}
+          <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Custom Quizzes</h2>
+          {/* Table of Custom Quizzes here */
           <CustomQuizzesTable />
+          }
         </div>
         <div className="w-full max-w-md space-y-8">
           <div>
