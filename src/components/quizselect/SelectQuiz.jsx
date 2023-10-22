@@ -25,7 +25,7 @@ function SelectQuiz() {
           {quizCategories.map((category, index) => (
             <QuizSelectButton category={category} key={index} icon={icons[index]} destination={destinations[index]} selectCategory={selectCategory} allSubcategories={allSubcategories} />
           ))}
-            <RandomQuizButton category={quizCategories[randomIndex]} icon={<Random/>} destination={destinations[randomIndex]}/>
+            <RandomQuizButton category={quizCategories[randomIndex]} icon={<Random/>} allSubcategories={allSubcategories} selectCategory={selectCategory}/>
         </div>
         <p className="text-sm text-gray-300 -sm:mt-4">
         Not finding the quiz you're looking for?{' '}

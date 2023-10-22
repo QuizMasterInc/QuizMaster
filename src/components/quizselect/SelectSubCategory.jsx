@@ -28,13 +28,14 @@ function SelectSub() {
   return (
     <>
       <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
-        <h2 className="text-2xl font-bold text-gray-300">Choose Your Sub-Categories</h2>
+        <h2 className="text-2xl font-bold text-gray-300">Choose Sub-Categories</h2>
         <div className="flex flex-wrap justify-center">
           {availbleSubcategories.map((category) => (
             <SubCategoryButton category={category} toggleSubcategory={toggleSubcategory} isSelected={true}/>
           ))}
           
         </div>
+        <h2 className="text-2xl font-bold text-gray-300">Choose Difficulty</h2>
         <div>
         <StarRating difficulty={difficulty} selectDifficulty={selectDifficulty}/>
         </div>    

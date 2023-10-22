@@ -83,7 +83,7 @@ function QuizActivity({}){
         subcategories.forEach((subcategory) => {
           selected.push(...data[subcategory])
         })
-        if (difficulty > 0) {
+        if (difficulty > 0) {// Less than 1 means user did not choose difficulty
           selected = selected.filter((question) => {
             return question.difficulty == difficulty;
           })
