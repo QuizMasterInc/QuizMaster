@@ -10,9 +10,10 @@ import Random from '../icons/Random';
 import { Link } from 'react-router-dom';
 
 function SelectQuiz() {
-  const {quizCategories, icons, destinations, selectCategory, allSubcategories} = useCategory()
+  const {quizCategories, icons, destinations, selectCategory, allSubcategories, selectDifficulty, selectAmount} = useCategory()
   const randomIndex = Math.floor(Math.random() * quizCategories.length);
-
+  selectDifficulty(0)
+  selectAmount(10)
   /**
    * View
    * This will generate each QuizSelectButton and the RandomQuizButton

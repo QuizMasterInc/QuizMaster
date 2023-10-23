@@ -74,6 +74,9 @@ export function CategoryProvider({children}){
   const [difficulty, setDifficulty] = useState(
     sessionStorage.getItem('difficulty') || ''
   )
+  const [amount, setAmount] = useState(
+    sessionStorage.getItem('amount') || ''
+  )
   //Update sessionStorage whenever category or subcategories change
   useEffect(() => {
     sessionStorage.setItem('category', category);
@@ -86,6 +89,10 @@ export function CategoryProvider({children}){
   useEffect(() => {
     sessionStorage.setItem('difficulty', difficulty);
   }, [difficulty])
+
+  useEffect(() => {
+    sessionStorage.setItem('amount', amount);
+  }, [amount])
 
   //Change category
   const selectCategory = (category) => {
@@ -104,14 +111,20 @@ export function CategoryProvider({children}){
       setSubcategories((curr) => [...curr, subcategory]);
     }
   }
+
+  //Add all subcategories
+  const allSubcategories = (category) => {
+    setSubcategories(quizSubcategories[category.toLowerCase()])
+  }
+
   //Change difficulty
   const selectDifficulty = (difficulty) => {
     setDifficulty(difficulty)
   }
 
-  //Add all subcategories
-  const allSubcategories = (category) => {
-    setSubcategories(quizSubcategories[category.toLowerCase()])
+  //Change amount
+  const selectAmount = (amount) => {
+    setAmount(amount)
   }
 
   //packages data
@@ -125,10 +138,12 @@ export function CategoryProvider({children}){
       category: category,
       subcategories: subcategories,
       difficulty: difficulty,
+      amount: amount,
       selectCategory: selectCategory,
       toggleSubcategory: toggleSubcategory,
       allSubcategories: allSubcategories,
-      selectDifficulty: selectDifficulty
+      selectDifficulty: selectDifficulty,
+      selectAmount: selectAmount
   }
 
   //Context provider
