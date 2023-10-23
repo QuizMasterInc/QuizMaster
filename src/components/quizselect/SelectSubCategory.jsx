@@ -45,7 +45,7 @@ function SelectSub() {
         <QuestionAmount min={1} max={10} amount={amount} selectAmount={selectAmount}/>
         </div>      
         <div className='flex justify-center items-center w-1/2 p-4 text-center -sm:p-1'>
-          <QuizStartButton category={"Start"} destination={"quizstarted"}/>
+          { subcategories.length > 0 && (<QuizStartButton category={"Start"} destination={"quizstarted"}/>)}
           <QuizBackButton />
         </div>
       </div>
