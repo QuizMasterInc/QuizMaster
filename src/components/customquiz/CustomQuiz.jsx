@@ -50,12 +50,10 @@ export default function CustomQuiz () {
 
   // this creates the quiz object which we can use to send all the required data to the database
   const createQuizObject = () => {
-    const createdDate = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
     const userId = currentUser.uid
     const questionCount = quizData.length
     const quizObject = {
-        creator: userId,
-        createdDate: createdDate,
+        creatorID: userId,
         questionCount: questionCount,
         quizName: quizName,
         quizData: quizData,

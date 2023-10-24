@@ -165,9 +165,9 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
             try{
                 const quiz = await admin.firestore.collection('customQuizzes').doc().set({
                     creator: data.creatorID,
-                    title: data.title, 
-                    numQuestions: data.numQuestions,
-                    questions: data.questions, 
+                    title: data.quizName, 
+                    numQuestions: data.questionCount,
+                    questions: data.quizData, 
                     createdAt: Date(),
                     quizTaken: 0
                 })
