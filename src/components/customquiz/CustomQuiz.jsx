@@ -96,14 +96,13 @@ export default function CustomQuiz () {
         body: JSON.stringify(obj)
         })
         .then(res => {
-          console.log(res)
-          console.log(res.body)
+          console.log("response", res.json())
         })
-        .then(data => { 
-          console.log(data)
+        .then(data => {
+          console.log("data", data)
         })
         .catch(err => {
-          console.log(err);
+          console.log("Respone Error", err);
         })
     }
 

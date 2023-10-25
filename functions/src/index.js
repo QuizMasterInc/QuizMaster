@@ -166,7 +166,7 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
             })
 
             try{
-                const newQuiz = await admin.firestore().collection('custom_quizzes').add({
+                await admin.firestore().collection('custom_quizzes').add({
                     creator: data.creatorID,
                     title: data.title, 
                     numQuestions: data.questionCount,
@@ -174,15 +174,17 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                     createdAt: admin.firestore.Timestamp.now(),
                     quizTaken: 0
                 })
-
-                // const user = await admin.firestore.collection('users').doc(data.creatorID).get()
-                // const newArr = user.customQuizzes
-                // newArr.push(quiz.uid)
-                // await admin.firestore().collection('users').doc(data.creatorID).update({
-                //     customQuizzes: newArr
-                // })
-                res.status(200).send(newQuiz)
-                // console.log(res.json(quiz.data()))
+                .then((docRef) => {
+                    // successfully returns the ID
+                    // needs to store ID in customQuizzes array in creatorID doc in users collection
+                    console.log("docRef-ID", docRef.id)
+                    const userRef =  admin.firestore.collection('users').doc(data.creatorID).get()
+                    console.log("user-doc-id", userRef.uid)
+                })
+                // failing to send json data properly to the front end
+                res.status(200).json({
+                    message: "added to DB"
+                })
             }catch(error){
                 res.json({
                     result: false,
@@ -190,30 +192,5 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                 })
             }
         }
-    })
-})
-
-exports.addCustomQuizRequest = functions.https.onCall((data, context) => {
-    if (!context.auth) {
-        throw new functions.https.HttpsError(
-            'unauthenticated',
-            'user must sign in again'
-        )
-    }
-
-    if (!data.creatorID || data.title == "" || data.numQuestions == 0) {
-        throw new functions.https.HttpsError(
-            'invalid-argument',
-            'missing parameters to create new custom quiz'
-        )
-    }
-
-    return admin.firestore.collection('custom_quizzes').add({
-        creator: data.creatorID,
-        title: data.title, 
-        numQuestions: data.questionCount,
-        questions: data.quizData, 
-        createdAt: admin.firestore.Timestamp.now(),
-        quizTaken: 0
     })
 })
