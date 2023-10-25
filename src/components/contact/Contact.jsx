@@ -9,6 +9,10 @@ import matthew from "../../assets/matthew.jpg"
 import tyler from "../../assets/tyler.jpg"
 import julie from "../../assets/julie.jpg"
 
+{/* IMPORT YOUR IMAGES HERE */}
+
+
+
 const Contact = ({}) => (
     // Top-level container with text and background styling
   <div className="text-gray-300 bg-gray-800 shadow-lg hover:shadow-x pt-15">
@@ -35,7 +39,7 @@ const Contact = ({}) => (
     {/* Container for contact information */}
     <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
         {/* Grid layout for contact information */}
-        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center">
+        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
           <div className="flex flex-col items-center">
             <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank">
               <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
@@ -96,6 +100,85 @@ const Contact = ({}) => (
               </a>
             </div>
           </div>
+
+
+          {/* THIS SECTION IS FOR ALEX KAMINSKI*/}
+
+          <div className="flex flex-col items-center">
+            <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                joseamontesdeocamo@lewisu.edu
+              </a>
+            </div>
+          </div>  
+        </div>
+
+        {/*THIRD ROW FOR FALL 2023 TEAM */ }
+        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+
+          {/* THIS SECTION IS FOR JEFFERSON CHERRINGTON */}
+
+          <div className="flex flex-col items-center">
+            <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                joseamontesdeocamo@lewisu.edu
+              </a>
+            </div>
+          </div>
+
+          {/* THIS SECTION IS FOR JAMES MACKOWIAK */}
+
+          <div className="flex flex-col items-center">
+            <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                joseamontesdeocamo@lewisu.edu
+              </a>
+            </div>
+          </div>
+
+          {/* THIS SECTION IS FOR JOEY DEVITO */}
+
+          <div className="flex flex-col items-center">
+            <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                joseamontesdeocamo@lewisu.edu
+              </a>
+            </div>
+          </div>      
+        </div>
+
+        {/*FINAL ROW FOR FALL 2023 TEAM*/ }
+        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+
+        {/* THIS SECTION IS FOR THE LAST TEAM MEMBER */}
+
+          <div className="flex flex-col items-center">
+              <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+                <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+              </a>
+              <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3> {/* YOUR NAME GOES HERE */}
+              <div className="mt-2 text-gray-300">
+                <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                  joseamontesdeocamo@lewisu.edu
+                </a>
+              </div>
+            </div>
         </div>
     </div>
 
