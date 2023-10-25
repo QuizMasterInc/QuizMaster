@@ -8,6 +8,7 @@ import jose from "../../assets/jose.jpg"
 import matthew from "../../assets/matthew.jpg"
 import tyler from "../../assets/tyler.jpg"
 import julie from "../../assets/julie.jpg"
+import james from "../../assets/james.jpg"
 
 {/* IMPORT YOUR IMAGES HERE */}
 
@@ -137,13 +138,13 @@ const Contact = ({}) => (
           {/* THIS SECTION IS FOR JAMES MACKOWIAK */}
 
           <div className="flex flex-col items-center">
-            <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-              <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            <a href="https://jamesmackowiak.github.io/about.html" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={james} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3> {/* YOUR NAME GOES HERE */}
+            <h3 className="mt-4 text-lg font-medium text-gray-300">James Mackowiak</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-2 text-gray-300">
-              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-                joseamontesdeocamo@lewisu.edu
+              <a href="mailto:jamesvmackowiak@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                jamesvmackowiak@lewisu.edu
               </a>
             </div>
           </div>
@@ -186,7 +187,7 @@ const Contact = ({}) => (
     {/* THIS IS THE INFORMATION FOR THE SPRING 2023 TEAM*/}
 
 
-    <div div className="flex items-center justify-center ">
+    <div className="flex items-center justify-center ">
       <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2023 Team</h1>
     </div>
      {/* Container for contact information */}
