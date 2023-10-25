@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react'
 import { useCategory } from '../../contexts/CategoryContext'
 import {useAuth} from '../../contexts/AuthContext'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, json } from 'react-router-dom'
+
 
 export default function CustomQuiz () {
   /**
@@ -94,14 +95,17 @@ export default function CustomQuiz () {
         },
         body: JSON.stringify(obj)
         })
-        .then(res => res.json())
+        .then(res => {
+          console.log(res)
+          console.log(res.body)
+        })
         .then(data => { 
           console.log(data)
         })
         .catch(err => {
           console.log(err);
         })
-      }
+    }
 
 
   //This function updates the information for each individual question
