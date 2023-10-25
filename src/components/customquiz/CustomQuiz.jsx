@@ -57,7 +57,7 @@ export default function CustomQuiz () {
         title: quizName,
         questionCount: questionCount,
         quizData: quizData,
-        createdAt: new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+        //createdAt: new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
     }
     //resets quiz questiOns to start a new quiz 
     setQuizData([])
@@ -95,9 +95,11 @@ export default function CustomQuiz () {
             body: JSON.stringify(obj)
             })
             .then(res => res.json())
-            .then(data => {
+            .then(data => { 
+              console.log(data)
             })
             .catch(err => {
+              console.log(err);
             })
         //}
       }
