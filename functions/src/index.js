@@ -163,9 +163,9 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
             if (!data.creatorID || data.title == "") res.json("Failed to add custom quiz. Missing parameters")
 
             try{
-                const quiz = await admin.firestore.collection('customQuizzes').doc().set({
+                const quiz = await admin.firestore.collection('custom_quizzes').doc().set({
                     creator: data.creatorID,
-                    title: data.quizName, 
+                    title: data.title, 
                     numQuestions: data.questionCount,
                     questions: data.quizData, 
                     createdAt: Date(),

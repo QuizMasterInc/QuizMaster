@@ -54,9 +54,10 @@ export default function CustomQuiz () {
     const questionCount = quizData.length
     const quizObject = {
         creatorID: userId,
+        title: quizName,
         questionCount: questionCount,
-        quizName: quizName,
         quizData: quizData,
+        createdAt: new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
     }
     //resets quiz questiOns to start a new quiz 
     setQuizData([])
@@ -68,7 +69,7 @@ export default function CustomQuiz () {
     /**
    * Once the user finishes creating their quiz
    * this useEffect() gets called to send the quiz object to the database also using a Google Firebase Function
-   */
+   
     useEffect(() => {
       const data = {
         uid: currentUser.uid,
@@ -78,8 +79,11 @@ export default function CustomQuiz () {
         questionCount: quizData.length,
         createdDate: new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
       }
-      async function sendQuiz() {
-        if(completed){
+      */
+    async function sendQuiz() {
+    
+      const obj = createQuizObject()
+        //if(completed){
           //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/addCustomQuiz
           //https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz
           await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz', {
@@ -88,15 +92,17 @@ export default function CustomQuiz () {
               'Accept': 'application/json',
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(obj)
             })
             .then(res => res.json())
             .then(data => {
             })
-        }
+            .catch(err => {
+            })
+        //}
       }
-      sendQuiz()
-    }, [])
+     // sendQuiz()
+   // }, [])
 
   
 
@@ -197,7 +203,7 @@ export default function CustomQuiz () {
               </div>
  
               <div className='flex relative items-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-                <button onClick={createQuizObject}>Finish Quiz</button>
+                <button onClick={sendQuiz}>Finish Quiz</button>
               </div>
               <Link to={'/quizzes'}>
                 <div className='flex relative items-center p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
