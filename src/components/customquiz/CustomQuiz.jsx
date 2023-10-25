@@ -56,10 +56,17 @@ export default function CustomQuiz () {
         creatorID: userId,
         title: quizName,
         questionCount: questionCount,
-        quizData: quizData,
+        quizData: {
+          question: quizData[0],
+          option1: quizData[1],
+          option2: quizData[2],
+          option3: quizData[3],
+          option4: quizData[4],
+          correctAwsner: quizData[5]
+        },
         //createdAt: new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
     }
-    //resets quiz questiOns to start a new quiz 
+    //resets quiz questions to start a new quiz 
     setQuizData([])
     // WHEN A USER CLICKS FINISH QUIZ THIS LOGS THE OBJECT TO ENSURE IT IS CORRECT. USE THIS DATA ON DATABASE
     console.log(quizObject);
