@@ -2,11 +2,6 @@ import React, {useState, useEffect} from 'react'
 import { useCategory } from '../../contexts/CategoryContext'
 import {useAuth} from '../../contexts/AuthContext'
 import { Link, Navigate } from 'react-router-dom'
-/**
-import Q from '../icons/Q'
-import { data } from 'autoprefixer'
-import { create } from 'express-handlebars'
-**/
 
 export default function CustomQuiz () {
   /**
@@ -47,6 +42,26 @@ export default function CustomQuiz () {
     }
   }
 
+  // THIS FUNCTION TAKES THE ARRAY OF QUESTIONS DATA AND THEN IT CREATES IT INTO AN OBJECT SO THAT IT CAN GO TO FIRESTORE SUCCESFULLY
+  const createQuizDataObject = (quizData) => {
+    const quizDataObject = {}
+    for (let i = 0; i < quizData.length; i++) {
+      const questionDetailsArray = quizData[i];
+      const questionNumber = `Question ` + (quizData.indexOf(questionDetailsArray) + 1);
+      const questionObject = {
+        question: questionDetailsArray[0],
+        option_1: questionDetailsArray[1],
+        option_2: questionDetailsArray[2],
+        option_3: questionDetailsArray[3],
+        option_4: questionDetailsArray[4],
+        correct_anwser: questionDetailsArray[5],
+      }
+      quizDataObject[questionNumber] = questionObject
+    }
+    console.log(quizDataObject);
+    return quizDataObject
+  }
+
 
   // this creates the quiz object which we can use to send all the required data to the database
   const createQuizObject = () => {
@@ -56,64 +71,38 @@ export default function CustomQuiz () {
         creatorID: userId,
         title: quizName,
         questionCount: questionCount,
-        quizData: {
-          question: quizData[0],
-          option1: quizData[1],
-          option2: quizData[2],
-          option3: quizData[3],
-          option4: quizData[4],
-          correctAwsner: quizData[5]
-        },
-        //createdAt: new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+        quizData: createQuizDataObject(quizData)
     }
     //resets quiz questions to start a new quiz 
     setQuizData([])
     // WHEN A USER CLICKS FINISH QUIZ THIS LOGS THE OBJECT TO ENSURE IT IS CORRECT. USE THIS DATA ON DATABASE
+    console.log(quizData)
     console.log(quizObject);
     return quizObject;
   }
 
-    /**
-   * Once the user finishes creating their quiz
-   * this useEffect() gets called to send the quiz object to the database also using a Google Firebase Function
-   
-    useEffect(() => {
-      const data = {
-        uid: currentUser.uid,
-        category: category.toLowerCase(),
-        quiz: quizData,
-        quizName: quizName,
-        questionCount: quizData.length,
-        createdDate: new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
-      }
-      */
+    //THIS FUCNTION FIRST CREATES THE QUIZ OBJECT AND THEN SENDS IT TO THE DATABASE WHEN USER HITS FINISH QUIZ 
     async function sendQuiz() {
-    
       const obj = createQuizObject()
-        //if(completed){
-          //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/addCustomQuiz
-          //https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz
-          await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz', {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(obj)
-            })
-            .then(res => res.json())
-            .then(data => { 
-              console.log(data)
-            })
-            .catch(err => {
-              console.log(err);
-            })
-        //}
+      //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/addCustomQuiz
+      //https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz
+      await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(obj)
+        })
+        .then(res => res.json())
+        .then(data => { 
+          console.log(data)
+        })
+        .catch(err => {
+          console.log(err);
+        })
       }
-     // sendQuiz()
-   // }, [])
 
-  
 
   //This function updates the information for each individual question
   const handleQuestionChange = (e, index) => {
@@ -251,17 +240,3 @@ export default function CustomQuiz () {
     </>
     )
 }
-/** Here is what I was thinking for the finish quiz button, but I couldn't get it to work
- <div>
-{!loading && 
-<button className='flex relative items-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'
-  onClick={() => {
-  createQuizObject
-  setCompleted(true);
-  }}
-  disabled={completed} >
-  Finish Quiz
-</button>}
-</div>
-
-*/
