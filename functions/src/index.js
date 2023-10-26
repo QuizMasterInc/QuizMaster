@@ -160,10 +160,12 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
             const data = JSON.parse(JSON.stringify(req.body))
 
             // checks incoming data before attempting to store in DB
-            if (!data.creatorID || data.title == "" || data.numQuestions == 0) res.json({
-                result: false,
-                error: "Missing Parameters"
-            })
+            if (!data.creatorID || data.title == "" || data.numQuestions == 0) {
+                return res.json({
+                    status: 404, 
+                    message: "Missing Parameters"
+                })
+            }
 
             try{
                 await admin.firestore().collection('custom_quizzes').add({
@@ -178,17 +180,33 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                     // successfully returns the ID
                     // needs to store ID in customQuizzes array in creatorID doc in users collection
                     console.log("docRef-ID", docRef.id)
-                    const userRef =  admin.firestore.collection('users').doc(data.creatorID).get()
-                    console.log("user-doc-id", userRef.uid)
-                })
-                // failing to send json data properly to the front end
-                res.status(200).json({
-                    message: "added to DB"
+                    return res.json({
+                        status: 200,
+                        quizID: docRef.id,
+                        message: "Added to DB successfully"
+                    })
+                    // const userRef =  admin.firestore.collection('users').doc(data.creatorID)
+                    // userRef.get().then((user) => {
+                    //     if (user.exists) {
+                    //         userRef.update({
+                    //             customQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
+                    //         })
+                    //         console.log("User Found with ID:", userRef.uid)
+                    //         return res.status(200).send(docRef.id)
+                    //     }
+                    //     else {
+                    //         console.log("Couldn't find user with ID: ", data.creatorID)
+                    //         return res.status(200).send({
+                    //             id: docRef.id,
+                    //             message: "Couldn't add to user doc"
+                    //         })
+                    //     }
+                    // })
                 })
             }catch(error){
-                res.json({
+                return res.json({
                     result: false,
-                    err: error
+                    message: error.message
                 })
             }
         }

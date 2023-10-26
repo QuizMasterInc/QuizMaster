@@ -95,14 +95,12 @@ export default function CustomQuiz () {
         },
         body: JSON.stringify(obj)
         })
-        .then(res => {
-          console.log("response", res.json())
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("Response Data", data)
         })
-        .then(data => {
-          console.log("data", data)
-        })
-        .catch(err => {
-          console.log("Respone Error", err);
+        .catch((err) => {
+          console.log("Respone Error", err.message);
         })
     }
 

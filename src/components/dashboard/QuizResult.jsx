@@ -33,8 +33,12 @@ export const QuizResult = ({index, category, icon}) => {
                     },
                     body: JSON.stringify(data)
                 })
-                .then(res => res.json())
+                .then((res) => {
+                  console.log("Results Response", res)
+                  res.json()
+                })
                 .then(data => {
+                  console.log("Data: ", data)
                   setResult(data.score)
             })
       setLoading(false)
