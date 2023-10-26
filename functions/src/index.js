@@ -168,6 +168,7 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
             }
 
             try{
+                const user = await admin.firestore().collection("users").doc(data.creatorID)
                 await admin.firestore().collection('custom_quizzes').add({
                     creator: data.creatorID,
                     title: data.title, 
@@ -180,28 +181,24 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                     // successfully returns the ID
                     // needs to store ID in customQuizzes array in creatorID doc in users collection
                     console.log("docRef-ID", docRef.id)
-                    return res.json({
-                        status: 200,
-                        quizID: docRef.id,
-                        message: "Added to DB successfully"
-                    })
-                    // const userRef =  admin.firestore.collection('users').doc(data.creatorID)
-                    // userRef.get().then((user) => {
-                    //     if (user.exists) {
-                    //         userRef.update({
-                    //             customQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
-                    //         })
-                    //         console.log("User Found with ID:", userRef.uid)
-                    //         return res.status(200).send(docRef.id)
-                    //     }
-                    //     else {
-                    //         console.log("Couldn't find user with ID: ", data.creatorID)
-                    //         return res.status(200).send({
-                    //             id: docRef.id,
-                    //             message: "Couldn't add to user doc"
-                    //         })
-                    //     }
-                    // })
+                    try{
+                        user.update({
+                            createdQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
+                        })
+
+                        res.json({
+                            status: 200,
+                            quidID: docRef.id,
+                            message: "Successfully added to DB and users doc"
+                        })
+                    }catch(error) {
+                        res.json({
+                            status: 200,
+                            quidID: docRef.id,
+                            message: "Successfully added to DB but not user doc",
+                            error: error.message
+                        })
+                    }
                 })
             }catch(error){
                 return res.json({
