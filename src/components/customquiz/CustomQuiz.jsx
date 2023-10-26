@@ -97,6 +97,9 @@ export default function CustomQuiz () {
         })
         .then((res) => res.json())
         .then((data) => {
+          // here is where functionality off the created data will be. 
+          
+          // redirect user to quiz display page using the returned ID in data
           console.log("Response Data", data)
         })
         .catch((err) => {
