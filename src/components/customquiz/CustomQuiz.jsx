@@ -145,7 +145,7 @@ export default function CustomQuiz () {
     return (
     <>
       <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-lg space-y-8">
+        <div className="w-full max-w-2xl space-y-8 -sm:ml-10">
           <div className='flex flex-col items-center justify-center'>
             <h1 className="text-2xl font-bold text-gray-300 mb-10">
               Create a Custom Quiz!
@@ -199,16 +199,16 @@ export default function CustomQuiz () {
                 />
               </div>
             </div>
-            <div className='grid grid-cols-2 gap-y-3 gap-x-3 items-center justify-center'>
-              <div className='flex relative items-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
+            <div className='grid grid-cols-2 gap-y-3 gap-x-3 -sm:gap-x-24'>
+              <div className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
                 <button type='submit' onClick={addCurrentQuestion}>Add Question</button>
               </div>
  
-              <div className='flex relative items-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
+              <div className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20'>
                 <button onClick={sendQuiz}>Finish Quiz</button>
               </div>
               <Link to={'/quizzes'}>
-                <div className='flex relative items-center p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
+                <div className='flex relative items-center justify-center p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
                   Take a premade quiz!
                 </div>
               </Link>
@@ -221,21 +221,25 @@ export default function CustomQuiz () {
               <button
                 disabled={loading}
                 onClick={handleLogout}
-                className="flex relative items-center p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600"
+                className="flex relative items-center justify-center p-4 pl-8 pr-8 h-full text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20"
               >
                 Logout
               </button>
             </div>
-            <div id="questionsList" className='mt-10'>
+            <div className='w-full' id="questionsList">
               {quizData.map((quiz, index) => (
-                <ul key={index} className='text-xl m-10'>
-                  <li className='text-white flex justify-start max-w-lg break-words'>Question {index + 1}: {quizData[index][0]}</li>
-                  <li className='text-white flex justify-start max-w-lg break-words'>Option 1: {quizData[index][1]}</li>
-                  <li className='text-white flex justify-start max-w-lg break-words'>Option 2: {quizData[index][2]}</li>
-                  <li className='text-white flex justify-start max-w-lg break-words'>Option 3: {quizData[index][3]}</li>
-                  <li className='text-white flex justify-start max-w-lg break-words'>Option 4: {quizData[index][4]}</li>
-                  <li className='text-white flex justify-start max-w-lg break-words'>Right Answer: {quizData[index][5]}</li>
-                </ul>
+                <div className='flex flex-col pb-4 mb-4 mt-10 bg-gray-900 rounded-lg shadow-lg -md:pl-2 -md:pr-2 -md:pb-2'>
+                  <div className='flex flex-row pt-4 pb-4 pl-2 pr-6 text-3xl text-gray-300 align-middle space-x-3 -md:text-sm -md:space-x-2S'>
+                    <p className='ml-2'>{index + 1 + "."}</p>
+                    <p className='mr-2'>{quizData[index][0]}</p>
+                  </div>
+                  <button className='p-2 mb-3 ml-2 mr-2 text-gray-300 bg-gray-800 rounded-md shadow-md -md:text-sm hover:bg-gray-600'>{quizData[index][1]}</button>
+                  <button className='p-2 mb-3 ml-2 mr-2 text-gray-300 bg-gray-800 rounded-md shadow-md -md:text-sm hover:bg-gray-600'>{quizData[index][2]}</button>
+                  <button className='p-2 mb-3 ml-2 mr-2 text-gray-300 bg-gray-800 rounded-md shadow-md -md:text-sm hover:bg-gray-600'>{quizData[index][3]}</button>
+                  <button className='p-2 mb-3 ml-2 mr-2 text-gray-300 bg-gray-800 rounded-md shadow-md -md:text-sm hover:bg-gray-600'>{quizData[index][4]}</button>
+                  <p className='text-2xl mb-4 text-gray-300 align-middle -md:text-sm'>Correct Awnser</p>
+                  <button className='p-2 mb-3 ml-2 mr-2 text-gray-300 bg-gray-800 rounded-md shadow-md -md:text-sm hover:bg-gray-600'>{quizData[index][5]}</button>
+                </div>
               ))}
             </div>
           </div>
@@ -244,3 +248,4 @@ export default function CustomQuiz () {
     </>
     )
 }
+
