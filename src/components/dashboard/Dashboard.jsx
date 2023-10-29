@@ -18,29 +18,6 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(false)
     const {quizCategories, icons} = useCategory()
 
-    /**
-     * Logout function
-     * @returns to signin once the user logs out
-     */
-    async function handleLogout(){
-      setError('')
-       var isAuth = false
-      try{
-          await logout()
-          setLoading(true)
-          isAuth = true
-      }catch{
-          setError("Failed to logout")
-      }
-      setLoading(false)
-      localStorage.setItem('isAuthenticated', 'false');
-      if(isAuth){
-        return (
-          <Navigate to="/signin" />
-        )
-      }
-  }
-
   /**
    * The view here...
    * THis will generate a QuizResult for each quiz category
@@ -77,13 +54,6 @@ export default function Dashboard() {
                     Update Profile
                   </div>
                   </Link>}
-            <button
-                disabled={loading}
-                onClick={handleLogout}
-                className="flex relative items-center p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20"
-            >
-              Logout
-            </button>
           </div>
         </div>
     </div>
