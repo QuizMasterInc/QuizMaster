@@ -152,6 +152,45 @@ exports.deletedUser = functions.auth.user().onDelete(user => {
     return doc.delete()
 })
 
+exports.grabCustomQuiz = functions.https.onRequest(async (req, res) => {
+    cors(req,res, async () => {
+        const dataType = req.get('content-type')
+        if(dataType === 'application/json'){
+            const { uid } = JSON.parse(JSON.stringify(req.body))
+
+            if (!uid) {
+                return res.status(401).json({
+                    result: false,
+                    message: "No UID field."
+                })
+            }
+
+            try {
+                const quiz = await admin.firestore().collection('custom_quizzes').doc(uid).get()
+                if (!quiz.exists) {
+                    return res.json({
+                        result: false,
+                        message: "Invalid UID"
+                    })
+                }
+                else {
+                    return res.json({
+                        result: true,
+                        status: 200,
+                        message: "quiz found",
+                        data: quiz.data()
+                    })
+                }
+            } catch(error) {
+                return res.json({
+                    result: false,
+                    message: error.message
+                })
+            }
+        }
+    }) 
+})
+
 // function adds new quiz to the DB and updates in the users collection
 exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
@@ -178,8 +217,6 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                     quizTaken: 0
                 })
                 .then((docRef) => {
-                    // successfully returns the ID
-                    // needs to store ID in customQuizzes array in creatorID doc in users collection
                     console.log("docRef-ID", docRef.id)
                     try{
                         user.update({
