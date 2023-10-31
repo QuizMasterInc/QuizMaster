@@ -202,7 +202,7 @@ function QuizActivity({}){
   return (
   <>
   <div className="flex flex-col items-center justify-center -md:ml-16">
-    <div style={{  position: 'fixed',  top: '0', right: '0', padding: '0.5rem',fontSize: '1.5rem',backgroundColor: '#111827',
+    <div style={{  position: 'fixed',  top: '50px', right: '20px', padding: '0.5rem',fontSize: '1.5rem',backgroundColor: '#111827',
       color: '#f9fafb',borderRadius: '0 0 0.5rem 0.5rem',boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)'}}>
       <Timer
           timeLimit={300}
