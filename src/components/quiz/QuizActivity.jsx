@@ -81,14 +81,43 @@ function QuizActivity({}){
         console.log('Final Difficulty: ', difficulty)
         console.log('Final Amount: ', amount)
         let selected = []
+        let allPossQuestions = []
         subcategories.forEach((subcategory) => {
-          selected.push(...data[subcategory])
+          allPossQuestions.push(...data[subcategory])
         })
         if (difficulty > 0) {// Less than 1 means user did not choose difficulty
-          selected = selected.filter((question) => {
+          selected = allPossQuestions.filter((question) => {
             return question.difficulty == difficulty;
           })
+
+          /**
+           * Adds questions of similar difficulty if there aren't enough questions of
+           * selected difficulty. 
+           * 
+           * Slices array after to guarantee all the questions of user-specified  
+           * difficulty are in the quiz and minimizes number of questions that are of 
+           * different difficulties.
+           */
+          let attempts = 1
+          let neededQuestions = amount - selected.length
+          let extraQuestions = []
+
+          while (extraQuestions.length < neededQuestions) {
+            let tempQuestions = allPossQuestions.filter((question) => {
+              return question.difficulty == difficulty + attempts || question.difficulty == question.difficulty - attempts;
+            })
+
+            extraQuestions.push(...tempQuestions)
+            attempts++
+          }
+          selected.push(...shuffle(extraQuestions).slice(0, neededQuestions))
+
+
+        // if no difficulty is chosen
+        } else {
+          selected = allPossQuestions
         }
+
         console.log('Final Chosen: ', selected)
         //Shuffles question order then questions choices
         selected = shuffle(selected).slice(0, amount)
@@ -97,7 +126,7 @@ function QuizActivity({}){
           const question = {
             questionText: data.question,
             choices: shuffle([data.a, data.b, data.c, data.d]),
-            answer: data.correct,//   /
+            answer: data.correct,
           }
           shuffledQuestions.push(question)
           console.log(data.difficulty)

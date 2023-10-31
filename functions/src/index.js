@@ -43,6 +43,28 @@ exports.grabSub = functions.https.onRequest(async (req, res) => {
     })
 })
 
+/**
+ * TODO
+ */
+exports.grabRandom = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const category = req.query.category
+        const quizzes = await admin.firestore().collection('default-questions').get()
+        const subcategories = {}
+        quizzes.forEach((doc) => {
+            const data = doc.data()
+            const subcategory = data['sub-category']
+            if (!subcategories[subcategory]) {
+                subcategories[subcategory] = []
+              }
+            subcategories[subcategory].push(data)
+          });
+        res.json(subcategories)
+    })
+})
+
+
+
 
 /**
  * This function will update the score in the database, if there is one
