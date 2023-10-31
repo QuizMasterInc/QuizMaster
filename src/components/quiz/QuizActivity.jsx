@@ -102,7 +102,7 @@ function QuizActivity({}){
           let neededQuestions = amount - selected.length
           let extraQuestions = []
 
-          while (extraQuestions.length < neededQuestions) {
+          while (extraQuestions.length < neededQuestions && attempts < 5) {
             let tempQuestions = allPossQuestions.filter((question) => {
               return question.difficulty == difficulty + attempts || question.difficulty == question.difficulty - attempts;
             })
