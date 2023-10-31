@@ -97,6 +97,8 @@ export default function CustomQuiz () {
         })
         .then((res) => res.json())
         .then((data) => {
+          // data returns properly in format
+          // { status: 200, quidID: (insert UID), message: (insert message) }
           console.log("Response Data", data)
         })
         .catch((err) => {
