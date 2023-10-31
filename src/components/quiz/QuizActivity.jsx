@@ -81,14 +81,43 @@ function QuizActivity({}){
         console.log('Final Difficulty: ', difficulty)
         console.log('Final Amount: ', amount)
         let selected = []
+        let allPossQuestions = []
         subcategories.forEach((subcategory) => {
-          selected.push(...data[subcategory])
+          allPossQuestions.push(...data[subcategory])
         })
         if (difficulty > 0) {// Less than 1 means user did not choose difficulty
-          selected = selected.filter((question) => {
+          selected = allPossQuestions.filter((question) => {
             return question.difficulty == difficulty;
           })
+
+          /**
+           * Adds questions of similar difficulty if there aren't enough questions of
+           * selected difficulty. 
+           * 
+           * Slices array after to guarantee all the questions of user-specified  
+           * difficulty are in the quiz and minimizes number of questions that are of 
+           * different difficulties.
+           */
+          let attempts = 1
+          let neededQuestions = amount - selected.length
+          let extraQuestions = []
+
+          while (extraQuestions.length < neededQuestions) {
+            let tempQuestions = allPossQuestions.filter((question) => {
+              return question.difficulty == difficulty + attempts || question.difficulty == question.difficulty - attempts;
+            })
+
+            extraQuestions.push(...tempQuestions)
+            attempts++
+          }
+          selected.push(...shuffle(extraQuestions).slice(0, neededQuestions))
+
+
+        // if no difficulty is chosen
+        } else {
+          selected = allPossQuestions
         }
+
         console.log('Final Chosen: ', selected)
         //Shuffles question order then questions choices
         selected = shuffle(selected).slice(0, amount)
@@ -97,7 +126,7 @@ function QuizActivity({}){
           const question = {
             questionText: data.question,
             choices: shuffle([data.a, data.b, data.c, data.d]),
-            answer: data.correct,//   /
+            answer: data.correct,
           }
           shuffledQuestions.push(question)
           console.log(data.difficulty)
@@ -171,7 +200,7 @@ function QuizActivity({}){
     const data = {
       uid: currentUser.uid,
       category: category.toLowerCase(),
-      score: (amountCorrect / numberOfQuestions)
+      score: (amountCorrect / amount)
     }
     async function sendResult() {
       if(completed){
@@ -202,7 +231,7 @@ function QuizActivity({}){
   return (
   <>
   <div className="flex flex-col items-center justify-center -md:ml-16">
-    <div style={{  position: 'fixed',  top: '0', right: '0', padding: '0.5rem',fontSize: '1.5rem',backgroundColor: '#111827',
+    <div style={{  position: 'fixed',  top: '50px', right: '20px', padding: '0.5rem',fontSize: '1.5rem',backgroundColor: '#111827',
       color: '#f9fafb',borderRadius: '0 0 0.5rem 0.5rem',boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)'}}>
       <Timer
           timeLimit={300}
@@ -219,7 +248,7 @@ function QuizActivity({}){
       Help
     </button>
     {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
-    {questions.slice(0, numberOfQuestions).map((question, index) => (
+    {questions.slice(0, amount).map((question, index) => (
       <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
         isCompleted={completed} callback={grabCorrect}/>
       ))} 
@@ -235,7 +264,7 @@ function QuizActivity({}){
     </button>}
   </div>
   <ScaleLoader className="block items-center justify-center gray-900 mt-8 -md:ml-16" loading={loading} color={loadingColor} width={25} height={100}/>
-  {doneModalActive && <DoneModal isActive={setDoneModalActive} amountCorrect={amountCorrect} totalAmount={numberOfQuestions} active={doneModalActive} />}
+  {doneModalActive && <DoneModal isActive={setDoneModalActive} amountCorrect={amountCorrect} totalAmount={amount} active={doneModalActive} />}
   </>
   )
 }
