@@ -43,6 +43,28 @@ exports.grabSub = functions.https.onRequest(async (req, res) => {
     })
 })
 
+/**
+ * TODO
+ */
+exports.grabRandom = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const category = req.query.category
+        const quizzes = await admin.firestore().collection('default-questions').get()
+        const subcategories = {}
+        quizzes.forEach((doc) => {
+            const data = doc.data()
+            const subcategory = data['sub-category']
+            if (!subcategories[subcategory]) {
+                subcategories[subcategory] = []
+              }
+            subcategories[subcategory].push(data)
+          });
+        res.json(subcategories)
+    })
+})
+
+
+
 
 /**
  * This function will update the score in the database, if there is one
@@ -207,7 +229,7 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
             }
 
             try{
-                const user = await admin.firestore().collection("users").doc(data.creatorID)
+                const user = await admin.firestore().collection('users').doc(data.creatorID)
                 await admin.firestore().collection('custom_quizzes').add({
                     creator: data.creatorID,
                     title: data.title, 
@@ -218,24 +240,18 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                 })
                 .then((docRef) => {
                     console.log("docRef-ID", docRef.id)
-                    try{
+                    try {
                         user.update({
-                            createdQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
+                            customQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
                         })
-
-                        res.json({
-                            status: 200,
-                            quidID: docRef.id,
-                            message: "Successfully added to DB and users doc"
-                        })
-                    }catch(error) {
-                        res.json({
-                            status: 200,
-                            quidID: docRef.id,
-                            message: "Successfully added to DB but not user doc",
-                            error: error.message
-                        })
+                    } catch(error) {
+                        console.log("Error adding to user doc", error.message)
                     }
+                    return res.json({
+                        status: 200,
+                        quizID: docRef.id,
+                        message: "Added to DB successfully"
+                    })
                 })
             }catch(error){
                 return res.json({
