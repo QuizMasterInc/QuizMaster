@@ -9,7 +9,7 @@ const TypeOfQuiz = () => {
             
             <Link to={'/quizzes'} >
                 <div className="p-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600">
-                    <div className="-sm:text-sm">Default Quizzes</div>
+                    <div className="-sm:text-sm">QuizMaster Quizzes</div>
                 </div>
             </Link>
             <Link to={'/customquiz'} >

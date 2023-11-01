@@ -25,9 +25,9 @@ import PrivateRoute from './routes/PrivateRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
 import CustomQuiz from './components/customquiz/CustomQuiz';
+import EditCustomQuiz from "./components/customquiz/EditCustomQuiz"
 import SelectSubCategory from './components/quizselect/SelectSubCategory';
 import TypeOfQuiz from './components/typeofquiz/TypeOfQuiz';
-
 
 function App() {
   //importing destinations here from the context. 
@@ -83,6 +83,11 @@ function App() {
             <Route path="/customquiz" element={
               <PrivateRoute>
                 <CustomQuiz />
+              </PrivateRoute>
+            }/>
+            <Route index path="/customquiz/:quizID" element={
+              <PrivateRoute>
+                <EditCustomQuiz />
               </PrivateRoute>
             }/>
             <Route path="/typeofquiz" element={
