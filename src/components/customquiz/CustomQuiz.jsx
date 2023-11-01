@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react'
+import { useNavigate } from "react-router-dom";
 import QuizQuestionsList from './QuizQuestionsList'
 import QuizCreation from './QuizCreation'
 import {useAuth} from '../../contexts/AuthContext'
@@ -10,10 +11,12 @@ export default function CustomQuiz () {
   const [quizData, setQuizData] = useState([])
   const [quizName, setQuizName] = useState("")
 
+  const navigate = useNavigate()
 
   //THIS FUCNTION FIRST CREATES THE QUIZ OBJECT AND THEN SENDS IT TO THE DATABASE WHEN USER HITS FINISH QUIZ 
   async function sendQuiz() {
     const obj = createQuizObject()
+
     //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/addCustomQuiz
     //https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz
     await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz', {
@@ -27,9 +30,9 @@ export default function CustomQuiz () {
       .then((res) => res.json())
       .then((data) => {
         // here is where functionality off the created data will be. 
-        
         // redirect user to quiz display page using the returned ID in data
         console.log("Response Data", data)
+
       })
       .catch((err) => {
         console.log("Respone Error", err.message);
@@ -87,7 +90,6 @@ export default function CustomQuiz () {
       }
   }
 
-<<<<<<< HEAD
     //THIS FUCNTION FIRST CREATES THE QUIZ OBJECT AND THEN SENDS IT TO THE DATABASE WHEN USER HITS FINISH QUIZ 
     async function sendQuiz() {
       const obj = createQuizObject()
@@ -106,6 +108,7 @@ export default function CustomQuiz () {
           // data returns properly in format
           // { status: 200, quidID: (insert UID), message: (insert message) }
           console.log("Response Data", data)
+          navigate(`/customquiz/${data.quizID}`)
         })
         .catch((err) => {
           console.log("Respone Error", err.message);
@@ -140,8 +143,6 @@ export default function CustomQuiz () {
       return newName;
     });
   }
-=======
->>>>>>> cf573461505dcdf08b2c4d152ce6e26586acf425
 
   //Used this to make sure the proper question was added to the quizData array after pressing add question
   useEffect(() => {

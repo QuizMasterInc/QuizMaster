@@ -229,11 +229,7 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
             }
 
             try{
-<<<<<<< HEAD
                 const user = await admin.firestore().collection('users').doc(data.creatorID)
-=======
-                const user = await admin.firestore().collection("users").doc(data.creatorID)
->>>>>>> cf573461505dcdf08b2c4d152ce6e26586acf425
                 await admin.firestore().collection('custom_quizzes').add({
                     creator: data.creatorID,
                     title: data.title, 
@@ -244,7 +240,6 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                 })
                 .then((docRef) => {
                     console.log("docRef-ID", docRef.id)
-<<<<<<< HEAD
                     try {
                         user.update({
                             customQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
@@ -257,26 +252,6 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                         quizID: docRef.id,
                         message: "Added to DB successfully"
                     })
-=======
-                    try{
-                        user.update({
-                            createdQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
-                        })
-
-                        res.json({
-                            status: 200,
-                            quidID: docRef.id,
-                            message: "Successfully added to DB and users doc"
-                        })
-                    }catch(error) {
-                        res.json({
-                            status: 200,
-                            quidID: docRef.id,
-                            message: "Successfully added to DB but not user doc",
-                            error: error.message
-                        })
-                    }
->>>>>>> cf573461505dcdf08b2c4d152ce6e26586acf425
                 })
             }catch(error){
                 return res.json({
