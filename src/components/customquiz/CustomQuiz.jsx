@@ -10,10 +10,12 @@ export default function CustomQuiz () {
   const {currentUser} = useAuth()
   const [quizData, setQuizData] = useState([])
   const [quizName, setQuizName] = useState("")
+  const [privateQuizPassword, setPrivateQuizPassword] = useState("")
+  const [privateQuiz, setPrivateQuiz] = useState(false)
 
   const navigate = useNavigate()
 
-  //THIS FUCNTION FIRST CREATES THE QUIZ OBJECT AND THEN SENDS IT TO THE DATABASE WHEN USER HITS FINISH QUIZ 
+  //THIS FUNCTION FIRST CREATES THE QUIZ OBJECT AND THEN SENDS IT TO THE DATABASE WHEN USER HITS FINISH QUIZ 
   async function sendQuiz() {
     const obj = createQuizObject()
 
@@ -66,18 +68,47 @@ export default function CustomQuiz () {
     return true
   }
 
+  const verifyQuizPasswordInput = (privateQuizPassword) => {
+    if (privateQuizPassword === "") {
+      return false
+    }
+    return true
+  }
+
 
   // this creates the quiz object which we can use to send all the required data to the database
   const createQuizObject = () => {
     const validQuizName = verifyQuizNameInput(quizName)
-    if (validQuizName) {
-      const userId = currentUser.uid
-      const questionCount = quizData.length
-      const quizObject = {
+    if (privateQuiz) {
+      const validQuizPassword = verifyQuizPasswordInput(privateQuizPassword)
+      if (validQuizName && validQuizPassword) {
+        const userId = currentUser.uid
+        const questionCount = quizData.length
+        const quizObject = {
+          quizPassword: privateQuizPassword,
           creatorID: userId,
           title: quizName,
           questionCount: questionCount,
           quizData: createQuizDataObject(quizData)
+        }
+        //resets quiz questions to start a new quiz 
+        setQuizData([])
+        // WHEN A USER CLICKS FINISH QUIZ THIS LOGS THE OBJECT TO ENSURE IT IS CORRECT. USE THIS DATA ON DATABASE
+        console.log(quizData)
+        console.log(quizObject);
+        return quizObject;
+      } else {
+        alert("Please type a quiz name and password!")
+      }
+      
+    } else if (validQuizName) {
+      const userId = currentUser.uid
+      const questionCount = quizData.length
+      const quizObject = {
+        creatorID: userId,
+        title: quizName,
+        questionCount: questionCount,
+        quizData: createQuizDataObject(quizData)
       }
       //resets quiz questions to start a new quiz 
       setQuizData([])
@@ -85,7 +116,7 @@ export default function CustomQuiz () {
       console.log(quizData)
       console.log(quizObject);
       return quizObject;
-      } else {
+    } else {
         alert("Please Type a Quiz Name!")
       }
   }
@@ -108,7 +139,9 @@ export default function CustomQuiz () {
           // data returns properly in format
           // { status: 200, quidID: (insert UID), message: (insert message) }
           console.log("Response Data", data)
-          navigate(`/customquiz/${data.quizID}`)
+          if (data.quizID) {
+            navigate(`/customquiz/${data.quizID}`)
+          }
         })
         .catch((err) => {
           console.log("Respone Error", err.message);
@@ -116,33 +149,6 @@ export default function CustomQuiz () {
     }
 
 
-  //This function updates the information for each individual question
-  const handleQuestionChange = (e, index) => {
-    setCurrentQuestion((prevCurrentQuestion) => {
-      const updatedQuestion = [...prevCurrentQuestion];
-      updatedQuestion[index] = e.target.value;
-      return updatedQuestion;
-    })
-  };
-
-  //this function adds the question to the quizData array after user finished making the question 
-  const addCurrentQuestion = () => {
-    setQuizData((prevQuizData) => 
-    [
-      ...prevQuizData,
-      currentQuestion
-    ]);
-    setCurrentQuestion(["", "", "", "", "", ""]);
-  };
-
-
-  const handleQuizNameChange = (e) => {
-    setQuizName((prevQuizName) => {
-      let newName = prevQuizName;
-      newName = e.target.value;
-      return newName;
-    });
-  }
 
   //Used this to make sure the proper question was added to the quizData array after pressing add question
   useEffect(() => {
@@ -155,7 +161,17 @@ export default function CustomQuiz () {
       <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-2xl space-y-8 -sm:ml-10">
           <div className='flex flex-col items-center justify-center'>
-            <QuizCreation quizData={quizData} setQuizData={setQuizData} sendQuiz={sendQuiz} quizname={quizName} setQuizName={setQuizName}/>
+            <QuizCreation
+              quizData={quizData} 
+              setQuizData={setQuizData}
+              sendQuiz={sendQuiz}
+              quizname={quizName}
+              setQuizName={setQuizName}
+              privateQuiz = {privateQuiz}
+              setPrivateQuiz= {setPrivateQuiz}
+              privateQuizPassword={privateQuizPassword}  
+              setPrivateQuizPassword={setPrivateQuizPassword}
+            />
             <QuizQuestionsList quizData={quizData}/>
           </div>
         </div>

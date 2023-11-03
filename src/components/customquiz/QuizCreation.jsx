@@ -4,11 +4,13 @@ import { Link, Navigate } from 'react-router-dom'
 
 
 
-export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuizName}) {
+export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuizName, privateQuiz, setPrivateQuiz, privateQuizPassword, setPrivateQuizPassword }) {
 
   const { logout, isGoogleAuth} = useAuth()
   const [loading, setLoading] = useState(true)
   const [currentQuestion, setCurrentQuestion] = useState(["", "", "", "", "", ""]);
+  
+  
 
 
 
@@ -86,15 +88,68 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
     });
   }
 
+  //THIS USE EFFECT CHECKS FOR ANYTIME THE USER SWITCHES FROM YES TO NO ON PRIVATE QUIZ SELECTION AND RESETS THE PASSWORD IF THEY SELECT NO
+  useEffect(() => {
+    // Reset password when switching from "Yes" to "No"
+    if (!privateQuiz) {
+      setPrivateQuizPassword("");
+    }
+  }, [privateQuiz]);
+
+
+  const handlePrivateQuizChange = (e) => {
+    setPrivateQuiz((previousChoice) => {
+      let newChoice = previousChoice;
+      newChoice = e.target.value;
+      console.log(newChoice);
+      if (newChoice === "yes") {
+        return true
+      } else if (newChoice === "no") {
+        console.log(privateQuizPassword);
+        return false  
+      }
+    })
+  }
+
+  const handleQuizPasswordChange = (e) => {
+    setPrivateQuizPassword((prevQuizPassword) => {
+      let newPassword = prevQuizPassword;
+      newPassword = e.target.value;
+      console.log(newPassword)
+      return newPassword
+    })
+  }
+
+
 
   return(
     <>
-      <h1 className="text-2xl font-bold text-gray-300 mb-10">
+      <h1 className="text-3xl font-bold text-gray-300 mb-10">
         Create a Custom Quiz!
       </h1>
       <div className='w-full'>
+        <div>
+          <div className='flex justify-center mb-10'>
+            <h1 className='font-bold text-gray-300 text-2xl'>Do you want this to be a private quiz?</h1>
+            <select name="privateQuiz" id="privateQuiz" onChange={handlePrivateQuizChange} className='ml-10'>
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+            <button></button>
+          </div>
+          {privateQuiz ?
+           <input
+            type='text'
+            placeholder='Type your quiz password'
+            className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
+            id="quizPassword"
+            value={privateQuizPassword}
+            onChange={handleQuizPasswordChange}
+           >
+           </input> : <></>}
+        </div>
         <div name="quizName">
-          <h1 className='text-white text-2xl mb-10'>First Type Your Quiz Name</h1>
+          <h1 className='font-bold text-gray-300 text-2xl mb-10'>Type Your Quiz Name</h1>
           <input 
           type="text"
           placeholder='Quiz Name'
@@ -106,7 +161,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
         </div>
 
         <div name="question-form" >
-          <h1 className='text-white text-2xl mb-8'>Now start adding your questions!</h1>
+          <h1 className='font-bold text-gray-300 text-2xl mb-8'>Now start adding your questions!</h1>
           <input
             id="question"
             type="text"
@@ -128,7 +183,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
           </div>
           ))}
           <div name="correctChoiceSection" className='w-full'>
-            <h1 className='text-white text-2xl mb-8'>Lastly Select The Correct Answer!</h1>
+            <h1 className='font-bold text-gray-300 text-2xl mb-8'>Lastly Select The Correct Answer!</h1>
             <select 
             name="correctChoice"
             id="correct-choice"

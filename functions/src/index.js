@@ -230,29 +230,56 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
 
             try{
                 const user = await admin.firestore().collection('users').doc(data.creatorID)
-                await admin.firestore().collection('custom_quizzes').add({
-                    creator: data.creatorID,
-                    title: data.title, 
-                    numQuestions: data.questionCount,
-                    questions: data.quizData, 
-                    createdAt: admin.firestore.Timestamp.now(),
-                    quizTaken: 0
-                })
-                .then((docRef) => {
-                    console.log("docRef-ID", docRef.id)
-                    try {
-                        user.update({
-                            customQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
-                        })
-                    } catch(error) {
-                        console.log("Error adding to user doc", error.message)
-                    }
-                    return res.json({
-                        status: 200,
-                        quizID: docRef.id,
-                        message: "Added to DB successfully"
+                if (data.quizPassword) {
+                    await admin.firestore().collection('custom_quizzes').add({
+                        quizPassword: data.quizPassword,
+                        creator: data.creatorID,
+                        title: data.title, 
+                        numQuestions: data.questionCount,
+                        questions: data.quizData, 
+                        createdAt: admin.firestore.Timestamp.now(),
+                        quizTaken: 0
                     })
-                })
+                    .then((docRef) => {
+                        console.log("docRef-ID", docRef.id)
+                        try {
+                            user.update({
+                                customQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
+                            })
+                        } catch(error) {
+                            console.log("Error adding to user doc", error.message)
+                        }
+                        return res.json({
+                            status: 200,
+                            quizID: docRef.id,
+                            message: "Added to DB successfully"
+                        })
+                    })
+                } else {
+                   await admin.firestore().collection('custom_quizzes').add({
+                        creator: data.creatorID,
+                        title: data.title, 
+                        numQuestions: data.questionCount,
+                        questions: data.quizData, 
+                        createdAt: admin.firestore.Timestamp.now(),
+                        quizTaken: 0
+                    }) 
+                    .then((docRef) => {
+                        console.log("docRef-ID", docRef.id)
+                        try {
+                            user.update({
+                                customQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
+                            })
+                        } catch(error) {
+                            console.log("Error adding to user doc", error.message)
+                        }
+                        return res.json({
+                            status: 200,
+                            quizID: docRef.id,
+                            message: "Added to DB successfully"
+                        })
+                    })
+                }
             }catch(error){
                 return res.json({
                     result: false,
