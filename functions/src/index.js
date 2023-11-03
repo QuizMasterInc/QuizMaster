@@ -76,7 +76,7 @@ exports.grabRandom = functions.https.onRequest(async (req, res) => {
 async function updateScore(savedScore, newScore, uid, category){
     if (savedScore < newScore){
         await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
-            score: newScore
+            score: newScore,
         })
     }
 }
@@ -86,10 +86,31 @@ async function updateScore(savedScore, newScore, uid, category){
  * @param {*} newScore the new score from a recently taken quiz
  * @param {*} uid userID
  * @param {*} category quiz category
+ * @param {*} attempts how many times the user has taken that quiz
+ * @param {*} avgScore the average score for that quiz
  */
 async function setNewScore(newScore, uid, category){
     await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).set({
-        score: newScore
+        score: newScore,
+        attempts: 1,
+        avgScore: newScore
+    })
+}
+
+/**
+ * This function will update the average score in the database, if there is one
+ * @param {*} savedScore score from database
+ * @param {*} newScore score from recently taken quiz
+ * @param {*} uid userID
+ * @param {*} category quiz category
+ * @param {*} attempts how many times the user has taken that quiz
+ * @param {*} avgScore the average score for that quiz
+ */
+async function updateAvgScore(savedScore, newScore, uid, category){
+    await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
+        score: newScore,
+        attempts: admin.firestore.FieldValue.increment(1),
+        avgScore: ((savedScore*(attepmts - 1)) + newScore) / attempts
     })
 }
 
@@ -122,6 +143,7 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
                     const uid = data.uid
                     const category = data.category
                     updateScore(savedScore, newScore, uid, category)
+                    updateAvgScore(savedScore, newScore, uid, category)
                 }
                 res.json({result: true})
             }catch(error){
@@ -147,6 +169,7 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
                     res.json({score: 0})
                 }else{
                     //doc exists 
+                    console.log(resultsRef.data())
                     res.json(resultsRef.data())
                 }
             }catch(error){
