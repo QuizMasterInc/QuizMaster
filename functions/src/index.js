@@ -203,40 +203,37 @@ exports.deletedUser = functions.auth.user().onDelete(user => {
 })
 
 exports.grabCustomQuiz = functions.https.onRequest(async (req, res) => {
-    cors(req,res, async () => {
-        const dataType = req.get('content-type')
-        if(dataType === 'application/json'){
-            const { uid } = JSON.parse(JSON.stringify(req.body))
+    cors(req, res, async () => {
+        const  uid  = req.query.quizid
 
-            if (!uid) {
-                return res.status(401).json({
-                    result: false,
-                    message: "No UID field."
-                })
-            }
+        if (!uid) {
+            return res.status(401).json({
+                result: false,
+                message: "No UID field."
+            })
+        }
 
-            try {
-                const quiz = await admin.firestore().collection('custom_quizzes').doc(uid).get()
-                if (!quiz.exists) {
-                    return res.json({
-                        result: false,
-                        message: "Invalid UID"
-                    })
-                }
-                else {
-                    return res.json({
-                        result: true,
-                        status: 200,
-                        message: "quiz found",
-                        data: quiz.data()
-                    })
-                }
-            } catch(error) {
+        try {
+            const quiz = await admin.firestore().collection('custom_quizzes').doc(uid).get()
+            if (!quiz.exists) {
                 return res.json({
                     result: false,
-                    message: error.message
+                    message: "Invalid UID"
                 })
             }
+            else {
+                return res.json({
+                    result: true,
+                    status: 200,
+                    message: "quiz found",
+                    data: quiz.data()
+                })
+            }
+        } catch(error) {
+            return res.json({
+                result: false,
+                message: error.message
+            })
         }
     }) 
 })
