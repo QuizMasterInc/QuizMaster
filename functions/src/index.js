@@ -76,7 +76,7 @@ exports.grabRandom = functions.https.onRequest(async (req, res) => {
 async function updateScore(savedScore, newScore, uid, category){
     if (savedScore < newScore){
         await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
-            score: newScore,
+            score: newScore
         })
     }
 }
@@ -89,11 +89,11 @@ async function updateScore(savedScore, newScore, uid, category){
  * @param {*} attempts how many times the user has taken that quiz
  * @param {*} avgScore the average score for that quiz
  */
-async function setNewScore(newScore, uid, category){
+async function setNewScore(newScore, uid, category, attempts, avgScore){
     await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).set({
         score: newScore,
-        attempts: 1,
-        avgScore: newScore
+        attempts: attempts,
+        avgScore: avgScore
     })
 }
 
@@ -103,16 +103,14 @@ async function setNewScore(newScore, uid, category){
  * @param {*} newScore score from recently taken quiz
  * @param {*} uid userID
  * @param {*} category quiz category
- * @param {*} attempts how many times the user has taken that quiz
- * @param {*} avgScore the average score for that quiz
  */
-async function updateAvgScore(savedScore, newScore, uid, category){
+async function updateAvgScore(newScore, uid, category, attempts, avgScore) {
     await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
-        score: newScore,
-        attempts: admin.firestore.FieldValue.increment(1),
-        avgScore: ((savedScore*(attepmts - 1)) + newScore) / attempts
+        avgScore: ((avgScore * attempts) + newScore) / (attempts + 1),
+        attempts: attempts + 1
     })
-}
+  }
+  
 
 /**
  * This function will update or set a new score depending on if the user has already taken a quiz or not
@@ -130,20 +128,26 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
                     const newScore = data.score
                     const uid = data.uid
                     const category = data.category
-                    setNewScore(newScore, uid, category)
+                    const attempts = data.attempts
+                    const avgScore = data.avgScore
+                    setNewScore(newScore, uid, category, attempts, avgScore)
                 }else{
                     //doc exists 
                     if(!resultsRef.data().score){
                         await admin.firestore().collection('results').doc(data.uid).collection('quizzes').doc(data.category).update({
-                            score: data.score
+                            score: data.score,
+                            attempts: data.attempts,
+                            avgScore: data.avgScore
                         })
                     }
                     const savedScore = resultsRef.data().score
                     const newScore = data.score
                     const uid = data.uid
                     const category = data.category
+                    const attempts = data.attempts
+                    const avgScore = data.avgScore
                     updateScore(savedScore, newScore, uid, category)
-                    updateAvgScore(savedScore, newScore, uid, category)
+                    updateAvgScore(newScore, uid, category, attempts, avgScore)
                 }
                 res.json({result: true})
             }catch(error){
@@ -167,6 +171,7 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
                 if(!resultsRef.exists){
                     //doc doesnt exist
                     res.json({score: 0})
+                    res.json({avgScore: 0})
                 }else{
                     //doc exists 
                     console.log(resultsRef.data())

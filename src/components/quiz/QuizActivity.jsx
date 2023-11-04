@@ -200,7 +200,9 @@ function QuizActivity({}){
     const data = {
       uid: currentUser.uid,
       category: category.toLowerCase(),
-      score: (amountCorrect / amount)
+      score: (amountCorrect / amount),
+      attempts: 1,
+      avgScore: (amountCorrect / amount)
     }
     async function sendResult() {
       if(completed){
