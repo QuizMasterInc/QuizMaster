@@ -190,6 +190,7 @@ exports.newUser = functions.auth.user().onCreate(user => {
     console.log('user created', user.email, user.uid)
     return admin.firestore().collection('users').doc(user.uid).set({
         email: user.email, 
+        displayName: user.displayName,
         customQuizzes: []
     })
 })
