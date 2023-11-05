@@ -192,18 +192,82 @@ function QuizActivity({}){
     setTimerFinished(true);
   };
 
+  // Use grabResults cloud function to get the previous average score and attempts so they can be updated
+  const [result, setResult] = useState(0)
+  const [prevAvgScore, setAvgScore] = useState(0)
+  const [prevAttempts, setAttempts] = useState(1)
+
+   /**
+   * This is useEffect() is used to grab the results for each quiz
+   * Here we are using a Firebase function 
+  */
+   useEffect(() => {
+    async function fetchResults(uid) {
+      const data = {
+        uid: uid,
+        category: category.toLowerCase()
+      }
+  
+      try {
+        //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabResults
+        //https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults
+        const response = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+  
+        if (response.ok) {
+          const resultData = await response.json();
+          console.log(resultData)
+          setResult(resultData.score);
+          setAvgScore(resultData.avgScore);
+          setAttempts(resultData.attempts);
+        } else {
+          // Handle the case when the response is not ok (e.g., error handling)
+          console.error('Fetch error:', response.statusText);
+        }
+      } catch (error) {
+        // Handle any fetch-related errors here
+        console.error('Fetch error:', error);
+      }
+  
+    }
+  
+    fetchResults(currentUser.uid);
+  }, []);
+
+  // Make sure the attempt counter and prevAvgScore consts are set
+  if (completed) {
+    if (prevAvgScore == null) {
+      setAvgScore(amountCorrect / amount)
+    }
+    if (prevAttempts == null){
+      setAttempts(1)
+    }
+  }
+
+  const createQuizScoreObject = () => {
+      const quizScoreObject = {
+        uid: currentUser.uid,
+        category: category.toLowerCase(),
+        score: (amountCorrect / amount),
+        attempts: prevAttempts,
+        avgScore: prevAvgScore === 0 ? amountCorrect / amount : prevAvgScore,
+      }
+    console.log(quizScoreObject);
+    return quizScoreObject
+  }
+
   /**
    * Once the timer is finished, or the user finishes the quiz
    * this useEffect() gets called to send scores to the database also using a Google Firebase Function
    */
   useEffect(() => {
-    const data = {
-      uid: currentUser.uid,
-      category: category.toLowerCase(),
-      score: (amountCorrect / amount),
-      attempts: 1,
-      avgScore: (amountCorrect / amount)
-    }
+    const obj = createQuizScoreObject()
     async function sendResult() {
       if(completed){
         //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/saveResults
@@ -214,10 +278,11 @@ function QuizActivity({}){
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(data)
+          body: JSON.stringify(obj)
           })
           .then(res => res.json())
           .then(data => {
+            console.log("Response Data", data)
           })
       }
     }
