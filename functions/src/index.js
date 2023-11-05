@@ -63,7 +63,24 @@ exports.grabRandom = functions.https.onRequest(async (req, res) => {
     })
 })
 
-
+exports.addDefaultQuestion = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+      try {
+        // Parse question into JavaScript object
+        const question = JSON.parse(req.query.question)
+  
+        // Store the data in Firestore
+        const collectionRef = admin.firestore().collection('default-questions')
+        await collectionRef.add(question)
+  
+        res.json({ message: 'Data added to Firestore' })
+      } catch (error) {
+        console.error('Error adding data to Firestore:', error)
+        res.status(500).json({ error: 'An error occurred' })
+      }
+    })
+  })
+  
 
 
 /**
