@@ -84,6 +84,21 @@ exports.addDefaultQuestion = functions.https.onRequest(async (req, res) => {
 
 
 /**
+ * This function will update the score in the database, if there is one
+ * @param {*} savedScore score from database
+ * @param {*} newScore score from recently taken quiz
+ * @param {*} uid userID
+ * @param {*} category quiz category
+ */
+async function updateScore(savedScore, newScore, uid, category){
+    if (savedScore < newScore){
+        await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
+            score: newScore
+        })
+    }
+}
+
+/**
  * This function will set a new score for a recently taken quiz
  * @param {*} newScore the new score from a recently taken quiz
  * @param {*} uid userID
@@ -100,46 +115,18 @@ async function setNewScore(newScore, uid, category, attempts, avgScore){
 }
 
 /**
- * This function will update the score in the database, if there is one
+ * This function will update the average score in the database, if there is one
  * @param {*} savedScore score from database
  * @param {*} newScore score from recently taken quiz
  * @param {*} uid userID
  * @param {*} category quiz category
  */
-async function updateScore(savedScore, newScore, uid, category){
-    if (savedScore < newScore){
-        await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
-            score: newScore
-        })
-    }
-}
-
-/**
- * This function will update the average score in the database, if there is one
- * @param {*} newAvg new calculated average score
- * @param {*} newScore score from recently taken quiz
- * @param {*} uid userID
- * @param {*} category quiz category
- */
-async function updateAvgScore(newScore, uid, category, newAvg) {
-    if (newAvg != newScore) {
-        await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
-            avgScore: newAvg,
-        })
-    }
+async function updateAvgScore(newScore, uid, category, attempts, avgScore) {
+    await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
+        avgScore: ((avgScore * attempts) + newScore) / (attempts + 1),
+        attempts: attempts + 1
+    })
   }
-
-  /**
- * This function will update the score in the database, if there is one
- * @param {*} newAttempts attempt counter incremented
- * @param {*} uid userID
- * @param {*} category quiz category
- */
-async function updateAttempts(uid, category, newAttempts){
-        await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
-            attempts: newAttempts
-        })
-}
   
 
 /**
@@ -163,18 +150,21 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
                     setNewScore(newScore, uid, category, attempts, avgScore)
                 }else{
                     //doc exists 
+                    if(!resultsRef.data().score){
+                        await admin.firestore().collection('results').doc(data.uid).collection('quizzes').doc(data.category).update({
+                            score: data.score,
+                            attempts: data.attempts,
+                            avgScore: data.avgScore
+                        })
+                    }
                     const savedScore = resultsRef.data().score
-                    const savedAvgScore = resultsRef.data().avgScore
-                    const savedAttempts = resultsRef.data().attempts
                     const newScore = data.score
                     const uid = data.uid
                     const category = data.category
-                    const newAttempts = data.attempts + 1
-                    const newAvg = (((savedAvgScore * savedAttempts) + newScore) / newAttempts)
-                    
+                    const attempts = data.attempts
+                    const avgScore = data.avgScore
                     updateScore(savedScore, newScore, uid, category)
-                    updateAvgScore(newScore, uid, category, newAvg)
-                    updateAttempts(uid, category, newAttempts)
+                    updateAvgScore(newScore, uid, category, attempts, avgScore)
                 }
                 res.json({result: true})
             }catch(error){
@@ -197,7 +187,8 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
                 const resultsRef = await admin.firestore().collection('results').doc(data.uid).collection('quizzes').doc(data.category).get()
                 if(!resultsRef.exists){
                     //doc doesnt exist
-                    res.json({score: 0, avgScore: 0, attempts: 0})
+                    res.json({score: 0})
+                    res.json({avgScore: 0})
                 }else{
                     //doc exists 
                     console.log(resultsRef.data())
@@ -205,7 +196,6 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
                 }
             }catch(error){
                 console.log(error)
-                res.status(500).send('Error fetching data.');
             }
         }
     })
