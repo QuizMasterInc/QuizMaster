@@ -4,7 +4,7 @@ import { Link, Navigate } from 'react-router-dom'
 
 
 
-export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuizName, privateQuiz, setPrivateQuiz, privateQuizPassword, setPrivateQuizPassword }) {
+export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuizName, privateQuiz, setPrivateQuiz, privateQuizPassword, setPrivateQuizPassword, quizTags, setQuizTags }) {
 
   const { logout, isGoogleAuth} = useAuth()
   const [loading, setLoading] = useState(true)
@@ -120,7 +120,13 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
     })
   }
 
-
+  const updateQuizTags = (e) => {
+    // Split the input string into an array of tags using space as the delimiter
+    const arr = e.target.value.split(' ');
+    // Update the quizTags state with the new array
+    console.log("Newtags: ", arr)
+    setQuizTags(arr);
+  };
 
   return(
     <>
@@ -183,7 +189,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
           </div>
           ))}
           <div name="correctChoiceSection" className='w-full'>
-            <h1 className='font-bold text-gray-300 text-2xl mb-8'>Lastly Select The Correct Answer!</h1>
+            <h1 className='font-bold text-gray-300 text-2xl mb-8'>Select The Correct Answer!</h1>
             <select 
             name="correctChoice"
             id="correct-choice"
@@ -202,6 +208,17 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
               ))}
             </select>
           </div>
+          <div name="quizTags">
+          <h1 className='font-bold text-gray-300 text-2xl mb-8'>Type Your Quiz Tags</h1>
+          <input 
+          type="text"
+          placeholder='Eg. history sports'
+          className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
+          id="quizTags"
+          value={quizTags.join(' ')}
+          onChange={(e) => updateQuizTags(e)}
+          />
+        </div>
         </div>
       </div>
 

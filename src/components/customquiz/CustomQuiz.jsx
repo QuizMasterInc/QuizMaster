@@ -12,6 +12,7 @@ export default function CustomQuiz () {
   const [quizName, setQuizName] = useState("")
   const [privateQuizPassword, setPrivateQuizPassword] = useState("")
   const [privateQuiz, setPrivateQuiz] = useState(false)
+  const [quizTags, setQuizTags] = useState([])
 
   const navigate = useNavigate()
 
@@ -54,6 +55,7 @@ export default function CustomQuiz () {
         option_3: questionDetailsArray[3],
         option_4: questionDetailsArray[4],
         correct_answer: questionDetailsArray[5],
+        
       }
       quizDataObject[questionNumber] = questionObject
     }
@@ -74,14 +76,21 @@ export default function CustomQuiz () {
     }
     return true
   }
-
+  const verifyQuizTagsInput = (quizTags) => {
+    if (!quizTags){
+      return false
+    }
+    return true
+  }
 
   // this creates the quiz object which we can use to send all the required data to the database
   const createQuizObject = () => {
     const validQuizName = verifyQuizNameInput(quizName)
+    const validQuizTags = verifyQuizTagsInput(quizTags)
+    console.log("Gold Quiz Tags:", quizTags)
     if (privateQuiz) {
       const validQuizPassword = verifyQuizPasswordInput(privateQuizPassword)
-      if (validQuizName && validQuizPassword) {
+      if (validQuizName && validQuizPassword && validQuizTags) {
         const userId = currentUser.uid
         const questionCount = quizData.length
         const quizObject = {
@@ -89,13 +98,15 @@ export default function CustomQuiz () {
           creatorID: userId,
           title: quizName,
           questionCount: questionCount,
-          quizData: createQuizDataObject(quizData)
+          quizData: createQuizDataObject(quizData),
+          quizTags: quizTags
         }
         //resets quiz questions to start a new quiz 
         setQuizData([])
         // WHEN A USER CLICKS FINISH QUIZ THIS LOGS THE OBJECT TO ENSURE IT IS CORRECT. USE THIS DATA ON DATABASE
         console.log(quizData)
         console.log(quizObject);
+        console.log("quizTags: ", quizTags)
         return quizObject;
       } else {
         alert("Please type a quiz name and password!")
@@ -108,7 +119,8 @@ export default function CustomQuiz () {
         creatorID: userId,
         title: quizName,
         questionCount: questionCount,
-        quizData: createQuizDataObject(quizData)
+        quizData: createQuizDataObject(quizData),
+        quizTags: quizTags
       }
       //resets quiz questions to start a new quiz 
       setQuizData([])
@@ -171,6 +183,8 @@ export default function CustomQuiz () {
               setPrivateQuiz= {setPrivateQuiz}
               privateQuizPassword={privateQuizPassword}  
               setPrivateQuizPassword={setPrivateQuizPassword}
+              quizTags={quizTags}
+              setQuizTags={setQuizTags}
             />
             <QuizQuestionsList quizData={quizData}/>
           </div>

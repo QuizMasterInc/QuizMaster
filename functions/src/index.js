@@ -281,7 +281,8 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                         numQuestions: data.questionCount,
                         questions: data.quizData, 
                         createdAt: admin.firestore.Timestamp.now(),
-                        quizTaken: 0
+                        quizTaken: 0,
+                        tags: data.quizTags
                     })
                     .then((docRef) => {
                         console.log("docRef-ID", docRef.id)
@@ -305,7 +306,8 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                         numQuestions: data.questionCount,
                         questions: data.quizData, 
                         createdAt: admin.firestore.Timestamp.now(),
-                        quizTaken: 0
+                        quizTaken: 0,
+                        tags: data.quizTags
                     }) 
                     .then((docRef) => {
                         console.log("docRef-ID", docRef.id)
