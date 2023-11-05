@@ -9,6 +9,7 @@ import matthew from "../../assets/matthew.jpg"
 import tyler from "../../assets/tyler.jpg"
 import julie from "../../assets/julie.jpg"
 import james from "../../assets/james.jpg"
+import joey from "../../assets/joey.jpg"
 
 {/* IMPORT YOUR IMAGES HERE */}
 
@@ -152,13 +153,13 @@ const Contact = ({}) => (
           {/* THIS SECTION IS FOR JOEY DEVITO */}
 
           <div className="flex flex-col items-center">
-            <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-              <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            <a href="https://getting-2-know-you.azurewebsites.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={joey} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3> {/* YOUR NAME GOES HERE */}
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Joey Devito</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-2 text-gray-300">
-              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-                joseamontesdeocamo@lewisu.edu
+              <a href="mailto:josephmdevito@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                josephmdevito@lewisu.edu
               </a>
             </div>
           </div>      
