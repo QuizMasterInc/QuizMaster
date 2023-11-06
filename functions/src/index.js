@@ -272,7 +272,20 @@ exports.grabCustomQuiz = functions.https.onRequest(async (req, res) => {
     }) 
 })
 
+// grabs all custom quizzes made by current user for Dashboard
+exports.grabCustomQuizzesByUser = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const creator = req.query.creator
+        const quizSnapshot = await admin.firestore().collection('custom_quizzes').where('creator', '==', creator).get()
+        userQuizzes = []
+        quizSnapshot.forEach(doc => {
+            userQuizzes.push(doc.data())
+        })
+        res.json(userQuizzes)
+    }) 
+})
 
+// grabs all custom quizzes for the Take A Quiz > User-Made Quizzes page
 exports.grabAllCustomQuizzes = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const quizSnapshot = await admin.firestore().collection('custom_quizzes').get()
