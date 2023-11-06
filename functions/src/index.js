@@ -272,6 +272,19 @@ exports.grabCustomQuiz = functions.https.onRequest(async (req, res) => {
     }) 
 })
 
+
+exports.grabAllCustomQuizzes = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const quizSnapshot = await admin.firestore().collection('custom_quizzes').get()
+        allQuizzes = []
+        quizSnapshot.forEach(doc => {
+            allQuizzes.push(doc.data())
+        })
+        res.json(allQuizzes)
+
+    })
+})
+
 // function adds new quiz to the DB and updates in the users collection
 exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
