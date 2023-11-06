@@ -22,7 +22,7 @@ export default function NavBar() {
             <div className="flex flex-col items-center p-2 mt-4 rounded-md">
                 <Q />
             </div>
-            {currentUser && /*currentUser.role === "developer" &&*/ (
+            {currentUser && currentUser.role === "developer" && (
             <div className="hover:scale-125 duration-300">
                 <NavLink to="/developer" className={"flex flex-col items-center"}>
                     <NavBarIcon icon={<Developer className={"navbar-icon"} />} text={"Developer"} />

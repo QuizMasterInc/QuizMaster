@@ -81,7 +81,13 @@ exports.addDefaultQuestion = functions.https.onRequest(async (req, res) => {
     })
   })
   
-
+exports.grabUser = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const uid = req.query.uid
+        const grabUser = await admin.firestore().collection('users').doc(uid).get()
+        res.json(grabUser.data())
+    })
+})
 /**
  * This function will set a new score for a recently taken quiz
  * @param {*} newScore the new score from a recently taken quiz
@@ -217,7 +223,8 @@ exports.newUser = functions.auth.user().onCreate(user => {
     return admin.firestore().collection('users').doc(user.uid).set({
         email: user.email, 
         displayName: user.displayName,
-        customQuizzes: []
+        customQuizzes: [],
+        role: 'user'
     })
 })
 
