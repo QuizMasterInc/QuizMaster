@@ -62,9 +62,13 @@ export function AuthProvider({ children }) {
         return currentUser.reauthenticateWithCredential(credentials)
     }
     //Will change the user based on the authentication change
-    /*
+    //*
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
+        const unsubscribe = auth.onAuthStateChanged( async(user) => {
+            const response = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabUser?uid=" + user.uid)
+            const extendedUserData = await response.json()
+            user.customQuizzes = extendedUserData.customQuizzes
+            user.role = extendedUserData.role
             setCurrentUser(user)
             setLoading(false)
             //Will set googleAuth to true if the user is using a Google account.
@@ -75,10 +79,12 @@ export function AuthProvider({ children }) {
 
         return unsubscribe
     }, [])
-    */
-    useEffect(() => {
+    //*/
+    /*
+    useEffect(() => {//for some
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
           if (user) {
+            setIsGoogleAuth(user.providerData[0].providerId === 'google.com')
             try {
               const response = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabUser?uid=" + user.uid)
               if (response.ok) {
@@ -102,7 +108,7 @@ export function AuthProvider({ children }) {
       
         return unsubscribe
       }, [])
-    
+      //*/
 //packages data
     const value = {
         currentUser,
