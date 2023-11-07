@@ -120,7 +120,7 @@ export default function CustomQuiz () {
         title: quizName,
         questionCount: questionCount,
         quizData: createQuizDataObject(quizData),
-        quizTags: tag
+        quizTags: quizTags
       }
       //resets quiz questions to start a new quiz 
       setQuizData([])
