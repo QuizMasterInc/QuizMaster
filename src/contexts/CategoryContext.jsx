@@ -44,12 +44,13 @@ export function CategoryProvider({children}){
       'Mathematics'
     ]);
     
+    // TODO: add icons back in once questions are added
     //icons for each quiz category. order matters!
   const [icons] = useState([
-    <Book className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>,
+    //<Book className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>,
     <World className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <FlaskVial className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
-    <Basketball className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
+    //<Basketball className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <Ticket className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <Calculator className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>
   ]);
