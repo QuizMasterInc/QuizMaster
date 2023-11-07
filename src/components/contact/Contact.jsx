@@ -11,7 +11,7 @@ import julie from "../../assets/julie.jpg"
 import james from "../../assets/james.jpg"
 import joey from "../../assets/joey.jpg"
 import alex from "../../assets/alex.jpg"
-import hamzeh from "../../assets/hamzeh-0.jpg"
+import hamzeh from "../../assets/hamzeh.jpg"
 import jeff from "../../assets/jeff.jpg"
 
 {/* IMPORT YOUR IMAGES HERE */}
