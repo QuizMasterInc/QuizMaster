@@ -88,6 +88,22 @@ exports.grabUser = functions.https.onRequest(async (req, res) => {
         res.json(grabUser.data())
     })
 })
+//Used by CustomQuizTables for get all user's custom quizzes
+exports.grabUserCustomQuzzies = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const uid = req.query.uid
+        const customQuizzes = await admin.firestore().collection('custom_quizzes').get()
+        const quizzes = []
+        customQuizzes.forEach((doc) => {
+            const data = doc.data()
+            creator = data.creator
+            if (creator === uid) {
+                quizzes.push(data)
+            }
+        })
+        res.json(quizzes)
+    })
+})
 /**
  * This function will set a new score for a recently taken quiz
  * @param {*} newScore the new score from a recently taken quiz

@@ -64,28 +64,39 @@ export function AuthProvider({ children }) {
     //Will change the user based on the authentication change
     /*
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            setCurrentUser(user)
-            setLoading(false)
-            //Will set googleAuth to true if the user is using a Google account.
-            if(user){
-                setIsGoogleAuth(user.providerData[0].providerId === 'google.com')
+        const unsubscribe = auth.onAuthStateChanged( async(user) => {
+            try {
+                const response = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabUser?uid=" + user.uid)
+                const extendedUserData = await response.json()
+                
+                user.customQuizzes = extendedUserData.customQuizzes
+                user.role = extendedUserData.role
+                setCurrentUser(user)
+                setLoading(false)
+                //Will set googleAuth to true if the user is using a Google account.
+                if(user){
+                    setIsGoogleAuth(user.providerData[0].providerId === 'google.com')
+                }
+            } catch (error) {
+                console.log("oops, not logged in")
             }
         })
 
         return unsubscribe
     }, [])
     */
-    useEffect(() => {
+    
+    useEffect(() => {//for some
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
           if (user) {
+            setIsGoogleAuth(user.providerData[0].providerId === 'google.com')
             try {
               const response = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabUser?uid=" + user.uid)
               if (response.ok) {
                 const extendedUserData = await response.json()
-                setCurrentUser({
-                     ...user, ...extendedUserData ,
-                })
+                user.customQuizzes = extendedUserData.customQuizzes
+                user.role = extendedUserData.role
+                setCurrentUser(user)
                 console.log("Successfully fetched user data: ")
               } else {
                 console.error("Failed to fetch user data")
@@ -102,7 +113,7 @@ export function AuthProvider({ children }) {
       
         return unsubscribe
       }, [])
-    
+      //*/
 //packages data
     const value = {
         currentUser,

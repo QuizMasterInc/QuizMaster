@@ -17,19 +17,21 @@ export default function EditCustomQuiz() {
   const { quizID } = useParams()  // retrieves quiz ID from URL params 
 
   const postQuestions = () => {
-    try {
-      Object.keys(quiz.questions).map((key, index) => {
-        return (
-          <div key={index}>
-            <h2>{key}</h2>
-          </div>
-        )
-      })
-    } catch(err) {
+    console.log("Post Questions Function call")
+    if (!quiz) {
       return (
-        <></>
+        <h1>Loading Questions...</h1>
       )
     }
+
+    return Object.keys(quiz.questions).map((key, index) => {
+      return (
+        <div key={index}>
+          <h2>{key}</h2>
+          <h2>{quiz.questions[key].correct_answer}</h2>
+        </div>
+      )
+    })
   }
 
   useEffect(() => {
@@ -48,6 +50,9 @@ export default function EditCustomQuiz() {
       <h1>{quiz?.title || "Loading..."}</h1>
       <h2>{quiz?.numQuestions || "Loading..."}</h2>
       <h2>{quiz?.quizTaken && "Loading..."}</h2>
+      {
+         postQuestions()
+      }
     </div>
   )
 }

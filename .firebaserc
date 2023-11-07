@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "quizmaster-c66a2"
+    "default": "quizmaster-c66a2",
+    "staging": "quizmaster-c66a2"
   },
   "targets": {
     "quizmaster-c66a2": {
