@@ -10,7 +10,7 @@ export const QuizResult = ({index, category, icon}) => {
   const [loading, setLoading] = useState(true)
   const [loadingColor, setLoadingColor] = useState("d1d5db")
   const [result, setResult] = useState(0)
-  const [avgScore, setAvgScore] = useState(0)
+  const [avgScore, setAvgScore] = useState(result)
   const {currentUser} = useAuth()
 
   /**
@@ -39,6 +39,7 @@ export const QuizResult = ({index, category, icon}) => {
   
         if (response.ok) {
           const resultData = await response.json();
+          console.log(resultData)
           setResult(resultData.score);
           setAvgScore(resultData.avgScore);
         } else {
@@ -55,6 +56,11 @@ export const QuizResult = ({index, category, icon}) => {
   
     fetchResults(currentUser.uid);
   }, []);
+
+  // Sets the average score to 0 if no quizzes of that category have been taken yet
+  if (avgScore == null) {
+    setAvgScore(0)
+  }
 
   /**
    * The view element. 

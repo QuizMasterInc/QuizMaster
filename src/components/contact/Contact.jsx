@@ -9,6 +9,10 @@ import matthew from "../../assets/matthew.jpg"
 import tyler from "../../assets/tyler.jpg"
 import julie from "../../assets/julie.jpg"
 import james from "../../assets/james.jpg"
+import joey from "../../assets/joey.jpg"
+import alex from "../../assets/alex.jpg"
+import hamzeh from "../../assets/hamzeh.jpg"
+import jeff from "../../assets/jeff.jpg"
 
 {/* IMPORT YOUR IMAGES HERE */}
 
@@ -106,13 +110,13 @@ const Contact = ({}) => (
           {/* THIS SECTION IS FOR ALEX KAMINSKI*/}
 
           <div className="flex flex-col items-center">
-            <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-              <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            <a href="https://ashy-mud-0329c4e10.3.azurestaticapps.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={alex} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3> {/* YOUR NAME GOES HERE */}
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Alex Kaminski</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-2 text-gray-300">
-              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-                joseamontesdeocamo@lewisu.edu
+              <a href="mailto:alexmkaminski@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                alexmkaminski@lewisu.edu
               </a>
             </div>
           </div>  
@@ -124,16 +128,18 @@ const Contact = ({}) => (
           {/* THIS SECTION IS FOR JEFFERSON CHERRINGTON */}
 
           <div className="flex flex-col items-center">
-            <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-              <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            <a href="https://jacnok.github.io/cpsc-44000-s1-helloworld/intro.html" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={jeff} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3> {/* YOUR NAME GOES HERE */}
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Jefferson Cherrington</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-2 text-gray-300">
-              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-                joseamontesdeocamo@lewisu.edu
+              <a href="mailto:jeffersonacherring@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+              jeffersonacherring@lewisu.edu
               </a>
             </div>
           </div>
+
+          
 
           {/* THIS SECTION IS FOR JAMES MACKOWIAK */}
 
@@ -152,13 +158,13 @@ const Contact = ({}) => (
           {/* THIS SECTION IS FOR JOEY DEVITO */}
 
           <div className="flex flex-col items-center">
-            <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-              <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            <a href="https://getting-2-know-you.azurewebsites.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={joey} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3> {/* YOUR NAME GOES HERE */}
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Joey Devito</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-2 text-gray-300">
-              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-                joseamontesdeocamo@lewisu.edu
+              <a href="mailto:josephmdevito@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                josephmdevito@lewisu.edu
               </a>
             </div>
           </div>      
@@ -167,16 +173,16 @@ const Contact = ({}) => (
         {/*FINAL ROW FOR FALL 2023 TEAM*/ }
         <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
 
-        {/* THIS SECTION IS FOR THE LAST TEAM MEMBER */}
+        {/* THIS SECTION IS FOR THE LAST TEAM MEMBER (HAMZEH) */}
 
           <div className="flex flex-col items-center">
-              <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+              <a href="https://halbaz.github.io" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+                <img src={hamzeh} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
               </a>
-              <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3> {/* YOUR NAME GOES HERE */}
+              <h3 className="mt-4 text-lg font-medium text-gray-300">Hamzeh Albaz</h3> {/* YOUR NAME GOES HERE */}
               <div className="mt-2 text-gray-300">
-                <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-                  joseamontesdeocamo@lewisu.edu
+                <a href="mailto:hamzehoalbaz@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                  hamzehoalbaz@lewisu.edu
                 </a>
               </div>
             </div>

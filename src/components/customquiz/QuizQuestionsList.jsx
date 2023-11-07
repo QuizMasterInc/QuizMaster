@@ -14,7 +14,7 @@ export default function QuizQuestionsList ({quizData}) {
 						<button className='p-2 mb-3 ml-2 mr-2 text-gray-300 bg-gray-800 rounded-md shadow-md -md:text-sm hover:bg-gray-600'>{quizData[index][2]}</button>
 						<button className='p-2 mb-3 ml-2 mr-2 text-gray-300 bg-gray-800 rounded-md shadow-md -md:text-sm hover:bg-gray-600'>{quizData[index][3]}</button>
 						<button className='p-2 mb-3 ml-2 mr-2 text-gray-300 bg-gray-800 rounded-md shadow-md -md:text-sm hover:bg-gray-600'>{quizData[index][4]}</button>
-						<p className='text-2xl mb-4 text-gray-300 align-middle -md:text-sm'>Correct Awnser</p>
+						<p className='text-2xl mb-4 text-gray-300 align-middle -md:text-sm'>Correct Answer</p>
 						<button className='p-2 mb-3 ml-2 mr-2 text-gray-300 bg-gray-800 rounded-md shadow-md -md:text-sm hover:bg-gray-600'>{quizData[index][5]}</button>
 					</div>
 				))}

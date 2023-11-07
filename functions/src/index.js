@@ -63,24 +63,31 @@ exports.grabRandom = functions.https.onRequest(async (req, res) => {
     })
 })
 
-
-
-
-/**
- * This function will update the score in the database, if there is one
- * @param {*} savedScore score from database
- * @param {*} newScore score from recently taken quiz
- * @param {*} uid userID
- * @param {*} category quiz category
- */
-async function updateScore(savedScore, newScore, uid, category){
-    if (savedScore < newScore){
-        await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
-            score: newScore
-        })
-    }
-}
-
+exports.addDefaultQuestion = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+      try {
+        // Parse question into JavaScript object
+        const question = JSON.parse(req.query.question)
+  
+        // Store the data in Firestore
+        const collectionRef = admin.firestore().collection('default-questions')
+        await collectionRef.add(question)
+  
+        res.json({ message: 'Data added to Firestore' })
+      } catch (error) {
+        console.error('Error adding data to Firestore:', error)
+        res.status(500).json({ error: 'An error occurred' })
+      }
+    })
+  })
+  
+exports.grabUser = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const uid = req.query.uid
+        const grabUser = await admin.firestore().collection('users').doc(uid).get()
+        res.json(grabUser.data())
+    })
+})
 /**
  * This function will set a new score for a recently taken quiz
  * @param {*} newScore the new score from a recently taken quiz
@@ -98,18 +105,46 @@ async function setNewScore(newScore, uid, category, attempts, avgScore){
 }
 
 /**
- * This function will update the average score in the database, if there is one
+ * This function will update the score in the database, if there is one
  * @param {*} savedScore score from database
  * @param {*} newScore score from recently taken quiz
  * @param {*} uid userID
  * @param {*} category quiz category
  */
-async function updateAvgScore(newScore, uid, category, attempts, avgScore) {
-    await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
-        avgScore: ((avgScore * attempts) + newScore) / (attempts + 1),
-        attempts: attempts + 1
-    })
+async function updateScore(savedScore, newScore, uid, category){
+    if (savedScore < newScore){
+        await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
+            score: newScore
+        })
+    }
+}
+
+/**
+ * This function will update the average score in the database, if there is one
+ * @param {*} newAvg new calculated average score
+ * @param {*} newScore score from recently taken quiz
+ * @param {*} uid userID
+ * @param {*} category quiz category
+ */
+async function updateAvgScore(newScore, uid, category, newAvg) {
+    if (newAvg != newScore) {
+        await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
+            avgScore: newAvg,
+        })
+    }
   }
+
+  /**
+ * This function will update the score in the database, if there is one
+ * @param {*} newAttempts attempt counter incremented
+ * @param {*} uid userID
+ * @param {*} category quiz category
+ */
+async function updateAttempts(uid, category, newAttempts){
+        await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
+            attempts: newAttempts
+        })
+}
   
 
 /**
@@ -133,21 +168,18 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
                     setNewScore(newScore, uid, category, attempts, avgScore)
                 }else{
                     //doc exists 
-                    if(!resultsRef.data().score){
-                        await admin.firestore().collection('results').doc(data.uid).collection('quizzes').doc(data.category).update({
-                            score: data.score,
-                            attempts: data.attempts,
-                            avgScore: data.avgScore
-                        })
-                    }
                     const savedScore = resultsRef.data().score
+                    const savedAvgScore = resultsRef.data().avgScore
+                    const savedAttempts = resultsRef.data().attempts
                     const newScore = data.score
                     const uid = data.uid
                     const category = data.category
-                    const attempts = data.attempts
-                    const avgScore = data.avgScore
+                    const newAttempts = data.attempts + 1
+                    const newAvg = (((savedAvgScore * savedAttempts) + newScore) / newAttempts)
+                    
                     updateScore(savedScore, newScore, uid, category)
-                    updateAvgScore(newScore, uid, category, attempts, avgScore)
+                    updateAvgScore(newScore, uid, category, newAvg)
+                    updateAttempts(uid, category, newAttempts)
                 }
                 res.json({result: true})
             }catch(error){
@@ -170,8 +202,7 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
                 const resultsRef = await admin.firestore().collection('results').doc(data.uid).collection('quizzes').doc(data.category).get()
                 if(!resultsRef.exists){
                     //doc doesnt exist
-                    res.json({score: 0})
-                    res.json({avgScore: 0})
+                    res.json({score: 0, avgScore: 0, attempts: 0})
                 }else{
                     //doc exists 
                     console.log(resultsRef.data())
@@ -179,6 +210,7 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
                 }
             }catch(error){
                 console.log(error)
+                res.status(500).send('Error fetching data.');
             }
         }
     })
@@ -191,7 +223,8 @@ exports.newUser = functions.auth.user().onCreate(user => {
     return admin.firestore().collection('users').doc(user.uid).set({
         email: user.email, 
         displayName: user.displayName,
-        customQuizzes: []
+        customQuizzes: [],
+        role: 'user'
     })
 })
 
@@ -239,6 +272,32 @@ exports.grabCustomQuiz = functions.https.onRequest(async (req, res) => {
     }) 
 })
 
+// grabs all custom quizzes made by current user for Dashboard
+exports.grabCustomQuizzesByUser = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const creator = req.query.creator
+        const quizSnapshot = await admin.firestore().collection('custom_quizzes').where('creator', '==', creator).get()
+        userQuizzes = []
+        quizSnapshot.forEach(doc => {
+            userQuizzes.push(doc.data())
+        })
+        res.json(userQuizzes)
+    }) 
+})
+
+// grabs all custom quizzes for the Take A Quiz > User-Made Quizzes page
+exports.grabAllCustomQuizzes = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const quizSnapshot = await admin.firestore().collection('custom_quizzes').get()
+        allQuizzes = []
+        quizSnapshot.forEach(doc => {
+            allQuizzes.push(doc.data())
+        })
+        res.json(allQuizzes)
+
+    })
+})
+
 // function adds new quiz to the DB and updates in the users collection
 exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
@@ -264,7 +323,8 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                         numQuestions: data.questionCount,
                         questions: data.quizData, 
                         createdAt: admin.firestore.Timestamp.now(),
-                        quizTaken: 0
+                        quizTaken: 0,
+                        tags: data.quizTags
                     })
                     .then((docRef) => {
                         console.log("docRef-ID", docRef.id)
@@ -288,7 +348,8 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                         numQuestions: data.questionCount,
                         questions: data.quizData, 
                         createdAt: admin.firestore.Timestamp.now(),
-                        quizTaken: 0
+                        quizTaken: 0,
+                        tags: data.quizTags
                     }) 
                     .then((docRef) => {
                         console.log("docRef-ID", docRef.id)

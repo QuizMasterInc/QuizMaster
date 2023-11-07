@@ -12,6 +12,8 @@
     "esbuild": "^0.17.11",
     "express-handlebars": "^7.1.2",
     "firebase": "^9.23.0",
+    "firebase-admin": "^11.11.0",
+    "firebase-functions": "^4.5.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
     "nvm": "^0.0.4",
