@@ -16,6 +16,14 @@ export default function EditCustomQuiz() {
 
   const { quizID } = useParams()  // retrieves quiz ID from URL params 
 
+  const deleteQuiz = (e) => {
+    e.preventDefault()
+    console.log("Delete Quiz button clicked")
+
+    // call function to delete quiz from DB
+    
+  }
+
   const postQuestions = () => {
     console.log("Post Questions Function call")
     if (!quiz) {
@@ -27,8 +35,10 @@ export default function EditCustomQuiz() {
     return Object.keys(quiz.questions).map((key, index) => {
       return (
         <div key={index}>
-          <h2>{key}</h2>
-          <h2>{quiz.questions[key].correct_answer}</h2>
+          <br></br>
+          <h1>{key}</h1>
+          <h2>{quiz.questions[key].question}</h2>
+          <h2>Correct Answer: {quiz.questions[key].correct_answer}</h2>
         </div>
       )
     })
@@ -48,11 +58,13 @@ export default function EditCustomQuiz() {
   return (
     <div>
       <h1>{quiz?.title || "Loading..."}</h1>
-      <h2>{quiz?.numQuestions || "Loading..."}</h2>
-      <h2>{quiz?.quizTaken && "Loading..."}</h2>
+      <h2>Number of Questions: {quiz?.numQuestions || "Loading..."}</h2>
+      <h2>Number of attempts: {quiz?.quizTaken && "Loading..."}</h2>
       {
          postQuestions()
       }
+      <br></br>
+      <button onClick={deleteQuiz}>Delete Quiz</button>
     </div>
   )
 }
