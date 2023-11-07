@@ -12,7 +12,7 @@ const getQuiz = async (uid) => {
 }
 
 export default function EditCustomQuiz() {
-  const [quiz, updateQuiz] = useState({})
+  const [quiz, updateQuiz] = useState(null)
 
   const { quizID } = useParams()  // retrieves quiz ID from URL params 
 
