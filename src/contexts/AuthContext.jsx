@@ -62,12 +62,13 @@ export function AuthProvider({ children }) {
         return currentUser.reauthenticateWithCredential(credentials)
     }
     //Will change the user based on the authentication change
-    //*
+    /*
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged( async(user) => {
             try {
                 const response = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabUser?uid=" + user.uid)
                 const extendedUserData = await response.json()
+                
                 user.customQuizzes = extendedUserData.customQuizzes
                 user.role = extendedUserData.role
                 setCurrentUser(user)
@@ -83,8 +84,8 @@ export function AuthProvider({ children }) {
 
         return unsubscribe
     }, [])
-    //*/
-    /*
+    */
+    
     useEffect(() => {//for some
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
           if (user) {
