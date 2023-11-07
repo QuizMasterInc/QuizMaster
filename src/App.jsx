@@ -7,6 +7,7 @@
  */
 import './App.css'
 import NavBar from './components/navbar/NavBar'
+import NavBarUser from './components/navbar/NavBarUser'
 import { Route, Routes } from "react-router-dom";
 import NotFound from './components/404/NotFound';
 import SelectQuiz from './components/quizselect/SelectQuiz';
@@ -23,16 +24,38 @@ import UpdateProfile from './components/login/UpdateProfile'
 import PrivateRoute from './routes/PrivateRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
+import CustomQuiz from './components/customquiz/CustomQuiz';
+import EditCustomQuiz from "./components/customquiz/EditCustomQuiz"
+import SelectSubCategory from './components/quizselect/SelectSubCategory';
+import TypeOfQuiz from './components/typeofquiz/TypeOfQuiz';
+import Developer from './components/developer/AddDefaultQuestion';
+import AllCustomQuizzes from './components/quiz/AllCustomQuizzes';
+//import Developer from './components/home/Home';
 
 function App() {
   //importing destinations here from the context. 
   const {destinations} = useCategory();
-  
+  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+
   return (
     <div className="App">
       <AuthProvider>
           <Routes>
-            <Route path="/" element={<Home />}/>
+            {isAuthenticated ? (
+              <Route path="/" element={
+                <PrivateRoute>
+                  <CategoryProvider>
+                    <Dashboard />
+                  </CategoryProvider>
+                </PrivateRoute>
+              } />
+            ) : (
+              <Route path="/" element={<Home />} />
+            )
+            }
+            
+            <Route path="/developer" element={<Developer />}/>
+            <Route path="/home" element={<Home />}/>
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/quizzes">
@@ -43,17 +66,45 @@ function App() {
                   </CategoryProvider>
                 </PrivateRoute>
               }/>
-              
               {destinations.map((destination, index) => {
                 //rendering the routes based on the categories we have.
                 return ( //this return here is extremely important. do not delete it unless you want to go through the same pain i did :)
                 <Route key={index} path={destination} element={
                   <PrivateRoute>
-                    <QuizActivity />
+                    <CategoryProvider>
+                      <SelectSubCategory />
+                    </CategoryProvider>
                   </PrivateRoute>
                 } caseSensitive/>)
               })}
+              <Route path="quizstarted" element={
+                <PrivateRoute>
+                  <CategoryProvider>
+                    <QuizActivity />
+                  </CategoryProvider>
+                </PrivateRoute>
+              }/>
             </Route>
+            <Route path="/customquiz" element={
+              <PrivateRoute>
+                <CustomQuiz />
+              </PrivateRoute>
+            }/>
+            <Route index path="/customquiz/:quizID" element={
+              <PrivateRoute>
+                <EditCustomQuiz />
+              </PrivateRoute>
+            }/>
+            <Route path="/typeofquiz" element={
+              <PrivateRoute>
+                <TypeOfQuiz />
+              </PrivateRoute>
+            }/>
+            <Route path="/allcustomquizzes" element={
+              <PrivateRoute>
+                <AllCustomQuizzes />
+              </PrivateRoute>
+            }/>
             <Route path="/updateprofile" element={
               <PrivateRoute>
                 <UpdateProfile />
@@ -84,6 +135,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           <NavBar/>
+          <NavBarUser/>
       </AuthProvider>
     </div>
   )

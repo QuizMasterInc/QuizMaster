@@ -4,6 +4,19 @@ import React from "react";
 import max from "../../assets/max.jpg"
 import anthony from "../../assets/anthony.jpg"
 import matt from "../../assets/matt.jpg"
+import jose from "../../assets/jose.jpg"
+import matthew from "../../assets/matthew.jpg"
+import tyler from "../../assets/tyler.jpg"
+import julie from "../../assets/julie.jpg"
+import james from "../../assets/james.jpg"
+import joey from "../../assets/joey.jpg"
+import alex from "../../assets/alex.jpg"
+import hamzeh from "../../assets/hamzeh.jpg"
+import jeff from "../../assets/jeff.jpg"
+
+{/* IMPORT YOUR IMAGES HERE */}
+
+
 
 const Contact = ({}) => (
     // Top-level container with text and background styling
@@ -16,11 +29,172 @@ const Contact = ({}) => (
         <h2 className="text-lg font-semibold text-gray-300 ">
           This site is still in development
         </h2>
-        </div>
+        </div>  
       {/* Sub-container for the "Contact Us" header */}
         <div className="flex items-center justify-center ">
           <h1 className="pl-8 pt-5 mb-4 text-5xl font-bold text-center">Contact Us</h1>
         </div>
+    </div>
+
+    {/* THIS IS THE INFORMATION FOR THE FALL 2023 TEAM*/}
+
+    <div className="flex items-center justify-center ">
+      <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Fall 2023 Team</h1>
+    </div>
+    {/* Container for contact information */}
+    <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+        {/* Grid layout for contact information */}
+        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+          <div className="flex flex-col items-center">
+            <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank">
+              <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3>
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline">
+                joseamontesdeocamo@lewisu.edu
+              </a>
+            </div>
+          </div>
+          <div className="flex flex-col items-center">
+            <a href="https://red-coast-075a6b510.3.azurestaticapps.net" target="_blank">
+              <img src={matthew} alt="Matthew" className="object-cover w-48 h-48 rounded-full" />
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Matthew Senese</h3>
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:matthewjsenese@lewisu.edu" className="hover:underline">
+                matthewjsenese@lewisu.edu
+              </a>
+            </div>
+          </div>
+          <div className="flex flex-col items-center">
+            <a href="https://lemon-stone-0f92af610.3.azurestaticapps.net/" target="_blank">
+              <img src={julie} alt="Julie" className="object-cover w-48 h-48 rounded-full" />
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Julie Dosher</h3>
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:juliegdosher@lewisu.edu" className="hover:underline">
+                juliegdosher@lewisu.edu
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        {/* SECOND ROW FOR THE FALL 2023 TEAM*/}
+        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+          <div className="flex flex-col items-center">
+            <a href="https://node-js-azure-fa23-tyler-site.azurewebsites.net" target="_blank">
+              <img src={tyler} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Tyler Zenisek</h3>
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:tylerzenisek@lewisu.edu" className="hover:underline">
+                tylerzenisek@lewisu.edu
+              </a>
+            </div>
+          </div>
+          {/* REPLACE WITH TEAM MEMBER 5 */}
+          <div className="flex flex-col items-center">
+            <a href="https://lively-bay-020649610.2.azurestaticapps.net/" target="_blank">
+              <img src={max} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Maximus Lewis</h3>
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:maximusslewis@lewisu.edu" className="hover:underline">
+                maximusslewis@lewisu.edu
+              </a>
+            </div>
+          </div>
+
+
+          {/* THIS SECTION IS FOR ALEX KAMINSKI*/}
+
+          <div className="flex flex-col items-center">
+            <a href="https://ashy-mud-0329c4e10.3.azurestaticapps.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={alex} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Alex Kaminski</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:alexmkaminski@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                alexmkaminski@lewisu.edu
+              </a>
+            </div>
+          </div>  
+        </div>
+
+        {/*THIRD ROW FOR FALL 2023 TEAM */ }
+        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+
+          {/* THIS SECTION IS FOR JEFFERSON CHERRINGTON */}
+
+          <div className="flex flex-col items-center">
+            <a href="https://jacnok.github.io/cpsc-44000-s1-helloworld/intro.html" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={jeff} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Jefferson Cherrington</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:jeffersonacherring@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+              jeffersonacherring@lewisu.edu
+              </a>
+            </div>
+          </div>
+
+          
+
+          {/* THIS SECTION IS FOR JAMES MACKOWIAK */}
+
+          <div className="flex flex-col items-center">
+            <a href="https://jamesmackowiak.github.io/about.html" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={james} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">James Mackowiak</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:jamesvmackowiak@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                jamesvmackowiak@lewisu.edu
+              </a>
+            </div>
+          </div>
+
+          {/* THIS SECTION IS FOR JOEY DEVITO */}
+
+          <div className="flex flex-col items-center">
+            <a href="https://getting-2-know-you.azurewebsites.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={joey} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Joey Devito</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-2 text-gray-300">
+              <a href="mailto:josephmdevito@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                josephmdevito@lewisu.edu
+              </a>
+            </div>
+          </div>      
+        </div>
+
+        {/*FINAL ROW FOR FALL 2023 TEAM*/ }
+        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+
+        {/* THIS SECTION IS FOR THE LAST TEAM MEMBER (HAMZEH) */}
+
+          <div className="flex flex-col items-center">
+              <a href="https://halbaz.github.io" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+                <img src={hamzeh} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+              </a>
+              <h3 className="mt-4 text-lg font-medium text-gray-300">Hamzeh Albaz</h3> {/* YOUR NAME GOES HERE */}
+              <div className="mt-2 text-gray-300">
+                <a href="mailto:hamzehoalbaz@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                  hamzehoalbaz@lewisu.edu
+                </a>
+              </div>
+            </div>
+        </div>
+    </div>
+
+
+    {/* THIS IS THE INFORMATION FOR THE SPRING 2023 TEAM*/}
+
+
+    <div className="flex items-center justify-center ">
+      <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2023 Team</h1>
     </div>
      {/* Container for contact information */}
      <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">

@@ -1,7 +1,6 @@
 import firebase from  'firebase/compat/app'
 import 'firebase/compat/auth'
 
-
 const app = firebase.initializeApp({
     apiKey: "AIzaSyDGqWTZtmxOMfylYYkiN7FXjJqjTnY6FaQ",
     authDomain: "quizmaster-c66a2.firebaseapp.com",
