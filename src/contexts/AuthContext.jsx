@@ -65,15 +65,19 @@ export function AuthProvider({ children }) {
     //*
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged( async(user) => {
-            const response = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabUser?uid=" + user.uid)
-            const extendedUserData = await response.json()
-            user.customQuizzes = extendedUserData.customQuizzes
-            user.role = extendedUserData.role
-            setCurrentUser(user)
-            setLoading(false)
-            //Will set googleAuth to true if the user is using a Google account.
-            if(user){
-                setIsGoogleAuth(user.providerData[0].providerId === 'google.com')
+            try {
+                const response = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabUser?uid=" + user.uid)
+                const extendedUserData = await response.json()
+                user.customQuizzes = extendedUserData.customQuizzes
+                user.role = extendedUserData.role
+                setCurrentUser(user)
+                setLoading(false)
+                //Will set googleAuth to true if the user is using a Google account.
+                if(user){
+                    setIsGoogleAuth(user.providerData[0].providerId === 'google.com')
+                }
+            } catch (error) {
+                console.log("oops, not logged in")
             }
         })
 
