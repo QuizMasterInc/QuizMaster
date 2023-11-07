@@ -29,6 +29,7 @@ import EditCustomQuiz from "./components/customquiz/EditCustomQuiz"
 import SelectSubCategory from './components/quizselect/SelectSubCategory';
 import TypeOfQuiz from './components/typeofquiz/TypeOfQuiz';
 import Developer from './components/developer/AddDefaultQuestion';
+import AllCustomQuizzes from './components/quiz/AllCustomQuizzes';
 //import Developer from './components/home/Home';
 
 function App() {
@@ -97,6 +98,11 @@ function App() {
             <Route path="/typeofquiz" element={
               <PrivateRoute>
                 <TypeOfQuiz />
+              </PrivateRoute>
+            }/>
+            <Route path="/allcustomquizzes" element={
+              <PrivateRoute>
+                <AllCustomQuizzes />
               </PrivateRoute>
             }/>
             <Route path="/updateprofile" element={
