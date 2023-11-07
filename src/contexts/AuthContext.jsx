@@ -94,9 +94,9 @@ export function AuthProvider({ children }) {
               const response = await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabUser?uid=" + user.uid)
               if (response.ok) {
                 const extendedUserData = await response.json()
-                setCurrentUser({
-                     ...user, ...extendedUserData ,
-                })
+                user.customQuizzes = extendedUserData.customQuizzes
+                user.role = extendedUserData.role
+                setCurrentUser(user)
                 console.log("Successfully fetched user data: ")
               } else {
                 console.error("Failed to fetch user data")
