@@ -392,3 +392,44 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
         }
     })
 })
+
+exports.deleteCustomQuiz = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const  uid  = req.query.quizid
+
+        if (!uid) {
+            return res.status(401).json({
+                result: false,
+                message: "No UID field."
+            })
+        }
+
+        try {
+            const quiz = await admin.firestore().collection('custom_quizzes').doc(uid)
+            const user = await admin.firestore().collection('users').doc(quiz.creator)
+
+            if (!quiz.get().exists || !user.get().exists) {
+                return res.json({
+                    result: false,
+                    message: "Invalid UID"
+                })
+            }
+            else {
+                user.update({
+                    customQuizzes: admin.firestore.FieldValue.arrayRemove(quiz.id)
+                })
+                quiz.delete()
+                return res.json({
+                    result: true,
+                    status: 200,
+                    message: "Quiz Deleted"
+                })
+            }
+        } catch(error) {
+            return res.json({
+                result: false,
+                message: error.message
+            })
+        }
+    }) 
+})
