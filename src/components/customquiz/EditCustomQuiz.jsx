@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useNavigate } from "react-router-dom"
 
 const getQuiz = async (uid) => {
       //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabCustomQuiz
@@ -15,17 +16,26 @@ export default function EditCustomQuiz() {
   const [quiz, updateQuiz] = useState(null)
 
   const { quizID } = useParams()  // retrieves quiz ID from URL params 
+  const navigate = useNavigate()
 
-  const deleteQuiz = (e) => {
+  const deleteQuiz = async (e) => {
     e.preventDefault()
     console.log("Delete Quiz button clicked")
-
     // call function to delete quiz from DB
-    
+    // https://us-central1-quizmaster-c66a2.cloudfunctions.net/deleteCustomQuiz
+
+    await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/deleteCustomQuiz?quizid=" + quizID)
+    .then((res) => res.json())
+    .then((response) => {
+      console.log("Deletion Response: ", response)
+      navigate("/home")
+    })
+    .catch((error) => {
+      console.log("Delete Error: ", error.message)
+    })
   }
 
   const postQuestions = () => {
-    console.log("Post Questions Function call")
     if (!quiz) {
       return (
         <h1>Loading Questions...</h1>
@@ -49,8 +59,6 @@ export default function EditCustomQuiz() {
     
     getQuiz(quizID)
     .then(quizData => {
-      console.log("Data Recieved: ", quizData.data)
-      console.log("Questions", quizData.data.questions["Question 1"].correct_answer)
       updateQuiz(quizData.data)
     })
   }, [])

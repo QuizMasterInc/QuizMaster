@@ -397,7 +397,7 @@ exports.deleteCustomQuiz = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const  uid  = req.query.quizid
 
-        if (!uid) {
+        if (!uid || uid == "" || uid == " ") {
             return res.status(401).json({
                 result: false,
                 message: "No UID field."
@@ -405,29 +405,24 @@ exports.deleteCustomQuiz = functions.https.onRequest(async (req, res) => {
         }
 
         try {
-            const quiz = await admin.firestore().collection('custom_quizzes').doc(uid)
-            const user = await admin.firestore().collection('users').doc(quiz.creator)
+            const quiz = (await admin.firestore().collection("custom_quizzes").doc(uid).get()).data()
 
-            if (!quiz.get().exists || !user.get().exists) {
-                return res.json({
-                    result: false,
-                    message: "Invalid UID"
-                })
-            }
-            else {
-                user.update({
-                    customQuizzes: admin.firestore.FieldValue.arrayRemove(quiz.id)
-                })
-                quiz.delete()
-                return res.json({
-                    result: true,
-                    status: 200,
-                    message: "Quiz Deleted"
-                })
-            }
+
+            await admin.firestore().collection("users").doc(quiz.creator).update({
+                customQuizzes: admin.firestore.FieldValue.arrayRemove(uid)
+            })
+
+            await admin.firestore().collection("custom_quizzes").doc(uid).delete()
+
+            return res.json({
+                result: true,
+                status: 200,
+                message: "Successful Deletion"
+            })
         } catch(error) {
             return res.json({
                 result: false,
+                error: true,
                 message: error.message
             })
         }
