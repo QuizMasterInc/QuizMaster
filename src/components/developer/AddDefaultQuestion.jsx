@@ -6,7 +6,7 @@ import { Link, Navigate } from 'react-router-dom'
 
 const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory, allSubcategories }) => {
     const { currentUser } = useAuth(); // Get the current user from your context.
-
+    /*
     useEffect(() => {
         // Check if the user has the "developer" role when the component loads.
         if (currentUser && currentUser.role !== 'developer') {
@@ -15,7 +15,7 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
         window.location.replace('/404');
         }
     }, [currentUser]);
-
+    */
     const { logout, isGoogleAuth } = useAuth()
     const [loading, setLoading] = useState(true)
     const [question, setQuestion] = useState({
