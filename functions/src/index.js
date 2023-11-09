@@ -113,7 +113,7 @@ exports.grabUserCustomQuzzies = functions.https.onRequest(async (req, res) => {
  * @param {*} avgScore the average score for that quiz
  */
 async function setNewScore(newScore, uid, category, attempts, avgScore){
-    await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).set({
+    await admin.firestore().collection('users').doc(uid).collection('quizzes').doc(category).set({
         score: newScore,
         attempts: attempts,
         avgScore: avgScore
@@ -129,7 +129,7 @@ async function setNewScore(newScore, uid, category, attempts, avgScore){
  */
 async function updateScore(savedScore, newScore, uid, category){
     if (savedScore < newScore){
-        await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
+        await admin.firestore().collection('users').doc(uid).collection('quizzes').doc(category).update({
             score: newScore
         })
     }
@@ -144,7 +144,7 @@ async function updateScore(savedScore, newScore, uid, category){
  */
 async function updateAvgScore(newScore, uid, category, newAvg) {
     if (newAvg != newScore) {
-        await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
+        await admin.firestore().collection('users').doc(uid).collection('quizzes').doc(category).update({
             avgScore: newAvg,
         })
     }
@@ -157,7 +157,7 @@ async function updateAvgScore(newScore, uid, category, newAvg) {
  * @param {*} category quiz category
  */
 async function updateAttempts(uid, category, newAttempts){
-        await admin.firestore().collection('results').doc(uid).collection('quizzes').doc(category).update({
+        await admin.firestore().collection('users').doc(uid).collection('quizzes').doc(category).update({
             attempts: newAttempts
         })
 }
@@ -173,7 +173,7 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
         if(dataType === 'application/json'){
             const data = JSON.parse(JSON.stringify(req.body))
             try{
-                const resultsRef = await admin.firestore().collection('results').doc(data.uid).collection('quizzes').doc(data.category).get()
+                const resultsRef = await admin.firestore().collection('users').doc(data.uid).collection('quizzes').doc(data.category).get()
                 if(!resultsRef.exists){
                     //doc doesnt exist
                     const newScore = data.score
@@ -215,7 +215,7 @@ exports.grabResults = functions.https.onRequest(async (req, res) => {
         if(dataType === 'application/json'){
             const data = JSON.parse(JSON.stringify(req.body))
             try{
-                const resultsRef = await admin.firestore().collection('results').doc(data.uid).collection('quizzes').doc(data.category).get()
+                const resultsRef = await admin.firestore().collection('users').doc(data.uid).collection('quizzes').doc(data.category).get()
                 if(!resultsRef.exists){
                     //doc doesnt exist
                     res.json({score: 0, avgScore: 0, attempts: 0})
