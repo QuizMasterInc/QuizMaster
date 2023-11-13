@@ -50,7 +50,10 @@ const Contact = ({}) => (
               <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3>
-            <div className="mt-2 text-gray-300">
+            <div className="mt-0 text-gray-300">
+              Core Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
               <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline">
                 joseamontesdeocamo@lewisu.edu
               </a>
@@ -61,7 +64,10 @@ const Contact = ({}) => (
               <img src={matthew} alt="Matthew" className="object-cover w-48 h-48 rounded-full" />
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Matthew Senese</h3>
-            <div className="mt-2 text-gray-300">
+            <div className="mt-0 text-gray-300">
+              Core Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
               <a href="mailto:matthewjsenese@lewisu.edu" className="hover:underline">
                 matthewjsenese@lewisu.edu
               </a>
@@ -72,7 +78,10 @@ const Contact = ({}) => (
               <img src={julie} alt="Julie" className="object-cover w-48 h-48 rounded-full" />
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Julie Dosher</h3>
-            <div className="mt-2 text-gray-300">
+            <div className="mt-0 text-gray-300">
+              Core Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
               <a href="mailto:juliegdosher@lewisu.edu" className="hover:underline">
                 juliegdosher@lewisu.edu
               </a>
@@ -87,7 +96,10 @@ const Contact = ({}) => (
               <img src={tyler} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Tyler Zenisek</h3>
-            <div className="mt-2 text-gray-300">
+            <div className="mt-0 text-gray-300">
+              Core Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
               <a href="mailto:tylerzenisek@lewisu.edu" className="hover:underline">
                 tylerzenisek@lewisu.edu
               </a>
@@ -99,7 +111,10 @@ const Contact = ({}) => (
               <img src={max} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Maximus Lewis</h3>
-            <div className="mt-2 text-gray-300">
+            <div className="mt-0 text-gray-300">
+              Core Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
               <a href="mailto:maximusslewis@lewisu.edu" className="hover:underline">
                 maximusslewis@lewisu.edu
               </a>
@@ -114,7 +129,10 @@ const Contact = ({}) => (
               <img src={alex} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Alex Kaminski</h3> {/* YOUR NAME GOES HERE */}
-            <div className="mt-2 text-gray-300">
+            <div className="mt-0 text-gray-300">
+              NextGen Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
               <a href="mailto:alexmkaminski@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
                 alexmkaminski@lewisu.edu
               </a>
@@ -132,7 +150,10 @@ const Contact = ({}) => (
               <img src={jeff} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Jefferson Cherrington</h3> {/* YOUR NAME GOES HERE */}
-            <div className="mt-2 text-gray-300">
+            <div className="mt-0 text-gray-300">
+              NextGen Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
               <a href="mailto:jeffersonacherring@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
               jeffersonacherring@lewisu.edu
               </a>
@@ -148,7 +169,10 @@ const Contact = ({}) => (
               <img src={james} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">James Mackowiak</h3> {/* YOUR NAME GOES HERE */}
-            <div className="mt-2 text-gray-300">
+            <div className="mt-0 text-gray-300">
+              NextGen Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
               <a href="mailto:jamesvmackowiak@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
                 jamesvmackowiak@lewisu.edu
               </a>
@@ -162,7 +186,10 @@ const Contact = ({}) => (
               <img src={joey} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Joey Devito</h3> {/* YOUR NAME GOES HERE */}
-            <div className="mt-2 text-gray-300">
+            <div className="mt-0 text-gray-300">
+              NextGen Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
               <a href="mailto:josephmdevito@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
                 josephmdevito@lewisu.edu
               </a>
@@ -180,7 +207,10 @@ const Contact = ({}) => (
                 <img src={hamzeh} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
               </a>
               <h3 className="mt-4 text-lg font-medium text-gray-300">Hamzeh Albaz</h3> {/* YOUR NAME GOES HERE */}
-              <div className="mt-2 text-gray-300">
+              <div className="mt-0 text-gray-300">
+              NextGen Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
                 <a href="mailto:hamzehoalbaz@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
                   hamzehoalbaz@lewisu.edu
                 </a>
