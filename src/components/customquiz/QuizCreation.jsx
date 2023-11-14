@@ -9,9 +9,8 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
   const { logout, isGoogleAuth} = useAuth()
   const [loading, setLoading] = useState(true)
   const [currentQuestion, setCurrentQuestion] = useState(["", "", "", "", "", ""]);
-  
-  
 
+  
 
 
   /**
@@ -127,6 +126,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
     console.log("Newtags: ", arr)
     setQuizTags(arr);
   };
+
 
   return(
     <>
