@@ -161,13 +161,17 @@ export default function CustomQuiz () {
     }
 
 
+    // THIS FUNCTION IS USED IN THE QUIZQUESTIONLIST COMPONENT TO DELETE A QUESTION IF A USER DOES NOT WANT IT ANYMORE
+    const handleDeleteQuestion = (index) => {
+      let updatedQuizData = [...quizData]
+      updatedQuizData.splice(index, 1)
+      setQuizData(updatedQuizData)
+    }
 
-  //Used this to make sure the proper question was added to the quizData array after pressing add question
-  useEffect(() => {
-    console.log(quizData); // This just shows the updated state of quizData which is all the current questions in the array
-  }, [quizData]);
+    useEffect(() => {
+      console.log(quizData); // This just shows the updated state of quizData which is all the current questions in the array
+    }, [quizData]);
 
-  
     return (
     <>
       <div className="flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -186,7 +190,7 @@ export default function CustomQuiz () {
               quizTags={quizTags}
               setQuizTags={setQuizTags}
             />
-            <QuizQuestionsList quizData={quizData}/>
+            <QuizQuestionsList quizData={quizData} setQuizData={setQuizData} handleDeleteQuestion={handleDeleteQuestion}/>  
           </div>
         </div>
     </div>
