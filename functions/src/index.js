@@ -508,6 +508,15 @@ exports.editQuizInfo = functions.https.onRequest(async (req, res) => {
                 })
             }
 
+            // check for quiz existnace
+            const quiz = await admin.firestore().collection("custom_quizzes").doc(data.uid).get()
+            if (!quiz.exists) {
+                return res.status(404).json({
+                    result: false, 
+                    message: "Quiz does not exist"
+                })
+            }
+
             // update the quiz 
             try {
                 // iterates through all the changed data
