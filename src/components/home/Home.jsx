@@ -25,7 +25,7 @@ function Home () {
     </div>
     <div className="flex flex-col md:flex-row">
       <div className="md:w-1/2 flex items-center justify-center">
-        <h1 className="pl-12 mt-10 text-2xl font-bold text-gray-300">Subjects ranging from Mathematics, Science, English, and More!</h1>
+        <h1 className="pl-12 mt-10 text-2xl font-bold text-gray-300">Subjects ranging from Mathematics, Science, Geography, and More!</h1>
         <p className="pl-6 mt-10 text-2xl text-gray-300 ">The Perfect Quiz Taking Application for both Students and Teachers!</p>
       </div>
       <div className="md:w-1/2">

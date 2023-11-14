@@ -208,6 +208,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
               ))}
             </select>
           </div>
+          <br></br>
           <div name="quizTags">
           <h1 className='font-bold text-gray-300 text-2xl mb-8'>Type Your Quiz Tags</h1>
           <input 
@@ -232,24 +233,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
         <div className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20'>
           <button onClick={sendQuiz}>Finish Quiz</button>
         </div>
-        <Link to={'/quizzes'}>
-          <div className='flex relative items-center justify-center p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-            Take a premade quiz!
-          </div>
-        </Link>
-        {!isGoogleAuth && <Link to={'/updateprofile'}>
-          <div className='flex relative items-center p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600'>
-            Update Profile
-          </div>
-          </Link>}
 
-        <button
-          disabled={loading}
-          onClick={handleLogout}
-          className="flex relative items-center justify-center p-4 pl-8 pr-8 h-full text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20"
-        >
-          Logout
-        </button>
       </div>     
     </>
   )
