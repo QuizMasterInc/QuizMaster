@@ -159,7 +159,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
           <input 
           type="text"
           placeholder='Quiz Name'
-          className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
+          className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
           id="quizName"
           value={quizName}
           onChange={(e) => handleQuizNameChange(e)}
@@ -174,7 +174,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
             placeholder="Enter your question"
             value={currentQuestion[0]}
             onChange={(e) => handleQuestionChange(e, 0)}
-            className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
+            className='text-2xl bg-gray-300 mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
           />
           {[0, 1, 2, 3].map((optionIndex) => (
           <div key={optionIndex}>
@@ -184,7 +184,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
               placeholder={`Option ${optionIndex + 1}`}
               value={currentQuestion[optionIndex + 1]}
               onChange={(e) => handleQuestionChange(e, optionIndex + 1)}
-              className='text-2xl mb-4 rounded-md w-full h-10 focus:scale-110 duration-300'
+              className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-10 focus:scale-110 duration-300'
             />
           </div>
           ))}
@@ -194,7 +194,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
             name="correctChoice"
             id="correct-choice"
             placeholder='Select the correct answer'
-            className='w-full h-10 focus:scale-110 duration-300'
+            className='w-full bg-gray-300 h-10 focus:scale-110 duration-300'
             onChange={(e) => handleQuestionChange(e, 5)}
             value={currentQuestion[5]}
             >
@@ -209,11 +209,11 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
             </select>
           </div>
           <div name="quizTags">
-          <h1 className='font-bold text-gray-300 text-2xl mb-8'>Type Your Quiz Tags</h1>
+          <h1 className='font-bold text-gray-300  text-2xl mb-8'>Type Your Quiz Tags</h1>
           <input 
           type="text"
           placeholder='Eg. history sports'
-          className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
+          className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
           id="quizTags"
           value={quizTags.join(' ')}
           onChange={(e) => updateQuizTags(e)}
