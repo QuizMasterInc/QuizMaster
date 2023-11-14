@@ -490,3 +490,48 @@ exports.editUserInfo = functions.https.onRequest(async (req, res) => {
         }
     })
 })
+
+exports.editQuizInfo = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const dataType = req.get('content-type')
+
+        if(dataType === 'application/json'){
+            const data = JSON.parse(JSON.stringify(req.body))
+            
+            // check for empty object 
+            if (!data) {
+                return res.status(404).json({
+                    result: false,
+                    message: "No data to update"
+                })
+            }
+
+            // update the quiz 
+            try {
+                // iterates through all the changed data
+                // updates each attribute as iterated over
+                Object.keys(data).forEach(async (value, index) => {
+                    if (value == "uid") return 
+                    else {
+                        await admin.firestore().collection("custom_quizzes").doc(data.uid).update({
+                            value: data[value]
+                        })
+                    }
+                })
+            } catch(err) {
+                // return error response
+                return res.status(404).json({
+                    result: false,
+                    error: err.message
+                })
+            }
+            
+            // return statement
+            return res.status(200).json({
+                result: true,
+                status: 200,
+                message: "Quiz info successfully updated."
+            })
+        }
+    })
+})
