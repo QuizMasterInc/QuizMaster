@@ -428,3 +428,65 @@ exports.deleteCustomQuiz = functions.https.onRequest(async (req, res) => {
         }
     }) 
 })
+
+exports.editUserInfo = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const dataType = req.get('content-type')
+
+        if(dataType === 'application/json'){
+            const data = JSON.parse(JSON.stringify(req.body))
+            
+            // check for empty object 
+            if (!data) {
+                return res.status(404).json({
+                    result: false,
+                    message: "No data to update"
+                })
+            }
+
+            // check if user exists
+            const user = await admin.firestore().collection('users').doc(data.uid).get()
+
+            if (!user.exists) {
+                return res.status(404).json({
+                    result: false,
+                    error: "User not found."
+                })
+            }
+
+            // update the user 
+            try {
+                if (data.nRole) {
+                    // updating the users role
+                    await admin.firestore().collection('users').doc(data.uid).update({
+                        role: data.nRole
+                    })
+                }
+                else if (data.nEmail) {
+                    // update email 
+                    await admin.firestore().collection('users').doc(data.uid).update({
+                        email: data.nEmail
+                    })
+
+                    // update auth 
+                    await admin.auth().updateUser(data.uid, {
+                        email: data.nEmail
+                    })
+                }
+            } catch(err) {
+                // return error response
+                return res.status(404).json({
+                    result: false,
+                    error: err.message
+                })
+            }
+            
+            // return statement
+            return res.status(200).json({
+                result: true,
+                status: 200,
+                message: "User info successfully updated."
+            })
+        }
+    })
+})
