@@ -56,8 +56,8 @@ const CustomQuizzesTable = () => {
 
     return(
     <div className="w-1/2 p-4 text-center -sm:p-1">
-        <div className="flex flex-col items-center p-4 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600">
-            <div className="-m:text-m">{'Custom Quiz Name'}</div>
+        <div className="flex flex-col items-center p-4 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg">
+            <div className="-m:text-m font-bold">{'Custom Quiz Name'}</div>
             <div>{Qicon}</div>
         </div>
     </div>
