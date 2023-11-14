@@ -95,6 +95,7 @@ export default function EditCustomQuiz() {
 
     getQuiz(quizID)
     .then(quizData => {
+      console.log(quizData.data)
       updateQuiz(quizData.data)
       titleRef.current = quizData.data.title
     })
@@ -103,8 +104,8 @@ export default function EditCustomQuiz() {
   return (
     <main class="text-xl text-white border-2 mt-20 p-6">
       <div class="flex justify-between">
-        <h1>Created: 05/08/1999</h1>
-        <h1>Last Edit: 11/13/2023</h1>
+        <h1>Created: {quiz?.createdAt || ""}</h1>
+        <h1>Last Edit: {quiz?.lastEdit || ""}</h1>
       </div>
 
       <form>
