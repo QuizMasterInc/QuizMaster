@@ -213,7 +213,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
           <h1 className='font-bold text-gray-300  text-2xl mb-8'>Type Your Quiz Tags</h1>
           <input 
           type="text"
-          placeholder='Eg. history sports'
+          placeholder='Eg. history, sports'
           className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
           id="quizTags"
           value={quizTags.join(' ')}
@@ -226,13 +226,18 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
 
 
       <div className='grid grid-cols-2 gap-y-3 gap-x-3 -sm:gap-x-24'>
-        <div className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-          <button type='submit' onClick={addCurrentQuestion}>Add Question</button>
-        </div>
+        <button
+          type = 'submit'
+          onClick={addCurrentQuestion}
+          className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
+          Add Question
+        </button>
 
-        <div className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20'>
-          <button onClick={sendQuiz}>Finish Quiz</button>
-        </div>
+        <button
+          onClick={sendQuiz}
+          className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20'>
+          Finish Quiz
+        </button>
 
       </div>     
     </>
