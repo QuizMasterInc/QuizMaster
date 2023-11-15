@@ -32,7 +32,7 @@ export default function NavBarUser() {
             {!currentUser ? null :(
                <button
                     onClick={handleLogout}
-                    className="flex relative items-center p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20">
+                    className="flex relative font-bold items-center p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20">
                     Logout
                 </button>
             )}
