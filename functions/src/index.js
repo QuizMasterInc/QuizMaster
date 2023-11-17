@@ -293,7 +293,7 @@ exports.grabCustomQuizzesByUser = functions.https.onRequest(async (req, res) => 
     cors(req, res, async () => {
         const creator = req.query.creator
         try {
-            const quizSnapshot = await admin.firestore().collection('custom_quizzes').orderBy('createdAt', 'desc').where('creator', '==', creator).get()
+            const quizSnapshot = await admin.firestore().collection('custom_quizzes').where('creator', '==', creator).get()
             userQuizzes = []
             quizSnapshot.forEach(doc => {
                 userQuizzes.push(doc.data())
@@ -301,7 +301,7 @@ exports.grabCustomQuizzesByUser = functions.https.onRequest(async (req, res) => 
             return res.json({
                 result: true,
                 status: 200,
-                message: "quizzes retrieved",
+                message: "user's quizzes retrieved",
                 data: userQuizzes
             })
         } catch(error) {
@@ -317,12 +317,26 @@ exports.grabCustomQuizzesByUser = functions.https.onRequest(async (req, res) => 
 // grabs all custom quizzes for the Take A Quiz -> User-Made Quizzes page
 exports.grabAllCustomQuizzes = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
-        const quizSnapshot = await admin.firestore().collection('custom_quizzes').get()
-        allQuizzes = []
-        quizSnapshot.forEach(doc => {
-            allQuizzes.push(doc.data())
-        })
-        res.json(allQuizzes)
+        try {
+            const quizSnapshot = await admin.firestore().collection('custom_quizzes').orderBy('createdAt', 'desc').get()
+            allQuizzes = []
+            quizSnapshot.forEach(doc => {
+                allQuizzes.push(doc.data())
+            })
+            return res.json({
+                result: true,
+                status: 200,
+                message: "custom quizzes retrieved",
+                data: allQuizzes
+            })
+            
+            
+        } catch(error) {
+            return res.json({
+                result: false,
+                message: error.message
+            })
+        }
 
     })
 })
