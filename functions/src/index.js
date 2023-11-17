@@ -292,16 +292,29 @@ exports.grabCustomQuiz = functions.https.onRequest(async (req, res) => {
 exports.grabCustomQuizzesByUser = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const creator = req.query.creator
-        const quizSnapshot = await admin.firestore().collection('custom_quizzes').where('creator', '==', creator).get()
-        userQuizzes = []
-        quizSnapshot.forEach(doc => {
-            userQuizzes.push(doc.data())
-        })
-        res.json(userQuizzes)
+        try {
+            const quizSnapshot = await admin.firestore().collection('custom_quizzes').orderBy('createdAt', 'desc').where('creator', '==', creator).get()
+            userQuizzes = []
+            quizSnapshot.forEach(doc => {
+                userQuizzes.push(doc.data())
+            })
+            return res.json({
+                result: true,
+                status: 200,
+                message: "quizzes retrieved",
+                data: userQuizzes
+            })
+        } catch(error) {
+            return res.json({
+                result: false,
+                message: error.message
+            })
+        }
+        
     }) 
 })
 
-// grabs all custom quizzes for the Take A Quiz > User-Made Quizzes page
+// grabs all custom quizzes for the Take A Quiz -> User-Made Quizzes page
 exports.grabAllCustomQuizzes = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const quizSnapshot = await admin.firestore().collection('custom_quizzes').get()
