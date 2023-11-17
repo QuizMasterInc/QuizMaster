@@ -69,7 +69,7 @@ const AllCustomQuizzes = () => {
   return (
     <div>
       	<h1 className="text-2xl font-bold text-gray-300 -sm:text-lg">User-Made Quizzes</h1>
-		<div className="flex flex-wrap justify-center mt-14">
+		<div className="flex flex-wrap justify-center mt-14 mx-32">
 			{quizzes.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} />))} 
 	  	</div>
     </div>
