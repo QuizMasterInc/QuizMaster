@@ -3,12 +3,19 @@
  */
 import { Link } from "react-router-dom";
 
+function displayTags(tags) {
+    if (tags.length > 0) {
+        return "User Tag(s): " + tags
+    }
+    return;
+  }
 
-const CustomQuizSelectButton = ({title, numQuestions}) => (
-    <div className="w-1/3 p-4 text-center -sm:p-1">
+const CustomQuizSelectButton = ({title, numQuestions, tags}) => (
+    <div className="w-1/3 p-5 text-center -sm:p-1">
         <div className="flex flex-col items-center p-4 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600">
-            <div className="-sm:text-sm">{title}</div>
-            <div className="-sm:text-sm">Questions: {numQuestions}</div>
+            <div className="text-2xl">{title}</div>
+            <div className="text-base">{displayTags(tags)}</div>
+            <div className="text-base">Questions: {numQuestions}</div>
         </div>
     </div>
 )
