@@ -365,9 +365,8 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                         title: data.title, 
                         numQuestions: data.questionCount,
                         questions: data.quizData, 
-                        createdAt: admin.firestore.Timestamp.now(),
-                        lastEdit: admin.firestore.Timestamp.now(),
-                        quizTaken: 0,
+                        createdAt: admin.firestore.Timestamp.now().toDate().toString(),
+                        lastEdit: admin.firestore.Timestamp.now().toDate().toString(),
                         tags: data.quizTags
                     })
                     .then((docRef) => {
@@ -391,8 +390,8 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                         title: data.title, 
                         numQuestions: data.questionCount,
                         questions: data.quizData, 
-                        createdAt: admin.firestore.Timestamp.now(),
-                        lastEdit: admin.firestore.Timestamp.now(),
+                        createdAt: admin.firestore.Timestamp.now().toDate().toString(),
+                        lastEdit: admin.firestore.Timestamp.now().toDate().toString(),
                         quizTaken: 0,
                         tags: data.quizTags
                     }) 

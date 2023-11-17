@@ -29,7 +29,7 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
         question: '',
         'sub-category': ''
     })
-    const placeholders = ['a', 'b', 'c', 'd', 'Correct answer', 'Eg. history', 'Eg.ancient']
+    const placeholders = ['a', 'b', 'c', 'd', 'Correct answer', 'Category: e.g. history', 'Sub-category: e.g. ancient']
 
     const updateQuestion = (key, value) => {
         // Create a copy of the currentQuestion object with the updated field
@@ -82,13 +82,16 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
                             </div>
                         </div>
                         <div className='grid grid-cols-2 gap-y-3 gap-x-3 -sm:gap-x-24'>
-                            <div className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20'>
-                                <button onClick={addDefaultQuestion}>Add Question</button>
-                            </div>
+                            <button
+                              onClick={addDefaultQuestion}
+                              className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
+                              Add Question
+                            </button>
+
                             <Link to={'/quizzes'}>
-                                <div className='flex relative items-center justify-center p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-                                    Take a premade quiz!
-                                </div>
+                            <div className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
+                                Take a premade quiz!
+                            </div>
                             </Link>
                         </div>
                     </div>
