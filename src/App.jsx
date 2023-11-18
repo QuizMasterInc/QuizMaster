@@ -18,6 +18,7 @@ import Home from './components/home/Home';
 import About from './components/about/About';
 import Contact from './components/contact/Contact';
 import { AuthProvider } from './contexts/AuthContext';
+import { CustomQuizProvider } from './contexts/CustomQuizContext';
 import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
 import UpdateProfile from './components/login/UpdateProfile'
@@ -90,16 +91,22 @@ function App() {
                 </PrivateRoute>
               }/>
             </Route>
+            
             <Route path="/customquiz" element={
               <PrivateRoute>
-                <CustomQuiz />
+                <CustomQuizProvider>
+                  <CustomQuiz />
+                </CustomQuizProvider>
               </PrivateRoute>
             }/>
             <Route index path="/customquiz/:quizID" element={
               <PrivateRoute>
-                <EditCustomQuiz />
+                <CustomQuizProvider>
+                  <EditCustomQuiz />
+                </CustomQuizProvider>
               </PrivateRoute>
             }/>
+
             <Route path="/typeofquiz" element={
               <PrivateRoute>
                 <TypeOfQuiz />

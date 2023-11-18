@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useNavigate } from "react-router-dom"
+import EditQuestion from './EditQuestion'
 
 const getQuiz = async (uid) => {
       //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabCustomQuiz
@@ -75,17 +76,18 @@ export default function EditCustomQuiz() {
 
     return Object.keys(quiz.questions).map((key, index) => {
       return (
-        <div key={index}>
-          <br></br>
-          <h1>{key}</h1>
-          <h2>{quiz.questions[key].question}</h2>
-          <h2>A: {quiz.questions[key].option_1}</h2>
-          <h2>B: {quiz.questions[key].option_2}</h2>
-          <h2>C: {quiz.questions[key].option_3}</h2>
-          <h4>D: {quiz.questions[key].option_4}</h4>
-          <br></br>
-          <h2>Correct Answer: {quiz.questions[key].correct_answer}</h2>
-        </div>
+        // <div key={index}>
+        //   <br></br>
+        //   <h1>{key}</h1>
+        //   <h2>{quiz.questions[key].question}</h2>
+        //   <h2>A: {quiz.questions[key].option_1}</h2>
+        //   <h2>B: {quiz.questions[key].option_2}</h2>
+        //   <h2>C: {quiz.questions[key].option_3}</h2>
+        //   <h4>D: {quiz.questions[key].option_4}</h4>
+        //   <br></br>
+        //   <h2>Correct Answer: {quiz.questions[key].correct_answer}</h2>
+        // </div>
+        <EditQuestion key={index} num={key} q={quiz.questions[key]}/>
       )
     })
   }
@@ -104,12 +106,12 @@ export default function EditCustomQuiz() {
   return (
     <main class="text-xl text-white border-2 mt-20 p-6">
       <div class="flex justify-between">
-        <h1>Created: {quiz?.createdAt || ""}</h1>
-        <h1>Last Edit: {quiz?.lastEdit || ""}</h1>
+        <h1>Created: {quiz?.createdAt && ""}</h1>
+        <h1>Last Edit: {quiz?.lastEdit && ""}</h1>
       </div>
 
       <form>
-        <input type="text" class="text-white text-3xl bg-inherit p-3 underline" value={quiz?.title || ""} onChange={handleTitleChange} onBlur={titleBlur}/>
+        <input type="text" class="text-white text-3xl bg-inherit p-3 underline text-center" value={quiz?.title || ""} onChange={handleTitleChange} onBlur={titleBlur}/>
       </form>
 
       <div class="flex justify-around">
