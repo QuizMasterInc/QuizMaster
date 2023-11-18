@@ -29,7 +29,10 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
         question: '',
         'sub-category': ''
     })
+    const quizAttributes = ['a', 'b', 'c', 'd', 'correct', 'category', 'sub-category']
     const placeholders = ['a', 'b', 'c', 'd', 'Correct answer', 'Category: e.g. history', 'Sub-category: e.g. ancient']
+
+    const [isQuizAdded, setIsQuizAdded] = useState(false);
 
     const updateQuestion = (key, value) => {
         // Create a copy of the currentQuestion object with the updated field
@@ -38,6 +41,20 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
             [key]: value
         }));
     };
+    //Reset question to default values
+    const resetQuestion = () => {
+        setQuestion({
+            a: '',
+            b: '',
+            c: '',
+            d: '',
+            correct: '',
+            category: '',
+            difficulty: 0, // or null, depending on your preference
+            question: '',
+            'sub-category': ''
+          })
+    }
     //Generate generic input field and updates question
     const inputField = ({ key, placeholder }) => {
         console.log('Key:', key)
@@ -52,11 +69,21 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
             />
         )
     }
+    //Add question to default quizzes
     async function addDefaultQuestion() {
 
         const encodedQuestion = encodeURIComponent(JSON.stringify(question));
         await fetch(`https://us-central1-quizmaster-c66a2.cloudfunctions.net/addDefaultQuestion?question=${encodedQuestion}`)
         console.log('Added Question!')
+        // Display the text when the question is added
+        setIsQuizAdded(true);
+
+        // Hide the text after 2000 milliseconds (adjust as needed)
+        setTimeout(() => {
+        setIsQuizAdded(false);
+        }, 20000);
+        resetQuestion()
+
     }
     return (
         <>
@@ -74,11 +101,23 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
 
                             <div name="question-attributes" >
                                 <h1 className='font-bold text-gray-300 text-2xl mb-8'>Add Quiz Attributes</h1>
-                                {['a', 'b', 'c', 'd', 'correct', 'category', 'sub-category'].map((key, index) => (
+                                {quizAttributes.map((key, index) => (
                                     <div key={key}>
                                         {inputField({ key: key, placeholder: placeholders[index] })}
                                     </div>
                                 ))}
+                                <div key='difficulty'>
+                                    <input
+                                        id='difficulty'
+                                        type='number'
+                                        value={question['difficulty']}
+                                        onChange={(e) => updateQuestion('difficulty', e.target.value)}
+                                        className='text-2xl mb-4 rounded-md w-full h-10 focus:scale-110 duration-300'
+                                        pattern="[0-9]*" //Prevent non integer inputs
+                                        min={0}
+                                        max={5}
+                                    />
+                                </div>
                             </div>
                         </div>
                         <div className='grid grid-cols-2 gap-y-3 gap-x-3 -sm:gap-x-24'>
@@ -87,12 +126,13 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
                               className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
                               Add Question
                             </button>
-
+                            
                             <Link to={'/quizzes'}>
                             <div className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
                                 Take a premade quiz!
                             </div>
                             </Link>
+                        {isQuizAdded && <p style={{ color: 'gold' }}>Question has been added!</p>}
                         </div>
                     </div>
                 </div>
