@@ -94,9 +94,7 @@ function App() {
             
             <Route path="/customquiz" element={
               <PrivateRoute>
-                <CustomQuizProvider>
                   <CustomQuiz />
-                </CustomQuizProvider>
               </PrivateRoute>
             }/>
             <Route index path="/customquiz/:quizID" element={
