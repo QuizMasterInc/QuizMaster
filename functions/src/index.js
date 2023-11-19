@@ -289,27 +289,59 @@ exports.grabCustomQuiz = functions.https.onRequest(async (req, res) => {
 })
 
 // grabs all custom quizzes made by current user for Dashboard
+// Is duplicate of grabUserCustomQuzzies(), replace in later update
 exports.grabCustomQuizzesByUser = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const creator = req.query.creator
-        const quizSnapshot = await admin.firestore().collection('custom_quizzes').where('creator', '==', creator).get()
-        userQuizzes = []
-        quizSnapshot.forEach(doc => {
-            userQuizzes.push(doc.data())
-        })
-        res.json(userQuizzes)
+        try {
+            const quizSnapshot = await admin.firestore().collection('custom_quizzes').where('creator', '==', creator).get()
+            userQuizzes = []
+            quizSnapshot.forEach(doc => {
+                userQuizzes.push(doc.data())
+            })
+            return res.json({
+                result: true,
+                status: 200,
+                message: "user's quizzes retrieved",
+                data: userQuizzes
+            })
+        } catch(error) {
+            return res.json({
+                result: false,
+                message: error.message
+            })
+        }
+        
     }) 
 })
 
-// grabs all custom quizzes for the Take A Quiz > User-Made Quizzes page
+// grabs all custom quizzes for the Take A Quiz -> User-Made Quizzes page
 exports.grabAllCustomQuizzes = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
-        const quizSnapshot = await admin.firestore().collection('custom_quizzes').get()
-        allQuizzes = []
-        quizSnapshot.forEach(doc => {
-            allQuizzes.push(doc.data())
-        })
-        res.json(allQuizzes)
+        try {
+            const quizSnapshot = await admin.firestore().collection('custom_quizzes').orderBy('createdAt', 'desc').get()
+            allQuizzes = []
+            quizSnapshot.forEach(doc => {
+                const data = {
+                    ...doc.data(),
+                    uid: doc.id,
+                }
+                allQuizzes.push(data)
+            })
+            return res.json({
+                result: true,
+                status: 200,
+                message: "custom quizzes retrieved",
+                data: allQuizzes
+            })
+            
+            
+        } catch(error) {
+            return res.json({
+                result: false,
+                message: error.message
+            })
+        }
 
     })
 })
@@ -338,8 +370,8 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                         title: data.title, 
                         numQuestions: data.questionCount,
                         questions: data.quizData, 
-                        createdAt: admin.firestore.Timestamp.now(),
-                        quizTaken: 0,
+                        createdAt: admin.firestore.Timestamp.now().toDate().toString(),
+                        lastEdit: admin.firestore.Timestamp.now().toDate().toString(),
                         tags: data.quizTags
                     })
                     .then((docRef) => {
@@ -363,7 +395,8 @@ exports.addCustomQuiz = functions.https.onRequest(async (req, res) => {
                         title: data.title, 
                         numQuestions: data.questionCount,
                         questions: data.quizData, 
-                        createdAt: admin.firestore.Timestamp.now(),
+                        createdAt: admin.firestore.Timestamp.now().toDate().toString(),
+                        lastEdit: admin.firestore.Timestamp.now().toDate().toString(),
                         quizTaken: 0,
                         tags: data.quizTags
                     }) 
@@ -427,4 +460,120 @@ exports.deleteCustomQuiz = functions.https.onRequest(async (req, res) => {
             })
         }
     }) 
+})
+
+exports.editUserInfo = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const dataType = req.get('content-type')
+
+        if(dataType === 'application/json'){
+            const data = JSON.parse(JSON.stringify(req.body))
+            
+            // check for empty object 
+            if (!data) {
+                return res.status(404).json({
+                    result: false,
+                    message: "No data to update"
+                })
+            }
+
+            // check if user exists
+            const user = await admin.firestore().collection('users').doc(data.uid).get()
+
+            if (!user.exists) {
+                return res.status(404).json({
+                    result: false,
+                    error: "User not found."
+                })
+            }
+
+            // update the user 
+            try {
+                if (data.nRole) {
+                    // updating the users role
+                    await admin.firestore().collection('users').doc(data.uid).update({
+                        role: data.nRole
+                    })
+                }
+                else if (data.nEmail) {
+                    // update email 
+                    await admin.firestore().collection('users').doc(data.uid).update({
+                        email: data.nEmail
+                    })
+
+                    // update auth 
+                    await admin.auth().updateUser(data.uid, {
+                        email: data.nEmail
+                    })
+                }
+            } catch(err) {
+                // return error response
+                return res.status(404).json({
+                    result: false,
+                    error: err.message
+                })
+            }
+            
+            // return statement
+            return res.status(200).json({
+                result: true,
+                status: 200,
+                message: "User info successfully updated."
+            })
+        }
+    })
+})
+
+exports.editQuizInfo = functions.https.onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const dataType = req.get('content-type')
+
+        if(dataType === 'application/json'){
+            const data = JSON.parse(JSON.stringify(req.body))
+            
+            // check for empty object 
+            if (!data) {
+                return res.status(404).json({
+                    result: false,
+                    message: "No data to update"
+                })
+            }
+
+            // check for quiz existnace
+            const quiz = await admin.firestore().collection("custom_quizzes").doc(data.uid).get()
+            if (!quiz.exists) {
+                return res.status(404).json({
+                    result: false, 
+                    message: "Quiz does not exist"
+                })
+            }
+
+            // update the quiz 
+            try {
+                // iterates through all the changed data
+                // updates each attribute as iterated over
+                Object.keys(data).forEach(async (value, index) => {
+                    if (value == "uid") return 
+                    else {
+                        await admin.firestore().collection("custom_quizzes").doc(data.uid).update({
+                            value: data[value]
+                        })
+                    }
+                })
+            } catch(err) {
+                // return error response
+                return res.status(404).json({
+                    result: false,
+                    error: err.message
+                })
+            }
+            
+            // return statement
+            return res.status(200).json({
+                result: true,
+                status: 200,
+                message: "Quiz info successfully updated."
+            })
+        }
+    })
 })

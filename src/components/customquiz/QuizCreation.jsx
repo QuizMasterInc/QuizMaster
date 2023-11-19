@@ -9,9 +9,8 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
   const { logout, isGoogleAuth} = useAuth()
   const [loading, setLoading] = useState(true)
   const [currentQuestion, setCurrentQuestion] = useState(["", "", "", "", "", ""]);
-  
-  
 
+  
 
 
   /**
@@ -128,6 +127,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
     setQuizTags(arr);
   };
 
+
   return(
     <>
       <h1 className="text-3xl font-bold text-gray-300 mb-10">
@@ -159,7 +159,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
           <input 
           type="text"
           placeholder='Quiz Name'
-          className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
+          className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
           id="quizName"
           value={quizName}
           onChange={(e) => handleQuizNameChange(e)}
@@ -174,7 +174,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
             placeholder="Enter your question"
             value={currentQuestion[0]}
             onChange={(e) => handleQuestionChange(e, 0)}
-            className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
+            className='text-2xl bg-gray-300 mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
           />
           {[0, 1, 2, 3].map((optionIndex) => (
           <div key={optionIndex}>
@@ -184,7 +184,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
               placeholder={`Option ${optionIndex + 1}`}
               value={currentQuestion[optionIndex + 1]}
               onChange={(e) => handleQuestionChange(e, optionIndex + 1)}
-              className='text-2xl mb-4 rounded-md w-full h-10 focus:scale-110 duration-300'
+              className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-10 focus:scale-110 duration-300'
             />
           </div>
           ))}
@@ -194,7 +194,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
             name="correctChoice"
             id="correct-choice"
             placeholder='Select the correct answer'
-            className='w-full h-10 focus:scale-110 duration-300'
+            className='w-full bg-gray-300 h-10 focus:scale-110 duration-300'
             onChange={(e) => handleQuestionChange(e, 5)}
             value={currentQuestion[5]}
             >
@@ -208,12 +208,13 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
               ))}
             </select>
           </div>
+          <br></br>
           <div name="quizTags">
-          <h1 className='font-bold text-gray-300 text-2xl mb-8'>Type Your Quiz Tags</h1>
+          <h1 className='font-bold text-gray-300  text-2xl mb-8'>Type Your Quiz Tags</h1>
           <input 
           type="text"
-          placeholder='Eg. history sports'
-          className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
+          placeholder='Eg. history, sports'
+          className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
           id="quizTags"
           value={quizTags.join(' ')}
           onChange={(e) => updateQuizTags(e)}
@@ -225,31 +226,19 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
 
 
       <div className='grid grid-cols-2 gap-y-3 gap-x-3 -sm:gap-x-24'>
-        <div className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-          <button type='submit' onClick={addCurrentQuestion}>Add Question</button>
-        </div>
-
-        <div className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20'>
-          <button onClick={sendQuiz}>Finish Quiz</button>
-        </div>
-        <Link to={'/quizzes'}>
-          <div className='flex relative items-center justify-center p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-            Take a premade quiz!
-          </div>
-        </Link>
-        {!isGoogleAuth && <Link to={'/updateprofile'}>
-          <div className='flex relative items-center p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600'>
-            Update Profile
-          </div>
-          </Link>}
+        <button
+          type = 'submit'
+          onClick={addCurrentQuestion}
+          className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
+          Add Question
+        </button>
 
         <button
-          disabled={loading}
-          onClick={handleLogout}
-          className="flex relative items-center justify-center p-4 pl-8 pr-8 h-full text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20"
-        >
-          Logout
+          onClick={sendQuiz}
+          className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20'>
+          Finish Quiz
         </button>
+
       </div>     
     </>
   )
