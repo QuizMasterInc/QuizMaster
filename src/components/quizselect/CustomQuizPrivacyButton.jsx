@@ -9,6 +9,7 @@ class PrivacyRadioButtons extends Component {
 
   onChangeValue(event) {
     console.log(event.target.value);
+    return event.target.value
   }
 
   render() {
