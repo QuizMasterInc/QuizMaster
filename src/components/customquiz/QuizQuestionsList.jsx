@@ -41,7 +41,6 @@ export default function QuizQuestionsList ({quizData, setQuizData, handleDeleteQ
 
 
 
-
 	  const doneEditing = () => {
 		setEditQuestionChoice((prevEditChoice) => {
 			let newEditChoice = prevEditChoice
@@ -69,8 +68,8 @@ export default function QuizQuestionsList ({quizData, setQuizData, handleDeleteQ
 			let newQuizData = [... prevQuizData]
 			newQuizData[index][questionIndex] = e.target.value
 			return newQuizData
-		})
-	  };
+		});
+	};
     
     const verifyQuestionChange = (quizData, index)  => {
       for (let i = 0; i < 6 ; i++) {
@@ -155,5 +154,5 @@ return(
       </div>
     ))}
   </div>
-)
+  )
 }
