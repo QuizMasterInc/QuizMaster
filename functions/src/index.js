@@ -289,6 +289,7 @@ exports.grabCustomQuiz = functions.https.onRequest(async (req, res) => {
 })
 
 // grabs all custom quizzes made by current user for Dashboard
+// Is duplicate of grabUserCustomQuzzies(), replace in later update
 exports.grabCustomQuizzesByUser = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const creator = req.query.creator
@@ -321,7 +322,11 @@ exports.grabAllCustomQuizzes = functions.https.onRequest(async (req, res) => {
             const quizSnapshot = await admin.firestore().collection('custom_quizzes').orderBy('createdAt', 'desc').get()
             allQuizzes = []
             quizSnapshot.forEach(doc => {
-                allQuizzes.push(doc.data())
+                const data = {
+                    ...doc.data(),
+                    uid: doc.id,
+                }
+                allQuizzes.push(data)
             })
             return res.json({
                 result: true,
