@@ -28,7 +28,7 @@ export default function Dashboard() {
         <div className="w-full max-w-md space-y-8">
           <div>
             <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
-              <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Default Quiz Scores:</h2>
+              <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Your QuizMaster Quiz Scores:</h2>
               <div className="flex">
               {quizCategories.map((category, index) => (
                   <QuizResult category={category} key={index} icon={icons[index]} />
@@ -38,7 +38,7 @@ export default function Dashboard() {
             {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3">{error}</label>}
           </div>
           <div className="">
-            <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Custom Quizzes:</h2>
+            <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Your Custom Quizzes:</h2>
             <div className = "flex items-center justify-around">
               {/* Table of Custom Quizzes here */
                 <CustomQuizzesTable />

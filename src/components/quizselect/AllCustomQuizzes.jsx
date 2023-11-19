@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from 'react-router-dom'
 import CustomQuizSelectButton from "./CustomQuizSelectButton";
+import PrivacyRadioButtons from "./CustomQuizPrivacyButton";
 
 
 const AllCustomQuizzes = () => {
@@ -68,7 +69,11 @@ const AllCustomQuizzes = () => {
 	
   return (
     <div>
-      	<h1 className="text-2xl font-bold text-gray-300 -sm:text-lg">User-Made Quizzes</h1>
+        <h1 className="text-2xl font-bold text-gray-300 -sm:text-lg">User-Made Quizzes</h1>
+        <div className="flex flex-wrap justify-center mt-12 mx-32">
+            <PrivacyRadioButtons />
+        </div>
+
 		<div className="flex flex-wrap justify-center mt-14 mx-32">
 			{quizzes.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} tags={q.tags} uid={q.uid}/>))} 
 	  	</div>
