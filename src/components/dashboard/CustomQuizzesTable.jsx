@@ -9,8 +9,6 @@ const CustomQuizzesTable = () => {
     const [loadingColor, setLoadingColor] = useState("d1d5db")
     const {currentUser} = useAuth()
     const Qicon = useState(<Q className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>,)
-
-    // TODO: include firebase function to grab custom quiz results
     //////////////////////////////////////
     /**
    * This is useEffect() is used to grab the results for each quiz

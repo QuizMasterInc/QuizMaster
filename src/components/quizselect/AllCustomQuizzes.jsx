@@ -40,7 +40,7 @@ const AllCustomQuizzes = () => {
             const json = await response.json();
             const quizData = json.data
             setQuizzes(quizData)
-			
+            console.log('QuizData: ', quizData)
 
           } else {
             // Handle the case when the response is not ok (e.g., error handling)
@@ -75,7 +75,7 @@ const AllCustomQuizzes = () => {
         </div>
 
 		<div className="flex flex-wrap justify-center mt-14 mx-32">
-			{quizzes.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} tags={q.tags} />))} 
+			{quizzes.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} tags={q.tags} uid={q.uid}/>))} 
 	  	</div>
     </div>
   )
