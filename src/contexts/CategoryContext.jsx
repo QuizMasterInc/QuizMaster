@@ -27,7 +27,7 @@ export function CategoryProvider({children}){
   const [quizSubcategories] = useState({
     //'history': [],
     'geography': ['world', 'americas'],
-    'science': ['biology', 'chemistry'],
+    'science': ['biology', 'chemistry', 'astronomy'],
     //'sports': [],
     'entertainment': ['tv', 'music', 'movies'],
     'mathematics': ['algebra', 'geometry'],
