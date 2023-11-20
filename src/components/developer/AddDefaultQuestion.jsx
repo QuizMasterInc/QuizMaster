@@ -29,8 +29,8 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
         question: '',
         'sub-category': ''
     })
-    const quizAttributes = ['a', 'b', 'c', 'd', 'correct', 'category', 'sub-category']
-    const placeholders = ['a', 'b', 'c', 'd', 'Correct answer', 'Category: e.g. history', 'Sub-category: e.g. ancient']
+    const quizAttributes = ['a', 'b', 'c', 'd', 'category', 'sub-category']
+    const placeholders = ['a', 'b', 'c', 'd', 'Category: e.g. history', 'Sub-category: e.g. ancient']
 
     const [isQuizAdded, setIsQuizAdded] = useState(false);
 
@@ -109,26 +109,37 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
                                     </div>
                                 ))}
 
-
+                                
                                 <hr className='pt-4'></hr>
-                                <div key='difficulty' className="grid grid-cols-3 gap-10 pb-4">
-                                <span className='col-span-1 font-med text-gray-300 text-l h-10 text-right'>difficulty value: <br></br> 
-                                <span className='text-gray-400 text-sm'>(0 is easiest, 5 is hardest)</span> </span>
+                                <div key='correct' className="grid grid-cols-3 gap-10 pb-4">
+                                <span className='col-span-1 font-med text-gray-300 text-l h-10 text-right'>correct [option] val: <br></br> 
+                                <span className='text-gray-400 text-sm'>(will autopopulate with a-d)</span> </span>
                                     <input
-                                        id='difficulty'
-                                        type='number'
-                                        value={question['difficulty']}
-                                        onChange={(e) => updateQuestion('difficulty', e.target.value)}
+                                        id='correct'
+                                        value={question['correct']}
+                                        onChange={(e) => updateQuestion('correct', e.target.value)}
                                         className='col-span-2 text-2xl mb-2 mt-2 rounded-md h-7 p-4 focus:scale-110 duration-300'
-                                        pattern="[0-9]*" //Prevent non integer inputs
-                                        min={0}
-                                        max={5}
+                                        list='option-list'
                                     />
+                                    <datalist
+                                        id='option-list'>
+                                            <option value={question['a']}>
+                                            {"a. ".concat(question['a'])}
+                                        </option>
+                                        <option value={question['b']}>
+                                            {"b. ".concat(question['b'])}
+                                        </option>
+                                        <option value={question['c']}>
+                                            {"c. ".concat(question['c'])}
+                                        </option>
+                                        <option value={question['d']}>
+                                            {"d. ".concat(question['d'])}
+                                        </option>
+                                    </datalist>
                                 </div>
 
                                 {/* Added a "correct val dropdown" to help ensure there are no more typos in our "correct" field */}
-                                <hr className='pt-4'></hr>
-                                <div key='correct-2' className="grid grid-cols-3 gap-10">
+                                <div key='correct-2' className="grid grid-cols-3 gap-10 pb-4">
                                 <span className='col-span-1 font-med text-gray-300 text-l h-10 text-right'>correct [dropdown] val: <br></br> 
                                 <span className='text-gray-400 text-sm'>(will autopopulate with a-d)</span> </span>
                                     <select
@@ -159,6 +170,24 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
                                         </option>
                                     </select>
                                 </div>
+
+                                <hr className='pt-4'></hr>
+                                <div key='difficulty' className="grid grid-cols-3 gap-10">
+                                <span className='col-span-1 font-med text-gray-300 text-l h-10 text-right'>difficulty value: <br></br> 
+                                <span className='text-gray-400 text-sm'>(0 is easiest, 5 is hardest)</span> </span>
+                                    <input
+                                        id='difficulty'
+                                        type='number'
+                                        value={question['difficulty']}
+                                        onChange={(e) => updateQuestion('difficulty', e.target.value)}
+                                        className='col-span-2 text-2xl mb-2 mt-2 rounded-md h-7 p-4 focus:scale-110 duration-300'
+                                        pattern="[0-9]*" //Prevent non integer inputs
+                                        min={0}
+                                        max={5}
+                                    />
+                                </div>
+
+                                
 
                             </div>
                         </div>
