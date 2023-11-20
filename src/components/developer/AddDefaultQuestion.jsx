@@ -56,7 +56,7 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
           })
     }
     //Generate generic input field and updates question
-    const inputField = ({ key, placeholder }) => {
+    const inputField = ({ key, placeholder, className }) => {
         console.log('Key:', key)
         return (
             <input
@@ -65,7 +65,7 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
                 placeholder={placeholder}
                 value={question[key]}
                 onChange={(e) => updateQuestion(key, e.target.value)}
-                className='text-2xl mb-4 rounded-md w-full h-10 focus:scale-110 duration-300'
+                className= {className.concat(' ', 'text-2xl mb-4 rounded-md h-7 p-4 focus:scale-110 duration-300')}
             />
         )
     }
@@ -91,33 +91,75 @@ const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory
                 <div className="w-full max-w-2xl space-y-8 -sm:ml-10">
                     <div className='flex flex-col items-center justify-center'>
                         <h1 className="text-3xl font-bold text-gray-300 mb-10">
-                            Add to default Quizzes!
+                            Add to Default Quizzes!
                         </h1>
                         <div className='w-full'>
                             <div name="questions">
                                 <h1 className='font-bold text-gray-300 text-2xl mb-10'>Type Your Question</h1>
-                                {inputField({ key: "question", placeholder: "Enter your question" })}
+                                {inputField({ key: "question", placeholder: "Enter your question", className: "w-full" })}
                             </div>
 
                             <div name="question-attributes" >
                                 <h1 className='font-bold text-gray-300 text-2xl mb-8'>Add Quiz Attributes</h1>
+                                
                                 {quizAttributes.map((key, index) => (
-                                    <div key={key}>
-                                        {inputField({ key: key, placeholder: placeholders[index] })}
+                                    <div key={key} className="grid grid-cols-3 gap-10">
+                                        <span className='font-med text-gray-300 text-l col-span-1 text-right h-10'>{quizAttributes[index].toLowerCase()} (value): </span>
+                                        {inputField({ key: key, placeholder: placeholders[index], className: "col-span-2"})}
                                     </div>
                                 ))}
-                                <div key='difficulty'>
+
+
+                                <hr className='pt-4'></hr>
+                                <div key='difficulty' className="grid grid-cols-3 gap-10 pb-4">
+                                <span className='col-span-1 font-med text-gray-300 text-l h-10 text-right'>difficulty value: <br></br> 
+                                <span className='text-gray-400 text-sm'>(0 is easiest, 5 is hardest)</span> </span>
                                     <input
                                         id='difficulty'
                                         type='number'
                                         value={question['difficulty']}
                                         onChange={(e) => updateQuestion('difficulty', e.target.value)}
-                                        className='text-2xl mb-4 rounded-md w-full h-10 focus:scale-110 duration-300'
+                                        className='col-span-2 text-2xl mb-2 mt-2 rounded-md h-7 p-4 focus:scale-110 duration-300'
                                         pattern="[0-9]*" //Prevent non integer inputs
                                         min={0}
                                         max={5}
                                     />
                                 </div>
+
+                                {/* Added a "correct val dropdown" to help ensure there are no more typos in our "correct" field */}
+                                <hr className='pt-4'></hr>
+                                <div key='correct-2' className="grid grid-cols-3 gap-10">
+                                <span className='col-span-1 font-med text-gray-300 text-l h-10 text-right'>correct [dropdown] val: <br></br> 
+                                <span className='text-gray-400 text-sm'>(will autopopulate with a-d)</span> </span>
+                                    <select
+                                        name='correct-2'
+                                        type='string'
+
+                                        /*  unsure why placeholder and value does nothing, 
+                                            otherwise I'd be able to totally replace the current 
+                                            "correct (value)" field with this
+                                        */
+                                        placeholder='Select Option'
+
+                                        onChange={(e) => updateQuestion('correct', e.target.value)}
+                                        className='col-span-2 text-2xl mb-2 mt-2 rounded-md h-7 p-4 focus:scale-110 duration-300'
+                                        >
+                                                                               
+                                        <option value={question['a']}>
+                                            {"a. ".concat(question['a'])}
+                                        </option>
+                                        <option value={question['b']}>
+                                            {"b. ".concat(question['b'])}
+                                        </option>
+                                        <option value={question['c']}>
+                                            {"c. ".concat(question['c'])}
+                                        </option>
+                                        <option value={question['d']}>
+                                            {"d. ".concat(question['d'])}
+                                        </option>
+                                    </select>
+                                </div>
+
                             </div>
                         </div>
                         <div className='grid grid-cols-2 gap-y-3 gap-x-3 -sm:gap-x-24'>
