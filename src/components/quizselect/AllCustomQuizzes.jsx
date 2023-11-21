@@ -17,6 +17,9 @@ const AllCustomQuizzes = () => {
 			"lastEdit": "",
 			"tags": []
 	}])
+	let [quizzesToDisplay, setQuizzesToDisplay] = useState(quizzes)
+
+	
 	  
 
 	/**
@@ -37,49 +40,72 @@ const AllCustomQuizzes = () => {
           });
     
           if (response.ok) {
-            const json = await response.json();
+            const json = await response.json()
             const quizData = json.data
             setQuizzes(quizData)
+			setQuizzesToDisplay(quizData)
             console.log('QuizData: ', quizData)
 
           } else {
-            // Handle the case when the response is not ok (e.g., error handling)
+            // Handle the case when the response is not okay
             console.error('Fetch error:', response.statusText);
           }
 
         } catch (error) {
           // Handle any fetch-related errors here
-          console.error('Fetch error:', error);
+          console.error('Fetch error:', error)
 		}
 		setLoading(false)
       }
     
-      fetchCustomQuizzes();
+      
+      	fetchCustomQuizzes();
     }, []);
 
-	if (loading == true) {
-		console.log("hasn't loaded yet")
-		console.log("Title: " + quizzes[0].title)
-	}
+	function updateQuizList() {
+		console.log(sessionStorage.getItem('privacy'))
+		let newQuizzes
+		let privateQuizzes = quizzes.filter((quiz) => {
+			return quiz.quizPassword != null && quiz.quizPassword != ""
+		  })
 
-    if (loading == false) {
-		console.log("loading done")
-		console.log("Title: " + quizzes[0])
+		if (sessionStorage.getItem('privacy') === 'Public') {
+			newQuizzes = quizzes.filter((quiz) => {
+				return privateQuizzes.indexOf(quiz) == -1
+			  })
+		}
+
+		if (sessionStorage.getItem('privacy') === 'Private') {
+			newQuizzes = quizzes.filter((quiz) => {
+				return quiz.quizPassword != null && quiz.quizPassword != ""
+			  })
+		}
+
+		else {
+			newQuizzes = quizzes
+		}
+		
+		setQuizzesToDisplay(newQuizzes)
+		console.log(newQuizzes)
 	}
+		
+	
 	
   return (
     <div>
         <h1 className="text-2xl font-bold text-gray-300 -sm:text-lg">User-Made Quizzes</h1>
-        <div className="flex flex-wrap justify-center mt-12 mx-32">
+        <div className="flex flex-wrap justify-center mt-12 mx-2 py-2">
             <PrivacyRadioButtons />
+			<button class="bg-white font-bold rounded mx-4 px-3 py-2" onClick={updateQuizList}>Filter</button>
+            
         </div>
 
-		<div className="flex flex-wrap justify-center mt-14 mx-32">
-			{quizzes.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} tags={q.tags} uid={q.uid}/>))} 
+		<div id="customQuizDiv" className="flex flex-wrap justify-center mt-14 mx-32">
+			{quizzesToDisplay.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} tags={q.tags} uid={q.uid}/>))} 
 	  	</div>
     </div>
   )
-}
+  }
 
 
 export default AllCustomQuizzes

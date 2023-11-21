@@ -22,5 +22,4 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid}) => (
     </div>
 )
 
-//grabCustomQuiz/?quizid= {DESTINATION}
 export default CustomQuizSelectButton;
