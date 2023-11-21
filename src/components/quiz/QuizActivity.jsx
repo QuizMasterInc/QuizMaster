@@ -255,7 +255,7 @@ function QuizActivity({}){
         uid: currentUser.uid,
         category: category.toLowerCase(),
         score: (amountCorrect / amount),
-        attempts: prevAttempts,
+        attempts: prevAttempts === 0 ? 1 : prevAttempts,
         avgScore: prevAvgScore === 0 ? amountCorrect / amount : prevAvgScore,
       }
     console.log(quizScoreObject);

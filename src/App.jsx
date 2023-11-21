@@ -18,19 +18,23 @@ import Home from './components/home/Home';
 import About from './components/about/About';
 import Contact from './components/contact/Contact';
 import { AuthProvider } from './contexts/AuthContext';
+import { CustomQuizProvider } from './contexts/CustomQuizContext';
 import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
 import UpdateProfile from './components/login/UpdateProfile'
 import PrivateRoute from './routes/PrivateRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
+import DeveloperRoute from './routes/DeveloperRoute';
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
 import CustomQuiz from './components/customquiz/CustomQuiz';
 import EditCustomQuiz from "./components/customquiz/EditCustomQuiz"
 import SelectSubCategory from './components/quizselect/SelectSubCategory';
 import TypeOfQuiz from './components/typeofquiz/TypeOfQuiz';
 import Developer from './components/developer/AddDefaultQuestion';
-import AllCustomQuizzes from './components/quiz/AllCustomQuizzes';
-//import Developer from './components/home/Home';
+import AllCustomQuizzes from './components/quizselect/AllCustomQuizzes';
+import CustomQuizActivity from './components/quiz/CustomQuizActivity'
+import Footer from './components/footer/footer';
+
 
 function App() {
   //importing destinations here from the context. 
@@ -54,7 +58,11 @@ function App() {
             )
             }
             
-            <Route path="/developer" element={<Developer />}/>
+            <Route path="/developer" element={
+              <DeveloperRoute>
+                <Developer />
+              </DeveloperRoute>
+            }/>
             <Route path="/home" element={<Home />}/>
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
@@ -85,16 +93,24 @@ function App() {
                 </PrivateRoute>
               }/>
             </Route>
+            <Route index path="/quizstarted/:quizID" element={
+              <PrivateRoute>
+                <CustomQuizActivity/>
+              </PrivateRoute>
+            }/>
             <Route path="/customquiz" element={
               <PrivateRoute>
-                <CustomQuiz />
+                  <CustomQuiz />
               </PrivateRoute>
             }/>
             <Route index path="/customquiz/:quizID" element={
               <PrivateRoute>
-                <EditCustomQuiz />
+                <CustomQuizProvider>
+                  <EditCustomQuiz />
+                </CustomQuizProvider>
               </PrivateRoute>
             }/>
+
             <Route path="/typeofquiz" element={
               <PrivateRoute>
                 <TypeOfQuiz />
@@ -136,8 +152,11 @@ function App() {
           </Routes>
           <NavBar/>
           <NavBarUser/>
+          <Footer />
       </AuthProvider>
+      
     </div>
+    
   )
 }
 export default App
