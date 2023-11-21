@@ -93,9 +93,8 @@ const AllCustomQuizzes = () => {
         <div className="flex flex-wrap justify-center mt-12 mx-2 py-2">
             <PrivacyRadioButtons />
 			<button class="bg-white font-bold rounded mx-4 px-3 py-2" onClick={updateQuizList}>Filter</button>
-            
         </div>
-
+		<h2 class="text-white">Displaying {quizzesToDisplay.length} quizzes</h2>
 		<div id="customQuizDiv" className="flex flex-wrap justify-center mt-14 mx-32">
 			{quizzesToDisplay.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} tags={q.tags} uid={q.uid}/>))} 
 	  	</div>
