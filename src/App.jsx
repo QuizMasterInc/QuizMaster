@@ -33,6 +33,7 @@ import TypeOfQuiz from './components/typeofquiz/TypeOfQuiz';
 import Developer from './components/developer/AddDefaultQuestion';
 import AllCustomQuizzes from './components/quizselect/AllCustomQuizzes';
 import CustomQuizActivity from './components/quiz/CustomQuizActivity'
+import Footer from './components/footer/footer';
 
 
 function App() {
@@ -151,8 +152,11 @@ function App() {
           </Routes>
           <NavBar/>
           <NavBarUser/>
+          <Footer />
       </AuthProvider>
+      
     </div>
+    
   )
 }
 export default App
