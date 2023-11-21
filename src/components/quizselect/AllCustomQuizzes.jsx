@@ -6,6 +6,8 @@ import PrivacyRadioButtons from "./CustomQuizPrivacyButton";
 
 const AllCustomQuizzes = () => {
 	let [loading, setLoading] = useState(true)
+	
+	// quizzes contains array of all custom quizzes
   	let [quizzes, setQuizzes] = useState([
 		{
 			"numQuestions": 0,
@@ -17,11 +19,10 @@ const AllCustomQuizzes = () => {
 			"lastEdit": "",
 			"tags": []
 	}])
+	// quizzesToDisplay will be mutable and contain filtered quizzes
 	let [quizzesToDisplay, setQuizzesToDisplay] = useState(quizzes)
 
 	
-	  
-
 	/**
 	 * This useEffect() is used to grab all custom quizzes
 	 * We are using a Firebase cloud function (grabAllCustomQuizzes)
@@ -44,7 +45,6 @@ const AllCustomQuizzes = () => {
             const quizData = json.data
             setQuizzes(quizData)
 			setQuizzesToDisplay(quizData)
-            console.log('QuizData: ', quizData)
 
           } else {
             // Handle the case when the response is not okay
@@ -63,8 +63,9 @@ const AllCustomQuizzes = () => {
     }, []);
 
 	function updateQuizList() {
-		console.log(sessionStorage.getItem('privacy'))
 		let newQuizzes
+		// gets privateQuizzes so we can filter out public quizzes later
+		// no way in Firebase to filter when field does not exist in document
 		let privateQuizzes = quizzes.filter((quiz) => {
 			return quiz.quizPassword != null && quiz.quizPassword != ""
 		  })
@@ -73,20 +74,15 @@ const AllCustomQuizzes = () => {
 			newQuizzes = quizzes.filter((quiz) => {
 				return privateQuizzes.indexOf(quiz) == -1
 			  })
-		}
 
-		if (sessionStorage.getItem('privacy') === 'Private') {
-			newQuizzes = quizzes.filter((quiz) => {
-				return quiz.quizPassword != null && quiz.quizPassword != ""
-			  })
-		}
-
-		else {
+		} else if (sessionStorage.getItem('privacy') === 'Private') {
+			newQuizzes = privateQuizzes
+		
+		} else {
 			newQuizzes = quizzes
 		}
 		
 		setQuizzesToDisplay(newQuizzes)
-		console.log(newQuizzes)
 	}
 		
 	
