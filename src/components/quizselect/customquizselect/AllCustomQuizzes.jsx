@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from 'react-router-dom'
 import CustomQuizSelectButton from "./CustomQuizSelectButton";
-import PrivacyList from "./CustomPrivacyList";
-import SortByList from "./CustomSortByList";
+import PrivacyList from "./PrivacyList";
+import SortByList from "./SortByList";
+
 
 
 const AllCustomQuizzes = () => {
@@ -85,8 +86,7 @@ const AllCustomQuizzes = () => {
 		
 		setQuizzesToDisplay(newQuizzes)
 	}
-		
-	
+
 	
   return (
     <div>
@@ -94,7 +94,7 @@ const AllCustomQuizzes = () => {
 		<div className="flex flex-wrap justify-center mt-12 mx-3">
 			<PrivacyList />
 			<SortByList />
-			<button className="bg-white font-bold float-right rounded mx-4 px-3" onClick={updateQuizList}>Sort & Filter</button>		
+			<button className="bg-white font-bold float-right rounded mx-5 px-3" onClick={updateQuizList}>Sort & Filter</button>		
 		</div>
 		<h2 className="text-white">Displaying {quizzesToDisplay.length} quizzes</h2>
 		<div id="customQuizDiv" className="flex flex-wrap justify-center mt-14 mx-32">

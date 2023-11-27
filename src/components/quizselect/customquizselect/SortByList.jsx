@@ -22,8 +22,8 @@ class SortByList extends Component {
 					<select name="listSortMethod" defaultValue="newest" className="text-black mx-2">
 						<option value="newest">Newest</option>
 						<option value="oldest">Oldest</option>
-						<option value="alpha">Title A-{">"}Z</option>
-						<option value="alphaReverse">Title Z-{">"}A</option>
+						<option value="title">Title, A-{">"}Z</option>
+						<option value="titleReverse">Title, Z-{">"}A</option>
 						<option value="shortest">Shortest</option>
 						<option value="longest">Longest</option>
 					</select>
