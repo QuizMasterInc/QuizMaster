@@ -64,10 +64,29 @@ const AllCustomQuizzes = () => {
       	fetchCustomQuizzes();
     }, []);
 
-	function updateQuizList() {
+	function sortQuizzes() {
+		let sortedQuizzes
+		switch(sessionStorage.getItem('sortingQuery')) {
+			case 'title':
+				setQuizzes(quizzes.sort((a, b) => (a.title > b.title) ? 1 : -1))
+				break
+
+			case 'titleReverse':
+				sortedQuizzes = quizzes.sort((a, b) => (a.title < b.title) ? 1 : -1)
+				break
+
+			default: 
+				console.log("oops")
+		}
+
+		//setQuizzes(sortedQuizzes)
+		//console.log("Sorted:", sortedQuizzes)
+	}
+
+	function filterByPrivacy() {
 		let newQuizzes
 		// gets privateQuizzes so we can filter out public quizzes later
-		// no way in Firebase to filter when field does not exist in document
+		// no way in Firebase to filter when field does not exist in a document/object
 		let privateQuizzes = quizzes.filter((quiz) => {
 			return quiz.quizPassword != null && quiz.quizPassword != ""
 		  })
@@ -87,6 +106,11 @@ const AllCustomQuizzes = () => {
 		setQuizzesToDisplay(newQuizzes)
 	}
 
+	function sortAndFilter() {
+		sortQuizzes()
+		filterByPrivacy()
+	}
+
 	
   return (
     <div>
@@ -94,7 +118,7 @@ const AllCustomQuizzes = () => {
 		<div className="flex flex-wrap justify-center mt-12 mx-3">
 			<PrivacyList />
 			<SortByList />
-			<button className="bg-white font-bold float-right rounded mx-5 px-3" onClick={updateQuizList}>Sort & Filter</button>		
+			<button className="bg-white font-bold float-right rounded mx-5 px-3" onClick={sortAndFilter}>Sort & Filter</button>		
 		</div>
 		<h2 className="text-white">Displaying {quizzesToDisplay.length} quizzes</h2>
 		<div id="customQuizDiv" className="flex flex-wrap justify-center mt-14 mx-32">
