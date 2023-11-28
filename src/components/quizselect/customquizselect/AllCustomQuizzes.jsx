@@ -68,11 +68,13 @@ const AllCustomQuizzes = () => {
 		let sortedQuizzes
 		switch(sessionStorage.getItem('sortingQuery')) {
 			case 'newest':
-				console.log(quizzes[0].createdAt)
+				//console.log(quizzes[0].createdAt)
+				sortedQuizzes = quizzes
 				break
 
 			case 'oldest':
-				console.log(quizzes[0].createdAt)
+				//console.log(quizzes[0].createdAt)
+				sortedQuizzes = quizzes
 				break
 
 			case 'title':
@@ -96,7 +98,6 @@ const AllCustomQuizzes = () => {
 		}
 
 		setQuizzes(sortedQuizzes)
-		//console.log("Sorted:", sortedQuizzes)
 	}
 
 	function filterByPrivacy() {
