@@ -67,27 +67,35 @@ const AllCustomQuizzes = () => {
 	function sortQuizzes() {
 		let sortedQuizzes
 		switch(sessionStorage.getItem('sortingQuery')) {
-			case 'shortest':
-				setQuizzes(quizzes.sort((a, b) => (a.numQuestions > b.numQuestions) ? 1 : -1))
+			case 'newest':
+				console.log(quizzes[0].createdAt)
 				break
 
-			case 'longest':
-				setQuizzes(quizzes.sort((a, b) => (a.numQuestions < b.numQuestions) ? 1 : -1))
+			case 'oldest':
+				console.log(quizzes[0].createdAt)
 				break
 
 			case 'title':
-				setQuizzes(quizzes.sort((a, b) => (a.title > b.title) ? 1 : -1))
+				sortedQuizzes = quizzes.sort((a, b) => (a.title > b.title) ? 1 : -1)
 				break
 
 			case 'titleReverse':
 				sortedQuizzes = quizzes.sort((a, b) => (a.title < b.title) ? 1 : -1)
 				break
 
+			case 'shortest':
+				sortedQuizzes = quizzes.sort((a, b) => (a.numQuestions > b.numQuestions) ? 1 : -1)
+				break
+	
+			case 'longest':					
+				sortedQuizzes = quizzes.sort((a, b) => (a.numQuestions < b.numQuestions) ? 1 : -1)
+				break
+
 			default: 
 				console.log("oops")
 		}
 
-		//setQuizzes(sortedQuizzes)
+		setQuizzes(sortedQuizzes)
 		//console.log("Sorted:", sortedQuizzes)
 	}
 
