@@ -4,7 +4,7 @@
  */
 import React from "react";
 
-function QuestionChoice ({choiceText, isSelected, onSelect, isCorrect, isIncorrect, isDisabled}){
+function QuestionChoice ({choiceText, isAnswer, isSelected, onSelect, isCorrect, isIncorrect, isDisabled}){
 
     /**
      * This changes the background color of each question choice depending on if 
@@ -23,8 +23,11 @@ function QuestionChoice ({choiceText, isSelected, onSelect, isCorrect, isIncorre
                 return "bg-gray-600 hover:bg-gray-600"
             }
         }
-        else{
-            return "bg-gray-800 hover:bg-gray-600"   
+        else if (isAnswer){
+            return "bg-green-800 hover:bg-green-800"   
+        }
+        else {
+            return "bg-gray-800 hover:bg-gray-600"
         }
     }
 
