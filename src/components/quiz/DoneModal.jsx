@@ -50,10 +50,12 @@ const DoneModal = ({isActive, amountCorrect, totalAmount, active, loading}) => {
                             Take Another Quiz!
                         </div>
                         </Link>
-                        <button type="button" className="text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                        <Link to={'/dashboard'}>
+                        <div type="button" className="text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                         onClick={() => isActive(false)}>
                             View Results!
-                        </button>
+                        </div>
+                        </Link>
                     </div>
                 </div>
             </div>
