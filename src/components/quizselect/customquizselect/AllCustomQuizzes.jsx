@@ -67,6 +67,14 @@ const AllCustomQuizzes = () => {
 	function sortQuizzes() {
 		let sortedQuizzes
 		switch(sessionStorage.getItem('sortingQuery')) {
+			case 'shortest':
+				setQuizzes(quizzes.sort((a, b) => (a.numQuestions > b.numQuestions) ? 1 : -1))
+				break
+
+			case 'longest':
+				setQuizzes(quizzes.sort((a, b) => (a.numQuestions < b.numQuestions) ? 1 : -1))
+				break
+
 			case 'title':
 				setQuizzes(quizzes.sort((a, b) => (a.title > b.title) ? 1 : -1))
 				break
