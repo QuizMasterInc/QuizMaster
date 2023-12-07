@@ -1,9 +1,12 @@
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { useCustomQuizContext } from '../../contexts/CustomQuizContext'
 import EditQuestion from './EditQuestion'
 
 export default function EditCustomQuiz() {
+  const [title, editTitle] = useState("")
+  const [deleteBtn, toggleDeleteBtn] = useState(false)
+
 
   let titleRef = useRef()
   const customQuiz = useCustomQuizContext()
@@ -39,15 +42,6 @@ export default function EditCustomQuiz() {
     // call api to update title
   }
 
-  const deleteButtonClick = (e) => {
-    e.preventDefault()
-    // ask the user to confirm deletion
-
-
-    // call delete api
-    customQuiz.deleteQuiz(quizID)
-  }
-
   const postQuestions = () => {
     if (!customQuiz.quiz) {
       return (
@@ -57,17 +51,6 @@ export default function EditCustomQuiz() {
 
     return Object.keys(customQuiz.quiz.questions).map((key, index) => {
       return (
-        // <div key={index}>
-        //   <br></br>
-        //   <h1>{key}</h1>
-        //   <h2>{quiz.questions[key].question}</h2>
-        //   <h2>A: {quiz.questions[key].option_1}</h2>
-        //   <h2>B: {quiz.questions[key].option_2}</h2>
-        //   <h2>C: {quiz.questions[key].option_3}</h2>
-        //   <h4>D: {quiz.questions[key].option_4}</h4>
-        //   <br></br>
-        //   <h2>Correct Answer: {quiz.questions[key].correct_answer}</h2>
-        // </div>
         <EditQuestion key={index} num={key} q={customQuiz.quiz.questions[key]}/>
       )
     })
@@ -75,21 +58,14 @@ export default function EditCustomQuiz() {
 
   useEffect(() => {
     // effect runs when quiz state changes
-
-    // getQuiz(quizID)
-    // .then(quizData => {
-    //   console.log(quizData.data)
-    //   updateQuiz(quizData.data)
-    //   titleRef.current = quizData.data.title
-    // })
     customQuiz.getQuiz(quizID)
   }, [])
 
   return (
-    <main class="text-xl text-white border-2 mt-20 p-6">
+    <main class="text-xl text-white mt-20 p-6">
       <div class="flex justify-between">
-        <h1>Created: {customQuiz.quiz?.createdAt && ""}</h1>
-        <h1>Last Edit: {customQuiz.quiz?.lastEdit && ""}</h1>
+        <h1>Created: {customQuiz.quiz?.createdAt || ""}</h1>
+        <h1>Last Edit: {customQuiz.quiz?.lastEdit || ""}</h1>
       </div>
 
       <form>
@@ -108,9 +84,16 @@ export default function EditCustomQuiz() {
       </div>
 
       <br></br>
-      {
-        customQuiz.quiz ? <button class="border-2 rounded-sm bg-red-500 p-2" onClick={deleteButtonClick}>Delete Quiz</button> : <></>
-      }
+      <div>
+        {
+          customQuiz.quiz ? <button class="border-2 rounded-sm bg-red-500 p-2" onClick={() => toggleDeleteBtn(!deleteBtn)}>Delete Quiz</button> : <></>
+        }
+        {
+          deleteBtn ? <div class="">
+            <h2 class="text-white">Delete Button Clicked</h2>
+          </div> : <></>
+        }
+      </div>
     </main>
   )
 }
