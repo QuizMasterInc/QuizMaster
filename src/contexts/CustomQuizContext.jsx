@@ -28,7 +28,6 @@ export function CustomQuizProvider({ children }) {
       .then((res) => res.json())
       .then((data) => {
         updateQuiz(data.data)
-        updateEditedQuiz(data.data)
       })
       .catch((err) => {
         console.log("Respone Error: ", err.message);
@@ -50,12 +49,18 @@ export function CustomQuizProvider({ children }) {
         })
       }
 
+      const updateQuizDB = (uid) => {
+        // call api to update quiz info
+
+      }
+
     //packages data
     const value = {
         quiz, 
         updateQuiz,
         getQuiz,
-        deleteQuiz
+        deleteQuiz, 
+        updateQuizDB
     }
     
 //context provider

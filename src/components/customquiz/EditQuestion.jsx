@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useCustomQuizContext } from '../../contexts/CustomQuizContext'
 
 function EditQuestion({num, q}) {
@@ -9,6 +9,7 @@ function EditQuestion({num, q}) {
     const [answer_B, editAnswer_B] = useState(q.option_2)
     const [answer_C, editAnswer_C] = useState(q.option_3)
     const [answer_D, editAnswer_D] = useState(q.option_4)
+    const [correctAnswer, changeCorrectAnswer] = useState(q.correct_answer)
 
     const customQuizData = useCustomQuizContext()
 
@@ -35,6 +36,131 @@ function EditQuestion({num, q}) {
     const changeAnswer_D = (e) => {
         editAnswer_D(e.target.value)
     }
+
+    const handleFinishClick = (e) => {
+        toggleEditing(!editingQuestion)
+
+        // checks to see if data has been changed 
+        if (customQuizData.quiz.questions[num].question == question && customQuizData.quiz.questions[num].option_1 == answer_A && customQuizData.quiz.questions[num].option_2 == answer_B && customQuizData.quiz.questions[num].option_3 == answer_C && customQuizData.quiz.questions[num].option_4 == answer_D && customQuizData.quiz.questions[num].correct_answer == correctAnswer &&
+        num.split(" ")[1] == questionNum) return 
+
+        // update quiz data in custom quiz context
+        if (num.split(" ")[1] != questionNum) {
+            const newMap = {}
+            if (num.split(" ")[1] > questionNum) {
+                var counter = 1
+                while (counter != questionNum) {
+                    newMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter}`]
+                    counter++
+                }
+
+                let obj_1 = customQuizData.quiz.questions[`Question ${questionNum}`]
+                newMap[`Question ${counter}`] = customQuizData.quiz.questions[num]
+                counter++
+                let obj_2 = customQuizData.quiz.questions[`Question ${counter}`]
+
+                while (counter <= num.split(" ")[1]) {
+                    newMap[`Question ${counter}`] = obj_1
+                    obj_1 = obj_2
+                    counter++
+                    obj_2 = customQuizData.quiz.questions[`Question ${counter}`]
+                }
+
+                while (customQuizData.quiz.questions[`Question ${counter}`]) {
+                    newMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter}`]
+                    counter++
+                }
+            }
+            else {
+                var counter = 1
+                while (counter < num.split(" ")[1]) {
+                    newMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter}`]
+                    counter++
+                }
+
+                let hold = customQuizData.quiz.questions[`Question ${questionNum}`]
+                newMap[`Question ${questionNum}`] = customQuizData.quiz.questions[num]
+
+                while (counter != questionNum - 1) {
+                    newMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter + 1}`]
+                    counter++
+                }
+
+                newMap[`Question ${counter}`] = hold
+                counter += 2
+
+                while (customQuizData.quiz.questions[`Question ${counter}`]) {
+                    newMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter}`]
+                    counter++
+                }
+            }
+
+            if (customQuizData.quiz.questions[num].question != question) {
+                newMap[`Question ${questionNum}`].question = question
+            }
+            if (customQuizData.quiz.questions[num].option_1 != answer_A) {
+                newMap[`Question ${questionNum}`].option_1 = answer_A
+            }
+            if (customQuizData.quiz.questions[num].option_2 != answer_B) {
+                newMap[`Question ${questionNum}`].option_2 = answer_B
+            }
+            if (customQuizData.quiz.questions[num].option_3 != answer_C) {
+                newMap[`Question ${questionNum}`].option_3 = answer_C
+            }
+            if (customQuizData.quiz.questions[num].option_4 != answer_D) {
+                newMap[`Question ${questionNum}`].option_4 = answer_D
+            }
+            if (customQuizData.quiz.questions[num].correct_answer != correctAnswer) {
+                newMap[`Question ${questionNum}`].correct_answer = correctAnswer
+            }
+
+            customQuizData.updateQuiz(prev => {
+                return {
+                  ...prev,
+                  questions: newMap
+                }
+              })
+        }
+        else {
+            const newMap = customQuizData.quiz.questions 
+
+            if (customQuizData.quiz.questions[num].question != question) {
+                newMap[num].question = question
+            }
+            if (customQuizData.quiz.questions[num].option_1 != answer_A) {
+                newMap[num].option_1 = answer_A
+            }
+            if (customQuizData.quiz.questions[num].option_2 != answer_B) {
+                newMap[num].option_2 = answer_B
+            }
+            if (customQuizData.quiz.questions[num].option_3 != answer_C) {
+                newMap[num].option_3 = answer_C
+            }
+            if (customQuizData.quiz.questions[num].option_4 != answer_D) {
+                newMap[num].option_4 = answer_D
+            }
+            if (customQuizData.quiz.questions[num].correct_answer != correctAnswer) {
+                newMap[num].correct_answer = correctAnswer
+            }
+
+            customQuizData.updateQuiz(prev => {
+                return {
+                  ...prev,
+                  questions: newMap
+                }
+              })
+        }
+    }
+
+    useEffect(() => {
+        editAnswer_A(q.option_1)
+        editAnswer_B(q.option_2)
+        editAnswer_C(q.option_3)
+        editAnswer_D(q.option_4)
+        editQuestion(q.question)
+        changeCorrectAnswer(q.correct_answer)
+        changeQuestionNum(num.split(" ")[1])
+    }, [customQuizData.quiz])
 
     return (
         <div class="flex flex-col bg-gray-900 rounded-3xl shadow-lg -md:pl-2 -md:pr-2 -md:pb-2 m-5 p-4 items-center">
@@ -123,7 +249,7 @@ function EditQuestion({num, q}) {
                     editingQuestion
                     ?
                     <>
-                        <button onClick={() => toggleEditing(!editingQuestion)} class="border rounded p-2 mr-4">Finish</button>
+                        <button onClick={handleFinishClick} class="border rounded p-2 mr-4">Finish</button>
                         <button class="border rounded p-2 bg-red-600">Delete Question</button>
                     </>
                     :
