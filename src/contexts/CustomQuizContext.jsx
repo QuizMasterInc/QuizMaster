@@ -17,7 +17,6 @@ export function useCustomQuizContext() {
 
 export function CustomQuizProvider({ children }) {
     const [quiz, updateQuiz] = useState(null)
-    const [changedQuiz, updateEditedQuiz] = useState(null)
 
     const navigate = useNavigate()
 
@@ -56,9 +55,7 @@ export function CustomQuizProvider({ children }) {
         quiz, 
         updateQuiz,
         getQuiz,
-        deleteQuiz,
-        changedQuiz,
-        updateEditedQuiz
+        deleteQuiz
     }
     
 //context provider
