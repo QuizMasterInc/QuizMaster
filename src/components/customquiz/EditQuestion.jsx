@@ -1,3 +1,29 @@
+/* 
+This component is for each question provided via a custom quiz.
+- Component provides state for each input field that allows editing the question data.
+
+- COMPONENT PARAMS ({num, q})}
+    - num: string 
+        # Always comes in as a string in the format "Question (whatver the question number is)"
+        Ex: "Question 5"
+        # this is also the key used to access the questions data from the custom quiz context provider 
+            - customQuizData: customQuizContextProvider()
+            # use "num" as the key to access questions in the quiz object provided via the custom quiz context. NECESSARY FOR HANDLING CHANGING A QUESTIONS NUMBER ORDER.
+            Ex: customQuizData.quiz.questions[num]
+
+    - q: object
+        # q is the question object passed to the component so the data can be displayed and used for editing
+        - Currently every question contains:
+            - The Question
+            - Answer A
+            - Answer B
+            - Answer C
+            - Answer D
+            - The Correct Answer
+    
+This component is what allows the editing capability of each individual question in a custom quiz. 
+*/
+
 import { useState, useEffect } from 'react'
 import { useCustomQuizContext } from '../../contexts/CustomQuizContext'
 
@@ -11,8 +37,9 @@ function EditQuestion({num, q}) {
     const [answer_D, editAnswer_D] = useState(q.option_4)
     const [correctAnswer, changeCorrectAnswer] = useState(q.correct_answer)
 
-    const customQuizData = useCustomQuizContext()
+    const customQuizData = useCustomQuizContext() // custom quiz context object
 
+    // Following functions handle onChange handlers for all input fields
     const questionChange = (e) => {
         editQuestion(e.target.value)
     }
@@ -37,6 +64,11 @@ function EditQuestion({num, q}) {
         editAnswer_D(e.target.value)
     }
 
+    const changeCorrect_AnswerHandler = (e) => {
+        changeCorrectAnswer(e.target.value)
+    }
+
+    // button click handles updating the quiz in the custom quiz context as needed based on the edited data in each question
     const handleFinishClick = (e) => {
         toggleEditing(!editingQuestion)
 
@@ -45,8 +77,11 @@ function EditQuestion({num, q}) {
         num.split(" ")[1] == questionNum) return 
 
         // update quiz data in custom quiz context
+        // - first checks to see if the order of questions has changed
         if (num.split(" ")[1] != questionNum) {
             const newMap = {}
+            // check if question is moved downward
+            // - creates new map of questions with updated question data
             if (num.split(" ")[1] > questionNum) {
                 var counter = 1
                 while (counter != questionNum) {
@@ -72,6 +107,7 @@ function EditQuestion({num, q}) {
                 }
             }
             else {
+                // question was moved upwards
                 var counter = 1
                 while (counter < num.split(" ")[1]) {
                     newMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter}`]
@@ -95,6 +131,7 @@ function EditQuestion({num, q}) {
                 }
             }
 
+            // checks for changed data and updates map
             if (customQuizData.quiz.questions[num].question != question) {
                 newMap[`Question ${questionNum}`].question = question
             }
@@ -114,6 +151,7 @@ function EditQuestion({num, q}) {
                 newMap[`Question ${questionNum}`].correct_answer = correctAnswer
             }
 
+            // updates the custom quiz context state
             customQuizData.updateQuiz(prev => {
                 return {
                   ...prev,
@@ -122,6 +160,7 @@ function EditQuestion({num, q}) {
               })
         }
         else {
+            // updates custom quiz context state when no question has changed the order
             const newMap = customQuizData.quiz.questions 
 
             if (customQuizData.quiz.questions[num].question != question) {
@@ -143,6 +182,7 @@ function EditQuestion({num, q}) {
                 newMap[num].correct_answer = correctAnswer
             }
 
+            // updates custom quiz context state
             customQuizData.updateQuiz(prev => {
                 return {
                   ...prev,
@@ -152,7 +192,10 @@ function EditQuestion({num, q}) {
         }
     }
 
+    // useEffect to provide listerner on when custom quiz state changes in context
+    // - NECESSARY to update all the question components with the changed data
     useEffect(() => {
+        // calls state change functions on all changabale data for the edited question
         editAnswer_A(q.option_1)
         editAnswer_B(q.option_2)
         editAnswer_C(q.option_3)
@@ -238,7 +281,14 @@ function EditQuestion({num, q}) {
                     editingQuestion
                     ?
                     <form class="w-full mb-4 mt-1">
-                        <label>Correct Answer</label>
+                        <label class="mr-2">Correct Answer:</label>
+                        <select onChange={changeCorrect_AnswerHandler} class= "text-black" name="correct_answer">
+                            <option value="">--Select the correct answer--</option>
+                            <option value={answer_A}>{answer_A}</option>
+                            <option value={answer_B}>{answer_B}</option>
+                            <option value={answer_C}>{answer_C}</option>
+                            <option value={answer_D}>{answer_D}</option>
+                        </select>
                     </form>
                     :
                     <h1 class="mt-1 mb-2">Correct Answer: {q.correct_answer}</h1>
