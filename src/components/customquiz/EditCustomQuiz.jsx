@@ -40,16 +40,22 @@ export default function EditCustomQuiz() {
   }
 
   const postQuestions = () => {
+    // checks for quiz.. otherwise shows loading
     if (!customQuiz.quiz) {
       return (
         <h1>Loading Questions...</h1>
       )
     }
 
+    // map over Object keys for questions
+    // - sorts in ascending order
+    // - maps with the key as the index 
     return Object.keys(customQuiz.quiz.questions).sort((a, b) => {
+      // splits object key for each question to get just the question number
       const firstNum = Number(a.split(" ")[1])
       const secondNum = Number(b.split(" ")[1])
       
+      // returns to sort in ascending order
       if (firstNum < secondNum) return -1
       if (firstNum > secondNum) return 1
       

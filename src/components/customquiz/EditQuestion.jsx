@@ -1,23 +1,39 @@
 import { useState, useRef } from 'react'
+import { useCustomQuizContext } from '../../contexts/CustomQuizContext'
 
 function EditQuestion({num, q}) {
     const [editingQuestion, toggleEditing] = useState(false)
+    const [question, editQuestion] = useState(q.question)
+    const [questionNum, changeQuestionNum] = useState(num.split(" ")[1])
+    const [answer_A, editAnswer_A] = useState(q.option_1) 
+    const [answer_B, editAnswer_B] = useState(q.option_2)
+    const [answer_C, editAnswer_C] = useState(q.option_3)
+    const [answer_D, editAnswer_D] = useState(q.option_4)
 
-    const displayQuestionNum = () => {
-        let questionDisplayNum = num[9]
-        
-        let counter = 10
-        while (true) {
-            if (num[counter]) {
-                questionDisplayNum += num[10]
-                counter++
-            }
-            else {
-                break
-            }
-        }
+    const customQuizData = useCustomQuizContext()
 
-        return questionDisplayNum
+    const questionChange = (e) => {
+        editQuestion(e.target.value)
+    }
+
+    const questionNumChange = (e) => {
+        changeQuestionNum(e.target.value)
+    }
+
+    const changeAnswer_A = (e) => {
+        editAnswer_A(e.target.value)
+    }
+
+    const changeAnswer_B = (e) => {
+        editAnswer_B(e.target.value)
+    }
+
+    const changeAnswer_C = (e) => {
+        editAnswer_C(e.target.value)
+    }
+
+    const changeAnswer_D = (e) => {
+        editAnswer_D(e.target.value)
     }
 
     return (
@@ -26,12 +42,12 @@ function EditQuestion({num, q}) {
                 editingQuestion 
                 ? 
                 <form class="flex w-10/12">
-                    <input type="number" value={displayQuestionNum()} class="bg-inherit text-black w-7 p-0 bg-slate-500 focus:bg-slate-300 mr-1 rounded" />
-                    <textarea value={q.question} class="bg-slate-400 focus:bg-slate-300 text-black w-full p-2 rounded" />
+                    <input type="number" min="1" max={customQuizData.quiz.numQuestions} onChange={questionNumChange} value={questionNum} class="bg-inherit text-black w-7 p-0 bg-slate-500 focus:bg-slate-300 mr-1 rounded" />
+                    <textarea value={question} onChange={questionChange} class="bg-slate-400 focus:bg-slate-300 text-black w-full p-2 rounded" />
                 </form>
                 :
                 <div class="flex">
-                    <h1>{displayQuestionNum()}</h1>
+                    <h1>{num.split(" ")[1]}</h1>
                     <h1>. &nbsp;&nbsp;</h1>
                     <h1>{q.question}</h1>
                 </div>
@@ -43,7 +59,7 @@ function EditQuestion({num, q}) {
                     ?
                     <form class="flex justify-center w-full mb-4">
                         <label class="mr-3" >A&nbsp;:</label>
-                        <textarea value={q.option_1} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
+                        <textarea value={answer_A} onChange={changeAnswer_A} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
                     </form>
                     :
                     <div class="flex w-full mb-3">
@@ -56,7 +72,7 @@ function EditQuestion({num, q}) {
                     ?
                     <form class="flex justify-center w-full mb-4">
                         <label class="mr-3" >B&nbsp;:</label>
-                        <textarea value={q.option_2} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
+                        <textarea value={answer_B} onChange={changeAnswer_B} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
                     </form>
                     :
                     <div class="flex w-full mb-3">
@@ -69,7 +85,7 @@ function EditQuestion({num, q}) {
                     ?
                     <form class="flex justify-center w-full mb-4">
                         <label class="mr-3" >C&nbsp;:</label>
-                        <textarea value={q.option_3} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
+                        <textarea value={answer_C} onChange={changeAnswer_C} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
                     </form>
                     :
                     <div class="flex w-full mb-3">
@@ -82,7 +98,7 @@ function EditQuestion({num, q}) {
                     ?
                     <form class="flex justify-center w-full mb-3">
                         <label class="mr-3" >D&nbsp;:</label>
-                        <textarea value={q.option_4} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
+                        <textarea value={answer_D} onChange={changeAnswer_D} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
                     </form>
                     :
                     <div class="flex w-full mb-3">
