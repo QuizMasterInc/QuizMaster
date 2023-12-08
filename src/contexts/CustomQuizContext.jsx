@@ -17,7 +17,6 @@ export function useCustomQuizContext() {
 
 export function CustomQuizProvider({ children }) {
     const [quiz, updateQuiz] = useState(null)
-    const [editing, changeEditing] = useState(false)
     const [changedQuiz, updateEditedQuiz] = useState(null)
 
     const navigate = useNavigate()
@@ -28,7 +27,10 @@ export function CustomQuizProvider({ children }) {
       // https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz
       await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz?quizid=' + uid)
       .then((res) => res.json())
-      .then((data) => updateQuiz(data.data))
+      .then((data) => {
+        updateQuiz(data.data)
+        updateEditedQuiz(data.data)
+      })
       .catch((err) => {
         console.log("Respone Error: ", err.message);
       })
@@ -54,7 +56,9 @@ export function CustomQuizProvider({ children }) {
         quiz, 
         updateQuiz,
         getQuiz,
-        deleteQuiz
+        deleteQuiz,
+        changedQuiz,
+        updateEditedQuiz
     }
     
 //context provider

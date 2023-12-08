@@ -4,11 +4,8 @@ import { useCustomQuizContext } from '../../contexts/CustomQuizContext'
 import EditQuestion from './EditQuestion'
 
 export default function EditCustomQuiz() {
-  const [title, editTitle] = useState("")
   const [deleteBtn, toggleDeleteBtn] = useState(false)
 
-
-  let titleRef = useRef()
   const customQuiz = useCustomQuizContext()
   const { quizID } = useParams()  // retrieves quiz ID from URL params 
 
@@ -17,7 +14,7 @@ export default function EditCustomQuiz() {
   // for title is changed
   // - updates state to display properly 
   const handleTitleChange = (e) => {
-    customQuiz.updateQuiz((prevState) => {
+    customQuiz.updateEditedQuiz((prevState) => {
       return {
         ...prevState,
         title: e.target.value
@@ -31,12 +28,12 @@ export default function EditCustomQuiz() {
   const titleBlur = (e) => {
     // checks if changed title is equal to old title
     // just returns if true
-    if (titleRef == e.target.value) return
+    if (customQuiz.updateEditedQuiz.title == e.target.value) return
 
     // checks to make sure title is not empty 
     // if empty it resorts state back to default
     if (e.target.value == "") {
-      customQuiz.updateQuiz((prev) => { return {...prev, title: titleRef.current}})
+      customQuiz.updateeditedQuiz((prev) => { return {...prev, title: titleRef.current}})
     }
     
     // call api to update title
@@ -49,7 +46,15 @@ export default function EditCustomQuiz() {
       )
     }
 
-    return Object.keys(customQuiz.quiz.questions).map((key, index) => {
+    return Object.keys(customQuiz.quiz.questions).sort((a, b) => {
+      const firstNum = Number(a.split(" ")[1])
+      const secondNum = Number(b.split(" ")[1])
+      
+      if (firstNum < secondNum) return -1
+      if (firstNum > secondNum) return 1
+      
+      return 0
+    }).map((key, index) => {
       return (
         <EditQuestion key={index} num={key} q={customQuiz.quiz.questions[key]}/>
       )
@@ -59,17 +64,18 @@ export default function EditCustomQuiz() {
   useEffect(() => {
     // effect runs when quiz state changes
     customQuiz.getQuiz(quizID)
+
   }, [])
 
   return (
     <main class="text-xl text-white mt-20 p-6">
-      <div class="flex justify-between">
-        <h1>Created: {customQuiz.quiz?.createdAt || ""}</h1>
-        <h1>Last Edit: {customQuiz.quiz?.lastEdit || ""}</h1>
+      <div class="flex justify-between mb-12">
+        <h1 class="text-s">Created: {customQuiz.quiz?.createdAt || ""}</h1>
+        <h1 class="text-s">Last Edit: {customQuiz.quiz?.lastEdit || ""}</h1>
       </div>
 
       <form>
-        <input type="text" class="text-white text-3xl bg-inherit p-3 underline text-center" value={customQuiz.quiz?.title || ""} onChange={handleTitleChange} onBlur={titleBlur}/>
+        <input type="text" class="text-white text-4xl bg-inherit h-12 p-3 text-center" value={customQuiz.quiz?.title || ""} onChange={handleTitleChange} onBlur={titleBlur}/>
       </form>
 
       <div class="flex justify-around">

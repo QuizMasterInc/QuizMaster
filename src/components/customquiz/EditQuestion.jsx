@@ -21,7 +21,7 @@ function EditQuestion({num, q}) {
     }
 
     return (
-        <div class="flex flex-col bg-gray-900 rounded-lg shadow-lg -md:pl-2 -md:pr-2 -md:pb-2 m-5 p-4 items-center">
+        <div class="flex flex-col bg-gray-900 rounded-3xl shadow-lg -md:pl-2 -md:pr-2 -md:pb-2 m-5 p-4 items-center">
             {
                 editingQuestion 
                 ? 
