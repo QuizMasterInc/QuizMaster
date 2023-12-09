@@ -96,6 +96,9 @@ const AllCustomQuizzes = () => {
 			case 'longest':					
 				sortedQuizzes.sort((a, b) => (a.numQuestions < b.numQuestions) ? 1 : -1)
 				break
+
+			default:
+				sortedQuizzes = quizzes
 		}
 
 		setQuizzes([...sortedQuizzes])
