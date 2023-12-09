@@ -23,7 +23,7 @@ const AllCustomQuizzes = () => {
 	}])
 	// quizzesToDisplay will be mutable and contain filtered quizzes
 	let [quizzesToDisplay, setQuizzesToDisplay] = useState(quizzes)
-
+	let [quizzesByDate, setQuizzesByDate] = useState([...quizzes])
 	
 	/**
 	 * This useEffect() is used to grab all custom quizzes
@@ -47,6 +47,11 @@ const AllCustomQuizzes = () => {
             const quizData = json.data
             setQuizzes(quizData)
 			setQuizzesToDisplay(quizData)
+			setQuizzesByDate([...quizData])
+			while (quizData.length == 1) {
+				// wait
+			}
+			quizzesByDate = [...quizData]
 
           } else {
             // Handle the case when the response is not okay
@@ -65,39 +70,35 @@ const AllCustomQuizzes = () => {
     }, []);
 
 	function sortQuizzes() {
-		let sortedQuizzes
+		let sortedQuizzes = quizzes
 		switch(sessionStorage.getItem('sortingQuery')) {
 			case 'newest':
-				//console.log(quizzes[0].createdAt)
-				sortedQuizzes = quizzes
+				sortedQuizzes = [...quizzesByDate]
 				break
 
 			case 'oldest':
-				//console.log(quizzes[0].createdAt)
-				sortedQuizzes = quizzes
+				sortedQuizzes = [...quizzesByDate]
+				sortedQuizzes.reverse()
 				break
 
 			case 'title':
-				sortedQuizzes = quizzes.sort((a, b) => (a.title > b.title) ? 1 : -1)
+				sortedQuizzes.sort((a, b) => (a.title > b.title) ? 1 : -1)
 				break
 
 			case 'titleReverse':
-				sortedQuizzes = quizzes.sort((a, b) => (a.title < b.title) ? 1 : -1)
+				sortedQuizzes.sort((a, b) => (a.title < b.title) ? 1 : -1)
 				break
 
 			case 'shortest':
-				sortedQuizzes = quizzes.sort((a, b) => (a.numQuestions > b.numQuestions) ? 1 : -1)
+				sortedQuizzes.sort((a, b) => (a.numQuestions > b.numQuestions) ? 1 : -1)
 				break
 	
 			case 'longest':					
-				sortedQuizzes = quizzes.sort((a, b) => (a.numQuestions < b.numQuestions) ? 1 : -1)
+				sortedQuizzes.sort((a, b) => (a.numQuestions < b.numQuestions) ? 1 : -1)
 				break
-
-			default: 
-				console.log("oops")
 		}
 
-		setQuizzes(sortedQuizzes)
+		setQuizzes([...sortedQuizzes])
 	}
 
 	function filterByPrivacy() {
