@@ -10,7 +10,6 @@ class PrivacyList extends Component {
 
   	onChangeValue(event) {
 		sessionStorage.setItem('privacy', event.target.value)
-    	console.log("privacy: ", sessionStorage.getItem('privacy'))
     	return event.target.value
  	}
 

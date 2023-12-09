@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from 'react-router-dom'
 import CustomQuizSelectButton from "./CustomQuizSelectButton";
+import SearchBar from "./SearchBar"
 import PrivacyList from "./PrivacyList";
 import SortByList from "./SortByList";
 
@@ -69,7 +70,7 @@ const AllCustomQuizzes = () => {
       
       	fetchCustomQuizzes();
     }, []);
-	
+
 	function sortQuizzes() {
 		let sortedQuizzes = quizzes
 		switch(sessionStorage.getItem('sortingQuery')) {
@@ -128,21 +129,30 @@ const AllCustomQuizzes = () => {
 		setQuizzesToDisplay(newQuizzes)
 	}
 
-	function sortAndFilter() {
+	function search() {
+		searchedQuizzes = [...quizzesToDisplay]
+
+	}
+
+	function searchAndFilter() {
 		sortQuizzes()
 		filterByPrivacy()
+		search()
 	}
 
 	
   return (
     <div>
         <h1 className="text-2xl font-bold text-gray-300 -sm:text-lg">User-Made Quizzes</h1>
-		<div className="flex flex-wrap justify-center mt-12 mx-3">
+		<div className="justify-center mt-5">
+			<SearchBar />
+		</div>
+		<div className="flex flex-wrap justify-center mt-3 mx-3">
 			<PrivacyList />
 			<SortByList />
-			<button className="bg-white font-bold float-right rounded mx-5 px-3" onClick={sortAndFilter}>Sort & Filter</button>		
+			<button className="bg-white font-bold float-right rounded mx-5 px-3" onClick={searchAndFilter}>Search & Filter</button>		
 		</div>
-		<h2 className="text-white">Displaying {quizzesToDisplay.length} quizzes</h2>
+		<h2 className="text-white mt-4">Displaying {quizzesToDisplay.length} quizzes</h2>
 		<div id="customQuizDiv" className="flex flex-wrap justify-center mt-14 mx-32">
 			{quizzesToDisplay.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} tags={q.tags} uid={q.uid} quizPassword={q.quizPassword}/>))} 
 	  	</div>
