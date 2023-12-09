@@ -47,6 +47,7 @@ const AllCustomQuizzes = () => {
             const quizData = json.data
             setQuizzes(quizData)
 			setQuizzesToDisplay(quizData)
+			// uses deep clone so quizzesByDate is constant
 			setQuizzesByDate([...quizData])
 			while (quizData.length == 1) {
 				// wait
@@ -68,7 +69,7 @@ const AllCustomQuizzes = () => {
       
       	fetchCustomQuizzes();
     }, []);
-
+	
 	function sortQuizzes() {
 		let sortedQuizzes = quizzes
 		switch(sessionStorage.getItem('sortingQuery')) {
