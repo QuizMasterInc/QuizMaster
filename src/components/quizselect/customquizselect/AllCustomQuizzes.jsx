@@ -140,7 +140,7 @@ const AllCustomQuizzes = () => {
 		</div>
 		<h2 className="text-white">Displaying {quizzesToDisplay.length} quizzes</h2>
 		<div id="customQuizDiv" className="flex flex-wrap justify-center mt-14 mx-32">
-			{quizzesToDisplay.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} tags={q.tags} uid={q.uid}/>))} 
+			{quizzesToDisplay.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} tags={q.tags} uid={q.uid} quizPassword={q.quizPassword}/>))} 
 	  	</div>
     </div>
   )

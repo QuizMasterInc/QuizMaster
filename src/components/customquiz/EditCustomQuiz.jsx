@@ -1,100 +1,119 @@
-import { useEffect, useRef } from 'react'
+/*
+This is the main component for every custom quiz once they are created to be viewed and possibly edited.
+
+- The router renders this component at the url "url/customquiz/${customQuizID}"
+
+This component provides state to allow the following editing features on a custom quiz:
+  - Editing the quizzes title
+  - Choosing to delete the quiz entirely 
+  - Save all editing changes to the DB
+  ** Editing features for each question found in the child component EditQuestion.jsx provided in this component via postQuestions()
+
+  NOT IMPLEMENTED YET:
+    - changing the toggle on if a quiz is password locked or not
+    - editing the password for accessing the quiz if it is password locked
+    - allowing the adding or deletion of tags for the quiz
+    - Defensive programming to make sure that the title is never saved as anything that matches the title of another custom quiz by the same user. 
+*/
+
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useCustomQuizContext } from '../../contexts/CustomQuizContext'
 import EditQuestion from './EditQuestion'
 
 export default function EditCustomQuiz() {
+  const [deleteBtn, toggleDeleteBtn] = useState(false)
+  const [editingTitle, toggleEditingTitle] = useState(false)
+  const [quizTitle, changeQuizTitle] = useState("")
 
-  let titleRef = useRef()
-  const customQuiz = useCustomQuizContext()
+  const customQuiz = useCustomQuizContext() // customQuiz object to access custom context state
   const { quizID } = useParams()  // retrieves quiz ID from URL params 
 
-
-  // function called when input field
-  // for title is changed
-  // - updates state to display properly 
-  const handleTitleChange = (e) => {
-    customQuiz.updateQuiz((prevState) => {
-      return {
-        ...prevState,
-        title: e.target.value
-      }
-    })
+  const handleTitleClick = (e) => {
+    toggleEditingTitle(!editingTitle)
+    changeQuizTitle(customQuiz.quiz?.title)
   }
 
-  // function called when title input field un-focuses
-  // do some checks to maintain effeciency
-  // - used to update db
-  const titleBlur = (e) => {
-    // checks if changed title is equal to old title
-    // just returns if true
-    if (titleRef == e.target.value) return
+  const handleClickToSaveChanges = (e) => {
 
-    // checks to make sure title is not empty 
-    // if empty it resorts state back to default
-    if (e.target.value == "") {
-      customQuiz.updateQuiz((prev) => { return {...prev, title: titleRef.current}})
+  }
+
+  const handleTitleBlur = (e) => {
+    // checks for empty string for title
+    if (quizTitle == "") {
+      changeQuizTitle(customQuiz.quiz.title)
+      toggleEditingTitle(!editingTitle)
+      return
+    }
+
+    // updates quiz info in context
+    if (quizTitle != customQuiz.quiz.title) {
+      customQuiz.updateQuiz(prev => {
+        return {
+          ...prev,
+          title: e.target.value
+        }
+      })
+
+      toggleEditingTitle(!editingTitle)
     }
     
-    // call api to update title
   }
 
-  const deleteButtonClick = (e) => {
-    e.preventDefault()
-    // ask the user to confirm deletion
-
-
-    // call delete api
-    customQuiz.deleteQuiz(quizID)
+  const handleTitleChange = (e) => {
+    changeQuizTitle(e.target.value)
   }
 
   const postQuestions = () => {
+    // checks for quiz.. otherwise shows loading
     if (!customQuiz.quiz) {
       return (
         <h1>Loading Questions...</h1>
       )
     }
 
-    return Object.keys(customQuiz.quiz.questions).map((key, index) => {
+    // map over Object keys for questions
+    // - sorts in ascending order
+    // - maps with the index as the key for each component
+    return Object.keys(customQuiz.quiz.questions).sort((a, b) => {
+      // splits object key for each question to get just the question number and casts the string to and int
+      const firstNum = Number(a.split(" ")[1])
+      const secondNum = Number(b.split(" ")[1])
+      
+      // returns to sort in ascending order
+      if (firstNum < secondNum) return -1
+      if (firstNum > secondNum) return 1
+      
+      return 0
+    }).map((key, index) => {
       return (
-        // <div key={index}>
-        //   <br></br>
-        //   <h1>{key}</h1>
-        //   <h2>{quiz.questions[key].question}</h2>
-        //   <h2>A: {quiz.questions[key].option_1}</h2>
-        //   <h2>B: {quiz.questions[key].option_2}</h2>
-        //   <h2>C: {quiz.questions[key].option_3}</h2>
-        //   <h4>D: {quiz.questions[key].option_4}</h4>
-        //   <br></br>
-        //   <h2>Correct Answer: {quiz.questions[key].correct_answer}</h2>
-        // </div>
         <EditQuestion key={index} num={key} q={customQuiz.quiz.questions[key]}/>
       )
     })
   }
 
+  // useEffect function runs on first render to get the quiz data from the DB and set the state in custom quiz context
   useEffect(() => {
-    // effect runs when quiz state changes
-
-    // getQuiz(quizID)
-    // .then(quizData => {
-    //   console.log(quizData.data)
-    //   updateQuiz(quizData.data)
-    //   titleRef.current = quizData.data.title
-    // })
     customQuiz.getQuiz(quizID)
+    
   }, [])
 
   return (
-    <main class="text-xl text-white border-2 mt-20 p-6">
-      <div class="flex justify-between">
-        <h1>Created: {customQuiz.quiz?.createdAt && ""}</h1>
-        <h1>Last Edit: {customQuiz.quiz?.lastEdit && ""}</h1>
+    <main class="text-xl text-white mt-20 p-6">
+      <div class="flex justify-between mb-12">
+        <h1 class="text-s">Created: {customQuiz.quiz?.createdAt || ""}</h1>
+        <h1 class="text-s">Last Edit: {customQuiz.quiz?.lastEdit || ""}</h1>
       </div>
 
-      <form>
-        <input type="text" class="text-white text-3xl bg-inherit p-3 underline text-center" value={customQuiz.quiz?.title || ""} onChange={handleTitleChange} onBlur={titleBlur}/>
-      </form>
+      {
+        editingTitle
+        ?
+        <form>
+          <input type="text" class="text-white text-4xl bg-inherit h-12 p-3 text-center" value={quizTitle} autoFocus onBlur={handleTitleBlur} onChange={handleTitleChange} />
+        </form>
+        :
+        <h1 class="text-4xl hover:cursor-pointer p-3" onClick={handleTitleClick}>{customQuiz.quiz?.title || ""}</h1>
+      }
 
       <div class="flex justify-around">
         <h2>Number of Questions: {customQuiz.quiz?.numQuestions || "Loading..."}</h2>
@@ -103,14 +122,21 @@ export default function EditCustomQuiz() {
 
       <div>
         {
+          // returns mapping of all questions associated to quiz
           postQuestions()
         }
       </div>
 
-      <br></br>
-      {
-        customQuiz.quiz ? <button class="border-2 rounded-sm bg-red-500 p-2" onClick={deleteButtonClick}>Delete Quiz</button> : <></>
-      }
+      <div>
+        {
+          customQuiz.quiz ? <button class="border-2 rounded-sm bg-red-500 p-2" onClick={() => toggleDeleteBtn(!deleteBtn)}>Delete Quiz</button> : <></>
+        }
+        {
+          deleteBtn ? <div class="">
+            <h2 class="text-white">Delete Button Clicked</h2>
+          </div> : <></>
+        }
+      </div>
     </main>
   )
 }
