@@ -10,6 +10,34 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
     const [activeIndex, setActiveIndex] = useState(null)
     const [correct, setCorrect] = useState(false)
 
+    // leaving debug statements in for one commit - this may be helpful to future devs, 
+    // but will def clog up the current prod build if left for all future commits.
+    
+    console.log(`These are all of the question choices for question number ${number}: ${choices}`)
+
+    choices.map((choice) => 
+
+        {
+        // https://www.freecodecamp.org/news/check-if-string-is-empty-or-null-javascript/
+
+        if (typeof choice.trim() === "string" && choice.trim().length === 0) {
+        console.log(`\t The string \"${choice.trim()}\" is empty`);
+
+        // now that we know that the above code works to identify strings that had at least ONE char of space (and no text) but now have none, 
+        // let's go ahead and apply it to more code. 
+
+        // I'm leaving the rest here for evidence of how I tested this.
+
+        } else if (choice.trim() === null) {
+        console.log(`\t The string \"${choice.trim()}\" is null`);
+        } else {
+        console.log(`\t The string \"${choice.trim()}\" is not empty or null`);
+        }
+
+        }
+
+    )
+
     /**
      * This useEffect() is called when the quiz is finished. it is used for grading purposes
      * If the question is answered correctly or not. 
@@ -44,7 +72,11 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
             isCorrect={((activeIndex === index) && (isCompleted) && (answer === choices[activeIndex]))}
             isIncorrect={((activeIndex === index) && (isCompleted) && !(answer === choices[activeIndex]))}
             isDisabled={(isCompleted)}/>
-        ))} 
+        ))
+        
+        
+        
+        } 
     </div>
     </>
     )
