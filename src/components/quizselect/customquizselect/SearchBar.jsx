@@ -10,7 +10,6 @@ class SearchBar extends Component {
 
   	onChangeValue(event) {
 		sessionStorage.setItem('searchQuery', inputSearchBar.value)
-		console.log(sessionStorage.getItem('searchQuery'))
     	return event.target.value
  	}
 
