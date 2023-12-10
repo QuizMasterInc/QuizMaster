@@ -13,7 +13,7 @@ const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("")
 // const [quizPasswordAttemptCheck, setQuizPasswordAttemptCheck] = useState()
 
 function displayTags(tags) {
-    if (tags.length > 0) {
+    if (tags != undefined && tags.length > 0) {
         return "User Tag(s): " + tags
     }
     return;

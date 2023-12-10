@@ -71,6 +71,7 @@ const AllCustomQuizzes = () => {
       	fetchCustomQuizzes();
     }, []);
 
+	
 	function sortQuizzes() {
 		let sortedQuizzes = quizzes
 		switch(sessionStorage.getItem('sortingQuery')) {
@@ -126,12 +127,38 @@ const AllCustomQuizzes = () => {
 			newQuizzes = quizzes
 		}
 		
-		setQuizzesToDisplay(newQuizzes)
+		setQuizzesToDisplay([...newQuizzes])
 	}
 
 	function search() {
-		searchedQuizzes = [...quizzesToDisplay]
+		const searchTerm = sessionStorage.getItem('searchQuery').toLowerCase()
+		let searchedQuizzes
+		if(searchTerm.length > 0) {
+			searchedQuizzes = [...quizzesToDisplay]
+			searchedQuizzes = searchedQuizzes.filter((quiz) => {
+				if (quiz.title.toLowerCase().includes(searchTerm) || checkTags(quiz, searchTerm)) {
+					return quiz
+				}
+			})
 
+			setQuizzesToDisplay(searchedQuizzes)
+			console.log(searchedQuizzes)
+		} else {
+			console.log("no search")
+		}
+	}
+
+	function checkTags(quiz, searchTerm) {
+		if (quiz.tags != undefined && quiz.tags.length > 0) {
+			quiz.tags.forEach((tag) => {
+				console.log("tag:", tag)
+				if (tag.toLowerCase().includes(searchTerm)) {
+					console.log(quiz)
+					return true
+				}
+			})
+		}
+		return false
 	}
 
 	function searchAndFilter() {

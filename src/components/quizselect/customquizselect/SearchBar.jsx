@@ -4,13 +4,13 @@ import {React, useState, Component} from "react";
 class SearchBar extends Component {
   	constructor() {
 		super();
-        let input = ""
-		sessionStorage.setItem('searchQuery', input)
+		sessionStorage.setItem('searchQuery', "")
 		this.onChangeValue = this.onChangeValue.bind(this);
 	}
 
   	onChangeValue(event) {
-		sessionStorage.setItem('searchQuery', input)
+		sessionStorage.setItem('searchQuery', inputSearchBar.value)
+		console.log(sessionStorage.getItem('searchQuery'))
     	return event.target.value
  	}
 
@@ -18,7 +18,7 @@ class SearchBar extends Component {
 	render() {
     	return (
 			<div onChange={this.onChangeValue}> 
-				<input type="text" placeholder="Search" value="" className="w-1/4" />
+				<input id="inputSearchBar" type="text" placeholder="Search" className="w-1/4" />
 			</div>
     	);
   	}
