@@ -135,25 +135,19 @@ const AllCustomQuizzes = () => {
 		let searchedQuizzes
 		if(searchTerm.length > 0) {
 			searchedQuizzes = quizzesToDisplay.filter((quiz) => {
-				if (quiz.title.toLowerCase().includes(searchTerm) || checkTags(quiz, searchTerm)) {
-					return quiz
-				}
+				return quiz.title.toLowerCase().includes(searchTerm) || checkTags(quiz, searchTerm)
 			})
 
 			setQuizzesToDisplay([...searchedQuizzes])
-			console.log(searchedQuizzes)
-		} else {
-			console.log("no search")
-		}
+		} 
 	}
 
 	function checkTags(quiz, searchTerm) {
 		if (quiz.tags != undefined && quiz.tags.length > 0) {
 			quiz.tags.forEach((tag) => {
-				console.log("tag:", tag)
 				if (tag.toLowerCase().includes(searchTerm)) {
-					console.log(quiz)
-					return true
+					console.log(tag, quiz.title)
+					return quiz
 				}
 			})
 		}
