@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { Link, Navigate } from 'react-router-dom'
 
-
+// TODO: add two check marks to retain both category and subcategory on submit
 
 const AddDefaultQuestion = ({ index, category, icon, destination, selectCategory, allSubcategories }) => {
     const { currentUser } = useAuth(); // Get the current user from your context.
