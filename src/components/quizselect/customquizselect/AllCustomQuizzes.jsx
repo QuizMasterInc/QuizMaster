@@ -134,14 +134,13 @@ const AllCustomQuizzes = () => {
 		const searchTerm = sessionStorage.getItem('searchQuery').toLowerCase()
 		let searchedQuizzes
 		if(searchTerm.length > 0) {
-			searchedQuizzes = [...quizzesToDisplay]
-			searchedQuizzes = searchedQuizzes.filter((quiz) => {
+			searchedQuizzes = quizzesToDisplay.filter((quiz) => {
 				if (quiz.title.toLowerCase().includes(searchTerm) || checkTags(quiz, searchTerm)) {
 					return quiz
 				}
 			})
 
-			setQuizzesToDisplay(searchedQuizzes)
+			setQuizzesToDisplay([...searchedQuizzes])
 			console.log(searchedQuizzes)
 		} else {
 			console.log("no search")
