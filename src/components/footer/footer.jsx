@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Footer = () => {
   const footerStyle = {
-    backgroundColor: '#333',
+    //backgroundColor: '#333', look nicer
     color: 'white',
     textAlign: 'center',
     padding: '10px',
