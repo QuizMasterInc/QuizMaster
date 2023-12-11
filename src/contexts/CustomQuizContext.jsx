@@ -26,6 +26,7 @@ export function CustomQuizProvider({ children }) {
     const [quiz, updateQuiz] = useState(null)
 
     const quizRef = useRef(null) // ref holds initial quiz data for reference when quiz is edited
+    console.log("quiz ref set: ", quizRef.current)
 
     const navigate = useNavigate() // used when quiz is deleted
 
@@ -42,7 +43,9 @@ export function CustomQuizProvider({ children }) {
         // successful retrieval of quiz
         // state updates
         updateQuiz(data.data)
-        quizRef.current = data.data
+        if (quizRef.current == null) {
+          quizRef.current = data.data
+        }
       })
       .catch((err) => {
         // error found
@@ -69,13 +72,18 @@ export function CustomQuizProvider({ children }) {
         })
       }
 
-      // function calls api to update quiz in the DB
+      // function calls API to update custom quiz in DB
+      // params uid: string
+      // params sendData: object
+      const callToUpdateDB = (uid, sendData) => {
+        
+      }
+
+      // function checks for new data to send to DB and calls callToUpdateDB
       // params uid: string
       // # uid is the unique string necessary for finding and accessing the custom quiz in the db
       const updateQuizDB = (uid) => {
         // check to see if quiz is different from quizRef
-        console.log("quizRef: ", quizRef.current)
-        console.log("current Quiz: ", quiz)
         const sendObj = {
           title: "", 
           questions: {}
@@ -107,10 +115,7 @@ export function CustomQuizProvider({ children }) {
               break
             }
             else {
-              console.log("checking question data for non matches")
-              console.log(quiz.questions[quizKeys[i]], quizRef.current.questions[quizRefKeys[i]])
               if (quiz.questions[quizKeys[i]].question != quizRef.current.questions[quizRefKeys[i]].question) {
-                console.log("different questions found")
                 newData = true
                 sendObj.questions = quiz.questions
                 break
@@ -148,8 +153,9 @@ export function CustomQuizProvider({ children }) {
         if (!newData) return
 
         // call api to update custom quiz in DB
-        alert("updating DB")
-        
+        console.log("updating DB on quiz: ", uid)
+        console.log("new data: ", sendObj)
+        callToUpdateDB(uid, sendObj)
       }
 
     // packages data
