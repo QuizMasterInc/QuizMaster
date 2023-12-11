@@ -130,6 +130,7 @@ const AllCustomQuizzes = () => {
 		setQuizzesToDisplay([...newQuizzes])
 	}
 
+	// function that filters quizzes by title
 	function search() {
 		const searchTerm = sessionStorage.getItem('searchQuery').toLowerCase()
 		let searchedQuizzes
@@ -142,6 +143,7 @@ const AllCustomQuizzes = () => {
 		} 
 	}
 
+	// function that filters quizzes by tags
 	function checkTags(quiz, searchTerm) {
 		if (quiz.tags != undefined && quiz.tags.length > 0) {
 			quiz.tags.forEach((tag) => {
