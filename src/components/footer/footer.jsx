@@ -55,7 +55,7 @@ const Footer = () => {
   }, [navigate]); // Run the effect whenever the route changes
 
   return (
-    <div>
+    <div class="z-1">
       {showFooter && (
         <footer style={footerStyle}>
           <p>&copy; QuizMaster. All rights reserved.</p>

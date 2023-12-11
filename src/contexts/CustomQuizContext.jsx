@@ -54,14 +54,13 @@ export function CustomQuizProvider({ children }) {
     // params uid: string
     // # uid is the unique string necessary for finding and accessing the custom quiz in the db
     const deleteQuiz = async (uid) => {
+      console.log("Deleting quiz: ", uid)
         // https://us-central1-quizmaster-c66a2.cloudfunctions.net/deleteCustomQuiz
-    
         await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/deleteCustomQuiz?quizid=" + uid)
         .then((res) => res.json())
         .then((response) => {
           // successful deletion
           console.log("Deletion Response: ", response)
-          quizRef.current = null
           navigate("/dashboard") // navigate user to their dashboard
         })
         .catch((error) => {

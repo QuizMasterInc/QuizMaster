@@ -25,6 +25,7 @@ export default function EditCustomQuiz() {
   const [deleteBtn, toggleDeleteBtn] = useState(false)
   const [editingTitle, toggleEditingTitle] = useState(false)
   const [quizTitle, changeQuizTitle] = useState("")
+  const [quizDeletionText, updateDeletionText] = useState("")
 
   const customQuiz = useCustomQuizContext() // customQuiz object to access custom context state
   const { quizID } = useParams()  // retrieves quiz ID from URL params 
@@ -64,6 +65,29 @@ export default function EditCustomQuiz() {
     changeQuizTitle(e.target.value)
   }
 
+  const handleConfirmationChange = (e) => {
+    updateDeletionText(e.target.value)
+  }
+
+  // function handles when a user confirms they want to delete their quiz
+  const handleQuizDeletion = (e) => {
+    e.preventDefault()
+    // check for confirmation off input 
+    if (quizDeletionText != customQuiz.quiz?.title) {
+      // run code to display non match
+
+      return 
+    }
+
+    // delete quiz
+    customQuiz.deleteQuiz(quizID)
+  }
+
+  const handleCancelQuizDeletion = (e) => {
+    updateDeletionText("")
+    toggleDeleteBtn(!deleteBtn)
+  }
+
   const postQuestions = () => {
     // checks for quiz.. otherwise shows loading
     if (!customQuiz.quiz) {
@@ -99,7 +123,22 @@ export default function EditCustomQuiz() {
   }, [])
 
   return (
-    <main class="text-xl text-white mt-20 p-6">
+    <div>
+      {
+        deleteBtn
+        ?
+        <div class="fixed flex z-50 w-full h-full top-0 left-0 items-center justify-center backdrop-blur-lg backdrop-brightness-50">
+          <form class="flex flex-col" onSubmit={handleQuizDeletion}>
+            <label>CONFIRM DELETION: TYPE IN "{customQuiz.quiz?.title}"" TO CONFIRM  DELETION.</label>
+            <input type="text" placeholder={customQuiz.quiz?.title} class="text-black" onChange={handleConfirmationChange} />
+            <button class="text-white bg-red-500 p-2 rounded" type="submit">Confirm Delete</button>
+            <button class="text-white bg-slate-500 p-2 rounded mt-2" onClick={handleCancelQuizDeletion}>Cancel</button>
+          </form>
+        </div>
+        :
+        <></>
+      }
+      <main class="relative text-xl text-white mt-20 p-6 z-1">
       <div class="flex justify-between mb-12">
         <h1 class="text-s">Created: {customQuiz.quiz?.createdAt || ""}</h1>
         <h1 class="text-s">Last Edit: {customQuiz.quiz?.lastEdit || ""}</h1>
@@ -136,14 +175,10 @@ export default function EditCustomQuiz() {
              <button class="border-2 rounded-sm bg-red-500 p-2" onClick={() => toggleDeleteBtn(!deleteBtn)}>Delete Quiz</button>
           </div> 
           :
-           <></>
-        }
-        {
-          deleteBtn ? <div class="">
-            <h2 class="text-white">Delete Button Clicked</h2>
-          </div> : <></>
+          <></>
         }
       </div>
     </main>
+  </div> 
   )
 }
