@@ -1,6 +1,6 @@
 import {React, useState, Component} from "react";
 
-
+// search bar component for AllCustomQuizzes
 class SearchBar extends Component {
   	constructor() {
 		super();
