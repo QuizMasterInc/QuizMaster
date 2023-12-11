@@ -13,17 +13,12 @@ function QuestionChoice ({choiceText, isAnswer, isSelected, onSelect, isCorrect,
      */
     function changeVisibility()
     {
-        
+        // removes "blank" answers
         if (choiceText.trim() == "")
         {
-            console.log(`For this choice: \"${choiceText}\", we should not be getting anything back.`)
             return( " hidden"
             )
-        } else
-        {
-            console.log(`This answer is valid somehow: \"${choiceText.trim()}\"`)
         }
-
     }
 
     /**
