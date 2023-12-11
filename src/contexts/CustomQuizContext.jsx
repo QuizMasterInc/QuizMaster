@@ -26,7 +26,6 @@ export function CustomQuizProvider({ children }) {
     const [quiz, updateQuiz] = useState(null)
 
     const quizRef = useRef(null) // ref holds initial quiz data for reference when quiz is edited
-    console.log("quiz ref set: ", quizRef.current)
 
     const navigate = useNavigate() // used when quiz is deleted
 
@@ -75,8 +74,30 @@ export function CustomQuizProvider({ children }) {
       // function calls API to update custom quiz in DB
       // params uid: string
       // params sendData: object
-      const callToUpdateDB = (uid, sendData) => {
-        
+      const callToUpdateDB = async (uid, sendData) => {
+        const obj = {
+          uid: uid,
+          sendData: sendData
+        }
+
+        // https://us-central1-quizmaster-c66a2.cloudfunctions.net/editQuizInfo
+        await fetch("https://us-central1-quizmaster-c66a2.cloudfunctions.net/editQuizInfo", {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(obj)
+        })
+        .then((res) => res.json())
+        .then((response) => {
+          // successful update to DB
+          console.log("update db response: ", response)
+          quizRef.current = quiz
+        })
+        .catch((error) => {
+          console.log("update error: ", error.message)
+        })
       }
 
       // function checks for new data to send to DB and calls callToUpdateDB
@@ -86,7 +107,7 @@ export function CustomQuizProvider({ children }) {
         // check to see if quiz is different from quizRef
         const sendObj = {
           title: "", 
-          questions: {}
+          questions: null
         }
 
         var newData = false

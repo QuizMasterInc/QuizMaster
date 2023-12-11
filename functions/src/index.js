@@ -550,16 +550,18 @@ exports.editQuizInfo = functions.https.onRequest(async (req, res) => {
 
             // update the quiz 
             try {
-                // iterates through all the changed data
-                // updates each attribute as iterated over
-                Object.keys(data).forEach(async (value, index) => {
-                    if (value == "uid") return 
-                    else {
-                        await admin.firestore().collection("custom_quizzes").doc(data.uid).update({
-                            value: data[value]
-                        })
-                    }
-                })
+                if (data.sendData.title != "") {
+                    // update the title
+                    await admin.firestore().collection("custom_quizzes").doc(data.uid).update({
+                        title: data.sendData.title
+                    })
+                }
+
+                if (data.sendData.questions != null) {
+                    await admin.firestore().collection("custom_quizzes").doc(data.uid).update({
+                        questions: data.sendData.questions
+                    })
+                }
             } catch(err) {
                 // return error response
                 return res.status(404).json({
