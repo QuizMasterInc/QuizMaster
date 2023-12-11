@@ -38,12 +38,17 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
             <QuestionChoice 
             key={index}
             choiceText={choice} 
+            isAnswer = {((answer === choices[index]) && (isCompleted))}
             isSelected={activeIndex === index} 
             onSelect={() => setActiveIndex(index)} 
             isCorrect={((activeIndex === index) && (isCompleted) && (answer === choices[activeIndex]))}
             isIncorrect={((activeIndex === index) && (isCompleted) && !(answer === choices[activeIndex]))}
             isDisabled={(isCompleted)}/>
-        ))} 
+        ))
+        
+        
+        
+        } 
     </div>
     </>
     )
