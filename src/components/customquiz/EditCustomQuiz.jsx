@@ -129,7 +129,14 @@ export default function EditCustomQuiz() {
 
       <div>
         {
-          customQuiz.quiz ? <button class="border-2 rounded-sm bg-red-500 p-2" onClick={() => toggleDeleteBtn(!deleteBtn)}>Delete Quiz</button> : <></>
+          customQuiz.quiz 
+          ? 
+          <div>
+            <button class="border-2 rounded-sm p-2 mr-3" onClick={(() => customQuiz.updateQuizDB())}>Save Changes</button>
+             <button class="border-2 rounded-sm bg-red-500 p-2" onClick={() => toggleDeleteBtn(!deleteBtn)}>Delete Quiz</button>
+          </div> 
+          :
+           <></>
         }
         {
           deleteBtn ? <div class="">

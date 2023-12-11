@@ -68,6 +68,38 @@ function EditQuestion({num, q}) {
         changeCorrectAnswer(e.target.value)
     }
 
+    // following functions handle onBlur handlers for all inputs to check for empty strings
+    // onBlur is called when an input field is un focused 
+    const questionBlur = (e) => {
+        if (question == "") {
+            editQuestion(q.question)
+        }
+    }
+
+    const answer_A_Blur = (e) => {
+        if (answer_A == "") {
+            editAnswer_A(q.option_1)
+        }
+    }
+
+    const answer_B_Blur = (e) => {
+        if (answer_B == "") {
+            editAnswer_B(q.option_2)
+        }
+    }
+
+    const answer_C_Blur = (e) => {
+        if (answer_C == "") {
+            editAnswer_C(q.option_3)
+        }
+    }
+
+    const answer_D_Blur = (e) => {
+        if (answer_D == "") {
+            editAnswer_D(q.option_4)
+        }
+    }
+
     // button click handles updating the quiz in the custom quiz context as needed based on the edited data in each question
     const handleFinishClick = (e) => {
         toggleEditing(!editingQuestion)
@@ -211,8 +243,8 @@ function EditQuestion({num, q}) {
                 editingQuestion 
                 ? 
                 <form class="flex w-10/12">
-                    <input type="number" min="1" max={customQuizData.quiz.numQuestions} onChange={questionNumChange} value={questionNum} class="bg-inherit text-black w-7 p-0 bg-slate-500 focus:bg-slate-300 mr-1 rounded" />
-                    <textarea value={question} onChange={questionChange} class="bg-slate-400 focus:bg-slate-300 text-black w-full p-2 rounded" />
+                    <input type="number" min="1" max={customQuizData.quiz.numQuestions} onChange={questionNumChange} value={questionNum} class="bg-inherit text-black w-9 p-0 bg-slate-500 focus:bg-slate-300 mr-1 rounded" />
+                    <textarea value={question} onChange={questionChange} onBlur={questionBlur} class="bg-slate-400 focus:bg-slate-300 text-black w-full p-2 rounded" />
                 </form>
                 :
                 <div class="flex">
@@ -228,7 +260,7 @@ function EditQuestion({num, q}) {
                     ?
                     <form class="flex justify-center w-full mb-4">
                         <label class="mr-3" >A&nbsp;:</label>
-                        <textarea value={answer_A} onChange={changeAnswer_A} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
+                        <textarea value={answer_A} onChange={changeAnswer_A} onBlur={answer_A_Blur} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black" />
                     </form>
                     :
                     <div class="flex w-full mb-3">
@@ -241,7 +273,7 @@ function EditQuestion({num, q}) {
                     ?
                     <form class="flex justify-center w-full mb-4">
                         <label class="mr-3" >B&nbsp;:</label>
-                        <textarea value={answer_B} onChange={changeAnswer_B} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
+                        <textarea value={answer_B} onChange={changeAnswer_B} onBlur={answer_B_Blur} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black" />
                     </form>
                     :
                     <div class="flex w-full mb-3">
@@ -254,7 +286,7 @@ function EditQuestion({num, q}) {
                     ?
                     <form class="flex justify-center w-full mb-4">
                         <label class="mr-3" >C&nbsp;:</label>
-                        <textarea value={answer_C} onChange={changeAnswer_C} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
+                        <textarea value={answer_C} onChange={changeAnswer_C} onBlur={answer_C_Blur} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black" />
                     </form>
                     :
                     <div class="flex w-full mb-3">
@@ -267,7 +299,7 @@ function EditQuestion({num, q}) {
                     ?
                     <form class="flex justify-center w-full mb-3">
                         <label class="mr-3" >D&nbsp;:</label>
-                        <textarea value={answer_D} onChange={changeAnswer_D} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1" />
+                        <textarea value={answer_D} onChange={changeAnswer_D} onBlur={answer_D_Blur} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black" />
                     </form>
                     :
                     <div class="flex w-full mb-3">
