@@ -19,13 +19,17 @@
     "match-sorter": "^6.3.1",
     "nvm": "^0.0.4",
     "react": "^18.2.0",
+    "react-custom-scrollbars-2": "^4.5.0",
     "react-dom": "^18.2.0",
     "react-google-button": "^0.7.2",
     "react-modal": "^3.16.1",
+    "react-scrollbars-custom": "^4.1.1",
     "react-spinners": "^0.13.8",
     "sort-by": "^1.2.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.23.3",
+    "@babel/preset-env": "^7.23.3",
     "@types/jest": "^29.5.8",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
