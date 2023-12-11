@@ -44,7 +44,11 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
             isCorrect={((activeIndex === index) && (isCompleted) && (answer === choices[activeIndex]))}
             isIncorrect={((activeIndex === index) && (isCompleted) && !(answer === choices[activeIndex]))}
             isDisabled={(isCompleted)}/>
-        ))} 
+        ))
+        
+        
+        
+        } 
     </div>
     </>
     )

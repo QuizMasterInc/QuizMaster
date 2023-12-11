@@ -13,6 +13,7 @@ import joey from "../../assets/joey.jpg"
 import alex from "../../assets/alex.jpg"
 import hamzeh from "../../assets/hamzeh.jpg"
 import jeff from "../../assets/jeff.jpg"
+import logo from "../../assets/logo.jpg"
 
 {/* IMPORT YOUR IMAGES HERE */}
 
@@ -107,16 +108,16 @@ const Contact = ({}) => (
           </div>
           {/* REPLACE WITH TEAM MEMBER 5 */}
           <div className="flex flex-col items-center">
-            <a href="https://lively-bay-020649610.2.azurestaticapps.net/" target="_blank">
-              <img src={max} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
+            <a href="https://github.com/JahiStewart" target="_blank">
+              <img src={logo} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">Maximus Lewis</h3>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Jahi Stewart</h3>
             <div className="mt-0 text-gray-300">
               Core Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:maximusslewis@lewisu.edu" className="hover:underline">
-                maximusslewis@lewisu.edu
+              <a href="mailto:jahikstewart@lewisu.edu" className="hover:underline">
+              jahikstewart@lewisu.edu
               </a>
             </div>
           </div>

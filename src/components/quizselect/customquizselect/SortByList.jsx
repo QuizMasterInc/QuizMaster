@@ -10,7 +10,6 @@ class SortByList extends Component {
 
   	onChangeValue(event) {
 		sessionStorage.setItem('sortingQuery', event.target.value)
-    	console.log("sorting by: ", sessionStorage.getItem('sortingQuery'))
     	return event.target.value
  	}
 

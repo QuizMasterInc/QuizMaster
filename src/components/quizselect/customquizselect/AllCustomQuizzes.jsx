@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from 'react-router-dom'
 import CustomQuizSelectButton from "./CustomQuizSelectButton";
+import SearchBar from "./SearchBar"
 import PrivacyList from "./PrivacyList";
 import SortByList from "./SortByList";
 
@@ -23,7 +24,7 @@ const AllCustomQuizzes = () => {
 	}])
 	// quizzesToDisplay will be mutable and contain filtered quizzes
 	let [quizzesToDisplay, setQuizzesToDisplay] = useState(quizzes)
-
+	let [quizzesByDate, setQuizzesByDate] = useState([...quizzes])
 	
 	/**
 	 * This useEffect() is used to grab all custom quizzes
@@ -47,6 +48,12 @@ const AllCustomQuizzes = () => {
             const quizData = json.data
             setQuizzes(quizData)
 			setQuizzesToDisplay(quizData)
+			// uses deep clone so quizzesByDate is constant
+			setQuizzesByDate([...quizData])
+			while (quizData.length == 1) {
+				// wait
+			}
+			quizzesByDate = [...quizData]
 
           } else {
             // Handle the case when the response is not okay
@@ -64,40 +71,40 @@ const AllCustomQuizzes = () => {
       	fetchCustomQuizzes();
     }, []);
 
+	
 	function sortQuizzes() {
-		let sortedQuizzes
+		let sortedQuizzes = quizzes
 		switch(sessionStorage.getItem('sortingQuery')) {
 			case 'newest':
-				//console.log(quizzes[0].createdAt)
-				sortedQuizzes = quizzes
+				sortedQuizzes = [...quizzesByDate]
 				break
 
 			case 'oldest':
-				//console.log(quizzes[0].createdAt)
-				sortedQuizzes = quizzes
+				sortedQuizzes = [...quizzesByDate]
+				sortedQuizzes.reverse()
 				break
 
 			case 'title':
-				sortedQuizzes = quizzes.sort((a, b) => (a.title > b.title) ? 1 : -1)
+				sortedQuizzes.sort((a, b) => (a.title > b.title) ? 1 : -1)
 				break
 
 			case 'titleReverse':
-				sortedQuizzes = quizzes.sort((a, b) => (a.title < b.title) ? 1 : -1)
+				sortedQuizzes.sort((a, b) => (a.title < b.title) ? 1 : -1)
 				break
 
 			case 'shortest':
-				sortedQuizzes = quizzes.sort((a, b) => (a.numQuestions > b.numQuestions) ? 1 : -1)
+				sortedQuizzes.sort((a, b) => (a.numQuestions > b.numQuestions) ? 1 : -1)
 				break
 	
 			case 'longest':					
-				sortedQuizzes = quizzes.sort((a, b) => (a.numQuestions < b.numQuestions) ? 1 : -1)
+				sortedQuizzes.sort((a, b) => (a.numQuestions < b.numQuestions) ? 1 : -1)
 				break
 
-			default: 
-				console.log("oops")
+			default:
+				sortedQuizzes = quizzes
 		}
 
-		setQuizzes(sortedQuizzes)
+		setQuizzes([...sortedQuizzes])
 	}
 
 	function filterByPrivacy() {
@@ -120,24 +127,52 @@ const AllCustomQuizzes = () => {
 			newQuizzes = quizzes
 		}
 		
-		setQuizzesToDisplay(newQuizzes)
+		setQuizzesToDisplay([...newQuizzes])
 	}
 
-	function sortAndFilter() {
+	function search() {
+		const searchTerm = sessionStorage.getItem('searchQuery').toLowerCase()
+		let searchedQuizzes
+		if(searchTerm.length > 0) {
+			searchedQuizzes = quizzesToDisplay.filter((quiz) => {
+				return quiz.title.toLowerCase().includes(searchTerm) || checkTags(quiz, searchTerm)
+			})
+
+			setQuizzesToDisplay([...searchedQuizzes])
+		} 
+	}
+
+	function checkTags(quiz, searchTerm) {
+		if (quiz.tags != undefined && quiz.tags.length > 0) {
+			quiz.tags.forEach((tag) => {
+				if (tag.toLowerCase().includes(searchTerm)) {
+					console.log(tag, quiz.title)
+					return quiz
+				}
+			})
+		}
+		return false
+	}
+
+	function searchAndFilter() {
 		sortQuizzes()
 		filterByPrivacy()
+		search()
 	}
 
 	
   return (
     <div>
         <h1 className="text-2xl font-bold text-gray-300 -sm:text-lg">User-Made Quizzes</h1>
-		<div className="flex flex-wrap justify-center mt-12 mx-3">
+		<div className="justify-center mt-5">
+			<SearchBar />
+		</div>
+		<div className="flex flex-wrap justify-center mt-3 mx-3">
 			<PrivacyList />
 			<SortByList />
-			<button className="bg-white font-bold float-right rounded mx-5 px-3" onClick={sortAndFilter}>Sort & Filter</button>		
+			<button className="bg-white font-bold float-right rounded mx-5 px-3" onClick={searchAndFilter}>Search & Filter</button>		
 		</div>
-		<h2 className="text-white">Displaying {quizzesToDisplay.length} quizzes</h2>
+		<h2 className="text-white mt-4">Displaying {quizzesToDisplay.length} quizzes</h2>
 		<div id="customQuizDiv" className="flex flex-wrap justify-center mt-14 mx-32">
 			{quizzesToDisplay.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} tags={q.tags} uid={q.uid} quizPassword={q.quizPassword}/>))} 
 	  	</div>
