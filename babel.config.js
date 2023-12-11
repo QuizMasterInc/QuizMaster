@@ -1,11 +1,7 @@
+// babel.config.js
 module.exports = {
   presets: [
-    ['@babel/preset-env', { modules: "commonjs", targets: { node: 'current' } }],
+    '@babel/preset-env',
     '@babel/preset-react',
-    '@babel/preset-flow',
   ],
-  plugins: [
-    'babel-plugin-styled-components',
-    '@babel/plugin-proposal-class-properties',
-  ]
-}
+};

@@ -75,10 +75,13 @@ export function CustomQuizProvider({ children }) {
       // # uid is the unique string necessary for finding and accessing the custom quiz in the db
       const updateQuizDB = (uid) => {
         // check to see if quiz is different from quizRef
+        console.log("quizRef: ", quizRef.current)
+        console.log("current Quiz: ", quiz)
         const sendObj = {
           title: "", 
           questions: {}
         }
+
         var newData = false
 
         // check if title has been edited
@@ -92,38 +95,54 @@ export function CustomQuizProvider({ children }) {
         let quizKeys = Object.keys(quiz.questions)
 
         // checks for added or deleted keys
-        if (quizRefKeys.size() != quizKeys.size()) {
+        if (quizRefKeys.length != quizKeys.length) {
           newData = true
           sendObj.questions = quiz.questions
         }
-        else{
-          // loop to check each question for edited data in the event that no questions have been added or deleted
-          quizRefKeys.forEach((v, i) => {
-            if (quizRef.current.questions[v].question != quiz.questions[v].question) {
+        else {
+          // loop to check for updated data with no additions or deleted keys
+          for (var i = 0; i < quizKeys.length; ++i) {
+            if (quizKeys[i] != quizRefKeys[i]) {
               newData = true
               sendObj.questions = quiz.questions
+              break
             }
-            else if (quizRef.current.questions[v].option_1 != quiz.questions[v].option_1) {
-              newData = true
-              sendObj.questions = quiz.questions
+            else {
+              console.log("checking question data for non matches")
+              console.log(quiz.questions[quizKeys[i]], quizRef.current.questions[quizRefKeys[i]])
+              if (quiz.questions[quizKeys[i]].question != quizRef.current.questions[quizRefKeys[i]].question) {
+                console.log("different questions found")
+                newData = true
+                sendObj.questions = quiz.questions
+                break
+              }
+              if (quiz.questions[quizKeys[i]].option_1 != quizRef.current.questions[quizRefKeys[i]].option_1) {
+                newData = true
+                sendObj.questions = quiz.questions
+                break
+              }
+              else if (quiz.questions[quizKeys[i]].option_2 != quizRef.current.questions[quizRefKeys[i]].option_2) {
+                newData = true
+                sendObj.questions = quiz.questions
+                break
+              }
+              else if (quiz.questions[quizKeys[i]].option_3 != quizRef.current.questions[quizRefKeys[i]].option_3) {
+                newData = true
+                sendObj.questions = quiz.questions
+                break
+              }
+              else if (quiz.questions[quizKeys[i]].option_4 != quizRef.current.questions[quizRefKeys[i]].option_4) {
+                newData = true
+                sendObj.questions = quiz.questions
+                break
+              }
+              else if (quiz.questions[quizKeys[i]].correct_answer != quizRef.current.questions[quizRefKeys[i]].correct_answer) {
+                newData = true
+                sendObj.questions = quiz.questions
+                break
+              }
             }
-            else if (quizRef.current.questions[v].option_2 != quiz.questions[v].option_2) {
-              newData = true
-              sendObj.questions = quiz.questions
-            }
-            else if (quizRef.current.questions[v].option_3 != quiz.questions[v].option_3) {
-              newData = true
-              sendObj.questions = quiz.questions
-            }
-            else if (quizRef.current.questions[v].option_4 != quiz.questions[v].option_4) {
-              newData = true
-              sendObj.questions = quiz.questions
-            }
-            else if (quizRef.current.questions[v].correct_answer != quiz.questions[v].corrent_answer) {
-              newData = true
-              sendObj.questions = quiz.questions
-            }
-          })
+          }
         }
         
         // return if there is no edited data
@@ -131,7 +150,7 @@ export function CustomQuizProvider({ children }) {
 
         // call api to update custom quiz in DB
         alert("updating DB")
-        quizRef.current = quiz
+        
       }
 
     // packages data
