@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { ClipLoader } from 'react-spinners'
 import { useAuth } from '../../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import Q from '../icons/Q'
 
 const CustomQuizzesTable = () => {
-    const [customQuizzes, setCustomQuizzes] = useState([])
+    const [customQuizzes, setCustomQuizzes] = useState(null)
     const [loading, setLoading] = useState(true)
     const [loadingColor, setLoadingColor] = useState("d1d5db")
     const {currentUser} = useAuth()
     const Qicon = useState(<Q className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>,)
-    //////////////////////////////////////
-    /**
-   * This is useEffect() is used to grab the results for each quiz
-   * Here we are using a Firebase function 
-  */
-  useEffect(() => {
+
+    const navigate = useNavigate() // used when custom quiz is clicked
+
     async function fetchUserQuizzes() {
       setLoading(true);
       try {
@@ -29,9 +27,7 @@ const CustomQuizzesTable = () => {
         })
         if (response.ok) {
           const data = await response.json()
-          setCustomQuizzes(data)
-          console.log('Custom Quizzes:', data)
-          
+          setCustomQuizzes(data.data)
         } else {
           // Handle the case when the response is not ok (e.g., error handling)
           console.error('Response Error:', response.statusText);
@@ -44,24 +40,42 @@ const CustomQuizzesTable = () => {
   
       setLoading(false);
     }
-  
-    fetchUserQuizzes(currentUser.uid);
-  }, []);
-  ///////////////////////////////////////////////////////////
-  //Conditional 
-  if (!customQuizzes || !customQuizzes.data) {
-    return null; // will place loading indicator
-  }
-    return(
-      customQuizzes.data.map((quiz, index) => (
-        <div className="w-1/2 p-4 text-center -sm:p-1">
+
+    const renderQuizzes = () => {
+      console.log("custom quizzes: ", customQuizzes)
+      return customQuizzes.map((quiz, index) => (
+         <div key={index} className="w-1/2 p-4 text-center -sm:p-1 hover:cursor-pointer hover:bg-slate-500" onClick={() => navigate(`/customquiz/${quiz.uid}`)} >
             <div className="flex flex-col items-center p-4 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg">
-                <div className="-m:text-m font-bold">{quiz.title}</div>
+                <div className="-m:text-m font-bold">{quiz.data.title}</div>
                 <div>{Qicon}</div>
             </div>
         </div>
-      ))
-    )
+        )
+      )
+    }
+    //////////////////////////////////////
+    /**
+   * This is useEffect() is used to grab the results for each quiz
+   * Here we are using a Firebase function 
+  */
+  useEffect(() => {
+    fetchUserQuizzes(currentUser.uid);
+    
+  }, []);
+  ///////////////////////////////////////////////////////////
+  //Conditional 
+  
+  return(
+    <>
+      {
+        customQuizzes == null
+        ?
+        <></>
+        :
+        renderQuizzes()
+      }
+    </>
+  )
 }
 
 export default CustomQuizzesTable
