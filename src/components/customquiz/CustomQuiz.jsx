@@ -121,7 +121,8 @@ export default function CustomQuiz () {
 
     // THIS FUNCTION GETS ALL THE USERS QUIZ TITLES
     function getQuizTitles(customQuizzes) {
-      return (customQuizzes.data.map((quiz) => quiz.title))
+      console.log("custom quizzes:", customQuizzes)
+      return (customQuizzes.data.map((quiz) => quiz.data.title))
     }
     // THIS FUNCTION TESTS TO SEE IF A TITLE THE USER IS CREATING ALREADY EXISTS IN THEIR QUIZZES 
     function isTitleExists(quizTitles, newTitle) {
