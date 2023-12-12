@@ -294,16 +294,34 @@ exports.grabCustomQuizzesByUser = functions.https.onRequest(async (req, res) => 
     cors(req, res, async () => {
         const creator = req.query.creator
         try {
-            const quizSnapshot = await admin.firestore().collection('custom_quizzes').where('creator', '==', creator).get()
-            userQuizzes = []
-            quizSnapshot.forEach(doc => {
-                userQuizzes.push(doc.data())
-            })
+            const userRef = await admin.firestore().collection("users").doc(creator).get()
+
+            if (!userRef.exists) {
+                return res.json({
+                    result: false, 
+                    status: 404,
+                    message: "user not found"
+                })
+            }
+
+            const userQuizzes = await userRef.data().customQuizzes
+            const senderData = []
+            for (var i = 0; i < userQuizzes.length; i++) {
+                const quizRef = await admin.firestore().collection("custom_quizzes").doc(userQuizzes[i]).get()
+
+                if (quizRef.exists) {
+                    senderData.push({
+                        uid: userQuizzes[i],
+                        data: quizRef.data()
+                    })
+                }
+            }
+
             return res.json({
                 result: true,
                 status: 200,
                 message: "user's quizzes retrieved",
-                data: userQuizzes
+                data: senderData
             })
         } catch(error) {
             return res.json({
