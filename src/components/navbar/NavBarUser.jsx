@@ -6,7 +6,7 @@ export default function NavBarUser() {
     const {currentUser, logout} = useAuth();
     const navigate = useNavigate();
 
-        /**
+    /**
      * Logout function
      * @returns to signin once the user logs out
      */
@@ -29,6 +29,7 @@ export default function NavBarUser() {
             <h6>Welcome, {currentUser.email}</h6>
             )}
             </div>
+            {/* We also conditionally render a logout button for when the user is signed in */}
             {!currentUser ? null :(
                <button
                     onClick={handleLogout}
