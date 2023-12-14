@@ -34,6 +34,7 @@ import Developer from './components/developer/AddDefaultQuestion';
 import AllCustomQuizzes from './components/quizselect/customquizselect/AllCustomQuizzes';
 import CustomQuizActivity from './components/quiz/CustomQuizActivity'
 import Footer from './components/footer/footer';
+import Header from './components/header/header';
 
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
   return (
     <div className="App">
       <AuthProvider>
+          <Header/>
           <Routes>
             {isAuthenticated ? (
               <Route path="/" element={
@@ -151,7 +153,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           <NavBar/>
-          <NavBarUser/>
+          
           <Footer />
       </AuthProvider>
       
