@@ -35,10 +35,6 @@ export default function EditCustomQuiz() {
     changeQuizTitle(customQuiz.quiz?.title)
   }
 
-  const handleClickToSaveChanges = (e) => {
-
-  }
-
   const handleTitleBlur = (e) => {
     // checks for empty string for title
     if (quizTitle == "") {
@@ -171,7 +167,7 @@ export default function EditCustomQuiz() {
           customQuiz.quiz 
           ? 
           <div>
-            <button class="border-2 rounded-sm p-2 mr-3" onClick={(() => customQuiz.updateQuizDB())}>Save Changes</button>
+            <button class="border-2 rounded-sm p-2 mr-3" onClick={(() => customQuiz.updateQuizDB(quizID))}>Save Changes</button>
              <button class="border-2 rounded-sm bg-red-500 p-2" onClick={() => toggleDeleteBtn(!deleteBtn)}>Delete Quiz</button>
           </div> 
           :

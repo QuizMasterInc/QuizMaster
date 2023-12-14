@@ -31,6 +31,7 @@ export default function Dashboard() {
               <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Your QuizMaster Quiz Scores:</h2>
               <div className="flex">
               {quizCategories.map((category, index) => (
+                /* Grabs the scores for each category if they exist. If none exists, we return 0 for the scores */
                   <QuizResult category={category} key={index} icon={icons[index]} />
                 ))}
               </div>
@@ -45,6 +46,7 @@ export default function Dashboard() {
               }
             </div>
           </div>
+          {/* Here are buttons that will show up at the bottom of the page that reroute the user accordingly */}
           <div className='flex flex-col items-center justify-center'>
             <Link to={'/typeofquiz'}>
                   <div className='flex relative items-center mb-4 p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
