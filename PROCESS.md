@@ -1,6 +1,6 @@
 ### Overview
 
-The team plans to meet on Tuesdays at 2PM each week in order to review the progress that has been made.
+The team plans to meet on Tuesdays at 11AM each week in order to review the progress that has been made.
 
 This way there is in-person communication between team members at least once a week.
 
