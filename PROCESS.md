@@ -1,10 +1,8 @@
 ### Overview
 
-The team plans to meet on Tuesdays at 11AM each week in order to review the progress that has been made.
+The team plans to meet on Tuesdays at 11AM every other week in order to review the progress that has been made.
 
-This way there is in-person communication between team members at least once a week.
-
-We also plan on using our Discord server for consistent communication throughout each sprint. 
+We also plan on using our Discord server for consistent communication throughout each sprint nearly every day. 
 
 The team uses GitHub projects for management of the developement of this project.
 
