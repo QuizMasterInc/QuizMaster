@@ -33,6 +33,13 @@ Team Fun | Software Systems Capstone Project
 Our capstone project that allows users to take quizzes on a variety of different topics. 
 </h4>
 
+## Development Team (ScramJets)
+<div>
+<h4>Alex Kaminski</h4> 
+
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:alexmkaminski@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/alexk0918)
+</div>
+
 ## Development Team (Team Fun)
 <div>
 <h4>Anthony Mastores</h4> 
@@ -74,7 +81,6 @@ Our capstone project that allows users to take quizzes on a variety of different
 
 [![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:juliegdosher@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/juliedosher)
 </div>
-
 
 ## Installation and Setup
 1. Install Firebase CLI 
