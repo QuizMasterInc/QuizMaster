@@ -12,6 +12,7 @@ import james from "../../assets/james.jpg"
 import joey from "../../assets/joey.jpg"
 import alexk from "../../assets/alexk.jpg"
 import hamzeh from "../../assets/hamzeh.jpg"
+import alex from "../../assets/alex.jpg"
 import jeff from "../../assets/jeff.jpg"
 import logo from "../../assets/logo.jpg"
 
