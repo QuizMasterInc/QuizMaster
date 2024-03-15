@@ -94,7 +94,7 @@ const Contact = ({}) => (
         <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
           <div className="flex flex-col items-center">
             <a href="https://github.com/alexh1424" target="_blank">
-              <img src={logo} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
+              <img src={alex} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Alex Hernandez</h3>
             <div className="mt-0 text-gray-300">
