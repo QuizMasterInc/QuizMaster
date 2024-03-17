@@ -14,7 +14,9 @@ import alexk from "../../assets/alexk.jpg"
 import hamzeh from "../../assets/hamzeh.jpg"
 import alex from "../../assets/alex.jpg"
 import jeff from "../../assets/jeff.jpg"
+import evan from "../../assets/evanh.jpg"
 import logo from "../../assets/logo.jpg"
+
 
 {/* IMPORT YOUR IMAGES HERE */}
 
@@ -109,7 +111,7 @@ const Contact = ({}) => (
           {/* REPLACE WITH TEAM MEMBER 5 */}
           <div className="flex flex-col items-center">
             <a href="https://github.com/raxtt" target="_blank">
-              <img src={logo} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
+              <img src={evan} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Evan Hartke</h3>
             <div className="mt-0 text-gray-300">
