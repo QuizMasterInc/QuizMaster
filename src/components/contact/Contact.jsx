@@ -16,6 +16,7 @@ import alex from "../../assets/alex.jpg"
 import jeff from "../../assets/jeff.jpg"
 import evan from "../../assets/evanh.jpg"
 import logo from "../../assets/logo.jpg"
+import danielj from "../../assets/daniel.jpg"
 
 
 {/* IMPORT YOUR IMAGES HERE */}
@@ -51,16 +52,16 @@ const Contact = ({}) => (
         {/* Grid layout for contact information */}
         <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
         <div className="flex flex-col items-center">
-            <a href="https://ashy-mud-0329c4e10.3.azurestaticapps.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-              <img src={alexk} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            <a href="https://yellow-ocean-0fcfe0910.4.azurestaticapps.net" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={danielj} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">Alex Kaminski</h3> {/* YOUR NAME GOES HERE */}
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Daniel Jazowski</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-0 text-gray-300">
-              Core2 Group
+              ChairForceOne
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:alexmkaminski@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-                alexmkaminski@lewisu.edu
+              <a href="mailto:danieljjazowski@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                danieljjazowski@lewisu.edu
               </a>
             </div>
           </div>  
