@@ -17,6 +17,7 @@ import jeff from "../../assets/jeff.jpg"
 import evan from "../../assets/evanh.jpg"
 import logo from "../../assets/logo.jpg"
 import danielj from "../../assets/daniel.jpg"
+import jayrell from "../../assets/jayrell.jpg"
 
 
 {/* IMPORT YOUR IMAGES HERE */}
@@ -57,11 +58,25 @@ const Contact = ({}) => (
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Daniel Jazowski</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-0 text-gray-300">
-              ChairForceOne
+              ChairForceOne Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
               <a href="mailto:danieljjazowski@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
                 danieljjazowski@lewisu.edu
+              </a>
+            </div>
+          </div>  
+          <div className="flex flex-col items-center">
+            <a href="https://jayrellg.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={jayrell} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Jayrell Garcia</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-0 text-gray-300">
+              ChairForceOne Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
+              <a href="mailto:jayrellgarcia@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                jayrellgarcia@lewisu.edu
               </a>
             </div>
           </div>  
@@ -94,6 +109,8 @@ const Contact = ({}) => (
               </div>
             </div>
         </div>
+
+        {/* SECOND ROW */}
         <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
           <div className="flex flex-col items-center">
             <a href="https://github.com/alexh1424" target="_blank">
