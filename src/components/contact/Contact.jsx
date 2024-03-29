@@ -18,7 +18,7 @@ import evan from "../../assets/evanh.jpg"
 import logo from "../../assets/logo.jpg"
 import danielj from "../../assets/daniel.jpg"
 import jayrell from "../../assets/jayrell.jpg"
-
+import hima from "../../assets/hima.jpg"
 
 {/* IMPORT YOUR IMAGES HERE */}
 
@@ -77,6 +77,20 @@ const Contact = ({}) => (
             <div className="mt-2 text-sm text-gray-400">
               <a href="mailto:jayrellgarcia@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
                 jayrellgarcia@lewisu.edu
+              </a>
+            </div>
+          </div>  
+          <div className="flex flex-col items-center">
+            <a href="https://hmadhavann.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={hima} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Hima Madhavan</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-0 text-gray-300">
+              ChairForceOne Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
+              <a href="mailto:himajmadhavan@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                himajmadhavan@lewisu.edu
               </a>
             </div>
           </div>  
