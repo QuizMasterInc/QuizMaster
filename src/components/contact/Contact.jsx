@@ -19,6 +19,7 @@ import logo from "../../assets/logo.jpg"
 import danielj from "../../assets/daniel.jpg"
 import jayrell from "../../assets/jayrell.jpg"
 import hima from "../../assets/hima.jpg"
+import brian from "../../assets/brian.jpg"
 
 {/* IMPORT YOUR IMAGES HERE */}
 
@@ -93,7 +94,21 @@ const Contact = ({}) => (
                 himajmadhavan@lewisu.edu
               </a>
             </div>
-          </div>  
+          </div> 
+          <div className="flex flex-col items-center">
+            <a href="https://github.com/briang38/me" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={brian} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Brian Gutt</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-0 text-gray-300">
+              ChairForceOne Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
+              <a href="mailto:brianmgutt@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+                brianmgutt@lewisu.edu
+              </a>
+            </div>
+          </div> 
           <div className="flex flex-col items-center">
             <a href="https://jamesmackowiak.github.io/about.html" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
               <img src={james} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
