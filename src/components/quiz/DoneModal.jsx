@@ -10,8 +10,8 @@ import SquareX from "../icons/SquareX";
 import { Link } from "react-router-dom";
 
 //Import sound components 
-import PassedSounds from "../sounds/passedSound"; 
-import FailSounds from "../sounds/FailSound"; 
+import PassedSounds from "../sounds/PassedSound.jsx"; 
+import FailSounds from "../sounds/FailSound.jsx"; 
 
 
 const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading }) => {
