@@ -9,26 +9,36 @@ import Modal from "react-modal";
 import SquareX from "../icons/SquareX";
 import { Link } from "react-router-dom";
 
-//Import sound components 
-import PassedSounds from "../sounds/PassedSound.jsx"; 
-import FailSounds from "../sounds/FailSound.jsx"; 
+//Import sound components for quiz results
+import PassedSound from "../sounds/PassedSound.jsx"; 
+import FailSound from "../sounds/FailSound.jsx"; 
+import AverageSound from "../sounds/AverageSound.jsx"; 
+ 
 
 
 const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading }) => {
     
-    //code that handles which sounds to play depending on score, currently hard coded 80%
+    //Handles which sounds to play depending on score
     const [playPassSound, setPassSound] = useState(false);
     const [playFailSound, setFailSound] = useState(false);
+    const [playAverageSound, setAverageSound] = useState(false);
 
     useEffect(() => {
-        if (amountCorrect / totalAmount >= 0.8) {
-          setPassSound(true);
-          setFailSound(false); 
-        } else {
-          setPassSound(false); 
-          setFailSound(true);
-        }
-      }, [amountCorrect, totalAmount]);
+      const percentage = (amountCorrect / totalAmount) * 100;
+      if (percentage >= 90) {
+        setPassSound(true);
+        setFailSound(false);
+        setAverageSound(false);
+      } else if (percentage >= 70 && percentage <= 89) {
+        setPassSound(false);
+        setFailSound(false);
+        setAverageSound(true);
+      } else {
+        setPassSound(false);
+        setFailSound(true);
+        setAverageSound(false);
+      }
+    }, [amountCorrect, totalAmount]);
   
 
 
@@ -95,9 +105,10 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading }) =>
             </div>
           </div>
         </div>
-        {/* Conditionally render the PassedSounds or FailSounds component based on score */}
-        {playPassSound && <PassedSounds />}
-        {playFailSound && <FailSounds />}
+        {/* Conditionally render the sound components based on score */}
+        {playPassSound && <PassedSound />}
+        {playFailSound && <FailSound />}
+        {playAverageSound && <AverageSound/>}
       </Modal>
     );
   };
