@@ -12,7 +12,7 @@ const SubCategoryButton = ({category, toggleSubcategory}) => {
         setIsSelected(!isSelected)
         
     }
-    const buttonColor = isSelected ?  'bg-gray-600' : 'bg-gray-800 hover:shadow-xl hover:bg-gray-600'
+    const buttonColor = isSelected ?  'bg-gray-600 cursor-pointer' : 'bg-gray-800 hover:shadow-xl hover:bg-gray-600 cursor-pointer'
     return (
         <div className="w-1/2 p-4 text-center -sm:p-1" onClick={handleClick}>
             <div

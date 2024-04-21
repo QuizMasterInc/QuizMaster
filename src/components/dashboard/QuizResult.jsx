@@ -25,6 +25,7 @@ export const QuizResult = ({index, category, icon}) => {
         category: category.toLowerCase()
       }
   
+      // We use a cloud function in index.js to grab the results of each category if they exist
       try {
         //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabResults
         //https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults
@@ -36,7 +37,7 @@ export const QuizResult = ({index, category, icon}) => {
           },
           body: JSON.stringify(data)
         });
-  
+        // Gets the results from the database and updates the variables for the scores to display on the dashboard
         if (response.ok) {
           const resultData = await response.json();
           console.log(resultData)

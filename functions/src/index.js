@@ -104,8 +104,11 @@ exports.grabUserCustomQuzzies = functions.https.onRequest(async (req, res) => {
         res.json(quizzes)
     })
 })
+
 /**
  * This function will set a new score for a recently taken quiz
+ * The attempts are set to 1 and the score and avgScore are set to 
+ * the same value as this is the first time a user has taken a quiz.
  * @param {*} newScore the new score from a recently taken quiz
  * @param {*} uid userID
  * @param {*} category quiz category
@@ -137,6 +140,7 @@ async function updateScore(savedScore, newScore, uid, category){
 
 /**
  * This function will update the average score in the database, if there is one
+ * and if it is higher than the previously stored best score
  * @param {*} newAvg new calculated average score
  * @param {*} newScore score from recently taken quiz
  * @param {*} uid userID
@@ -175,7 +179,7 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
             try{
                 const resultsRef = await admin.firestore().collection('users').doc(data.uid).collection('quizzes').doc(data.category).get()
                 if(!resultsRef.exists){
-                    //doc doesnt exist
+                    //doc doesnt exist, so we create a new one
                     const newScore = data.score
                     const uid = data.uid
                     const category = data.category
@@ -183,7 +187,7 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
                     const avgScore = data.avgScore
                     setNewScore(newScore, uid, category, attempts, avgScore)
                 }else{
-                    //doc exists 
+                    //doc exists, so we grab the current values and update them accordingly
                     const savedScore = resultsRef.data().score
                     const savedAvgScore = resultsRef.data().avgScore
                     const savedAttempts = resultsRef.data().attempts
@@ -207,7 +211,8 @@ exports.saveResults = functions.https.onRequest(async (req, res) => {
 
 /**
  * This function grabs the scores for the user from the DB
- * if they dont exist we return 0 
+ * if they dont exist we return 0 for all values
+ * This is used for the dashboard and for updating quiz scores
  */
 exports.grabResults = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
