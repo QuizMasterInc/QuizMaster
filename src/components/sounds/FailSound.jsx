@@ -1,9 +1,13 @@
 import React, { useEffect } from "react";
-import sound from "./SoundAssets/NegativeBeeps.mp3"; // Import the audio file
+import sound1 from "./SoundAssets/TA-DA.mp3"; // Import the audio file
+
 
 function App() {
   useEffect(() => {
-    const audio = new Audio(sound);
+    const sounds = [sound1, sound2, sound3]
+    const randomNumber = Math.floor(Math.random() * 3) //Gets a random number from 1-3 to pick from the sounds list
+    const sound = sounds[randomNumber] //creates the sound of the random number
+    const audio = new Audio(sound); //creates the sound
     audio.play();
 
     return () => {
