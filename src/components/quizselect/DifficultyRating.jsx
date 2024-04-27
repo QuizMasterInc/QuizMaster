@@ -1,45 +1,40 @@
 import React, { useState } from 'react';
 
-const StarRating = ({difficulty, selectDifficulty}) => {
-  const [clicked, setClicked] = useState(false);
-  const handleHover = (index) => {
-    selectDifficulty(index + 1)
-  }
+const StarRating = ({ difficulty, selectDifficulty }) => {
+  const [difficultyState, setDifficulty] = useState(0);
 
-  const handleClick = (index) => {
-    selectDifficulty(index + 1)
-    if (!clicked) {
-      setClicked(true)
-    } else {
-      setClicked(false)
+  const handleStarClick = (starIndex) => {
+    let newDifficulty = starIndex + 1;
+    if (newDifficulty === difficultyState) {
+
+      // Toggle off all starts if clicking on the currently selected star
+      newDifficulty = 0;
     }
-    
-  }
-  const resetRating = () => {
-    if (!clicked) {
-      setClicked(false)
-      selectDifficulty(-1)
-    }
-  }
+    setDifficulty(newDifficulty);
+    selectDifficulty(newDifficulty);
+  };
+
   return (
-    <div onMouseLeave={resetRating}>
+    <div style={{ fontSize: '45px' }}>
       {[...Array(5)].map((_, index) => (
         <span
-          key={index}          
-          className={`${index < difficulty ? 'checked' : ''}`}
-          onMouseEnter={() => handleHover(index)}
-          onClick={() => handleClick(index)}
-          style={{ 
-            fontSize: '48px',
-            color: index < difficulty ? 'gold' : 'black',
-            userSelect: 'none'
-           }} 
+          key={index}
+          style={{
+            cursor: 'pointer',
+            width: '55px',
+            display: 'inline-block',
+            textAlign: 'center',
+            color: index < difficulty ? '#CCCCCC' : '#CCCCCC',
+          }}
+          onClick={() => handleStarClick(index)}
         >
-          &#9733; {/* Unicode character for a star (★) */}
+          {index < difficultyState ? '⭐' : '☆'}
         </span>
       ))}
-    </div>
-  )
-}
+      {/* <p>Current rating: {difficultyState}</p> */}
+      </div>
+  );
+};
 
 export default StarRating;
+
