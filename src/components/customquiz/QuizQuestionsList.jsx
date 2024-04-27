@@ -138,7 +138,7 @@ return(
           <div className='flex flex-col pt-4 pb-4 pl-2 pr-6 text-xl text-gray-300 align-middle space-x-3 -md:text-sm -md:space-x-2S'>
             <div className='flex flex-row mb-6'>
               <p className='ml-2'>{index + 1 + "."}</p>
-              <p className='ml-4'>{quizData[index][0]}</p>
+              <p className='ml-4'>{quizData[index]}</p>
             </div>
             
             <div className='p-2 mb-3 ml-2 mr-2 text-gray-300 bg-gray-800 rounded-md shadow-md -md:text-sm hover:bg-gray-600'>{quizData[index][1]}</div>
