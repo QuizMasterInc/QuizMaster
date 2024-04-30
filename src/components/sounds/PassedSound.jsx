@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import sound1 from "./SoundAssets/TA-DA.mp3"; // Import the audio file
+import sound2 from "./SoundAssets/levelUp.mp3";
+import sound3 from "./SoundAssets/passSound.mp3";
 
 
 function App() {
