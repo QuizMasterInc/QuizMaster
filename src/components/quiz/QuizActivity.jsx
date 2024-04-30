@@ -31,6 +31,7 @@ function QuizActivity({}){
   const [numberOfQuestions, setNumberOfQuestions] = useState(0)
   const { currentUser } = useAuth()
   const [timerFinished, setTimerFinished] = useState(false);
+  const [leavingQuiz, setLeavingQuiz] = useState(false);
 
   /**
    * Callback function to send state of children question components back up to this parent component
@@ -166,7 +167,36 @@ function QuizActivity({}){
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
-  
+
+  // This code will check whether or not the user is trying to leave the quiz in order to display a warning message.
+  useEffect(() => {
+    // Event listener for click events on the document
+    const handleClick = (event) => {
+      // Check if the clicked element has the class navbar-icon
+      if (event.target.classList.contains("navbar-icon")) {
+        // Perform your desired action when a button is clicked
+        const handleBeforeUnload = (event) => {
+          event.preventDefault();
+          event.returnValue = '';
+        };
+      
+        window.addEventListener('beforeunload', handleBeforeUnload);
+      
+        return () => {
+          window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+      
+      }
+    };
+
+    // Add event listener to the document for click events
+    document.addEventListener("click", handleClick);
+
+    // Cleanup function to remove the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, []);
   /**
    * This useEffect() is called when the timer is finished. it will end the quiz
    */
