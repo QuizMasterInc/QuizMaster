@@ -3,6 +3,7 @@
  * THis determines how long the user has left in their quiz 
  */
 import { useState, useEffect } from "react";
+import {showTimer} from "../../components/quizselect/ShowTime"
 
 function Timer(props) {
   const { timeLimit, onStopTimer, timerFinished  } = props;
@@ -31,7 +32,7 @@ function Timer(props) {
 
 
   return (
-    <div className="timer">
+    <div className="timer" style={{ display: showTimer ? 'block' : 'none' }}>
       {minutes}:{seconds < 10 ? "0" : ""}
       {seconds}
     </div>

@@ -12,7 +12,6 @@ import DoneModal from "./DoneModal";
 import HelpModal from './HelpModal';
 import Timer from './Timer';
 import ProgressBar from './ProgressBar'
-import ShowTime from '../../components/quizselect/ShowTime'
 
 import { useCategory } from '../../contexts/CategoryContext';
 
@@ -33,7 +32,6 @@ function QuizActivity({}){
   const [numberOfQuestions, setNumberOfQuestions] = useState(0)
   const { currentUser } = useAuth()
   const [timerFinished, setTimerFinished] = useState(false);
-  const [showTime, setShowTime] = useState(true);
   const [answeredCount, setAnsweredCount] = useState(0);
 
   /**
@@ -293,12 +291,6 @@ function QuizActivity({}){
     sendResult()
   }, [amountCorrect])
 
-
-  //Function to change visibility of timer
-  const toggleTime = () => {
-    setShowTime((prevShowTime) => !prevShowTime);
-  };
-
   // Useeffect to determine when an answer choice is not null to determine the amount of answered questions
     const example = ({ activeIndex, numberOfQuestions }) => {
       const [answeredCount, setAnsweredCount] = useState(0);
@@ -342,7 +334,7 @@ function QuizActivity({}){
           timeLeft={loading ? null : 5}
           loading = {loading}
         />    
-    </div> 
+    </div>
     <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg -md:text-md -md:p-4">Welcome to the {category} Quiz</h1>
     <button className="flex flex-row text-xl h-10 mb-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-8"
       onClick={() => setHelpModalActive(true)}>
