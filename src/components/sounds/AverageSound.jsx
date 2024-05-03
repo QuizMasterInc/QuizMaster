@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import sound1 from "./SoundAssets/TA-DA.mp3"; // Import the audio file
 import sound2 from "./SoundAssets/ding-effect.mp3"; // Import the audio file
-import sound3 from "./SoundAssets/Chime-effect.mp3"; // Import the audio file
+import sound3 from "./SoundAssets/correct-answer-sound.mp3"; // Import the audio file
 
 
 

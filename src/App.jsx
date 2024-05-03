@@ -35,7 +35,8 @@ import AllCustomQuizzes from './components/quizselect/customquizselect/AllCustom
 import CustomQuizActivity from './components/quiz/CustomQuizActivity'
 import Footer from './components/footer/footer';
 import Header from './components/header/header';
-
+import Settings from './components/Settings/Settings'
+import { VolumeProvider } from './components/sounds/VolumeContext';
 
 function App() {
   //importing destinations here from the context. 
@@ -68,6 +69,11 @@ function App() {
             <Route path="/home" element={<Home />}/>
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/settings" element={
+              <VolumeProvider>
+                <Settings/>
+              </VolumeProvider>
+            }/>
             <Route path="/quizzes">
               <Route index element={
                 <PrivateRoute>
