@@ -11,6 +11,7 @@ import Question from "./Question";
 import DoneModal from "./DoneModal";
 import HelpModal from './HelpModal';
 import Timer from './Timer';
+import ProgressBar from './ProgressBar'
 
 import { useCategory } from '../../contexts/CategoryContext';
 
@@ -31,7 +32,7 @@ function QuizActivity({}){
   const [numberOfQuestions, setNumberOfQuestions] = useState(0)
   const { currentUser } = useAuth()
   const [timerFinished, setTimerFinished] = useState(false);
-  const [leavingQuiz, setLeavingQuiz] = useState(false);
+  const [answeredCount, setAnsweredCount] = useState(0);
 
   /**
    * Callback function to send state of children question components back up to this parent component
@@ -168,35 +169,6 @@ function QuizActivity({}){
     };
   }, []);
 
-  // This code will check whether or not the user is trying to leave the quiz in order to display a warning message.
-  useEffect(() => {
-    // Event listener for click events on the document
-    const handleClick = (event) => {
-      // Check if the clicked element has the class navbar-icon
-      if (event.target.classList.contains("navbar-icon")) {
-        // Perform your desired action when a button is clicked
-        const handleBeforeUnload = (event) => {
-          event.preventDefault();
-          event.returnValue = '';
-        };
-      
-        window.addEventListener('beforeunload', handleBeforeUnload);
-      
-        return () => {
-          window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
-      
-      }
-    };
-
-    // Add event listener to the document for click events
-    document.addEventListener("click", handleClick);
-
-    // Cleanup function to remove the event listener when the component unmounts
-    return () => {
-      document.removeEventListener("click", handleClick);
-    };
-  }, []);
   /**
    * This useEffect() is called when the timer is finished. it will end the quiz
    */
@@ -318,6 +290,17 @@ function QuizActivity({}){
     }
     sendResult()
   }, [amountCorrect])
+
+  // Useeffect to determine when an answer choice is not null to determine the amount of answered questions
+    const example = ({ activeIndex, numberOfQuestions }) => {
+      const [answeredCount, setAnsweredCount] = useState(0);
+  
+    useEffect(() => {
+      if (activeIndex !== null && answeredCount < numberOfQuestions) {
+        setAnsweredCount(answeredCount + 1);
+      }
+    }, [activeIndex, numberOfQuestions]); 
+    }
   
   /**
    * This is the actual view element. Here we are creating the actual 
@@ -327,10 +310,23 @@ function QuizActivity({}){
    */
   return (
   <>
-  <div className="flex flex-col items-center justify-center -md:ml-16">
+  {/*This is the div for the progress bar at the top of the screen*/}
+  <div style={{ position: "fixed", top: "50px", left: "50%", transform: "translateX(-50%)", zIndex: 1000, pointerEvents: "none",}}>
+        {/* Box around the text content */}
+        <div style={{ background: "#e5e7eb", padding: "10px", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+            display: "inline-block", pointerEvents: "auto", }}>
+          {/* Render the progress bar text */}
+          <ProgressBar
+            currentQuestion={answeredCount}
+            totalQuestions={numberOfQuestions}
+          />
+        </div>
+      </div>
+
+    <div className="flex flex-col items-center justify-center -md:ml-16">
     <div style={{  position: 'fixed',  top: '50px', right: '20px', padding: '0.5rem',fontSize: '1.5rem',backgroundColor: '#111827',
       color: '#f9fafb',borderRadius: '0 0 0.5rem 0.5rem',boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)'}}>
-      <Timer
+      <Timer 
           timeLimit={300}
           onStopTimer={handleStopTimer}
           onTimeUp={handleTimeUp}
@@ -338,7 +334,7 @@ function QuizActivity({}){
           timeLeft={loading ? null : 5}
           loading = {loading}
         />    
-    </div> 
+    </div>
     <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg -md:text-md -md:p-4">Welcome to the {category} Quiz</h1>
     <button className="flex flex-row text-xl h-10 mb-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-8"
       onClick={() => setHelpModalActive(true)}>
@@ -347,7 +343,7 @@ function QuizActivity({}){
     {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
     {questions.slice(0, amount).map((question, index) => (
       <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
-        isCompleted={completed} callback={grabCorrect}/>
+        isCompleted={completed} callback={grabCorrect} /*onNextQuestion={goToNextQuestion*//>
       ))} 
     {!loading && 
     <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
