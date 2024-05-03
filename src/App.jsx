@@ -35,7 +35,7 @@ import AllCustomQuizzes from './components/quizselect/customquizselect/AllCustom
 import CustomQuizActivity from './components/quiz/CustomQuizActivity'
 import Footer from './components/footer/footer';
 import Header from './components/header/header';
-import Settings from './components/Settings/Settings'
+import Settings from './components/settings/Settings'
 import { VolumeProvider } from './components/sounds/VolumeContext';
 
 function App() {
