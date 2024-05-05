@@ -8,6 +8,7 @@ import {useAuth} from '../../contexts/AuthContext'
 import { QuizResult } from './QuizResult'
 import CustomQuizzesTable  from './CustomQuizzesTable'
 import { Link, Navigate } from 'react-router-dom'
+import StudyMaterial from './StudyMaterial'
 
 export default function Dashboard() {
   /**
@@ -17,6 +18,11 @@ export default function Dashboard() {
     const {currentUser, logout, isGoogleAuth} = useAuth()
     const [loading, setLoading] = useState(false)
     const {quizCategories, icons} = useCategory()
+    const [selectedCategory, setSelectedCategory] = useState(null);
+
+    const handleStudy = (category) => {
+        setSelectedCategory((prevCategory) => (prevCategory === category ? null : category));
+    };
 
   /**
    * The view here...
@@ -29,15 +35,23 @@ export default function Dashboard() {
           <div>
             <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
               <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Your QuizMaster Quiz Scores:</h2>
-              <div className="flex">
+              <div className="flex felx-col items-center">
               {quizCategories.map((category, index) => (
-                /* Grabs the scores for each category if they exist. If none exists, we return 0 for the scores */
-                  <QuizResult category={category} key={index} icon={icons[index]} />
+                  /* Grabs the scores for each category if they exist. If none exists, we return 0 for the scores */
+                    <QuizResult category={category} key={index} icon={icons[index]} />
                 ))}
               </div>
             </div>
             {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3">{error}</label>}
           </div>
+            <div className="flex items-center justify-center">
+              {quizCategories.map((category, index) => (
+                <button key={index} onClick={() => handleStudy(category)} className="mt-2 ms-8 bg-gray-800 hover:bg-gray-600 text-gray-300 py-2 px-4 rounded">
+                  Study {category}
+                </button>
+              ))}
+            </div>
+            {selectedCategory && <StudyMaterial category={selectedCategory} />}
           <div className="">
             <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Your Custom Quizzes:</h2>
             <div className = "flex items-center justify-around">
