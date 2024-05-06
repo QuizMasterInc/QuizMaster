@@ -1,11 +1,14 @@
+// VolumeControl.jsx
 import React from 'react';
-import { useVolume } from './VolumeContext';
+import { useVolume } from '../../contexts/VolumeContext';
 
 const VolumeControl = () => {
   const { volume, setVolume } = useVolume();
 
   const handleVolumeChange = (e) => {
-    setVolume(parseFloat(e.target.value));
+    const newVolume = parseFloat(e.target.value);
+    console.log('Volume changed:', newVolume); // Log the new volume value   
+    setVolume(newVolume);
   };
 
   return (
