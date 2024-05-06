@@ -35,7 +35,9 @@ import AllCustomQuizzes from './components/quizselect/customquizselect/AllCustom
 import CustomQuizActivity from './components/quiz/CustomQuizActivity'
 import Footer from './components/footer/footer';
 import Header from './components/header/header';
-
+import Settings from './components/settings/Settings'
+import { VolumeProvider } from './contexts/VolumeContext';
+import { PassThresholdProvider } from './contexts/PassThresholdContext';
 
 function App() {
   //importing destinations here from the context. 
@@ -68,6 +70,13 @@ function App() {
             <Route path="/home" element={<Home />}/>
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/settings" element={
+              <VolumeProvider>
+                <PassThresholdProvider>
+                  <Settings/>
+                </PassThresholdProvider>
+              </VolumeProvider>
+            }/>
             <Route path="/quizzes">
               <Route index element={
                 <PrivateRoute>
@@ -90,14 +99,22 @@ function App() {
               <Route path="quizstarted" element={
                 <PrivateRoute>
                   <CategoryProvider>
-                    <QuizActivity />
+                    <PassThresholdProvider>
+                      <VolumeProvider>
+                        <QuizActivity />
+                      </VolumeProvider>
+                    </PassThresholdProvider>
                   </CategoryProvider>
                 </PrivateRoute>
               }/>
             </Route>
             <Route index path="/quizstarted/:quizID" element={
               <PrivateRoute>
-                <CustomQuizActivity/>
+                <PassThresholdProvider>
+                  <VolumeProvider>
+                    <CustomQuizActivity/>
+                  </VolumeProvider>
+                </PassThresholdProvider>
               </PrivateRoute>
             }/>
             <Route path="/customquiz" element={

@@ -9,7 +9,7 @@ const CustomQuizzesTable = () => {
     const [loading, setLoading] = useState(true)
     const [loadingColor, setLoadingColor] = useState("d1d5db")
     const {currentUser} = useAuth()
-    const Qicon = useState(<Q className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>,)
+    const Qicon = useState(<Q className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>)[0];
 
     const navigate = useNavigate() // used when custom quiz is clicked
 
