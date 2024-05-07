@@ -62,7 +62,9 @@ const Contact = ({}) => (
               ChairForceOne Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:danieljjazowski@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+              <a href="mailto:danieljjazowski@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                 danieljjazowski@lewisu.edu
               </a>
             </div>
@@ -76,7 +78,9 @@ const Contact = ({}) => (
               ChairForceOne Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:jayrellgarcia@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+              <a href="mailto:jayrellgarcia@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                 jayrellgarcia@lewisu.edu
               </a>
             </div>
@@ -90,7 +94,9 @@ const Contact = ({}) => (
               ChairForceOne Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:himajmadhavan@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+              <a href="mailto:himajmadhavan@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                 himajmadhavan@lewisu.edu
               </a>
             </div>
@@ -104,7 +110,9 @@ const Contact = ({}) => (
               ChairForceOne Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:brianmgutt@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+              <a href="mailto:brianmgutt@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                 brianmgutt@lewisu.edu
               </a>
             </div>
@@ -118,7 +126,9 @@ const Contact = ({}) => (
               Core2 Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:jamesvmackowiak@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+              <a href="mailto:jamesvmackowiak@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                 jamesvmackowiak@lewisu.edu
               </a>
             </div>
@@ -132,7 +142,9 @@ const Contact = ({}) => (
               Core2 Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-                <a href="mailto:hamzehoalbaz@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+                <a href="mailto:hamzehoalbaz@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                   hamzehoalbaz@lewisu.edu
                 </a>
               </div>
@@ -150,7 +162,9 @@ const Contact = ({}) => (
               Core2 Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:alexhernandez@lewisu.edu" className="hover:underline">
+
+              <a href="mailto:alexhernandez@lewisu.edu" target="_blank" className="hover:underline">
+
               alexhernandez@lewisu.edu
               </a>
             </div>
@@ -165,7 +179,9 @@ const Contact = ({}) => (
               Core2 Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:evanmhartke@lewisu.edu" className="hover:underline">
+
+              <a href="mailto:evanmhartke@lewisu.edu" target="_blank" className="hover:underline">
+
               evanmhartke@lewisu.edu
               </a>
             </div>
@@ -191,7 +207,7 @@ const Contact = ({}) => (
               Core Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:joseamontesdeocamo@lewisu.edu" className="hover:underline">
+              <a href="mailto:joseamontesdeocamo@lewisu.edu" target="_blank" className="hover:underline">
                 joseamontesdeocamo@lewisu.edu
               </a>
             </div>
@@ -205,7 +221,7 @@ const Contact = ({}) => (
               Core Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:matthewjsenese@lewisu.edu" className="hover:underline">
+              <a href="mailto:matthewjsenese@lewisu.edu" target="_blank" className="hover:underline">
                 matthewjsenese@lewisu.edu
               </a>
             </div>
@@ -219,7 +235,7 @@ const Contact = ({}) => (
               Core Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:juliegdosher@lewisu.edu" className="hover:underline">
+              <a href="mailto:juliegdosher@lewisu.edu" target="_blank" className="hover:underline">
                 juliegdosher@lewisu.edu
               </a>
             </div>
@@ -237,7 +253,7 @@ const Contact = ({}) => (
               Core Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:tylerzenisek@lewisu.edu" className="hover:underline">
+              <a href="mailto:tylerzenisek@lewisu.edu" target="_blank" className="hover:underline">
                 tylerzenisek@lewisu.edu
               </a>
             </div>
@@ -252,7 +268,7 @@ const Contact = ({}) => (
               Core Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:jahikstewart@lewisu.edu" className="hover:underline">
+              <a href="mailto:jahikstewart@lewisu.edu" target="_blank" className="hover:underline">
               jahikstewart@lewisu.edu
               </a>
             </div>
@@ -273,7 +289,7 @@ const Contact = ({}) => (
               NextGen Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:jeffersonacherring@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+              <a href="mailto:jeffersonacherring@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
               jeffersonacherring@lewisu.edu
               </a>
             </div>
@@ -295,7 +311,7 @@ const Contact = ({}) => (
               NextGen Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
-              <a href="mailto:josephmdevito@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+              <a href="mailto:josephmdevito@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
                 josephmdevito@lewisu.edu
               </a>
             </div>
@@ -339,7 +355,7 @@ const Contact = ({}) => (
           </a>
           <h3 className="mt-4 text-lg font-medium text-gray-300">Anthony Mastores</h3>
           <div className="mt-2 text-gray-300">
-            <a href="mailto:anthonyjmastores@lewisu.edu" className="hover:underline">
+            <a href="mailto:anthonyjmastores@lewisu.edu" target="_blank" className="hover:underline">
               anthonyjmastores@lewisu.edu
             </a>
           </div>
@@ -350,7 +366,7 @@ const Contact = ({}) => (
           </a>
           <h3 className="mt-4 text-lg font-medium text-gray-300">Matthew Espinos</h3>
           <div className="mt-2 text-gray-300">
-            <a href="mailto:matthewwespinos@lewisu.edu" className="hover:underline">
+            <a href="mailto:matthewwespinos@lewisu.edu" target="_blank" className="hover:underline">
               matthewwespinos@lewisu.edu
             </a>
           </div>
