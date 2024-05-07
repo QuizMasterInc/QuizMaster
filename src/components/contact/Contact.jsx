@@ -62,7 +62,9 @@ const Contact = ({}) => (
               ChairForceOne Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
+
               <a href="mailto:danieljjazowski@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                 danieljjazowski@lewisu.edu
               </a>
             </div>
@@ -76,7 +78,9 @@ const Contact = ({}) => (
               ChairForceOne Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
+
               <a href="mailto:jayrellgarcia@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                 jayrellgarcia@lewisu.edu
               </a>
             </div>
@@ -90,7 +94,9 @@ const Contact = ({}) => (
               ChairForceOne Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
+
               <a href="mailto:himajmadhavan@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                 himajmadhavan@lewisu.edu
               </a>
             </div>
@@ -104,7 +110,9 @@ const Contact = ({}) => (
               ChairForceOne Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
+
               <a href="mailto:brianmgutt@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                 brianmgutt@lewisu.edu
               </a>
             </div>
@@ -118,7 +126,9 @@ const Contact = ({}) => (
               Core2 Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
+
               <a href="mailto:jamesvmackowiak@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                 jamesvmackowiak@lewisu.edu
               </a>
             </div>
@@ -132,7 +142,9 @@ const Contact = ({}) => (
               Core2 Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
+
                 <a href="mailto:hamzehoalbaz@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
                   hamzehoalbaz@lewisu.edu
                 </a>
               </div>
@@ -150,7 +162,9 @@ const Contact = ({}) => (
               Core2 Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
+
               <a href="mailto:alexhernandez@lewisu.edu" target="_blank" className="hover:underline">
+
               alexhernandez@lewisu.edu
               </a>
             </div>
@@ -165,7 +179,9 @@ const Contact = ({}) => (
               Core2 Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
+
               <a href="mailto:evanmhartke@lewisu.edu" target="_blank" className="hover:underline">
+
               evanmhartke@lewisu.edu
               </a>
             </div>

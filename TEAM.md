@@ -1,6 +1,18 @@
 Scrum will be implemented by assigning the following roles: Product Owner, Scrum Master, and Development Members. Each new Sprint, there will be a new Product Owner and Scrum Master assigned. 
 
-### Team Roles
+### Spring 2024 Team Roles
+
+Alex Kaminski - Scrum Master
+
+Hamzeh Albaz - Development Team
+
+James Mackowiak - Product Owner
+
+Alex Hernandez - Development Team
+
+Evan Hartke - Development Team
+
+### Fall 2023 Team Roles
 
 Matthew Senese - Scrum Master
 
