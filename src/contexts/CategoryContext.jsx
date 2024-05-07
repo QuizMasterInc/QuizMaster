@@ -28,7 +28,7 @@ export function CategoryProvider({children}){
     //'history': [],
     'geography': ['world', 'americas'],
     'science': ['biology', 'chemistry', 'astronomy'],
-    //'sports': [],
+    'sports': ['Soccer', 'Basketball', 'Football'],
     'entertainment': ['tv', 'music', 'movies'],
     'mathematics': ['algebra', 'geometry'],
   
@@ -39,7 +39,7 @@ export function CategoryProvider({children}){
       //'History',
       'Geography',
       'Science',
-      //'Sports',
+      'Sports',
       'Entertainment',
       'Mathematics'
     ]);
@@ -50,7 +50,7 @@ export function CategoryProvider({children}){
     //<Book className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>,
     <World className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <FlaskVial className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
-    //<Basketball className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
+    <Basketball className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <Ticket className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <Calculator className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>
   ]);
@@ -61,7 +61,7 @@ export function CategoryProvider({children}){
     //'history',
     'geography',
     'science',
-    //'sports',
+    'sports',
     'entertainment',
     'mathematics'
   ]);
