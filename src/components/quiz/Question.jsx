@@ -9,6 +9,11 @@ import QuestionChoice from "./QuestionChoice";
 function Question ({number, questionText, choices, answer, isCompleted, callback}){
     const [activeIndex, setActiveIndex] = useState(null)
     const [correct, setCorrect] = useState(false)
+    const [flagged, setFlagged] = useState(false)
+
+    const handleFlagButton = () => {
+        setFlagged(!flagged)
+    }
 
     /**
      * This useEffect() is called when the quiz is finished. it is used for grading purposes
@@ -33,6 +38,12 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
         <div className="flex flex-row pt-4 pb-4 pl-2 pr-6 text-3xl text-gray-300 align-middle space-x-3 -md:text-sm -md:space-x-2">
             <p className="ml-2">{number + 1}.</p> 
             <p className="mr-2">{questionText}</p>
+            <button
+                className={`ml-auto text-gray-300 bg-gray-600 hover:bg-gray-700 rounded-full h-8 w-8 flex items-center justify-center focus:outline-none`}
+                onClick={handleFlagButton}
+            >
+                {flagged ? "\u{1F6A9}" : "\u{1FEF3}"}
+            </button>
         </div>
         {choices.map((choice, index) => (
             <QuestionChoice 

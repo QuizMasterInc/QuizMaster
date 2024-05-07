@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import SquareX from "../icons/SquareX";
 import { Link } from "react-router-dom";
+import { usePassThreshold } from "../../contexts/PassThresholdContext.jsx";
 
 //Import sound components for quiz results
 import PassedSound from "../sounds/PassedSound.jsx"; 
@@ -18,18 +19,21 @@ import AverageSound from "../sounds/AverageSound.jsx";
 
 const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading }) => {
     
-    //Handles which sounds to play depending on score
+    //set varible to user inputed PassThreshold
+    const { passThreshold } = usePassThreshold();
+
+    // Handles which sounds to play depending on the score
     const [playPassSound, setPassSound] = useState(false);
     const [playFailSound, setFailSound] = useState(false);
     const [playAverageSound, setAverageSound] = useState(false);
-
+  
     useEffect(() => {
-      const percentage = (amountCorrect / totalAmount) * 100;
-      if (percentage >= 90) {
+      const score = (amountCorrect / totalAmount) * 100;
+      if (score >= passThreshold) {
         setPassSound(true);
         setFailSound(false);
         setAverageSound(false);
-      } else if (percentage >= 70 && percentage <= 89) {
+      } else if (score >= (passThreshold-20) && score < (passThreshold - 1)) {
         setPassSound(false);
         setFailSound(false);
         setAverageSound(true);
@@ -38,7 +42,7 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading }) =>
         setFailSound(true);
         setAverageSound(false);
       }
-    }, [amountCorrect, totalAmount]);
+    }, [amountCorrect, totalAmount, passThreshold]);
   
 
 
