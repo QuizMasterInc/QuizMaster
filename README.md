@@ -102,6 +102,34 @@ Our capstone project that allows users to take quizzes on a variety of different
 [![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:juliegdosher@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/juliedosher)
 </div>
 
+## Development Team (ChairForceOne)
+<div>
+<h4>Daniel Jazowski</h4> 
+
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:danieljjazowski@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/dj1178)
+</div>
+<div>
+<h4>Brian Gutt</h4> 
+
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:jamesvmackowiak@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/JamesMackowiak)
+</div>
+<div>
+<h4>Hamzeh Albaz</h4> 
+
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:hamzehoalbaz@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/halbaz)
+</div>
+<div>
+<h4>Alex Hernandez</h4> 
+
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:alexhernandez@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/alexh1424)
+</div>
+<div>
+<h4>Evan Hartke</h4> 
+
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:evanmhartke@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/raxtt)
+</div>
+
+
 ## Installation and Setup
 1. Install Firebase CLI 
 ```sh
