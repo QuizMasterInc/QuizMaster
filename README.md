@@ -124,9 +124,9 @@ Our capstone project that allows users to take quizzes on a variety of different
 [![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:jayrellgarcia@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/alexh1424)
 </div>
 <div>
-<h4>Evan Hartke</h4> 
+<h4>Ahmad Yousuf</h4> 
 
-[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:evanmhartke@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/raxtt)
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ahmadoyousuf@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ahmadyousuf03)
 </div>
 
 
