@@ -111,7 +111,7 @@ Our capstone project that allows users to take quizzes on a variety of different
 <div>
 <h4>Brian Gutt</h4> 
 
-[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:jamesvmackowiak@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/JamesMackowiak)
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:brianmgutt@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/briang38)
 </div>
 <div>
 <h4>Hamzeh Albaz</h4> 
