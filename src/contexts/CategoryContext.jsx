@@ -78,6 +78,9 @@ export function CategoryProvider({children}){
   const [amount, setAmount] = useState(
     sessionStorage.getItem('amount') || ''
   )
+  const [duration, setDuration] = useState(
+    sessionStorage.getItem('duration') || 5 // Default duration is 5 minutes
+  );
   //Update sessionStorage whenever category or subcategories change
   useEffect(() => {
     sessionStorage.setItem('category', category);
@@ -94,6 +97,10 @@ export function CategoryProvider({children}){
   useEffect(() => {
     sessionStorage.setItem('amount', amount);
   }, [amount])
+
+  useEffect(() => {
+    sessionStorage.setItem('duration', duration);
+  }, [duration]);
 
   //Change category
   const selectCategory = (category) => {
@@ -128,6 +135,13 @@ export function CategoryProvider({children}){
     setAmount(amount)
   }
 
+  //function to update duration of quiz
+  const updateDuration = (newDuration) => {
+    setDuration(newDuration);
+  };
+
+
+
   //packages data
   const categoryData = {
       quizCategories: quizCategories,
@@ -140,11 +154,13 @@ export function CategoryProvider({children}){
       subcategories: subcategories,
       difficulty: difficulty,
       amount: amount,
+      duration :duration,
       selectCategory: selectCategory,
       toggleSubcategory: toggleSubcategory,
       allSubcategories: allSubcategories,
       selectDifficulty: selectDifficulty,
-      selectAmount: selectAmount
+      selectAmount: selectAmount,
+      updateDuration: updateDuration, 
   }
 
   //Context provider

@@ -2,7 +2,7 @@
  * This parent component will allow users to navigate to the various quizzes
  * based on the quiz category
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { useCategory } from '../../contexts/CategoryContext';
 import SubCategoryButton from './SubCategoryButton';
 import QuizStartButton from './QuizStartButton';
@@ -11,10 +11,12 @@ import QuizBackButton from './QuizBackButton';
 import StarRating from './DifficultyRating';
 import QuestionAmount from './QuestionAmount';
 import ShowTime from './ShowTime';
+import TimerLegnth from './TimerLength';
 
 function SelectSub() {
 
-  const {quizSubcategories, category, toggleSubcategory, subcategories, difficulty, selectDifficulty, amount, selectAmount} = useCategory()
+  const {quizSubcategories, category, toggleSubcategory, subcategories, difficulty, selectDifficulty, amount, selectAmount, duration, updateDuration} = useCategory()
+
 
   console.log('Category: ', category)
   console.log('SubCategories: ', quizSubcategories)
@@ -46,6 +48,7 @@ function SelectSub() {
         <QuestionAmount min={1} max={10} amount={amount} selectAmount={selectAmount}/>
         </div>      
         <ShowTime/>
+        <TimerLegnth duration={duration} updateDuration={updateDuration} />
         <div className='flex justify-center items-center w-1/2 p-4 text-center -sm:p-1'>
           { subcategories.length > 0 && (<QuizStartButton category={"Start"} destination={"quizstarted"}/>)}
           <QuizBackButton />
