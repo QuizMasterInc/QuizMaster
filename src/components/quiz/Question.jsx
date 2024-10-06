@@ -42,7 +42,7 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
                 className={`ml-auto text-gray-300 bg-gray-600 hover:bg-gray-700 rounded-full h-8 w-8 flex items-center justify-center focus:outline-none`}
                 onClick={handleFlagButton}
             >
-                {flagged ? "\u{1F6A9}" : "\u{1FEF3}"}
+                {flagged ? "\u{1F6A9}" : "\u{2690}"}
             </button>
         </div>
         {choices.map((choice, index) => (
