@@ -1,4 +1,4 @@
-// This is our information tab page
+// This is our information tab page that displays info to the user
 // Updated design on April 1st, 2024
 
 // Define the functional component About

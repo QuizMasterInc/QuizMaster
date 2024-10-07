@@ -22,7 +22,7 @@ import hima from "../../assets/hima.jpg"
 import brian from "../../assets/brian.jpg"
 import ahmad from "../../assets/ahmad.jpg"
 
-{/* IMPORT YOUR IMAGES HERE */}
+{/* IMPORT YOUR IMAGES ABOVE */}
 
 
 
@@ -45,7 +45,7 @@ const Contact = ({}) => (
     </div>
 
 
-    {/* THIS IS THE INFORMATION FOR THE FALL 2024 TEAM*/}
+    {/* THIS IS THE INFORMATION FOR THE FALL 2024 ChairForceOne group*/}
 
     <div className="flex items-center justify-center ">
       <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Fall 2024 Team</h1>
