@@ -12,8 +12,8 @@ import DoneModal from "./DoneModal";
 import HelpModal from './HelpModal';
 import Timer from './Timer';
 import ProgressBar from './ProgressBar'
-import {answeredCount} from "../../components/quiz/Question"
-
+import BackToTop from './BackToTopButton'
+import TimerLength from '../quizselect/TimerLength.jsx'
 import { useCategory } from '../../contexts/CategoryContext';
  
 function QuizActivity({}){
@@ -21,7 +21,7 @@ function QuizActivity({}){
    * These are the state variables.
    */
   //const { category } = useLocation().state; //this gets sent here when a user clicks the button for the category. 
-  const {category, subcategories, difficulty, amount} = useCategory()
+  const {category, subcategories, difficulty, amount, duration} = useCategory()
   const [questions, setQuestions] = useState([])
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [completed, setCompleted] = useState(false)
@@ -33,6 +33,9 @@ function QuizActivity({}){
   const [numberOfQuestions, setNumberOfQuestions] = useState(0)
   const { currentUser } = useAuth()
   const [timerFinished, setTimerFinished] = useState(false);
+  const [answeredCount, setAnsweredCount] = useState(0);
+  const [flaggedQuestion, setFlaggedQuestion] = useState(0)
+  
 
   /**
    * Callback function to send state of children question components back up to this parent component
@@ -42,6 +45,27 @@ function QuizActivity({}){
       setAmountCorrect((amountCorrect) => amountCorrect + 1)
     }
   }, [amountCorrect])
+  
+  const handleFlagButton = (flagged) => {
+    setFlaggedQuestion((prevCount) =>
+      flagged ? prevCount + 1 : prevCount - 1 
+    )
+  }
+
+  const handleSubmit = () => {
+    if(flaggedQuestion > 0) {
+      const userConfirmed = window.confirm(
+        `You have flagged ${flaggedQuestion} questions. Do you still want to submit?`
+      )
+      if (!userConfirmed) {
+        return //if user wants to go back to review flagged
+      }
+    }
+    setCompleted(true)
+    setDoneModalActive(true)
+    setTimerFinished(true)
+
+  }
 
   /**
    * Randomizes questions
@@ -146,7 +170,7 @@ function QuizActivity({}){
           }
           */
       setQuestions(shuffle(shuffledQuestions));
-      setNumberOfQuestions(10);
+      setNumberOfQuestions(amount);
       setLoading(false);
       return data;
     }
@@ -317,7 +341,7 @@ function QuizActivity({}){
     <div style={{  position: 'fixed',  top: '50px', right: '20px', padding: '0.5rem',fontSize: '1.5rem',backgroundColor: '#111827',
       color: '#f9fafb',borderRadius: '0 0 0.5rem 0.5rem',boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)'}}>
       <Timer 
-          timeLimit={300}
+          timeLimit={duration * 60}
           onStopTimer={handleStopTimer}
           onTimeUp={handleTimeUp}
           timerFinished={timerFinished}
@@ -333,21 +357,19 @@ function QuizActivity({}){
     {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
     {questions.slice(0, amount).map((question, index) => (
       <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
-        isCompleted={completed} callback={grabCorrect}/>
+        isCompleted={completed} callback={grabCorrect} onFlag={handleFlagButton} /*onNextQuestion={goToNextQuestion*//>
       ))} 
     {!loading && 
     <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
-      onClick={() => {
-      setCompleted(true);
-      setDoneModalActive(true);
-      setTimerFinished(true); 
-      }}
+      onClick={handleSubmit}
       disabled={completed} >
       Submit!
     </button>}
   </div>
   <ScaleLoader className="block items-center justify-center gray-900 mt-8 -md:ml-16" loading={loading} color={loadingColor} width={25} height={100}/>
   {doneModalActive && <DoneModal isActive={setDoneModalActive} amountCorrect={amountCorrect} totalAmount={amount} active={doneModalActive} />}
+  
+  <BackToTop /> {/* This button will stay on screen at all times to bring user to the top of page during a quiz*/}
   </>
   )
 }
