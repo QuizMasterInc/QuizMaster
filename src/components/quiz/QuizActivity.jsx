@@ -12,9 +12,10 @@ import DoneModal from "./DoneModal";
 import HelpModal from './HelpModal';
 import Timer from './Timer';
 import ProgressBar from './ProgressBar'
+import {answeredCount} from "../../components/quiz/Question"
 
 import { useCategory } from '../../contexts/CategoryContext';
-
+ 
 function QuizActivity({}){
   /**
    * These are the state variables.
@@ -32,7 +33,6 @@ function QuizActivity({}){
   const [numberOfQuestions, setNumberOfQuestions] = useState(0)
   const { currentUser } = useAuth()
   const [timerFinished, setTimerFinished] = useState(false);
-  const [answeredCount, setAnsweredCount] = useState(0);
 
   /**
    * Callback function to send state of children question components back up to this parent component
@@ -291,16 +291,6 @@ function QuizActivity({}){
     sendResult()
   }, [amountCorrect])
 
-  // Useeffect to determine when an answer choice is not null to determine the amount of answered questions
-    const example = ({ activeIndex, numberOfQuestions }) => {
-      const [answeredCount, setAnsweredCount] = useState(0);
-  
-    useEffect(() => {
-      if (activeIndex !== null && answeredCount < numberOfQuestions) {
-        setAnsweredCount(answeredCount + 1);
-      }
-    }, [activeIndex, numberOfQuestions]); 
-    }
   
   /**
    * This is the actual view element. Here we are creating the actual 
@@ -317,9 +307,9 @@ function QuizActivity({}){
             display: "inline-block", pointerEvents: "auto", }}>
           {/* Render the progress bar text */}
           <ProgressBar
-            currentQuestion={answeredCount}
+            answeredCount={answeredCount}
             totalQuestions={numberOfQuestions}
-          />
+          />  
         </div>
       </div>
 
@@ -343,7 +333,7 @@ function QuizActivity({}){
     {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
     {questions.slice(0, amount).map((question, index) => (
       <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
-        isCompleted={completed} callback={grabCorrect} /*onNextQuestion={goToNextQuestion*//>
+        isCompleted={completed} callback={grabCorrect}/>
       ))} 
     {!loading && 
     <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"

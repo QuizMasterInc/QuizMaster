@@ -5,10 +5,24 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import QuestionChoice from "./QuestionChoice";
+let answeredCount = 0;
+export {answeredCount};
 
 function Question ({number, questionText, choices, answer, isCompleted, callback}){
+    const [selectedIndices, setSelectedIndices] = useState(Array(choices.length).fill(false));
     const [activeIndex, setActiveIndex] = useState(null)
     const [correct, setCorrect] = useState(false)
+
+    //constant to determine when an answer choice is not null to determine the amount of answered questions
+    const incrementAnsweredCount = () => {
+        const newSelectedIndices = selectedIndices.map((selected, index) =>
+            index === activeIndex ? true : selected
+        );
+        if (!selectedIndices[activeIndex]) { 
+            answeredCount++;
+        }
+        setSelectedIndices(newSelectedIndices);
+    };
 
     /**
      * This useEffect() is called when the quiz is finished. it is used for grading purposes
@@ -40,9 +54,15 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
             choiceText={choice} 
             isAnswer = {((answer === choices[index]) && (isCompleted))}
             isSelected={activeIndex === index} 
-            onSelect={() => setActiveIndex(index)} 
-            isCorrect={((activeIndex === index) && (isCompleted) && (answer === choices[activeIndex]))}
-            isIncorrect={((activeIndex === index) && (isCompleted) && !(answer === choices[activeIndex]))}
+            onSelect={() => {setActiveIndex(index); incrementAnsweredCount();} }
+            isCorrect={
+                selectedIndices[index] && isCompleted && answer === choices[index]
+            }
+            isIncorrect={
+                selectedIndices[index] &&
+                isCompleted &&
+                answer !== choices[index]
+            }
             isDisabled={(isCompleted)}/>
         ))
         
