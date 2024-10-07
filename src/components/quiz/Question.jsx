@@ -6,13 +6,14 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import QuestionChoice from "./QuestionChoice";
 
-function Question ({number, questionText, choices, answer, isCompleted, callback}){
+function Question ({number, questionText, choices, answer, isCompleted, callback, onFlag}){
     const [activeIndex, setActiveIndex] = useState(null)
     const [correct, setCorrect] = useState(false)
     const [flagged, setFlagged] = useState(false)
 
     const handleFlagButton = () => {
         setFlagged(!flagged)
+        onFlag(!flagged)
     }
 
     /**

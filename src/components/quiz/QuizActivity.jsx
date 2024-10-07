@@ -34,6 +34,7 @@ function QuizActivity({}){
   const { currentUser } = useAuth()
   const [timerFinished, setTimerFinished] = useState(false);
   const [answeredCount, setAnsweredCount] = useState(0);
+  const [flaggedQuestion, setFlaggedQuestion] = useState(0)
   
 
   /**
@@ -45,6 +46,26 @@ function QuizActivity({}){
     }
   }, [amountCorrect])
   
+  const handleFlagButton = (flagged) => {
+    setFlaggedQuestion((prevCount) =>
+      flagged ? prevCount + 1 : prevCount - 1 
+    )
+  }
+
+  const handleSubmit = () => {
+    if(flaggedQuestion > 0) {
+      const userConfirmed = window.confirm(
+        `You have flagged ${flaggedQuestion} questions. Do you still want to submit?`
+      )
+      if (!userConfirmed) {
+        return //if user wants to go back to review flagged
+      }
+    }
+    setCompleted(true)
+    setDoneModalActive(true)
+    setTimerFinished(true)
+
+  }
 
   /**
    * Randomizes questions
@@ -346,15 +367,11 @@ function QuizActivity({}){
     {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
     {questions.slice(0, amount).map((question, index) => (
       <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
-        isCompleted={completed} callback={grabCorrect} /*onNextQuestion={goToNextQuestion*//>
+        isCompleted={completed} callback={grabCorrect} onFlag={handleFlagButton} /*onNextQuestion={goToNextQuestion*//>
       ))} 
     {!loading && 
     <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
-      onClick={() => {
-      setCompleted(true);
-      setDoneModalActive(true);
-      setTimerFinished(true); 
-      }}
+      onClick={handleSubmit}
       disabled={completed} >
       Submit!
     </button>}
