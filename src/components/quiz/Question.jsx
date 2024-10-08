@@ -18,17 +18,6 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
         onFlag(!flagged)
     }
 
-    //constant to determine when an answer choice is not null to determine the amount of answered questions
-    const incrementAnsweredCount = () => {
-        const newSelectedIndices = selectedIndices.map((selected, index) =>
-            index === activeIndex ? true : selected
-        );
-        if (!selectedIndices[activeIndex]) { 
-            answeredCount++;
-        }
-        setSelectedIndices(newSelectedIndices);
-    };
-
     /**
      * This useEffect() is called when the quiz is finished. it is used for grading purposes
      * If the question is answered correctly or not. 
@@ -66,14 +55,8 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
             isAnswer = {((answer === choices[index]) && (isCompleted))}
             isSelected={activeIndex === index} 
             onSelect={() => {setActiveIndex(index); incrementAnsweredCount();} }
-            isCorrect={
-                selectedIndices[index] && isCompleted && answer === choices[index]
-            }
-            isIncorrect={
-                selectedIndices[index] &&
-                isCompleted &&
-                answer !== choices[index]
-            }
+            isCorrect={((activeIndex === index) && (isCompleted) && (answer === choices[activeIndex]))}
+            isIncorrect={((activeIndex === index) && (isCompleted) && !(answer === choices[activeIndex]))}
             isDisabled={(isCompleted)}/>
         ))
         
