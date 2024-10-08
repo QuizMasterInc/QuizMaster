@@ -106,7 +106,7 @@ const Contact = ({}) => (
             <a href="https://briang38.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
               <img src={brian} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">Brian GGutt</h3> {/* YOUR NAME GOES HERE */}
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Brian Gutt</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-0 text-gray-300">
               ChairForceOne Group
             </div>
