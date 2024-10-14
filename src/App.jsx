@@ -36,8 +36,7 @@ import CustomQuizActivity from './components/quiz/CustomQuizActivity'
 import Footer from './components/footer/footer';
 import Header from './components/header/header';
 import Settings from './components/settings/Settings'
-import { VolumeProvider } from './contexts/VolumeContext';
-import { PassThresholdProvider } from './contexts/PassThresholdContext';
+import { VolumeSettingsProvider } from './contexts/VolumeContext';
 
 function App() {
   //importing destinations here from the context. 
@@ -71,11 +70,9 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/settings" element={
-              <VolumeProvider>
-                <PassThresholdProvider>
+              <VolumeSettingsProvider>
                   <Settings/>
-                </PassThresholdProvider>
-              </VolumeProvider>
+              </VolumeSettingsProvider>
             }/>
             <Route path="/quizzes">
               <Route index element={
@@ -99,22 +96,18 @@ function App() {
               <Route path="quizstarted" element={
                 <PrivateRoute>
                   <CategoryProvider>
-                    <PassThresholdProvider>
-                      <VolumeProvider>
+                      <VolumeSettingsProvider>
                         <QuizActivity />
-                      </VolumeProvider>
-                    </PassThresholdProvider>
+                      </VolumeSettingsProvider>
                   </CategoryProvider>
                 </PrivateRoute>
               }/>
             </Route>
             <Route index path="/quizstarted/:quizID" element={
               <PrivateRoute>
-                <PassThresholdProvider>
-                  <VolumeProvider>
+                  <VolumeSettingsProvider>
                     <CustomQuizActivity/>
-                  </VolumeProvider>
-                </PassThresholdProvider>
+                  </VolumeSettingsProvider>
               </PrivateRoute>
             }/>
             <Route path="/customquiz" element={

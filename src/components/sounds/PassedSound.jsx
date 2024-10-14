@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import { useVolume } from "../../contexts/VolumeContext";
+import { useVolumeSettings } from "../../contexts/VolumeContext";
 import sound1 from "./SoundAssets/TA-DA.mp3";
 import sound2 from "./SoundAssets/levelUp.mp3";
 import sound3 from "./SoundAssets/passSound.mp3";
 
 function App() {
-  const { volume } = useVolume(); // Access volume state from VolumeContext
+  const { volume } = useVolumeSettings(); // Access volume state from VolumeContext
 
   useEffect(() => {
     const sounds = [sound1, sound2, sound3];

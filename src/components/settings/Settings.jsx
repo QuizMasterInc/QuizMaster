@@ -1,3 +1,6 @@
+/*
+This is the main settings page , this page renders  all the setting components where user can adjust them to thier liking 
+*/
 import React from 'react';
 import VolumeControl from './VolumeControl';
 import GlobalThresholdInput from './ThresholdInput '; 
