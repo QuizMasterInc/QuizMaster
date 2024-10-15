@@ -51,7 +51,14 @@ function QuizActivity({}){
       flagged ? prevCount + 1 : prevCount - 1 
     )
   }
-
+  //Keeps track how many questions the user has answered
+  const handleAnswerQuestion = () => {
+    setAnsweredCount((prevCount) => {
+        const newCount = prevCount + 1;
+        console.log("Answered Count:", newCount); // Log to check the value
+        return newCount;
+    });
+};
   const handleSubmit = () => {
     if(flaggedQuestion > 0) {
       const userConfirmed = window.confirm(
@@ -324,18 +331,17 @@ function QuizActivity({}){
    */
   return (
   <>
-  {/*This is the div for the progress bar at the top of the screen*/}
-  <div style={{ position: "fixed", top: "50px", left: "50%", transform: "translateX(-50%)", zIndex: 1000, pointerEvents: "none",}}>
-        {/* Box around the text content */}
-        <div style={{ background: "#e5e7eb", padding: "10px", borderRadius: "8px", boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-            display: "inline-block", pointerEvents: "auto", }}>
-          {/* Render the progress bar text */}
-          <ProgressBar
-            answeredCount={answeredCount}
-            totalQuestions={numberOfQuestions}
-          />  
-        </div>
-      </div>
+  {/* This is the div for the progress bar at the top of the screen */}
+  <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
+    {/* Box around the text content */}
+    <div className="bg-blue-600 text-white p-4 rounded-lg shadow-lg inline-block pointer-events-auto">
+      {/* Render the progress bar text */}
+      <ProgressBar
+        answeredCount={answeredCount}
+        totalQuestions={numberOfQuestions}
+      />
+    </div>
+  </div>
 
     <div className="flex flex-col items-center justify-center -md:ml-16">
     <div style={{  position: 'fixed',  top: '50px', right: '20px', padding: '0.5rem',fontSize: '1.5rem',backgroundColor: '#111827',
@@ -356,8 +362,15 @@ function QuizActivity({}){
     </button>
     {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
     {questions.slice(0, amount).map((question, index) => (
-      <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
-        isCompleted={completed} callback={grabCorrect} onFlag={handleFlagButton} /*onNextQuestion={goToNextQuestion*//>
+      <Question key={index} 
+        number={index} 
+        questionText={question.questionText} 
+        choices={question.choices} 
+        answer={question.answer} 
+        isCompleted={completed} 
+        callback={grabCorrect} 
+        onFlag={handleFlagButton} 
+        onAnswer={handleAnswerQuestion} /*onNextQuestion={goToNextQuestion*//>
       ))} 
     {!loading && 
     <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
