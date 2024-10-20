@@ -31,11 +31,11 @@ const StudyMaterial = ({ category }) => {
           <p className="text-gray-300">{studyMaterial.content}</p>
 
          
-          {studyMaterial.resources && studyMaterial.resources.length > 0 ? (
+          {studyMaterial.resources && studyMaterial.resources.length > 0 ? ( //Checks if there are any resources in the studyMaterial object
             <div>
               <h3 className="text-gray-300"> Resources to Check Out: </h3>
               <ul>
-                {studyMaterial.resources.map((article, index) => 
+                {studyMaterial.resources.map((article, index) => //Maps through each resource and creates a list item
                   <li key = {index}>
                     <a href= {article} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">
                       {article}
