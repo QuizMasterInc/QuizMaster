@@ -11,6 +11,12 @@ function Timer(props) {
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [isPaused, setIsPaused] = useState(false);
 
+  const[halfTimeAlert, setHalfTimeAlert] = useState(false);
+  const [lowTimeAlert, setLowTimeAlert] = useState(false); 
+
+  const halfTimeLimit = timeLimit / 2 //Sets the half-time threshold
+  const lowTimeLimit = timeLimit * 0.2 //Set 20% left threshold
+
   useEffect(() => {
     let timer = null;
 
@@ -24,8 +30,18 @@ function Timer(props) {
       }, 1000);
     }
 
+    if (timeLeft <= halfTimeLimit && !halfTimeAlert) {
+      alert("Half of the Time Remains")
+      setHalfTimeAlert(true)
+    }
+    
+    if (timeLeft <= lowTimeLimit && !lowTimeAlert) {
+      alert("Time is Nearly Up!")
+      setLowTimeAlert(true)
+    }
+  
     return () => clearTimeout(timer);
-  }, [timeLeft, isPaused, onStopTimer, props.loading]);
+  }, [timeLeft, isPaused, onStopTimer, props.loading, halfTimeAlert, halfTimeLimit, lowTimeAlert, lowTimeLimit]);
 
   const handlePauseToggle = () => {
     setIsPaused((prev) => !prev);
@@ -35,8 +51,16 @@ function Timer(props) {
   const seconds = timeLeft % 60;
 
   return (
+    <div>
     <div style={{ display: showTimer ? 'block' : 'none' }}>
-      <div className="timer">
+      <div 
+        className="timer" 
+        style={{
+          color: 
+            timeLeft <= lowTimeLimit ? 'red' :
+            timeLeft <= halfTimeLimit ? 'orange' : 
+            'white'
+        }}>
         {minutes}:{seconds < 10 ? "0" : ""}
         {seconds}
       </div>
@@ -46,6 +70,7 @@ function Timer(props) {
         </button>
       </div>
     </div>
+  </div>
   );
 }
 
