@@ -21,7 +21,7 @@ function QuizActivity({}){
    * These are the state variables.
    */
   //const { category } = useLocation().state; //this gets sent here when a user clicks the button for the category. 
-  const {category, subcategories, difficulty, amount, duration} = useCategory()
+  const {category, subcategories, difficulty, amount, duration, showTimer} = useCategory()
   const [questions, setQuestions] = useState([])
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [completed, setCompleted] = useState(false)
@@ -352,15 +352,24 @@ function QuizActivity({}){
           onTimeUp={handleTimeUp}
           timerFinished={timerFinished}
           timeLeft={loading ? null : 5}
+          showTimer={showTimer}
           loading = {loading}
         />    
     </div>
     <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg -md:text-md -md:p-4">Welcome to the {category} Quiz</h1>
+    
     <button className="flex flex-row text-xl h-10 mb-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-8"
       onClick={() => setHelpModalActive(true)}>
       Help
     </button>
-    {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
+      {helpModalActive && <HelpModal 
+      isActive={setHelpModalActive} 
+      active={helpModalActive}
+      amount = {amount}
+      duration={duration}
+      />}
+
+
     {questions.slice(0, amount).map((question, index) => (
       <Question key={index} 
         number={index} 

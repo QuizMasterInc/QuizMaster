@@ -81,6 +81,8 @@ export function CategoryProvider({children}){
   const [duration, setDuration] = useState(
     sessionStorage.getItem('duration') || 5 // Default duration is 5 minutes
   );
+  const [showTimer, setShowTimer] = useState(true);
+
   //Update sessionStorage whenever category or subcategories change
   useEffect(() => {
     sessionStorage.setItem('category', category);
@@ -140,6 +142,10 @@ export function CategoryProvider({children}){
     setDuration(newDuration);
   };
 
+    // Function to toggle timer visibility
+    const toggleTimerVisibility = () => {
+      setShowTimer((prev) => !prev);
+  };
 
 
   //packages data
@@ -155,12 +161,15 @@ export function CategoryProvider({children}){
       difficulty: difficulty,
       amount: amount,
       duration :duration,
+      showTimer: showTimer,
+
       selectCategory: selectCategory,
       toggleSubcategory: toggleSubcategory,
       allSubcategories: allSubcategories,
       selectDifficulty: selectDifficulty,
       selectAmount: selectAmount,
       updateDuration: updateDuration, 
+      toggleTimerVisibility: toggleTimerVisibility,
   }
 
   //Context provider
