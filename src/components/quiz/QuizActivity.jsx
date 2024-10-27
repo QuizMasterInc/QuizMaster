@@ -52,13 +52,20 @@ function QuizActivity({}){
     )
   }
   //Keeps track how many questions the user has answered
-  const handleAnswerQuestion = () => {
+  const handleAnswerQuestion = (isSelected) => {
     setAnsweredCount((prevCount) => {
-        const newCount = prevCount + 1;
+        let newCount = prevCount;
+        
+        if (isSelected) {
+            newCount += 1; // Increment if the user is selecting an answer
+        } else {
+            newCount -= 1; // Decrement if the user is deselecting an answer
+        }
+        
         console.log("Answered Count:", newCount); // Log to check the value
         return newCount;
     });
-};
+  };
   const handleSubmit = () => {
     if(flaggedQuestion > 0) {
       const userConfirmed = window.confirm(

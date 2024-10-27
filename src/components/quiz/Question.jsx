@@ -11,19 +11,35 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
     const [activeIndex, setActiveIndex] = useState(null)
     const [correct, setCorrect] = useState(false)
     const [flagged, setFlagged] = useState(false)
-    const [isAnswered, setIsAnswered] = useState(false); // New state to track if the question is answered
+    const [isAnswered, setIsAnswered] = useState(false); // used track if the question is answered for progress Bar
 
-
+    //handles the flagging features for when a user 
     const handleFlagButton = () => {
         setFlagged(!flagged)
         onFlag(!flagged)
     }
-    //Handles when the user selects an answer to a question
+    // //Handles when the user selects an answer to a question
+    // const handleSelect = (index) => {
+    //     setActiveIndex(index);
+    //     if (!isCompleted && !isAnswered) { // Check if the question is already answered
+    //         setIsAnswered(true); // Mark the question as answered so its not counted twice
+    //         onAnswer(); // Call the function to increment the answered count in the parent
+    //     }
+    // };
+
+
     const handleSelect = (index) => {
-        setActiveIndex(index);
-        if (!isCompleted && !isAnswered) { // Check if the question is already answered
-            setIsAnswered(true); // Mark the question as answered so its not counted twice
-            onAnswer(); // Call the function to increment the answered count in the parent
+        // Check if the user clicked the already-selected answer
+        if (activeIndex === index) {
+            setActiveIndex(null); // Deselect the answer
+            setIsAnswered(false); // Mark question as unanswered
+            onAnswer(false); // Update the answered count in the parent
+        } else {
+            setActiveIndex(index); // Select a new answer
+            if (!isCompleted && !isAnswered) {
+                setIsAnswered(true);
+                onAnswer(true); // Increment the answered count in the parent
+            }
         }
     };
     
