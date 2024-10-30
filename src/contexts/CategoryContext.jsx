@@ -25,45 +25,45 @@ export function useCategory() {
 // TODO: add questions for history and sports sections
 export function CategoryProvider({children}){
   const [quizSubcategories] = useState({
-    //'history': [],
     'geography': ['world', 'americas'],
     'science': ['biology', 'chemistry', 'astronomy'],
     'sports': ['soccer', 'basketball', 'football'],
     'entertainment': ['tv', 'music', 'movies'],
     'mathematics': ['algebra', 'geometry'],
+    'history': ['global','america'],
   
   })
   // TODO: add questions for history and sports sections
   //quiz categories. order matters!
   const [quizCategories] = useState([
-      //'History',
       'Geography',
       'Science',
       'Sports',
       'Entertainment',
-      'Mathematics'
+      'Mathematics',
+      'History'
     ]);
     
     // TODO: add icons back in once questions are added
     //icons for each quiz category. order matters!
   const [icons] = useState([
-    //<Book className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>,
     <World className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <FlaskVial className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <Basketball className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <Ticket className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
-    <Calculator className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>
+    <Calculator className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
+    <Book className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>
   ]);
 
   // TODO: add questions for history and sports sections
   //destinations for each category. order matters!
   const [destinations] = useState([
-    //'history',
     'geography',
     'science',
     'sports',
     'entertainment',
-    'mathematics'
+    'mathematics',
+    'history'
   ]);
 
   const [category, setCategory] = useState(
