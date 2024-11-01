@@ -15,7 +15,9 @@ import TimerLegnth from './TimerLength';
 
 function SelectSub() {
 
-  const {quizSubcategories, category, toggleSubcategory, subcategories, difficulty, selectDifficulty, amount, selectAmount, duration, updateDuration} = useCategory()
+  const {quizSubcategories, category, toggleSubcategory, subcategories, difficulty, selectDifficulty, amount, selectAmount, duration, updateDuration, showTimer, toggleTimerVisibility } = useCategory()
+
+
 
 
   console.log('Category: ', category)
@@ -49,8 +51,12 @@ function SelectSub() {
         <div>
         <QuestionAmount min={1} max={10} amount={amount} selectAmount={selectAmount}/>
         </div>      
-        <ShowTime/>
-        <TimerLegnth duration={duration} updateDuration={updateDuration} />
+        {/* Timer visibility toggle */}
+        <ShowTime toggleTimerVisibility={toggleTimerVisibility} showTimer={showTimer} />
+
+        {/* Conditionally render TimerLength if the timer is toogled to yes */}
+        {showTimer && <TimerLegnth duration={duration} updateDuration={updateDuration} />}   
+
         <div className='flex justify-center items-center w-1/2 p-4 text-center -sm:p-1'>
           { subcategories.length > 0 && (<QuizStartButton category={"Start"} destination={"quizstarted"}/>)}
           <QuizBackButton />

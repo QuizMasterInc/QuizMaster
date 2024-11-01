@@ -21,7 +21,7 @@ function QuizActivity({}){
    * These are the state variables.
    */
   //const { category } = useLocation().state; //this gets sent here when a user clicks the button for the category. 
-  const {category, subcategories, difficulty, amount, duration} = useCategory()
+  const {category, subcategories, difficulty, amount, duration, showTimer} = useCategory()
   const [questions, setQuestions] = useState([])
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [completed, setCompleted] = useState(false)
@@ -52,13 +52,20 @@ function QuizActivity({}){
     )
   }
   //Keeps track how many questions the user has answered
-  const handleAnswerQuestion = () => {
+  const handleAnswerQuestion = (isSelected) => {
     setAnsweredCount((prevCount) => {
-        const newCount = prevCount + 1;
+        let newCount = prevCount;
+        
+        if (isSelected) {
+            newCount += 1; // Increment if the user is selecting an answer
+        } else {
+            newCount -= 1; // Decrement if the user is deselecting an answer
+        }
+        
         console.log("Answered Count:", newCount); // Log to check the value
         return newCount;
     });
-};
+  };
   const handleSubmit = () => {
     if(flaggedQuestion > 0) {
       const userConfirmed = window.confirm(
@@ -352,15 +359,24 @@ function QuizActivity({}){
           onTimeUp={handleTimeUp}
           timerFinished={timerFinished}
           timeLeft={loading ? null : 5}
+          showTimer={showTimer}
           loading = {loading}
         />    
     </div>
     <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg -md:text-md -md:p-4">Welcome to the {category} Quiz</h1>
+    
     <button className="flex flex-row text-xl h-10 mb-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-8"
       onClick={() => setHelpModalActive(true)}>
       Help
     </button>
-    {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
+      {helpModalActive && <HelpModal 
+      isActive={setHelpModalActive} 
+      active={helpModalActive}
+      amount = {amount}
+      duration={duration}
+      />}
+
+
     {questions.slice(0, amount).map((question, index) => (
       <Question key={index} 
         number={index} 

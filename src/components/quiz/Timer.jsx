@@ -3,45 +3,39 @@
  * This determines how long the user has left in their quiz 
  */
 import { useState, useEffect } from "react";
-import { showTimer } from "../../components/quizselect/ShowTime";
 
-function Timer(props) {
-  const { timeLimit, onStopTimer, timerFinished } = props;
-
+function Timer({ timeLimit, onStopTimer, timerFinished, showTimer, loading }) {
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [isPaused, setIsPaused] = useState(false);
+  const [halfTimeAlert, setHalfTimeAlert] = useState(false);
+  const [lowTimeAlert, setLowTimeAlert] = useState(false);
 
-  const[halfTimeAlert, setHalfTimeAlert] = useState(false);
-  const [lowTimeAlert, setLowTimeAlert] = useState(false); 
-
-  const halfTimeLimit = timeLimit / 2 //Sets the half-time threshold
-  const lowTimeLimit = timeLimit * 0.2 //Set 20% left threshold
+  const halfTimeLimit = timeLimit / 2; // Sets the half-time threshold
+  const lowTimeLimit = timeLimit * 0.2; // Set 20% left threshold
 
   useEffect(() => {
     let timer = null;
 
     if (timeLeft === 0 || timerFinished) {
-      // Call the onStopTimer function to notify the parent component
       onStopTimer();
-    } else if (!isPaused && props.loading === false) {
-      // If loading is done and not paused, set up a timer that decrements timeLeft by 1 every second
+    } else if (!isPaused && !loading) {
       timer = setTimeout(() => {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
     }
 
     if (timeLeft <= halfTimeLimit && !halfTimeAlert) {
-      alert("Half of the Time Remains")
-      setHalfTimeAlert(true)
+      alert("Half of the Time Remains");
+      setHalfTimeAlert(true);
     }
-    
+
     if (timeLeft <= lowTimeLimit && !lowTimeAlert) {
-      alert("Time is Nearly Up!")
-      setLowTimeAlert(true)
+      alert("Time is Nearly Up!");
+      setLowTimeAlert(true);
     }
-  
+
     return () => clearTimeout(timer);
-  }, [timeLeft, isPaused, onStopTimer, props.loading, halfTimeAlert, halfTimeLimit, lowTimeAlert, lowTimeLimit]);
+  }, [timeLeft, isPaused, onStopTimer, loading, halfTimeAlert, halfTimeLimit, lowTimeAlert, lowTimeLimit]);
 
   const handlePauseToggle = () => {
     setIsPaused((prev) => !prev);
@@ -50,27 +44,53 @@ function Timer(props) {
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
 
+  const radius = 50;
+  const circumference = 2 * Math.PI * radius;
+  const offset = (timeLeft / timeLimit) * circumference;
+
   return (
     <div>
-    <div style={{ display: showTimer ? 'block' : 'none' }}>
-      <div 
-        className="timer" 
-        style={{
-          color: 
-            timeLeft <= lowTimeLimit ? 'red' :
-            timeLeft <= halfTimeLimit ? 'orange' : 
-            'white'
-        }}>
-        {minutes}:{seconds < 10 ? "0" : ""}
-        {seconds}
-      </div>
-      <div style={{ marginTop: '10px' }}>
-        <button onClick={handlePauseToggle}>
-          {isPaused ? "Resume" : "Pause"}
-        </button>
+      <div style={{ display: showTimer ? 'block' : 'none', position: 'relative', width: '120px', height: '120px' }}>
+        <svg width="120" height="120">
+          <circle
+            cx="60"
+            cy="60"
+            r={radius}
+            stroke="rgba(255, 255, 255, 0.2)"
+            strokeWidth="10"
+            fill="transparent"
+          />
+          <circle
+            cx="60"
+            cy="60"
+            r={radius}
+            stroke={timeLeft <= lowTimeLimit ? 'red' : timeLeft <= halfTimeLimit ? 'orange' : 'white'}
+            strokeWidth="10"
+            fill="transparent"
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference - offset} 
+            style={{ transition: 'stroke-dashoffset 1s linear' }}
+          />
+        </svg>
+        <div
+          className="timer"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            color: timeLeft <= lowTimeLimit ? 'red' : timeLeft <= halfTimeLimit ? 'orange' : 'white',
+            fontSize: '24px',
+          }}
+        >
+          {minutes}:{seconds < 10 ? "0" : ""}
+          {seconds}
+        </div>
+        <div style={{ marginTop: '10px' }}>
+          <button onClick={handlePauseToggle}>{isPaused ? "Resume" : "Pause"}</button>
+        </div>
       </div>
     </div>
-  </div>
   );
 }
 
