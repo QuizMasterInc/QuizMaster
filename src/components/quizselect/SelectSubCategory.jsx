@@ -32,8 +32,10 @@ function SelectSub() {
   return (
     <>
       <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
+      <h1 className="text-2xl font-bold text-gray-300">Category: {category}</h1> {/*This line displays the category you are about to take a quiz for*/}
         <h2 className="text-2xl font-bold text-gray-300">Choose Sub-Categories</h2>
         <div className="flex flex-wrap justify-center">
+          {/*This displays the available subcategories based on the category selected*/}
           {availbleSubcategories.map((category) => (
             <SubCategoryButton category={category} toggleSubcategory={toggleSubcategory} isSelected={true}/>
           ))}
