@@ -21,6 +21,7 @@ import jayrell from "../../assets/jayrell.jpg"
 import hima from "../../assets/hima.jpg"
 import brian from "../../assets/brian.jpg"
 import ahmad from "../../assets/ahmad.jpg"
+import demetrius from "../../assets/demetrius.jpg"
 
 {/* IMPORT YOUR IMAGES ABOVE */}
 
