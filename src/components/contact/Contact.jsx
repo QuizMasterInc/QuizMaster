@@ -21,6 +21,8 @@ import jayrell from "../../assets/jayrell.jpg"
 import hima from "../../assets/hima.jpg"
 import brian from "../../assets/brian.jpg"
 import ahmad from "../../assets/ahmad.jpg"
+import sami from "../../assets/sami.jpg"
+
 
 {/* IMPORT YOUR IMAGES ABOVE */}
 
@@ -148,18 +150,18 @@ const Contact = ({}) => (
       {/* Grid layout for contact information */}
       <div className="grid-cols-1 gap-6 flex flex-wrap justify-center">
           <div className="flex flex-col items-center">
-            <a href="https://jamesmackowiak.github.io/about.html" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-              <img src={james} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            <a href="https://samdwag.github.io/Salzoubi/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={Sami} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">James Mackowiak</h3> {/* YOUR NAME GOES HERE */}
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Sami Alzoubi</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-0 text-gray-300">
               Core2 Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
 
-              <a href="mailto:jamesvmackowiak@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+              <a href="mailto:samialzoubi@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
 
-                jamesvmackowiak@lewisu.edu
+                samialzoubi@lewisu.edu
               </a>
             </div>
           </div>
