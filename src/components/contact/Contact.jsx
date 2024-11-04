@@ -48,10 +48,10 @@ const Contact = ({}) => (
     </div>
 
     {/* THIS IS THE INFORMATION FOR THE SPRING 2025 SacredMyth group*/}
-
     <div className="flex items-center justify-center ">
       <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2025 Team</h1>
     </div>
+    
     {/* Container for contact information */}
       <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
 
