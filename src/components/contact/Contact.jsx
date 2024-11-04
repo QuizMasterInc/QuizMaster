@@ -53,7 +53,8 @@ const Contact = ({}) => (
       <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2025 Team</h1>
     </div>
     {/* Container for contact information */}
-    <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+      <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+
         {/* Grid layout for contact information */}
         <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
         <div className="flex flex-col items-center">
@@ -72,14 +73,10 @@ const Contact = ({}) => (
               </a>
             </div>
           </div>
-        </div>  
-    </div>
-    <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
-        {/* Grid layout for contact information */}
-        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+
         <div className="flex flex-col items-center">
-            <a href="https://samdwag.github.io/Salzoubi/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-              <img src={Sami} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+        <a href="https://samdwag.github.io/Salzoubi/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={sami} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
             <h3 className="mt-4 text-lg font-medium text-gray-300">Sami Alzoubi</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-0 text-gray-300">
@@ -93,8 +90,10 @@ const Contact = ({}) => (
               </a>
             </div>
           </div>
+
         </div>
-      </div>  
+      </div>     
+        
     {/* THIS IS THE INFORMATION FOR THE FALL 2024 ChairForceOne group*/}
 
     <div className="flex items-center justify-center ">
@@ -119,7 +118,8 @@ const Contact = ({}) => (
                 danieljjazowski@lewisu.edu
               </a>
             </div>
-          </div>  
+          </div>
+
           <div className="flex flex-col items-center">
             <a href="https://jayrellg.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
               <img src={jayrell} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
@@ -135,7 +135,8 @@ const Contact = ({}) => (
                 jayrellgarcia@lewisu.edu
               </a>
             </div>
-          </div>  
+          </div>
+
           <div className="flex flex-col items-center">
             <a href="https://hmadhavann.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
               <img src={hima} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
