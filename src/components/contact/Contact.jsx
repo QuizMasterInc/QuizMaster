@@ -89,7 +89,7 @@ const Contact = ({}) => (
                 samialzoubi@lewisu.edu
               </a>
             </div>
-        </div>
+          </div>
         </div>
       </div>     
         
