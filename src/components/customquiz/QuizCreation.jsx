@@ -1,3 +1,4 @@
+//This file handles creating the users custom quiz and making it able to be accessed within the product and database
 import React, {useState, useEffect} from 'react'
 import {useAuth} from '../../contexts/AuthContext'
 import { Link, Navigate } from 'react-router-dom'

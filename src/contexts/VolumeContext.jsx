@@ -1,25 +1,43 @@
-// VolumeContext.js
-import React, { createContext, useState, useEffect, useContext } from 'react';
+// VolumeConext.js
 
-const VolumeContext = createContext();
+/*
+This context will share the volume settings/state with any child component 
+*/
+import React, { createContext, useState, useEffect } from 'react';
 
-export const VolumeProvider = ({ children }) => {
-  // Initialize volume state, use stored value if available
-  const [volume, setVolume] = useState(() => {
+const VolumeSettingsContext = createContext();
+
+export const VolumeSettingsProvider = ({ children }) => {
+  // Pass threshold state
+  const [passThreshold, setPassThresholdState] = useState(() => {
+    const savedThreshold = localStorage.getItem('passThreshold');
+    return savedThreshold ? parseInt(savedThreshold, 10) : 90; // Default threshold is 90
+  });
+
+  // Volume state
+  const [volume, setVolumeState] = useState(() => {
     const storedVolume = localStorage.getItem('volume');
     return storedVolume !== null ? parseFloat(storedVolume) : 1; // Default volume level
   });
 
-  // Update localStorage when volume changes
-  useEffect(() => {
-    localStorage.setItem('volume', volume.toString());
-  }, [volume]);
+  // Set pass threshold
+  const setPassThreshold = (value) => {
+    setPassThresholdState(value);
+    localStorage.setItem('passThreshold', value.toString());
+  };
 
+  // Set volume
+  const setVolume = (value) => {
+    setVolumeState(value);
+    localStorage.setItem('volume', value.toString());
+  };
+
+  // Provide both passThreshold and volume settings through the context
   return (
-    <VolumeContext.Provider value={{ volume, setVolume }}>
+    <VolumeSettingsContext.Provider value={{ passThreshold, setPassThreshold, volume, setVolume }}>
       {children}
-    </VolumeContext.Provider>
+    </VolumeSettingsContext.Provider>
   );
 };
 
-export const useVolume = () => useContext(VolumeContext);
+export const useVolumeSettings = () => React.useContext(VolumeSettingsContext);

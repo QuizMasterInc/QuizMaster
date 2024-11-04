@@ -6,14 +6,43 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import QuestionChoice from "./QuestionChoice";
 
-function Question ({number, questionText, choices, answer, isCompleted, callback}){
+
+function Question ({number, questionText, choices, answer, isCompleted, callback, onFlag, onAnswer}){
     const [activeIndex, setActiveIndex] = useState(null)
     const [correct, setCorrect] = useState(false)
     const [flagged, setFlagged] = useState(false)
+    const [isAnswered, setIsAnswered] = useState(false); // used track if the question is answered for progress Bar
 
+    //handles the flagging features for when a user 
     const handleFlagButton = () => {
         setFlagged(!flagged)
+        onFlag(!flagged)
     }
+    // //Handles when the user selects an answer to a question
+    // const handleSelect = (index) => {
+    //     setActiveIndex(index);
+    //     if (!isCompleted && !isAnswered) { // Check if the question is already answered
+    //         setIsAnswered(true); // Mark the question as answered so its not counted twice
+    //         onAnswer(); // Call the function to increment the answered count in the parent
+    //     }
+    // };
+
+
+    const handleSelect = (index) => {
+        // Check if the user clicked the already-selected answer
+        if (activeIndex === index) {
+            setActiveIndex(null); // Deselect the answer
+            setIsAnswered(false); // Mark question as unanswered
+            onAnswer(false); // Update the answered count in the parent
+        } else {
+            setActiveIndex(index); // Select a new answer
+            if (!isCompleted && !isAnswered) {
+                setIsAnswered(true);
+                onAnswer(true); // Increment the answered count in the parent
+            }
+        }
+    };
+    
 
     /**
      * This useEffect() is called when the quiz is finished. it is used for grading purposes
@@ -42,7 +71,7 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
                 className={`ml-auto text-gray-300 bg-gray-600 hover:bg-gray-700 rounded-full h-8 w-8 flex items-center justify-center focus:outline-none`}
                 onClick={handleFlagButton}
             >
-                {flagged ? "\u{1F6A9}" : "\u{1FEF3}"}
+                {flagged ? "\u{1F6A9}" : "\u{2690}"}
             </button>
         </div>
         {choices.map((choice, index) => (
@@ -51,7 +80,7 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
             choiceText={choice} 
             isAnswer = {((answer === choices[index]) && (isCompleted))}
             isSelected={activeIndex === index} 
-            onSelect={() => setActiveIndex(index)} 
+            onSelect={() => {handleSelect(index);} }
             isCorrect={((activeIndex === index) && (isCompleted) && (answer === choices[activeIndex]))}
             isIncorrect={((activeIndex === index) && (isCompleted) && !(answer === choices[activeIndex]))}
             isDisabled={(isCompleted)}/>

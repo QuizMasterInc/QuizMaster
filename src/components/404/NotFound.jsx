@@ -1,5 +1,5 @@
 /**
- * This component simply contains the 404 page.
+ * This component simply contains the error 404 page.
  * This gets displayed when a user enters a route that is not recognized by the application.
  * This also allows users to go back home via a button. 
  */

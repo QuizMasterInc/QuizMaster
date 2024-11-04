@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import SquareX from "../icons/SquareX";
 import { Link } from "react-router-dom";
-import { usePassThreshold } from "../../contexts/PassThresholdContext.jsx";
+import { useVolumeSettings } from "../../contexts/VolumeContext.jsx";
 
 //Import sound components for quiz results
 import PassedSound from "../sounds/PassedSound.jsx"; 
@@ -20,7 +20,7 @@ import AverageSound from "../sounds/AverageSound.jsx";
 const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading }) => {
     
     //set varible to user inputed PassThreshold
-    const { passThreshold } = usePassThreshold();
+    const { passThreshold } = useVolumeSettings();
 
     // Handles which sounds to play depending on the score
     const [playPassSound, setPassSound] = useState(false);

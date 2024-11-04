@@ -1,9 +1,10 @@
 // VolumeControl.jsx
+//This creates the field area where the user can choose how lud they want thier sound effects to be
 import React from 'react';
-import { useVolume } from '../../contexts/VolumeContext';
+import { useVolumeSettings } from '../../contexts/VolumeContext';
 
 const VolumeControl = () => {
-  const { volume, setVolume } = useVolume();
+  const { volume, setVolume } = useVolumeSettings();
 
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);

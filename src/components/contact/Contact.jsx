@@ -20,8 +20,12 @@ import danielj from "../../assets/daniel.jpg"
 import jayrell from "../../assets/jayrell.jpg"
 import hima from "../../assets/hima.jpg"
 import brian from "../../assets/brian.jpg"
+import ahmad from "../../assets/ahmad.jpg"
+import sami from "../../assets/sami.jpg"
+import erick from "../../assets/erick.jpg"
+import demetrius from "../../assets/demetrius.jpg"
 
-{/* IMPORT YOUR IMAGES HERE */}
+{/* IMPORT YOUR IMAGES ABOVE */}
 
 
 
@@ -43,11 +47,74 @@ const Contact = ({}) => (
         </div>
     </div>
 
+    {/* THIS IS THE INFORMATION FOR THE SPRING 2025 SacredMyth group*/}
+    <div className="flex items-center justify-center ">
+      <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2025 Team</h1>
+    </div>
+    
+    {/* Container for contact information */}
+      <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
 
-    {/* THIS IS THE INFORMATION FOR THE SPRING 2024 TEAM*/}
+        {/* Grid layout for contact information */}
+        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+        <div className="flex flex-col items-center">
+            <a href="https://demetrius-price02.github.io/my-static-web-app/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={demetrius} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Demetrius Price</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-0 text-gray-300">
+              SacredMyth Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
+
+              <a href="mailto:demetriusaprice@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+                demetriusaprice@lewisu.edu
+              </a>
+            </div>
+          </div>
+
+        <div className="flex flex-col items-center">
+        <a href="https://samdwag.github.io/Salzoubi/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={sami} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Sami Alzoubi</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-0 text-gray-300">
+              SacredMyth Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
+
+              <a href="mailto:samialzoubi@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+                samialzoubi@lewisu.edu
+              </a>
+            </div>
+          </div>
+
+        <div className="flex flex-col items-center">
+        <a href="https://node-js-portfolio-ajb8b4grbscbe0a6.centralus-01.azurewebsites.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={erick} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Erick Martinez</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-0 text-gray-300">
+              SacredMyth Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
+
+              <a href="mailto:erickrmartinezzepeda@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+                erickrmartinezzepeda@lewisu.edu
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>     
+        
+    {/* THIS IS THE INFORMATION FOR THE FALL 2024 ChairForceOne group*/}
 
     <div className="flex items-center justify-center ">
-      <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2024 Team</h1>
+      <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Fall 2024 Team</h1>
     </div>
     {/* Container for contact information */}
     <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
@@ -68,7 +135,8 @@ const Contact = ({}) => (
                 danieljjazowski@lewisu.edu
               </a>
             </div>
-          </div>  
+          </div>
+
           <div className="flex flex-col items-center">
             <a href="https://jayrellg.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
               <img src={jayrell} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
@@ -84,7 +152,8 @@ const Contact = ({}) => (
                 jayrellgarcia@lewisu.edu
               </a>
             </div>
-          </div>  
+          </div>
+
           <div className="flex flex-col items-center">
             <a href="https://hmadhavann.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
               <img src={hima} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
@@ -118,18 +187,47 @@ const Contact = ({}) => (
             </div>
           </div> 
           <div className="flex flex-col items-center">
-            <a href="https://jamesmackowiak.github.io/about.html" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-              <img src={james} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            <a href="https://nice-stone-0faf59710.4.azurestaticapps.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={ahmad} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">James Mackowiak</h3> {/* YOUR NAME GOES HERE */}
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Ahmad Yousuf</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-0 text-gray-300">
+              ChairForceOne Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
+
+              <a href="mailto:ahmadoyousuf@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+                ahmadoyousuf@lewisu.edu
+              </a>
+            </div>
+          </div> 
+        </div>
+      </div>    
+
+     {/* THIS IS THE INFORMATION FOR THE SPRING 2024 TEAM*/}
+
+
+     <div className="flex items-center justify-center ">
+      <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2024 Team</h1>
+    </div>
+     {/* Container for contact information */}
+     <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+      {/* Grid layout for contact information */}
+      <div className="grid-cols-1 gap-6 flex flex-wrap justify-center">
+          <div className="flex flex-col items-center">
+            <a href="https://samdwag.github.io/Salzoubi/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={sami} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Sami Alzoubi</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-0 text-gray-300">
               Core2 Group
             </div>
             <div className="mt-2 text-sm text-gray-400">
 
-              <a href="mailto:jamesvmackowiak@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+              <a href="mailto:samialzoubi@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
 
-                jamesvmackowiak@lewisu.edu
+                samialzoubi@lewisu.edu
               </a>
             </div>
           </div>

@@ -1,3 +1,4 @@
+//This file handles all database and js when the user is creating a custom quiz. 
 import React, {useState, useEffect} from 'react'
 import { useNavigate } from "react-router-dom";
 import QuizQuestionsList from './QuizQuestionsList'

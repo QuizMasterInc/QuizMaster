@@ -18,6 +18,7 @@ export default function UpdateProfile() {
   const currentPasswordRef = useRef()
   const newPasswordRef = useRef()
   const confirmNewPasswordRef = useRef()
+  const displayNameRef = useRef()
   const {currentUser, updateEmail, updatePassword, isGoogleAuth, reAuthUser} = useAuth()
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
@@ -61,6 +62,18 @@ export default function UpdateProfile() {
     if(newEmailRef.current.value !== currentUser.email){
         promises.push(updateEmail(newEmailRef.current.value))
     }
+
+// If there is a new display name entered, add to the promises list
+    if (displayNameRef.current.value !== currentUser.email) {
+      promises.push(updateProfile(currentUser, {
+        displayName: displayNameRef.current.value
+      }).then(() => {
+        setMessage("Display name updated successfully")
+      }).catch((error) => {
+        setError("Failed to update display name: " +error.message)
+      }))
+    }
+
 //Fulfilling the promises
     await Promise.all(promises).then(() => {
         setMessage('Profile has been updated')
@@ -93,6 +106,21 @@ export default function UpdateProfile() {
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
               <input type="hidden" name="remember" defaultValue="true" />
               <div className="-space-y-px rounded-md shadow-sm">
+              <div> 
+                  {/* TO DO: MODIFY DISPLAY NAME TO INCLUDE USERS WHO SIGN IN VIA GOOGLE */}
+                  <label htmlFor="displayName" className="sr-only">
+                    Display Name 
+                  </label>
+                  <label className="block mt-3 font-semibold text-left">New Display Name</label>
+                  <input
+                    type="text"
+                    id="displayName"
+                    ref={displayNameRef}
+                    defaultValue={currentUser.displayName || ''}
+                    className="mt-3 relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                    placeholder="Enter new display name"
+                  />
+                </div>
                 <div>
                   <label htmlFor="email-address" className="sr-only">
                     New Email

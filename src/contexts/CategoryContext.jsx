@@ -25,45 +25,45 @@ export function useCategory() {
 // TODO: add questions for history and sports sections
 export function CategoryProvider({children}){
   const [quizSubcategories] = useState({
-    //'history': [],
     'geography': ['world', 'americas'],
     'science': ['biology', 'chemistry', 'astronomy'],
-    'sports': ['Soccer', 'Basketball', 'Football'],
+    'sports': ['soccer', 'basketball', 'football'],
     'entertainment': ['tv', 'music', 'movies'],
     'mathematics': ['algebra', 'geometry'],
+    'history': ['global','america'],
   
   })
   // TODO: add questions for history and sports sections
   //quiz categories. order matters!
   const [quizCategories] = useState([
-      //'History',
       'Geography',
       'Science',
       'Sports',
       'Entertainment',
-      'Mathematics'
+      'Mathematics',
+      'History'
     ]);
     
     // TODO: add icons back in once questions are added
     //icons for each quiz category. order matters!
   const [icons] = useState([
-    //<Book className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>,
     <World className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <FlaskVial className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <Basketball className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
     <Ticket className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
-    <Calculator className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>
+    <Calculator className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"}/>,
+    <Book className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>
   ]);
 
   // TODO: add questions for history and sports sections
   //destinations for each category. order matters!
   const [destinations] = useState([
-    //'history',
     'geography',
     'science',
     'sports',
     'entertainment',
-    'mathematics'
+    'mathematics',
+    'history'
   ]);
 
   const [category, setCategory] = useState(
@@ -78,6 +78,11 @@ export function CategoryProvider({children}){
   const [amount, setAmount] = useState(
     sessionStorage.getItem('amount') || ''
   )
+  const [duration, setDuration] = useState(
+    sessionStorage.getItem('duration') || 5 // Default duration is 5 minutes
+  );
+  const [showTimer, setShowTimer] = useState(true);
+
   //Update sessionStorage whenever category or subcategories change
   useEffect(() => {
     sessionStorage.setItem('category', category);
@@ -94,6 +99,10 @@ export function CategoryProvider({children}){
   useEffect(() => {
     sessionStorage.setItem('amount', amount);
   }, [amount])
+
+  useEffect(() => {
+    sessionStorage.setItem('duration', duration);
+  }, [duration]);
 
   //Change category
   const selectCategory = (category) => {
@@ -128,6 +137,17 @@ export function CategoryProvider({children}){
     setAmount(amount)
   }
 
+  //function to update duration of quiz
+  const updateDuration = (newDuration) => {
+    setDuration(newDuration);
+  };
+
+    // Function to toggle timer visibility
+    const toggleTimerVisibility = () => {
+      setShowTimer((prev) => !prev);
+  };
+
+
   //packages data
   const categoryData = {
       quizCategories: quizCategories,
@@ -140,11 +160,16 @@ export function CategoryProvider({children}){
       subcategories: subcategories,
       difficulty: difficulty,
       amount: amount,
+      duration :duration,
+      showTimer: showTimer,
+
       selectCategory: selectCategory,
       toggleSubcategory: toggleSubcategory,
       allSubcategories: allSubcategories,
       selectDifficulty: selectDifficulty,
-      selectAmount: selectAmount
+      selectAmount: selectAmount,
+      updateDuration: updateDuration, 
+      toggleTimerVisibility: toggleTimerVisibility,
   }
 
   //Context provider

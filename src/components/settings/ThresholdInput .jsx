@@ -1,9 +1,10 @@
 // GlobalThresholdInput.js
+//This file is were the user can adjust thier GlobalThresholdInput parameter by entering a number to the input field
 import React from 'react';
-import { usePassThreshold } from '../../contexts/PassThresholdContext';
+import { useVolumeSettings } from '../../contexts/VolumeContext';
 
 const GlobalThresholdInput = () => {
-  const { passThreshold, setPassThreshold } = usePassThreshold();
+  const { passThreshold, setPassThreshold } = useVolumeSettings();
 
   return (
     <div className="mb-4">
