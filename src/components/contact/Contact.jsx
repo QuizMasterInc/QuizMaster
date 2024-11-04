@@ -22,7 +22,7 @@ import hima from "../../assets/hima.jpg"
 import brian from "../../assets/brian.jpg"
 import ahmad from "../../assets/ahmad.jpg"
 import sami from "../../assets/sami.jpg"
-
+import erick from "../../assets/erick.jpg"
 import demetrius from "../../assets/demetrius.jpg"
 
 {/* IMPORT YOUR IMAGES ABOVE */}
