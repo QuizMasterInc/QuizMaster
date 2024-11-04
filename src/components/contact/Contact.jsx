@@ -90,6 +90,24 @@ const Contact = ({}) => (
               </a>
             </div>
           </div>
+
+        <div className="flex flex-col items-center">
+        <a href="https://node-js-portfolio-ajb8b4grbscbe0a6.centralus-01.azurewebsites.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+              <img src={erick} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+            </a>
+            <h3 className="mt-4 text-lg font-medium text-gray-300">Erick Martinez</h3> {/* YOUR NAME GOES HERE */}
+            <div className="mt-0 text-gray-300">
+              SacredMyth Group
+            </div>
+            <div className="mt-2 text-sm text-gray-400">
+
+              <a href="mailto:erickrmartinezzepeda@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+                erickrmartinezzepeda@lewisu.edu
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>     
         
