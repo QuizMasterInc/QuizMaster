@@ -18,15 +18,6 @@ function Question ({number, questionText, choices, answer, isCompleted, callback
         setFlagged(!flagged)
         onFlag(!flagged)
     }
-    // //Handles when the user selects an answer to a question
-    // const handleSelect = (index) => {
-    //     setActiveIndex(index);
-    //     if (!isCompleted && !isAnswered) { // Check if the question is already answered
-    //         setIsAnswered(true); // Mark the question as answered so its not counted twice
-    //         onAnswer(); // Call the function to increment the answered count in the parent
-    //     }
-    // };
-
 
     const handleSelect = (index) => {
         // Check if the user clicked the already-selected answer
