@@ -22,7 +22,7 @@ function QuizActivity({}){
    * These are the state variables.
    */
   //const { category } = useLocation().state; //this gets sent here when a user clicks the button for the category. 
-  const {category, subcategories, difficulty, amount, duration, showTimer} = useCategory()
+  const {category, subcategories, difficulty, amount, duration, showTimer, showPauseButton} = useCategory()
   const [questions, setQuestions] = useState([])
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [completed, setCompleted] = useState(false)
@@ -364,6 +364,7 @@ function QuizActivity({}){
           timeLeft={loading ? null : 5}
           showTimer={showTimer}
           loading = {loading}
+          showPauseButton={showPauseButton}
         />    
     </div>
     <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg -md:text-md -md:p-4">Welcome to the {category} Quiz</h1>

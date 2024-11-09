@@ -4,7 +4,7 @@
  */
 import { useState, useEffect } from "react";
 
-function Timer({ timeLimit, onStopTimer, timerFinished, showTimer, loading }) {
+function Timer({ timeLimit, onStopTimer, timerFinished, showTimer, loading , showPauseButton}) {
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [isPaused, setIsPaused] = useState(false);
   const [halfTimeAlert, setHalfTimeAlert] = useState(false);
@@ -87,7 +87,7 @@ function Timer({ timeLimit, onStopTimer, timerFinished, showTimer, loading }) {
           {seconds}
         </div>
         <div style={{ marginTop: '10px' }}>
-          <button onClick={handlePauseToggle}>{isPaused ? "Resume" : "Pause"}</button>
+        {showPauseButton && (<button onClick={handlePauseToggle}> {isPaused ? "Resume" : "Pause"}</button>)}
         </div>
       </div>
     </div>

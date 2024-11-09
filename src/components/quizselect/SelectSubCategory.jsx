@@ -10,12 +10,13 @@ import { Link } from 'react-router-dom';
 import QuizBackButton from './QuizBackButton';
 import StarRating from './DifficultyRating';
 import QuestionAmount from './QuestionAmount';
-import ShowTime from './ShowTime';
+import ShowTime from './ShowTimeButton';
 import TimerLegnth from './TimerLength';
+import ShowPauseButton from './ShowPauseButton';
 
 function SelectSub() {
 
-  const {quizSubcategories, category, toggleSubcategory, subcategories, difficulty, selectDifficulty, amount, selectAmount, duration, updateDuration, showTimer, toggleTimerVisibility } = useCategory()
+  const {quizSubcategories, category, toggleSubcategory, subcategories, difficulty, selectDifficulty, amount, selectAmount, duration, updateDuration, showTimer, toggleTimerVisibility,showPauseButton, togglePauseButtonVisibility } = useCategory()
 
 
 
@@ -54,8 +55,11 @@ function SelectSub() {
         {/* Timer visibility toggle */}
         <ShowTime toggleTimerVisibility={toggleTimerVisibility} showTimer={showTimer} />
 
+        {/* Conditionally render ShowPauseButton if the timer is toogled to yes */}
+        {showTimer && <ShowPauseButton togglePauseButtonVisibility={togglePauseButtonVisibility} showPauseButton={showPauseButton} />}
+  
         {/* Conditionally render TimerLength if the timer is toogled to yes */}
-        {showTimer && <TimerLegnth duration={duration} updateDuration={updateDuration} />}   
+        {showTimer && <TimerLegnth duration={duration} updateDuration={updateDuration} />} 
 
         <div className='flex justify-center items-center w-1/2 p-4 text-center -sm:p-1'>
           { subcategories.length > 0 && (<QuizStartButton category={"Start"} destination={"quizstarted"}/>)}
