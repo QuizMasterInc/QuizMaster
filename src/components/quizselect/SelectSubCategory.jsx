@@ -48,7 +48,7 @@ function SelectSub() {
         <div>
         <StarRating difficulty={difficulty} selectDifficulty={selectDifficulty}/>
         </div>  
-        <h2 className="text-2xl font-bold text-gray-300">Select Amount</h2>
+        <h2 className="text-2xl font-bold text-gray-300">Select Amount of Questions</h2>
         <div>
         <QuestionAmount min={1} max={10} amount={amount} selectAmount={selectAmount}/>
         </div>      
