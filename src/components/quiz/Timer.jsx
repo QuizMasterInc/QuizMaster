@@ -50,21 +50,7 @@ function Timer({ timeLimit, onStopTimer, timerFinished, showTimer, loading , sho
 
   return (
     <div>
-      <div style={{position: 'relative', zIndex: 1}}>
-        {isPaused && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0,0,0,0.5)', //Adds a semi-transparent overlay
-            backdropFilter: 'blur(6px)', //Adds a blurring effect
-            zIndex: 5, //Lower z-index allows timer button to still be visible
-          }} />
-        )}
-      </div>
-      <div style={{ display: showTimer ? 'block' : 'none', position: 'relative', width: '120px', height: '120px', zIndex: 1 }}>
+      <div style={{ display: showTimer ? 'block' : 'none', position: 'relative', width: '120px', height: '120px' }}>
         <svg width="120" height="120">
           <circle
             cx="60"
@@ -100,7 +86,7 @@ function Timer({ timeLimit, onStopTimer, timerFinished, showTimer, loading , sho
           {minutes}:{seconds < 10 ? "0" : ""}
           {seconds}
         </div>
-        <div style={{ marginTop: '10px', position: 'relative', zIndex: 10 }}>
+        <div style={{ marginTop: '10px' }}>
         {showPauseButton && (<button onClick={handlePauseToggle}> {isPaused ? "Resume" : "Pause"}</button>)}
         </div>
       </div>
