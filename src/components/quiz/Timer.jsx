@@ -59,8 +59,8 @@ function Timer({ timeLimit, onStopTimer, timerFinished, showTimer, loading , sho
             width: '100%',
             height: '100%',
             backgroundColor: 'rgba(0,0,0,0.5)', //Adds a semi-transparent overlay
-            backdropFilter: 'blur(5px)', //Adds a blurring effect
-            zIndex: 5, //Lowers z-index to allow button to appear over
+            backdropFilter: 'blur(6px)', //Adds a blurring effect
+            zIndex: 5, //Lower z-index allows timer button to still be visible
           }} />
         )}
       </div>
