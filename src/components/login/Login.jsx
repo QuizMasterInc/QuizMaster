@@ -77,7 +77,7 @@ export default function Login() {
               </label>
             )}
           </div>
-          <div className="mt-4 bg-white shadow-md rounded-lg px-8 py-6">
+          <div className="mt-4 bg-gray-200/50 shadow-md rounded-lg px-8 py-6">
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
                 <label
