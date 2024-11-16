@@ -34,7 +34,7 @@ function QuestionAmount ({ min, max , amount, selectAmount}) {
       <div className="flex items-center space-x-2">
         <input
           type="number"
-          className="w-16 text-center border border-gray-300 bg-gray-800 text-gray-300"
+          className="w-16 text-center border border-gray-300 bg-gray-800 text-gray-300 mt-3"
           value={amount}
           onChange={handleInputChange}
           onKeyDown={(e) => e.key === "Enter" && handleEnterKey()}//Handle enter
