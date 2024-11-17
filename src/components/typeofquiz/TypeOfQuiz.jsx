@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import UserIcon from '../icons/User'
-import QuizMasterIcon from '../icons/Scroll'
+import UserIcon from '../icons/User.jsx'
+import QuizMasterIcon from '../icons/Scroll.jsx'
 
 const TypeOfQuiz = () => {
   return (
