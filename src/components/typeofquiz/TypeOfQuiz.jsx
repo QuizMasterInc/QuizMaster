@@ -11,13 +11,13 @@ const TypeOfQuiz = () => {
             
             <Link to={'/quizzes'} >
                 <div className="p-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600">
-                    <QuizMasterIcon className="w-6 h-6 mr-3" />
+                    <QuizMasterIcon className="w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8" />
                     <div className="-sm:text-sm">QuizMaster Quizzes</div>
                 </div>
             </Link>
             <Link to={'/allcustomquizzes'} >
                 <div className="p-4 mx-10 -sm:mx-2 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600">
-                    <UserIcon className="w-6 h-6 mr-3" />
+                    <UserIcon className="w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8" />
                     <div className="-sm:text-sm">User-Made Quizzes</div>
                 </div>
             </Link>
