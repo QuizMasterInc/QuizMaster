@@ -66,8 +66,13 @@ function Home() {
         {isAuthenticated ? (
           // Display message for authenticated users
           <div className="md:w-1/2">
-            <h1 className="pl-4 mt-10 text-3xl font-bold text-gray-300">
+            <h1 className="pl-4 mt-10 text-3xl font-bold text-gray-300 text-center">
               You are Logged in already!
+            </h1>
+            <h1 className="pl-4 mt-10 text-3xl font-bold text-gray-300 text-center">
+              You are now able to do everything Quiz Master has to offer. You can take 
+              quizzes made by our developers or quizzes made from other users. You can
+              make your own quizzes to study for test or just test your knowledge. 
             </h1>
           </div>
         ) : (
