@@ -17,7 +17,7 @@ const TypeOfQuiz = () => {
             </Link>
             <Link to={'/allcustomquizzes'} >
                 <div className="p-4 mx-10 -sm:mx-2 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600">
-                    <UserIcon className="w-6 h-8 mr-3" />
+                    <UserIcon className="w-6 h-6 mr-3" />
                     <div className="-sm:text-sm">User-Made Quizzes</div>
                 </div>
             </Link>
