@@ -1,18 +1,25 @@
-// HighContrastToggle.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const HighContrastToggle = () => {
-  const [isHighContrast, setIsHighContrast] = useState(false);
+  const [isHighContrast, setIsHighContrast] = useState(() => {
+    // Check localStorage for saved state on initial render
+    return localStorage.getItem('isHighContrast') === 'true';
+  });
 
   const toggleContrast = () => {
-    setIsHighContrast(!isHighContrast);
-    // Toggle the high-contrast class on the body element
-    if (isHighContrast) {
-      document.body.classList.remove('high-contrast');
-    } else {
-      document.body.classList.add('high-contrast');
-    }
+    setIsHighContrast(prevState => !prevState);
   };
+
+  // Effect to add/remove high-contrast class based on isHighContrast state
+  useEffect(() => {
+    if (isHighContrast) {
+      document.body.classList.add('high-contrast');
+      localStorage.setItem('isHighContrast', 'true');  // Save state to localStorage
+    } else {
+      document.body.classList.remove('high-contrast');
+      localStorage.setItem('isHighContrast', 'false'); // Save state to localStorage
+    }
+  }, [isHighContrast]); // Runs every time isHighContrast changes
 
   return (
     <div className="mb-4 flex justify-center items-center">
