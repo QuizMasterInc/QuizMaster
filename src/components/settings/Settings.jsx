@@ -4,8 +4,10 @@ This is the main settings page , this page renders  all the setting components w
 import React from 'react';
 import VolumeControl from './VolumeControl';
 import GlobalThresholdInput from './ThresholdInput '; 
+import HighContrastToggle from './HighContrastToggle';
 
 const SettingsPage = () => {
+  
 
   return (
     <div className="container mx-auto px-4 py-8 text-gray-300">
@@ -13,6 +15,9 @@ const SettingsPage = () => {
       <div className="bg-gray-900 rounded-lg shadow-lg p-6">
         <p className="text-lg mb-4">Adjust your settings below:</p>
 
+
+        <HighContrastToggle />
+        
         <GlobalThresholdInput />
         <VolumeControl />
       </div>
