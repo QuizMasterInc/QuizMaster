@@ -129,7 +129,6 @@ const Contact = ({}) => (
             </div>
           </div>
 
-
         
     {/* THIS IS THE INFORMATION FOR THE FALL 2024 ChairForceOne group*/}
 
