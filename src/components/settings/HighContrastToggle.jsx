@@ -6,7 +6,12 @@ const HighContrastToggle = () => {
 
   const toggleContrast = () => {
     setIsHighContrast(!isHighContrast);
-    // Placeholder: You can add actual functionality here to change the theme.
+    // Toggle the high-contrast class on the body element
+    if (isHighContrast) {
+      document.body.classList.remove('high-contrast');
+    } else {
+      document.body.classList.add('high-contrast');
+    }
   };
 
   return (
