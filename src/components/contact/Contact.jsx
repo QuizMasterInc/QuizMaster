@@ -130,6 +130,7 @@ const Contact = ({}) => (
           </div>
 
         
+        
     {/* THIS IS THE INFORMATION FOR THE FALL 2024 ChairForceOne group*/}
 
     <div className="flex items-center justify-center ">
