@@ -21,12 +21,15 @@ const HighContrastToggle = () => {
             className="sr-only" 
           />
           <div 
-            className={`w-12 h-6 bg-gray-700 rounded-full ${isHighContrast ? 'bg-blue-500' : ''} transition-colors duration-200`}
+            className={`w-12 h-6 rounded-full transition-colors duration-200 ${isHighContrast ? 'bg-blue-500' : 'bg-gray-700'}`}
           ></div>
           <div
-            className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transform ${isHighContrast ? 'translate-x-6' : ''} transition-transform duration-200`}
+            className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transform transition-transform duration-200 ${isHighContrast ? 'translate-x-6' : ''}`}
           ></div>
         </div>
+        <span className={`ml-4 text-sm font-semibold ${isHighContrast ? 'text-blue-500' : 'text-gray-400'}`}>
+          {isHighContrast ? 'On' : 'Off'}
+        </span>
       </label>
     </div>
   );
