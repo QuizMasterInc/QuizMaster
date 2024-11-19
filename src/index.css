@@ -15,7 +15,8 @@
 }
 
 :root {
-  background-color: #242424;
+  /* Default background color */
+  --background-color: #242424; 
   
 }
 
@@ -26,6 +27,11 @@
 
 /* Apply background color to body */
 body {
+  background-color: var(--background-color);
+}
+
+/* Optional: Global Tailwind Utilities (for other uses) */
+.bg-background {
   background-color: var(--background-color);
 }
   

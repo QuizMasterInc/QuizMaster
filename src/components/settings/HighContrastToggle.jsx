@@ -19,7 +19,7 @@ const HighContrastToggle = () => {
       document.body.classList.remove('high-contrast');
       localStorage.setItem('isHighContrast', 'false'); // Save state to localStorage
     }
-  }, [isHighContrast]); // Runs every time isHighContrast changes
+  }, [isHighContrast]);
 
   return (
     <div className="mb-4 flex justify-center items-center">
