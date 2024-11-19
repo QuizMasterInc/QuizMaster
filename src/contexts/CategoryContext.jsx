@@ -83,6 +83,8 @@ export function CategoryProvider({children}){
   );
   const [showTimer, setShowTimer] = useState(true);
 
+  const [showPauseButton, setPauseButton] = useState(true);
+
   //Update sessionStorage whenever category or subcategories change
   useEffect(() => {
     sessionStorage.setItem('category', category);
@@ -147,6 +149,11 @@ export function CategoryProvider({children}){
       setShowTimer((prev) => !prev);
   };
 
+    // Function to toggle timer visibility
+    const togglePauseButtonVisibility = () => {
+      setPauseButton((prev) => !prev);
+  };
+
 
   //packages data
   const categoryData = {
@@ -162,6 +169,7 @@ export function CategoryProvider({children}){
       amount: amount,
       duration :duration,
       showTimer: showTimer,
+      showPauseButton: showPauseButton,
 
       selectCategory: selectCategory,
       toggleSubcategory: toggleSubcategory,
@@ -170,6 +178,7 @@ export function CategoryProvider({children}){
       selectAmount: selectAmount,
       updateDuration: updateDuration, 
       toggleTimerVisibility: toggleTimerVisibility,
+      togglePauseButtonVisibility: togglePauseButtonVisibility,
   }
 
   //Context provider

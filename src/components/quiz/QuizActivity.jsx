@@ -14,6 +14,7 @@ import Timer from './Timer';
 import ProgressBar from './ProgressBar'
 import BackToTop from './BackToTopButton'
 import TimerLength from '../quizselect/TimerLength.jsx'
+import BackGroundMusic from "../sounds/BackGroundMusic.jsx";
 import { useCategory } from '../../contexts/CategoryContext';
  
 function QuizActivity({}){
@@ -21,7 +22,7 @@ function QuizActivity({}){
    * These are the state variables.
    */
   //const { category } = useLocation().state; //this gets sent here when a user clicks the button for the category. 
-  const {category, subcategories, difficulty, amount, duration, showTimer} = useCategory()
+  const {category, subcategories, difficulty, amount, duration, showTimer, showPauseButton} = useCategory()
   const [questions, setQuestions] = useState([])
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [completed, setCompleted] = useState(false)
@@ -35,6 +36,7 @@ function QuizActivity({}){
   const [timerFinished, setTimerFinished] = useState(false);
   const [answeredCount, setAnsweredCount] = useState(0);
   const [flaggedQuestion, setFlaggedQuestion] = useState(0)
+
   
 
   /**
@@ -66,6 +68,7 @@ function QuizActivity({}){
         return newCount;
     });
   };
+
   const handleSubmit = () => {
     if(flaggedQuestion > 0) {
       const userConfirmed = window.confirm(
@@ -75,9 +78,9 @@ function QuizActivity({}){
         return //if user wants to go back to review flagged
       }
     }
-    setCompleted(true)
-    setDoneModalActive(true)
-    setTimerFinished(true)
+    setCompleted(true) //Set Quiz state to completed
+    setDoneModalActive(true) //Open Done modal when quiz is completed
+    setTimerFinished(true) //stop timer when  is completed
 
   }
 
@@ -361,6 +364,7 @@ function QuizActivity({}){
           timeLeft={loading ? null : 5}
           showTimer={showTimer}
           loading = {loading}
+          showPauseButton={showPauseButton}
         />    
     </div>
     <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg -md:text-md -md:p-4">Welcome to the {category} Quiz</h1>
@@ -398,7 +402,8 @@ function QuizActivity({}){
   <ScaleLoader className="block items-center justify-center gray-900 mt-8 -md:ml-16" loading={loading} color={loadingColor} width={25} height={100}/>
   {doneModalActive && <DoneModal isActive={setDoneModalActive} amountCorrect={amountCorrect} totalAmount={amount} active={doneModalActive} />}
   
-  <BackToTop /> {/* This button will stay on screen at all times to bring user to the top of page during a quiz*/}
+  <BackToTop /> {/*Rendered the button that will stay on bottom right screen at all times to bring user to the top of page during a quiz*/}
+  {!completed && <BackGroundMusic />} {/* Play music while the quiz is ongoing */}
   </>
   )
 }
