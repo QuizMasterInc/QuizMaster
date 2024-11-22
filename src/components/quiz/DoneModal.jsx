@@ -21,7 +21,7 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading }) =>
     
     //set varible to user inputed PassThreshold
     const { passThreshold } = useVolumeSettings();
-
+  console.log('Modal open')
     // Handles which sounds to play depending on the score
     const [playPassSound, setPassSound] = useState(false);
     const [playFailSound, setFailSound] = useState(false);
