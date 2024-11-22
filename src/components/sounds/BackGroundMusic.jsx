@@ -10,7 +10,7 @@ import MozartSerenadeG from "./SoundAssets/BackGroundMusic/Mozart-Serenade-in-G-
 const musicTracks = [MozartPianoConcerto1, MozartSonataNo3, MozartSerenadeG];
 
 function BackGroundMusic() {
-  const { volume } = useVolumeSettings(); // Access volume state from VolumeContext
+  const { backgroundMusicVolume } = useVolumeSettings(); // Access volume state from VolumeContext
 
   useEffect(() => {
     const audio = new Audio();
@@ -25,7 +25,7 @@ function BackGroundMusic() {
 
       currentTrack = nextTrack;
       audio.src = nextTrack;
-      audio.volume = volume;
+      audio.volume = backgroundMusicVolume;
       audio.play();
 
       // Play another random track when this one ends
@@ -38,7 +38,7 @@ function BackGroundMusic() {
       audio.pause();
       audio.currentTime = 0;
     };
-  }, [volume]);
+  }, [backgroundMusicVolume]);
 
   return null; // This component does not render any UI
 }

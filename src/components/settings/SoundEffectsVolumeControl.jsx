@@ -1,5 +1,5 @@
 // VolumeControl.jsx
-//This creates the field area where the user can choose how lud they want thier sound effects to be
+//This creates the field area where the user can choose how loud they want thier sound effects to be
 import React from 'react';
 import { useVolumeSettings } from '../../contexts/VolumeContext';
 

@@ -2,9 +2,10 @@
 This is the main settings page , this page renders  all the setting components where user can adjust them to thier liking 
 */
 import React from 'react';
-import VolumeControl from './VolumeControl';
+import VolumeControl from './SoundEffectsVolumeControl';
 import GlobalThresholdInput from './ThresholdInput '; 
 import HighContrastToggle from './HighContrastToggle';
+import BackGroundMusicControl from './BackGroundMusicControl';
 
 const SettingsPage = () => {
   
@@ -20,6 +21,7 @@ const SettingsPage = () => {
         
         <GlobalThresholdInput />
         <VolumeControl />
+        <BackGroundMusicControl/>
       </div>
     </div>
   );
