@@ -31,7 +31,6 @@ function QuizActivity({}){
   const [loading, setLoading] = useState(true)
   const [loadingColor, setLoadingColor] = useState("#111827")
   const [amountCorrect, setAmountCorrect] = useState(0)
-  const [numberOfQuestions, setNumberOfQuestions] = useState(0)
   const { currentUser } = useAuth()
   const [timerFinished, setTimerFinished] = useState(false);
   const [answeredCount, setAnsweredCount] = useState(0);
@@ -187,7 +186,6 @@ function QuizActivity({}){
           }
           */
       setQuestions(shuffle(shuffledQuestions));
-      setNumberOfQuestions(amount);
       setLoading(false);
       return data;
     }
@@ -348,7 +346,7 @@ function QuizActivity({}){
       {/* Render the progress bar text */}
       <ProgressBar
         answeredCount={answeredCount}
-        totalQuestions={numberOfQuestions}
+        totalQuestions={amount}
       />
     </div>
   </div>
