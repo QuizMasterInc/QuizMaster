@@ -21,7 +21,7 @@ export default function NavBar(completed) {
 
   // Function to check if you are on the quiz tab and displays a warning message if you try to leave the quiz page.
   const handleClick = (e) => {
-    if (location.pathname !== quizstarted) {
+    if (location.pathname == '/quizstarted') {
       // Display a confirmation dialog
       const confirmation = window.confirm('Are you sure you want to leave? You are on a page where navigation may lead to loss of unsaved data.');
       
@@ -30,30 +30,31 @@ export default function NavBar(completed) {
         e.preventDefault();
       }
     }
+    window.scrollTo(0, 0); 
   };
 
   // Store the scroll position before navigating away
   useEffect(() => {
     const handleScroll = () => {
       if (navRef.current) {
-        setScrollY(navRef.current.scrollTop);
+        setScrollY(navRef.current.scrollTop); // Store the nav bar scroll position
       }
     };
 
-    // Listen for scroll events to capture the scroll position
-    window.addEventListener("scroll", handleScroll);
+    // Listen for scroll events to capture the scroll position of the nav bar
+    if (navRef.current) {
+      navRef.current.addEventListener("scroll", handleScroll);
+    }
 
-    // Cleanup the event listener
+    // Cleanup the event listener when the component unmounts
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      // Store the scroll position when the component unmounts
       if (navRef.current) {
-        sessionStorage.setItem("navScrollY", scrollY);
+        navRef.current.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [scrollY]);
+  }, []);
 
-  // Restore the scroll position when the component is mounted
+  // Restore the scroll position only for the nav bar when the component is mounted
   useEffect(() => {
     const storedScrollPosition = sessionStorage.getItem("navScrollY");
     if (storedScrollPosition && navRef.current) {
@@ -61,10 +62,19 @@ export default function NavBar(completed) {
     }
   }, []);
 
+  // Store the scroll position in sessionStorage when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (navRef.current) {
+        sessionStorage.setItem("navScrollY", navRef.current.scrollTop);
+      }
+    };
+  }, []);
+
   return (
     <div
       ref={navRef} // Attach the ref to the nav container
-      className="fixed w-24 h-[75vh] bg-gray-900 rounded-md shadow-lg left-2 top-10 space-y-10 overflow-y-auto  no-scrollbar overflow-visible " 
+      className="fixed w-24 h-[75vh] bg-gray-900 rounded-md shadow-lg left-2 top-10 space-y-10 overflow-y-auto no-scrollbar"
     >
       <div className="flex flex-col items-center p-2 mt-4 ">
         <Q />
@@ -83,20 +93,19 @@ export default function NavBar(completed) {
       </div>
       <div className="hover:scale-125 duration-300">
         <NavLink to="/typeofquiz" className={"flex flex-col items-center"} onClick={handleClick}>
-          <NavBarIcon icon={<School />} text={"Take a Quiz!"} /> 
+          <NavBarIcon icon={<School />} text={"Take a Quiz!"} />
         </NavLink>
       </div>
       <div className="hover:scale-125 duration-300">
         <NavLink to="/customquiz" className={"flex flex-col items-center"} onClick={handleClick}>
-          <NavBarIcon icon={<Writing />} text={"Create a Quiz!"} /> 
+          <NavBarIcon icon={<Writing />} text={"Create a Quiz!"} />
         </NavLink>
       </div>
-      
       <div className="hover:scale-125 duration-300">
         {/* Conditionally render the sign in button if the user is not currently signed in */}
         {currentUser ? null : (
           <NavLink to="/signin" className={`flex flex-col items-center`} onClick={handleClick}>
-            <NavBarIcon icon={<SignIn className={"navbar-icon"} />} text={"Sign In"} /> 
+            <NavBarIcon icon={<SignIn className={"navbar-icon"} />} text={"Sign In"} />
           </NavLink>
         )}
         {/* Conditionally render the dashboard button if the user is currently signed in */}
@@ -106,15 +115,14 @@ export default function NavBar(completed) {
           </NavLink>
         )}
       </div>
-            {/*For some reaosn the 'Info'icon doesn listen to the tailwinf the NavBaricon file,
-             component might be defining its own size,override them by adding className="w-10 h-10" 
-             directly to the icon component  */}
+      {/* For some reason the 'Info' icon doesn't listen to the Tailwind settings from the NavBarIcon file,
+          the component might be defining its own size, override them by adding className="w-10 h-10" 
+          directly to the icon component */}
       <div className="hover:scale-125 duration-300">
         <NavLink to="/about" className={"flex flex-col items-center"} onClick={handleClick}>
           <NavBarIcon icon={<Info className={"w-10 h-10"} />} text={"Information"} />
         </NavLink>
       </div>
-      
       <div className="hover:scale-125 duration-300">
         <NavLink to="/contact" className={"flex flex-col items-center"} onClick={handleClick}>
           <NavBarIcon icon={<Email />} text={"Contact Us"} />
@@ -127,7 +135,6 @@ export default function NavBar(completed) {
           <NavBarIcon icon={<Gear />} text={"Settings"} />
         </NavLink>
       </div>
-      
     </div>
-  ); 
+  );
 }
