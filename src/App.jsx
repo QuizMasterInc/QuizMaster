@@ -7,7 +7,7 @@
  */
 import './App.css'
 import NavBar from './components/navbar/NavBar'
-import NavBarUser from './components/navbar/NavBarUser'
+import NavBarUser from './components/navbar/NavBarUser' //I bealive not used anymore to handle logout funtion , this is hadled by Header.jsx
 import { Route, Routes } from "react-router-dom";
 import NotFound from './components/404/NotFound';
 import SelectQuiz from './components/quizselect/SelectQuiz';
@@ -162,8 +162,12 @@ function App() {
             }/>
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <NavBar/>
-          
+
+          <div className="navbar">
+          <NavBar />
+          </div> 
+
+
           <Footer />
       </AuthProvider>
       
