@@ -20,6 +20,7 @@ const Chatbot = () => {
     help: "I'm here to help! You can ask me about quizzes, categories, difficulty levels, quiz results, and more.",
     settings: "You can adjust settings such as volume, contrast, and other preferences in the settings page.",
     feedback: "We'd love to hear your feedback! Please visit the contact page to leave your comments.",
+    intro: "Welcome! This chatbot is here to help you navigate the app. You can ask about quizzes, difficulty levels, categories, and more. For the best experience, try typing keywords like 'quiz', 'difficulty', or 'help' instead of full questions.",
     default: "Sorry, I didn't understand that. Could you please ask something else?"
   };
 
@@ -92,6 +93,11 @@ const Chatbot = () => {
         <div style={styles.chatbotContainer}>
           <div style={styles.chatWindow}>
             <div style={styles.chatMessages}>
+              {messages.length === 0 && (
+                <div style={styles.botMessage}>
+                  <div style={styles.messageBubble}>{responses.intro}</div>
+                </div>
+              )}
               {messages.map((message, index) => (
                 <div key={index} style={message.sender === 'user' ? styles.userMessage : styles.botMessage}>
                   <div style={styles.messageBubble}>{message.text}</div>
