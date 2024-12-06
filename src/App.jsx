@@ -37,6 +37,7 @@ import Footer from './components/footer/footer';
 import Header from './components/header/header';
 import Settings from './components/settings/Settings'
 import { VolumeSettingsProvider } from './contexts/VolumeContext';
+import Chatbot from './components/chatbot/chatbot'
 
 function App() {
   //importing destinations here from the context. 
@@ -162,6 +163,8 @@ function App() {
             }/>
             <Route path="*" element={<NotFound />} />
           </Routes>
+
+          <Chatbot />
 
           <div className="navbar">
           <NavBar />
