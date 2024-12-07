@@ -30,7 +30,7 @@ export function CategoryProvider({children}){
     'sports': ['soccer', 'basketball', 'football'],
     'entertainment': ['tv', 'music', 'movies'],
     'mathematics': ['algebra', 'geometry'],
-    'history': ['global','america'],
+    'history': ['global','america', 'norse mythology'],
   
   })
   // TODO: add questions for history and sports sections
