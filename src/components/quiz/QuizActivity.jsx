@@ -36,7 +36,6 @@ function QuizActivity({}){
   const [answeredCount, setAnsweredCount] = useState(0);
   const [flaggedQuestion, setFlaggedQuestion] = useState(0)
 
-  
 
   /**
    * Callback function to send state of children question components back up to this parent component
@@ -200,11 +199,21 @@ function QuizActivity({}){
       event.preventDefault();
       event.returnValue = '';
     };
-  
+     
+    const handlePopState = () => {
+      if (!completed) {
+        const leave = window.confirm("You have unsaved progress. Are you sure you want to leave?");
+        if (!leave) {
+          // Prevent navigating back by pushing the current state to history again
+          history.pushState(null, document.title, location.href);
+        }
+      }
+    };
     window.addEventListener('beforeunload', handleBeforeUnload);
-  
+    window.addEventListener('popstate', handlePopState);
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 

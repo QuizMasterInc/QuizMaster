@@ -11,6 +11,7 @@ const AllCustomQuizzes = () => {
 	let [loading, setLoading] = useState(true)
 	
 	// quizzes contains array of all custom quizzes
+	
   	let [quizzes, setQuizzes] = useState([
 		{
 			"numQuestions": 0,
@@ -18,7 +19,7 @@ const AllCustomQuizzes = () => {
 			"creator": "",
 			"questions": {},
 			"quizTaken": 0,
-			"title": "Loading...",
+			"title": "Loading Questions...",
 			"lastEdit": "",
 			"tags": []
 	}])
