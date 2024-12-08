@@ -28,7 +28,7 @@ export function CategoryProvider({children}){
     'geography': ['world', 'americas'],
     'science': ['biology', 'chemistry', 'astronomy'],
     'sports': ['soccer', 'basketball', 'football'],
-    'entertainment': ['tv', 'music', 'movies'],
+    'entertainment': ['tv', 'music', 'movies', 'video games'],
     'mathematics': ['algebra', 'geometry'],
     'history': ['global','america', 'norse mythology'],
   
