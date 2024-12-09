@@ -31,6 +31,7 @@ const BackGroundMusicControl = () => {
     { label: 'Mozart Serenade in G major', value: 'Mozart-Serenade-in-G-major.mp3' },
     { label: 'Mozart Sonata No. 3 in B-flat', value: 'Mozart-Sonata-No-3-In-B-Flat.mp3' },
     { label: 'Debussy Clair de Lune', value: 'Debussy - Clair de Lune.mp3'},
+    { label: 'Beethoven Fur Elise', value: 'Beethoven-Fur-Elise.mp3'},
   ];
 
   return (
