@@ -12,6 +12,9 @@ import DoneModal from "./DoneModal";
 import HelpModal from './HelpModal';
 import Timer from './Timer';
 import { useParams } from 'react-router-dom'
+import ProgressBar from './ProgressBar'
+import BackToTop from './BackToTopButton'
+import BackGroundMusic from "../sounds/BackGroundMusic.jsx";
 
 import { useCategory } from '../../contexts/CategoryContext';
 
@@ -31,6 +34,11 @@ function QuizActivity({}){
   const [amount, setAmount] = useState(0)
   const { currentUser } = useAuth()
   const [timerFinished, setTimerFinished] = useState(false);
+  const [answeredCount, setAnsweredCount] = useState(0);
+  const [flaggedQuestion, setFlaggedQuestion] = useState(0)
+
+
+
 
 
   const { quizID } = useParams()
@@ -43,6 +51,29 @@ function QuizActivity({}){
       setAmountCorrect((amountCorrect) => amountCorrect + 1)
     }
   }, [amountCorrect])
+
+  //handles flagged questions 
+  const handleFlagButton = (flagged) => {
+    setFlaggedQuestion((prevCount) =>
+      flagged ? prevCount + 1 : prevCount - 1 
+    )
+  }
+
+    //Keeps track how many questions the user has answered
+    const handleAnswerQuestion = (isSelected) => {
+      setAnsweredCount((prevCount) => {
+          let newCount = prevCount;
+          
+          if (isSelected) {
+              newCount += 1; // Increment if the user is selecting an answer
+          } else {
+              newCount -= 1; // Decrement if the user is deselecting an answer
+          }
+          
+          console.log("Answered Count:", newCount); // Log to check the value
+          return newCount;
+      });
+    };
 
   /**
    * Randomizes questions
@@ -141,6 +172,23 @@ function QuizActivity({}){
   const handleStopTimer = () => {
     setTimerFinished(true);
   };
+
+  //hnadles when user clicks submit
+  const handleSubmit = () => {
+    if(flaggedQuestion > 0) {
+      const userConfirmed = window.confirm(
+        `You have flagged ${flaggedQuestion} questions. Do you still want to submit?`
+      )
+      if (!userConfirmed) {
+        return //if user wants to go back to review flagged
+      }
+    }
+    setCompleted(true) //Set Quiz state to completed
+    setDoneModalActive(true) //Open Done modal when quiz is completed
+    setTimerFinished(true) //stop timer when  is completed
+
+  }
+
   
   /**
    * This is the actual view element. Here we are creating the actual 
@@ -150,6 +198,19 @@ function QuizActivity({}){
    */
   return (
   <>
+
+    {/* This is the div for the progress bar at the top of the screen */}
+    <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
+    {/* Box around the text content */}
+    <div className="bg-blue-600 text-white p-4 rounded-lg shadow-lg inline-block pointer-events-auto">
+      {/* Render the progress bar text */}
+      <ProgressBar
+        answeredCount={answeredCount}
+        totalQuestions={amount}
+      />
+    </div>
+  </div>
+
   <div className="flex flex-col items-center justify-center -md:ml-16">
    {!loading && <div>
     <div style={{  position: 'fixed',  top: '50px', right: '20px', padding: '0.5rem',fontSize: '1.5rem',backgroundColor: '#111827',
@@ -160,7 +221,9 @@ function QuizActivity({}){
           onTimeUp={handleTimeUp}
           timerFinished={timerFinished}
           timeLeft={loading ? null : 5}
+          showTimer={true} //hard coded for now since there there is no  UI to choose other wise
           loading = {loading}
+          showPauseButton={true} //hard coded for now since there there is no  UI to choose other wise
         />    
     </div> 
     <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg -md:text-md -md:p-4">Welcome to the {quiz.title} Quiz</h1>
@@ -169,24 +232,36 @@ function QuizActivity({}){
       onClick={() => setHelpModalActive(true)}>
       Help
     </button>
-    {helpModalActive && <HelpModal isActive={setHelpModalActive} active={helpModalActive}/>}
+      {helpModalActive && <HelpModal 
+      isActive={setHelpModalActive} 
+      active={helpModalActive}
+      amount = {amount}
+      duration={5} //hard coded for now since there there is no UI to choose other wise
+      />}
+    
     {questions.slice(0, amount).map((question, index) => (
-      <Question key={index} number={index} questionText={question.questionText} choices={question.choices} answer={question.answer} 
-        isCompleted={completed} callback={grabCorrect}/>
+      <Question key={index} 
+      number={index} 
+      questionText={question.questionText} 
+      choices={question.choices} 
+      answer={question.answer} 
+      isCompleted={completed} 
+      callback={grabCorrect} 
+      onFlag={handleFlagButton} 
+      onAnswer={handleAnswerQuestion} /*onNextQuestion={goToNextQuestion*//>
       ))} 
     {!loading && 
     <button className="flex flex-row text-xl h-10 mt-8 items-center justify-center text-gray-300 bg-gray-900 w-1/6 hover:bg-gray-600 rounded-lg shadow-lg -md:text-sm -md:p-10"
-      onClick={() => {
-      setCompleted(true);
-      setDoneModalActive(true);
-      setTimerFinished(true); 
-      }}
-      disabled={completed} >
-      Submit!
-    </button>}
+    onClick={handleSubmit}
+    disabled={completed} >
+    Submit!
+  </button>}
   </div>
   <ScaleLoader className="block items-center justify-center gray-900 mt-8 -md:ml-16" loading={loading} color={loadingColor} width={25} height={100}/>
   {doneModalActive && <DoneModal isActive={setDoneModalActive} amountCorrect={amountCorrect} totalAmount={amount} active={doneModalActive} />}
+
+  <BackToTop /> {/*Rendered the button that will stay on bottom right screen at all times to bring user to the top of page during a quiz*/}
+  {!completed && <BackGroundMusic />} {/* Play music while the quiz is ongoing */}
   </>
   )
 }

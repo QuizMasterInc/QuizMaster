@@ -39,7 +39,7 @@ export default function About() {
               Try our quizzes and put that brain into gear.
             </p>
             {/* Separator */}
-            <div className="mt-10 flex items-center gap-x-4">
+            <div className="mt-10 flex gap-x-4">
               <h4 className="flex-none text-sm font-semibold leading-6 text-indigo-600">
                 What’s included
               </h4>
@@ -119,7 +119,7 @@ export default function About() {
           {/* Right side: Team */}
           <div className="-mt-2 p-2 lg:mt-0 lg:w-full lg:max-w-md lg:flex-shrink-0">
             {/* Container for team information */}
-            <div className="rounded-2xl bg-gray-50 py-10 text-center ring-1 ring-inset ring-gray-900/5 lg:flex lg:flex-col lg:justify-center lg:py-16">
+            <div className="rounded-2xl bg-gray-400 py-10 text-center ring-1 ring-inset ring-gray-900/5 lg:flex lg:flex-col lg:justify-center lg:py-16">
               {/* Container for team details */}
               <div className="mx-auto max-w-xs px-8">
                 {/* Heading */}

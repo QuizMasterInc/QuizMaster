@@ -26,11 +26,11 @@ export function useCategory() {
 export function CategoryProvider({children}){
   const [quizSubcategories] = useState({
     'geography': ['world', 'americas'],
-    'science': ['biology', 'chemistry', 'astronomy'],
+    'science': ['biology', 'chemistry', 'astronomy', 'physics'],
     'sports': ['soccer', 'basketball', 'football'],
-    'entertainment': ['tv', 'music', 'movies'],
-    'mathematics': ['algebra', 'geometry'],
-    'history': ['global','america'],
+    'entertainment': ['tv', 'music', 'movies', 'video games'],
+    'mathematics': ['algebra', 'geometry', 'calculus'],
+    'history': ['global','america', 'norse mythology'],
   
   })
   // TODO: add questions for history and sports sections

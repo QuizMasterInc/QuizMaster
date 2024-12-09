@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Simplefied code, this styling is now all implneeted in the NavBarIcon.jsx directly
 .navbar-icon-button{
   @apply flex flex-col items-center m-2 bg-transparent p-3 rounded-3xl hover:bg-gray-600 bg-gray-800
 }
@@ -12,6 +13,19 @@
 
 .navbar-tooltip{
   @apply absolute w-auto p-2 m-2 min-w-max left-20 rounded-md shadow-md text-white bg-gray-900 text-xs font-bold transition-all duration-100 scale-0 origin-left
+}
+*/
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+      display: none;
+  }
+ /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+}
 }
 
 :root {

@@ -1,29 +1,40 @@
 import React, { useEffect } from "react";
 import { useVolumeSettings } from "../../contexts/VolumeContext";
-import sound1 from "./SoundAssets/correct-check.mp3"; // Import the audio file
-import sound2 from "./SoundAssets/ding-effect.mp3"; // Import the audio file
-import sound3 from "./SoundAssets/correct-answer-sound.mp3"; // Import the audio file
 
+// Import each sound effect individually
+import SoundEffect1 from "./SoundAssets/SoundEffects/AverageSoundEffects/correct-answer-sound.mp3"; 
+import SoundEffect2 from "./SoundAssets/SoundEffects/AverageSoundEffects/ding-effect.mp3";
+import SoundEffect3 from "./SoundAssets/SoundEffects/AverageSoundEffects/levelUp.mp3";
+
+// Add the imported files to an array
+const soundEffects = [SoundEffect1, SoundEffect2, SoundEffect3];
 
 function App() {
   const { volume } = useVolumeSettings(); // Access volume state from VolumeContext
 
   useEffect(() => {
-    const sounds = [sound1, sound2, sound3];
-    const randomNumber = Math.floor(Math.random() * 3);
-    const sound = sounds[randomNumber];
-    const audio = new Audio(sound);
-    
-    // Adjust volume before playing the audio
-    audio.volume = volume;
+    const playRandomSound = () => {
+      const randomIndex = Math.floor(Math.random() * soundEffects.length);
+      const selectedSound = soundEffects[randomIndex];
+      const audio = new Audio(selectedSound);
 
-    audio.play();
+      // Adjust volume before playing the audio
+      audio.volume = volume;
+      audio.play();
 
-    return () => {
-      audio.pause();
-      audio.currentTime = 0;
+      return () => {
+        audio.pause();
+        audio.currentTime = 0;
+      };
     };
+
+    const cleanup = playRandomSound();
+
+    // Cleanup when the component unmounts
+    return cleanup;
   }, [volume]); // Re-run effect when volume changes
+
+  return null; // This component does not render any UI
 }
 
 export default App;

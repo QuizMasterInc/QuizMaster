@@ -7,7 +7,7 @@
  */
 import './App.css'
 import NavBar from './components/navbar/NavBar'
-import NavBarUser from './components/navbar/NavBarUser'
+import NavBarUser from './components/navbar/NavBarUser' //I bealive not used anymore to handle logout funtion , this is hadled by Header.jsx
 import { Route, Routes } from "react-router-dom";
 import NotFound from './components/404/NotFound';
 import SelectQuiz from './components/quizselect/SelectQuiz';
@@ -37,6 +37,7 @@ import Footer from './components/footer/footer';
 import Header from './components/header/header';
 import Settings from './components/settings/Settings'
 import { VolumeSettingsProvider } from './contexts/VolumeContext';
+import Chatbot from './components/chatbot/chatbot'
 
 function App() {
   //importing destinations here from the context. 
@@ -162,8 +163,14 @@ function App() {
             }/>
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <NavBar/>
-          
+
+          <Chatbot />
+
+          <div className="navbar">
+          <NavBar />
+          </div> 
+
+
           <Footer />
       </AuthProvider>
       

@@ -31,13 +31,11 @@ function QuizActivity({}){
   const [loading, setLoading] = useState(true)
   const [loadingColor, setLoadingColor] = useState("#111827")
   const [amountCorrect, setAmountCorrect] = useState(0)
-  const [numberOfQuestions, setNumberOfQuestions] = useState(0)
   const { currentUser } = useAuth()
   const [timerFinished, setTimerFinished] = useState(false);
   const [answeredCount, setAnsweredCount] = useState(0);
   const [flaggedQuestion, setFlaggedQuestion] = useState(0)
 
-  
 
   /**
    * Callback function to send state of children question components back up to this parent component
@@ -187,7 +185,6 @@ function QuizActivity({}){
           }
           */
       setQuestions(shuffle(shuffledQuestions));
-      setNumberOfQuestions(amount);
       setLoading(false);
       return data;
     }
@@ -202,11 +199,21 @@ function QuizActivity({}){
       event.preventDefault();
       event.returnValue = '';
     };
-  
+     
+    const handlePopState = () => {
+      if (!completed) {
+        const leave = window.confirm("You have unsaved progress. Are you sure you want to leave?");
+        if (!leave) {
+          // Prevent navigating back by pushing the current state to history again
+          history.pushState(null, document.title, location.href);
+        }
+      }
+    };
     window.addEventListener('beforeunload', handleBeforeUnload);
-  
+    window.addEventListener('popstate', handlePopState);
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
@@ -348,7 +355,7 @@ function QuizActivity({}){
       {/* Render the progress bar text */}
       <ProgressBar
         answeredCount={answeredCount}
-        totalQuestions={numberOfQuestions}
+        totalQuestions={amount}
       />
     </div>
   </div>
