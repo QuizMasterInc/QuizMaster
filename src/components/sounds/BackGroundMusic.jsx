@@ -5,10 +5,10 @@ import { useVolumeSettings } from "../../contexts/VolumeContext";
 import MozartPianoConcerto1 from "./SoundAssets/BackGroundMusic/Mozart_Piano_Concerto_No_1.mp3";
 import MozartSonataNo3 from "./SoundAssets/BackGroundMusic/Mozart-Sonata-No-3-In-B-Flat-Major.mp3";
 import MozartSerenadeG from "./SoundAssets/BackGroundMusic/Mozart-Serenade-in-G-major.mp3";
-import Funk2Min from "./SoundAssets/BackGroundMusic/funk-2-min";
+import Funk2Min from "./SoundAssets/BackGroundMusic/funk-2-min.mp3";
 
 // Add the imported files to an array
-const musicTracks = [MozartPianoConcerto1, MozartSonataNo3, MozartSerenadeG];
+const musicTracks = [MozartPianoConcerto1, MozartSonataNo3, MozartSerenadeG, Funk2Min];
 
 function BackGroundMusic() {
   const { backgroundMusicVolume } = useVolumeSettings(); // Access volume state from VolumeContext
