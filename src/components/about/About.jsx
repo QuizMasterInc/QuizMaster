@@ -39,7 +39,7 @@ export default function About() {
               Try our quizzes and put that brain into gear.
             </p>
             {/* Separator */}
-            <div className="mt-10 flex items-center gap-x-4">
+            <div className="mt-10 flex gap-x-4">
               <h4 className="flex-none text-sm font-semibold leading-6 text-indigo-600">
                 What’s included
               </h4>
