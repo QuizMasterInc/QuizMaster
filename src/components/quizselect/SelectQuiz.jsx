@@ -8,6 +8,7 @@ import QuizSelectButton from './QuizSelectButton';
 import RandomQuizButton from './RandomQuizButton';
 import Random from '../icons/Random';
 import { Link } from 'react-router-dom';
+import CategoryBackButton from './CategoryBackButton';
 
 function SelectQuiz() {
   const {quizCategories, icons, destinations, selectCategory, allSubcategories, selectDifficulty, selectAmount} = useCategory()
@@ -28,6 +29,7 @@ function SelectQuiz() {
           ))}
             <RandomQuizButton category={quizCategories[randomIndex]} icon={<Random/>} allSubcategories={allSubcategories} selectCategory={selectCategory}/>
         </div>
+        <CategoryBackButton />
         <p className="text-sm text-gray-300 -sm:mt-4">
         Not finding the quiz you're looking for?{' '}
         </p>

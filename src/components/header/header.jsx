@@ -31,7 +31,7 @@ export default function Header() {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="text-xs font-bold text-gray-100 hover:underline hover:scale-110 transition-all"
             >
-              Welcome, {currentUser.email}
+              Welcome, {currentUser.displayName}
             </button>
 
             {/* Dropdown menu */}
