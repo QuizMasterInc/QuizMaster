@@ -1,4 +1,3 @@
-// This file will create a progress bar that will be displayed during the quiz showing the progress of the quiz
 import React from "react";
 
 const ProgressBar = ({ answeredCount, totalQuestions }) => {
@@ -11,24 +10,26 @@ const ProgressBar = ({ answeredCount, totalQuestions }) => {
   const textColor = answeredCount === totalQuestions ? "green" : "#fff";
 
   return (
-    <svg width="110" height="40" viewBox="0 0 110 40" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', margin: '0 auto' }}>
-      <ellipse cx="55" cy="20" rx={radiusX} ry={radiusY} stroke="transparent" strokeWidth="6" fill="none" />
-      <ellipse 
-        cx="55" 
-        cy="20" 
-        rx={radiusX} 
-        ry={radiusY} 
-        stroke={barColor} 
-        strokeWidth="6" 
-        fill="none" 
-        strokeDasharray={circumference} 
-        strokeDashoffset={strokeOffset} 
-        style={{ transition: "stroke-dashoffset 0.5s ease-out" }} 
-      />
-      <text x="50%" y="50%" textAnchor="middle" fill={textColor} fontSize="16" fontWeight="bold" dy=".3em">
-        {`${answeredCount} / ${totalQuestions}`}
-      </text>
-    </svg>
+    <div className="flex justify-center w-full mt-4 mb-4">
+      <svg width="110" height="40" viewBox="0 0 110 40" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="55" cy="20" rx={radiusX} ry={radiusY} stroke="transparent" strokeWidth="6" fill="none" />
+        <ellipse 
+          cx="55" 
+          cy="20" 
+          rx={radiusX} 
+          ry={radiusY} 
+          stroke={barColor} 
+          strokeWidth="6" 
+          fill="none" 
+          strokeDasharray={circumference} 
+          strokeDashoffset={strokeOffset} 
+          style={{ transition: "stroke-dashoffset 0.5s ease-out" }} 
+        />
+        <text x="50%" y="50%" textAnchor="middle" fill={textColor} fontSize="16" fontWeight="bold" dy=".3em">
+          {`${answeredCount} / ${totalQuestions}`}
+        </text>
+      </svg>
+    </div>
   );
 };
 
