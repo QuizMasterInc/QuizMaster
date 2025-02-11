@@ -9,6 +9,7 @@
     "test": "jest --config jest.config.cjs"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "esbuild": "^0.17.11",
     "express-handlebars": "^7.1.2",
     "firebase": "^9.23.0",
