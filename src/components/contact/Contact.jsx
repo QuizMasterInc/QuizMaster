@@ -32,7 +32,7 @@ import nuvia from "../../assets/nuvia.jpg"
 
 const Contact = ({}) => (
     // Top-level container with text and background styling
-  <div className="text-gray-300 bg-gray-800 shadow-lg hover:shadow-x pt-15">
+  <div className="text-gray-300 bg-gradient-to-t from-black via-gray-900 to-gray-950 pt-15">
   {/* Inner container for text content */}
     <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 text-center">
     {/* Sub-container for the header and subtitle */}

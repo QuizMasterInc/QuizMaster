@@ -5,7 +5,7 @@ function Home() {
   const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
 
   return (
-    <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-gray-800 text-gray-300">
+    <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-black text-gray-300">
       {/* Hero Section */}
       <section
         className="flex items-center justify-center bg-cover bg-center py-24"
