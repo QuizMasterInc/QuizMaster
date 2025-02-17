@@ -173,6 +173,10 @@ firebase login
 ```sh
 npm install
 ```
+4. Quizmaster Dev Tools
+```sh
+https://docs.google.com/document/d/1zVNjbEqc1afcghZy5nhcnCZJyRKBEyXELaj8Mn5IEM0/edit?usp=sharing
+```
 
 ## Building and Running for Production
 1. Running a local build
