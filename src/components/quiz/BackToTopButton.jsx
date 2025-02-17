@@ -32,7 +32,7 @@ const ScrollToTopButton = () => {
       {isVisible && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-10 right-10 p-3 text-lg bg-gray-900 text-white rounded-lg cursor-pointer z-50"
+          className="fixed bottom-40 right-20 p-3 text-lg bg-gray-900 text-white rounded-lg cursor-pointer z-50 shadow-lg"
         >
           ↑ Top
         </button>

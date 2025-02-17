@@ -5,7 +5,7 @@ function Home() {
   const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
 
   return (
-    <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-gray-800 text-gray-300">
+    <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-black text-gray-300">
       {/* Hero Section */}
       <section
         className="flex items-center justify-center bg-cover bg-center py-24"
@@ -22,7 +22,7 @@ function Home() {
             Unlock the world of quizzes with QuizMaster, your ultimate
             destination for interactive learning.
           </p>
-          {!isAuthenticated && (
+          {!isAuthenticated && ( //Screen that shows when not logged in
             <div className="mt-6 flex justify-center space-x-4">
               <a
                 href="/register"

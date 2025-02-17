@@ -23,6 +23,7 @@ import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
 import UpdateProfile from './components/login/UpdateProfile'
 import PrivateRoute from './routes/PrivateRoute';
+import PublicRoute from './routes/PublicRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import DeveloperRoute from './routes/DeveloperRoute';
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
@@ -57,6 +58,8 @@ function App() {
                   </CategoryProvider>
                 </PrivateRoute>
               } />
+
+              
             ) : (
               <Route path="/" element={<Home />} />
             )

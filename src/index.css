@@ -29,9 +29,8 @@
 }
 
 :root {
-  /* Default background color */
-  --background-color: #242424; 
-  
+  /* Default background color*/ 
+  --background-color: #020202;
 }
 
 /* High Contrast Mode */

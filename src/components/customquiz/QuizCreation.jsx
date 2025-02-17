@@ -190,7 +190,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
             <option value="TrueFalse">True/False</option>
           </select>
           {currentQuestion[6] === "Multiple" ? (
-            [0, 1, 2, 3].map((optionIndex) => (
+            [0, 1, 2, 3, 4].map((optionIndex) => (
             <div key={optionIndex}>
                 <input
                   id= {optionIndex + 1}
@@ -241,7 +241,7 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
                 <option value="">
                   Please select the correct answer
                 </option>
-                {[1, 2, 3, 4].map((question, index) => (
+                {[1, 2, 3, 4, 5].map((question, index) => (
                   <option value={currentQuestion[question]} key={index}>
                     {currentQuestion[question] ? currentQuestion[question] : "Please type an answer for this option"}
                   </option>
