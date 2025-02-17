@@ -3,7 +3,7 @@ import { useVolumeSettings } from "../../contexts/VolumeContext";
 
 // Import each audio file individually
 import ChillMusic from "./SoundAssets/BackGroundMusic/chill-music.mp3";
-import Lofi from "./SoundAssets/BackGroundMusic/Lofi.mp3";
+import Lofi from "./SoundAssets/BackGroundMusic/lofi.mp3";
 import DeepElectronic from "./SoundAssets/BackGroundMusic/deep-electronic.mp3";
 import DebussyClairDeLune from './SoundAssets/BackGroundMusic/Debussy - Clair de Lune.mp3';
 import BeethovenFurElise from './SoundAssets/BackGroundMusic/Beethoven-Fur-Elise.mp3';
