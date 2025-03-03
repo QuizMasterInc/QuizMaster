@@ -157,6 +157,12 @@ export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuiz
             onChange={handleQuizPasswordChange}
            >
            </input> : <></>}
+          <h1 className='font-bold text-gray-300 text-2xl'>Are you a teacher?</h1> 
+          <select name="privateQuiz" id="privateQuiz" onChange={handlePrivateQuizChange} className='ml-10'> 
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+            <button></button>
         </div>
         <div name="quizName">
           <h1 className='font-bold text-gray-300 text-2xl mb-10'>Type Your Quiz Name</h1>
