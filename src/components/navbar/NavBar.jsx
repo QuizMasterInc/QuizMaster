@@ -8,6 +8,7 @@ import Writing from "../icons/Writing";
 import Developer from "../icons/Developer";
 import Email from "../icons/Email";
 import Gear from "../icons/Gear";
+import Board from "../icons/Board";
 import NavBarIcon from "./NavBarIcon";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -122,6 +123,15 @@ export default function NavBar() {
               onClick={handleClick}
             >
               <NavBarIcon icon={<Writing />} text={"Create a Quiz!"} />
+            </NavLink>
+          </div>
+          <div className="hover:scale-125 duration-300">
+            <NavLink
+              to="/flashcards"
+              className={"flex flex-col items-center"}
+              onClick={handleClick}
+            >
+              <NavBarIcon icon={<Board />} text={"Make Flashcards"} />
             </NavLink>
           </div>
           <div className="hover:scale-125 duration-300">
