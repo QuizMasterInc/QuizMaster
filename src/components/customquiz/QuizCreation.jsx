@@ -1,286 +1,218 @@
 //This file handles creating the users custom quiz and making it able to be accessed within the product and database
-import React, {useState, useEffect} from 'react'
-import {useAuth} from '../../contexts/AuthContext'
-import { Link, Navigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 
+export default function QuizCreation({
+  setQuizData,
+  sendQuiz,
+  quizName,
+  setQuizName,
+  privateQuiz,
+  setPrivateQuiz,
+  privateQuizPassword,
+  setPrivateQuizPassword,
+  quizTags,
+  setQuizTags,
+}) {
+  const { logout } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [currentQuestion, setCurrentQuestion] = useState(['', '', '', '', '', '', '']);
 
-
-export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuizName, privateQuiz, setPrivateQuiz, privateQuizPassword, setPrivateQuizPassword, quizTags, setQuizTags }) {
-
-  const { logout, isGoogleAuth} = useAuth()
-  const [loading, setLoading] = useState(true)
-  const [currentQuestion, setCurrentQuestion] = useState(["", "", "", "", "", ""]);
-
-  
-
-
-  /**
-   * Logout function
-   * @returns to signin once the user logs out
-   */
-  async function handleLogout(){
-    setError('')
-     var isAuth = false
-    try{
-        await logout()
-        setLoading(true)
-        isAuth = true
-    }catch{
-        setError("Failed to logout")
+  async function handleLogout() {
+    setError('');
+    let isAuth = false;
+    try {
+      await logout();
+      setLoading(true);
+      isAuth = true;
+    } catch {
+      setError('Failed to logout');
     }
-    setLoading(false)
+    setLoading(false);
     localStorage.setItem('isAuthenticated', 'false');
-    if(isAuth){
-      return (
-        <Navigate to="/signin" />
-      )
-    }
+    if (isAuth) return <Navigate to="/signin" />;
   }
 
-
-    //THIS FUNCTION VERIFIES THAT ALL THE REQUIRED INPUTS ARE NOT EMPTY FOR EACH QUESTION
-  const verifyQuestionInput = (currentQuestion) => {
-    if (currentQuestion[6] === "TrueFalse") {
-      return currentQuestion[0].trim() !== "" && currentQuestion[5] !== "";
-    } else {
-      let valid = true;
-      for (let i = 0; i < currentQuestion.length; i++){
-        if (!currentQuestion[i].trim()) {
-          valid = false;
-          break;
-        }
-      }
-      return valid;
+  const verifyQuestionInput = (question) => {
+    if (question[6] === 'TrueFalse') {
+      return question[0].trim() !== '' && question[5] !== '';
     }
+    return question.every((input) => input.trim() !== '');
   };
 
-  
-
-  //This function updates the information for each individual question
   const handleQuestionChange = (e, index) => {
-    setCurrentQuestion((prevCurrentQuestion) => {
-      const updatedQuestion = [...prevCurrentQuestion];
-      updatedQuestion[index] = e.target.value;
-      return updatedQuestion;
-    })
+    const updated = [...currentQuestion];
+    updated[index] = e.target.value;
+    setCurrentQuestion(updated);
   };
 
-  //this function adds the question to the quizData array after user finished making the question 
-  // ALSO CALLS THE FUNCTION THAT VERIFIES IF THE QUESTION INPUTS ARE ALL COMPLETED
   const addCurrentQuestion = () => {
-    console.log(currentQuestion);
-    const valid = verifyQuestionInput(currentQuestion);
-    if (valid) {
-      if (currentQuestion[6] === "TrueFalse") {
-        const question = [currentQuestion[0], "True", "False", "", "",currentQuestion[5], "TrueFalse"];
-        setQuizData((prevQuizData) => [...prevQuizData, question]);
-      } else {
-        setQuizData((prevQuizData) => [...prevQuizData, currentQuestion]);
-      }
-      setCurrentQuestion(["", "", "", "", "", "", ""]);
-    } else {
-      alert("Please fill out all inputs for the question.");
+    if (!verifyQuestionInput(currentQuestion)) {
+      alert('Please fill out all inputs for the question.');
+      return;
     }
-   };
+    const question = currentQuestion[6] === 'TrueFalse'
+      ? [currentQuestion[0], 'True', 'False', '', '', currentQuestion[5], 'TrueFalse']
+      : currentQuestion;
+    setQuizData((prev) => [...prev, question]);
+    setCurrentQuestion(['', '', '', '', '', '', '']);
+  };
 
-  const handleQuizNameChange = (e) => {
-    setQuizName((prevQuizName) => {
-      let newName = prevQuizName;
-      newName = e.target.value;
-      return newName;
-    });
-  }
+  const handleQuizNameChange = (e) => setQuizName(e.target.value);
 
-  //THIS USE EFFECT CHECKS FOR ANYTIME THE USER SWITCHES FROM YES TO NO ON PRIVATE QUIZ SELECTION AND RESETS THE PASSWORD IF THEY SELECT NO
   useEffect(() => {
-    // Reset password when switching from "Yes" to "No"
-    if (!privateQuiz) {
-      setPrivateQuizPassword("");
-    }
+    if (!privateQuiz) setPrivateQuizPassword('');
   }, [privateQuiz]);
 
-
   const handlePrivateQuizChange = (e) => {
-    setPrivateQuiz((previousChoice) => {
-      let newChoice = previousChoice;
-      newChoice = e.target.value;
-      console.log(newChoice);
-      if (newChoice === "yes") {
-        return true
-      } else if (newChoice === "no") {
-        console.log(privateQuizPassword);
-        return false  
-      }
-    })
-  }
-
-  const handleQuizPasswordChange = (e) => {
-    setPrivateQuizPassword((prevQuizPassword) => {
-      let newPassword = prevQuizPassword;
-      newPassword = e.target.value;
-      console.log(newPassword)
-      return newPassword
-    })
-  }
-
-  const updateQuizTags = (e) => {
-    // Split the input string into an array of tags using space as the delimiter
-    const arr = e.target.value.split(' ');
-    // Update the quizTags state with the new array
-    console.log("Newtags: ", arr)
-    setQuizTags(arr);
+    const value = e.target.value;
+    setPrivateQuiz(value === 'yes');
   };
 
+  const handleQuizPasswordChange = (e) => setPrivateQuizPassword(e.target.value);
 
-  return(
-    <>
-      <h1 className="text-3xl font-bold text-gray-300 mb-10">
-        Create a Custom Quiz!
-      </h1>
-      <div className='w-full'>
-        <div>
-          <div className='flex justify-center mb-10'>
-            <h1 className='font-bold text-gray-300 text-2xl'>Do you want this to be a private quiz?</h1>
-            <select name="privateQuiz" id="privateQuiz" onChange={handlePrivateQuizChange} className='ml-10'>
+  const updateQuizTags = (e) => setQuizTags(e.target.value.split(' '));
+
+  return (
+    <div className="min-h-screen py-16 px-4 md:px-20 bg-black text-white">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-center mb-12">Create a Custom Quiz!</h1>
+
+        {/* Quiz Settings */}
+        <div className="grid md:grid-cols-2 gap-8 mb-12">
+          <div>
+            <label className="block text-xl mb-2">Private Quiz?</label>
+            <select
+              onChange={handlePrivateQuizChange}
+              className="w-full text-black p-2 rounded-md"
+              value={privateQuiz ? 'yes' : 'no'}
+            >
               <option value="no">No</option>
               <option value="yes">Yes</option>
             </select>
-            <button></button>
           </div>
-          {privateQuiz ?
-           <input
-            type='text'
-            placeholder='Type your quiz password'
-            className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
-            id="quizPassword"
-            value={privateQuizPassword}
-            onChange={handleQuizPasswordChange}
-           >
-           </input> : <></>}
-        </div>
-        <div name="quizName">
-          <h1 className='font-bold text-gray-300 text-2xl mb-10'>Type Your Quiz Name</h1>
-          <input 
-          type="text"
-          placeholder='Quiz Name'
-          className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
-          id="quizName"
-          value={quizName}
-          onChange={(e) => handleQuizNameChange(e)}
-          />
+
+          {privateQuiz && (
+            <div>
+              <label className="block text-xl mb-2">Quiz Password</label>
+              <input
+                type="text"
+                value={privateQuizPassword}
+                onChange={handleQuizPasswordChange}
+                className="w-full p-2 text-black rounded-md"
+              />
+            </div>
+          )}
+
+          <div className="md:col-span-2">
+            <label className="block text-xl mb-2">Quiz Name</label>
+            <input
+              type="text"
+              value={quizName}
+              onChange={handleQuizNameChange}
+              className="w-full p-3 text-black rounded-md"
+              placeholder="Enter quiz name"
+            />
+          </div>
         </div>
 
-        <div name="question-form" >
-          <h1 className='font-bold text-gray-300 text-2xl mb-8'>Now start adding your questions!</h1>
+        {/* Question Builder */}
+        <h2 className="text-3xl font-semibold mb-4">Add a Question</h2>
+        <div className="space-y-4">
           <input
-            id="question"
             type="text"
-            placeholder="Enter your question"
             value={currentQuestion[0]}
             onChange={(e) => handleQuestionChange(e, 0)}
-            className='text-2xl bg-gray-300 mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
+            className="w-full p-3 text-black rounded-md"
+            placeholder="Enter your question"
           />
+
           <select
             value={currentQuestion[6]}
             onChange={(e) => handleQuestionChange(e, 6)}
-            className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
-            >
-            <option value= "">Select Question Type</option>
+            className="w-full p-3 text-black rounded-md"
+          >
+            <option value="">Select Question Type</option>
             <option value="Multiple">Multiple Choice</option>
             <option value="TrueFalse">True/False</option>
           </select>
-          {currentQuestion[6] === "Multiple" ? (
-            [0, 1, 2, 3, 4].map((optionIndex) => (
-            <div key={optionIndex}>
-                <input
-                  id= {optionIndex + 1}
-                  type="text"
-                  placeholder={`Option ${optionIndex + 1}`}
-                  value={currentQuestion[optionIndex + 1]}
-                  onChange={(e) => handleQuestionChange(e, optionIndex + 1)}
-                  className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-10 focus:scale-110 duration-300'
-                />
-              </div>
-            ))
-          ) : currentQuestion[6]=== "TrueFalse" ? (
-            
-            <div className='mb-4'>  
-              <h1 className='font-bold text-gray-300 text-2xl mb-8'>Select The Correct Answer!</h1>
 
-              <label htmlFor='true' className='ml-8 text-gray-300 text-x1'>True</label>
+          {currentQuestion[6] === 'Multiple' &&
+            [1, 2, 3, 4, 5].map((idx) => (
               <input
-                type="radio"
-                id="true"
-                name="truefalse"
-                value="True"
-                onChange={(e) => handleQuestionChange(e, 5)}
-                checked={currentQuestion[5] === "True"}
+                key={idx}
+                type="text"
+                value={currentQuestion[idx]}
+                onChange={(e) => handleQuestionChange(e, idx)}
+                className="w-full p-2 text-black rounded-md"
+                placeholder={`Option ${idx}`}
               />
-              <label htmlFor="false" className='ml-8 text-gray-300 text-xl'>False</label>
-              <input
-                type="radio"
-                id="false"
-                name="truefalse"
-                value="False"
-                onChange={(e) => handleQuestionChange(e, 5)}
-                checked={currentQuestion[5] === "False"}
-              />
-            </div>
-          ) : null}
-          {currentQuestion[6] === "Multiple" && (
-            <div name="correctChoiceSection" className='w-full'>
-              <h1 className='font-bold text-gray-300 text-2xl mb-8'>Select The Correct Answer!</h1>
-              <select 
-              name="correctChoice"
-              id="correct-choice"
-              placeholder='Select the correct answer'
-              className='w-full bg-gray-300 h-10 focus:scale-110 duration-300'
-              onChange={(e) => handleQuestionChange(e, 5)}
+            ))}
+
+          {currentQuestion[6] === 'Multiple' && (
+            <select
               value={currentQuestion[5]}
-              >
-                <option value="">
-                  Please select the correct answer
+              onChange={(e) => handleQuestionChange(e, 5)}
+              className="w-full p-2 text-black rounded-md"
+            >
+              <option value="">Select correct answer</option>
+              {[1, 2, 3, 4, 5].map((idx) => (
+                <option key={idx} value={currentQuestion[idx]}>
+                  {currentQuestion[idx] || `Option ${idx}`}
                 </option>
-                {[1, 2, 3, 4, 5].map((question, index) => (
-                  <option value={currentQuestion[question]} key={index}>
-                    {currentQuestion[question] ? currentQuestion[question] : "Please type an answer for this option"}
-                  </option>
-                ))}
-              </select>
+              ))}
+            </select>
+          )}
+
+          {currentQuestion[6] === 'TrueFalse' && (
+            <div className="space-x-4">
+              <label>
+                <input
+                  type="radio"
+                  value="True"
+                  checked={currentQuestion[5] === 'True'}
+                  onChange={(e) => handleQuestionChange(e, 5)}
+                />{' '}
+                True
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="False"
+                  checked={currentQuestion[5] === 'False'}
+                  onChange={(e) => handleQuestionChange(e, 5)}
+                />{' '}
+                False
+              </label>
             </div>
           )}
-          <br />
-          <div name="quizTags">
-          <h1 className='font-bold text-gray-300  text-2xl mb-8'>Type Your Quiz Tags</h1>
-          <input 
-          type="text"
-          placeholder='Eg. history, sports'
-          className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
-          id="quizTags"
-          value={quizTags.join(' ')}
-          onChange={(e) => updateQuizTags(e)}
+
+          <input
+            type="text"
+            value={quizTags.join(' ')}
+            onChange={updateQuizTags}
+            className="w-full p-3 text-black rounded-md"
+            placeholder="Enter tags (e.g. history sports)"
           />
         </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-6 mt-10">
+          <button
+            onClick={addCurrentQuestion}
+            className="bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-md font-semibold"
+          >
+            Add Question
+          </button>
+          <button
+            onClick={sendQuiz}
+            className="bg-green-600 hover:bg-green-500 text-white py-3 rounded-md font-semibold"
+          >
+            Finish Quiz
+          </button>
         </div>
       </div>
-
-
-
-      <div className='grid grid-cols-2 gap-y-3 gap-x-3 -sm:gap-x-24'>
-        <button
-          type = 'submit'
-          onClick={addCurrentQuestion}
-          className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-          Add Question
-        </button>
-
-        <button
-          onClick={sendQuiz}
-          className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20'>
-          Finish Quiz
-        </button>
-
-      </div>     
-    </>
-  )
+    </div>
+  );
 }
