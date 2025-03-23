@@ -149,6 +149,11 @@ function App() {
                 <AllCustomQuizzes />
               </PrivateRoute>
             }/>
+            <Route path="/allteacherquizzes" element={
+              <PrivateRoute>
+                <AllCustomQuizzes />
+              </PrivateRoute>
+            }/>
             <Route path="/updateprofile" element={
               <PrivateRoute>
                 <UpdateProfile />
