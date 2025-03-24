@@ -1,286 +1,307 @@
-//This file handles creating the users custom quiz and making it able to be accessed within the product and database
-import React, {useState, useEffect} from 'react'
-import {useAuth} from '../../contexts/AuthContext'
-import { Link, Navigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 
+export default function QuizCreation({
+  setQuizData,
+  sendQuiz,
+  quizName,
+  setQuizName,
+  privateQuiz,
+  setPrivateQuiz,
+  privateQuizPassword,
+  setPrivateQuizPassword,
+  quizTags,
+  setQuizTags,
+}) {
+  const { logout } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [currentQuestion, setCurrentQuestion] = useState(['', '', '', '', '', '', '']);
+  const [selectedCorrectAnswers, setSelectedCorrectAnswers] = useState([false, false, false, false]);
+  const [droppedOption, setDroppedOption] = useState('');
 
-
-export default function QuizCreation ({ setQuizData, sendQuiz, quizName, setQuizName, privateQuiz, setPrivateQuiz, privateQuizPassword, setPrivateQuizPassword, quizTags, setQuizTags }) {
-
-  const { logout, isGoogleAuth} = useAuth()
-  const [loading, setLoading] = useState(true)
-  const [currentQuestion, setCurrentQuestion] = useState(["", "", "", "", "", ""]);
-
-  
-
-
-  /**
-   * Logout function
-   * @returns to signin once the user logs out
-   */
-  async function handleLogout(){
-    setError('')
-     var isAuth = false
-    try{
-        await logout()
-        setLoading(true)
-        isAuth = true
-    }catch{
-        setError("Failed to logout")
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setLoading(true);
+      localStorage.setItem('isAuthenticated', 'false');
+      return <Navigate to="/signin" />;
+    } catch {
+      alert('Failed to logout');
     }
-    setLoading(false)
-    localStorage.setItem('isAuthenticated', 'false');
-    if(isAuth){
-      return (
-        <Navigate to="/signin" />
-      )
-    }
-  }
-
-
-    //THIS FUNCTION VERIFIES THAT ALL THE REQUIRED INPUTS ARE NOT EMPTY FOR EACH QUESTION
-  const verifyQuestionInput = (currentQuestion) => {
-    if (currentQuestion[6] === "TrueFalse") {
-      return currentQuestion[0].trim() !== "" && currentQuestion[5] !== "";
-    } else {
-      let valid = true;
-      for (let i = 0; i < currentQuestion.length; i++){
-        if (!currentQuestion[i].trim()) {
-          valid = false;
-          break;
-        }
-      }
-      return valid;
-    }
+    setLoading(false);
   };
 
-  
+  const verifyQuestionInput = (question) => {
+    const type = question[6];
+    const optionsFilled = [1, 2, 3, 4].every((idx) => question[idx].trim() !== '');
 
-  //This function updates the information for each individual question
+    if (type === 'TrueFalse') {
+      return question[0].trim() !== '' && question[5] !== '';
+    } else if (type === 'FillInTheBlank') {
+      return question[0].trim() !== '' && question[1].trim() !== '';
+    } else if (type === 'MultipleAnswer') {
+      const atLeastOneSelected = selectedCorrectAnswers.some((val) => val);
+      return question[0].trim() !== '' && optionsFilled && atLeastOneSelected;
+    } else if (type === 'DragAndDrop') {
+      const hasBlank = question[0].includes('[blank]');
+      return question[0].trim() !== '' && hasBlank && optionsFilled && question[5].trim() !== '';
+    } else if (type === 'Multiple') {
+      return question[0].trim() !== '' && optionsFilled && question[5].trim() !== '';
+    }
+    return false;
+  };
+
   const handleQuestionChange = (e, index) => {
-    setCurrentQuestion((prevCurrentQuestion) => {
-      const updatedQuestion = [...prevCurrentQuestion];
-      updatedQuestion[index] = e.target.value;
-      return updatedQuestion;
-    })
+    const updated = [...currentQuestion];
+    updated[index] = e.target.value;
+    setCurrentQuestion(updated);
+    if (index === 0) setDroppedOption('');
   };
 
-  //this function adds the question to the quizData array after user finished making the question 
-  // ALSO CALLS THE FUNCTION THAT VERIFIES IF THE QUESTION INPUTS ARE ALL COMPLETED
   const addCurrentQuestion = () => {
-    console.log(currentQuestion);
-    const valid = verifyQuestionInput(currentQuestion);
-    if (valid) {
-      if (currentQuestion[6] === "TrueFalse") {
-        const question = [currentQuestion[0], "True", "False", "", "",currentQuestion[5], "TrueFalse"];
-        setQuizData((prevQuizData) => [...prevQuizData, question]);
-      } else {
-        setQuizData((prevQuizData) => [...prevQuizData, currentQuestion]);
-      }
-      setCurrentQuestion(["", "", "", "", "", "", ""]);
+    if (!verifyQuestionInput(currentQuestion)) {
+      alert('Please fill out all inputs for the question.');
+      return;
+    }
+
+    const type = currentQuestion[6];
+    let question;
+
+    if (type === 'TrueFalse') {
+      question = [currentQuestion[0], 'True', 'False', '', '', currentQuestion[5], 'TrueFalse'];
+    } else if (type === 'FillInTheBlank') {
+      question = [currentQuestion[0], currentQuestion[1], '', '', '', '', 'FillInTheBlank'];
+    } else if (type === 'MultipleAnswer') {
+      const options = currentQuestion.slice(1, 5);
+      const correctAnswers = selectedCorrectAnswers
+        .map((selected, idx) => (selected ? options[idx] : null))
+        .filter(Boolean);
+      question = [currentQuestion[0], ...options, correctAnswers.join('||'), 'MultipleAnswer'];
+      setSelectedCorrectAnswers([false, false, false, false]);
+    } else if (type === 'DragAndDrop') {
+      question = [currentQuestion[0], ...currentQuestion.slice(1, 5), currentQuestion[5], 'DragAndDrop'];
     } else {
-      alert("Please fill out all inputs for the question.");
+      question = currentQuestion;
     }
-   };
 
-  const handleQuizNameChange = (e) => {
-    setQuizName((prevQuizName) => {
-      let newName = prevQuizName;
-      newName = e.target.value;
-      return newName;
-    });
-  }
+    setQuizData((prev) => [...prev, question]);
+    setCurrentQuestion(['', '', '', '', '', '', '']);
+    setDroppedOption('');
+  };
 
-  //THIS USE EFFECT CHECKS FOR ANYTIME THE USER SWITCHES FROM YES TO NO ON PRIVATE QUIZ SELECTION AND RESETS THE PASSWORD IF THEY SELECT NO
+  const handleQuizNameChange = (e) => setQuizName(e.target.value);
+  const handlePrivateQuizChange = (e) => setPrivateQuiz(e.target.value === 'yes');
+  const handleQuizPasswordChange = (e) => setPrivateQuizPassword(e.target.value);
+  const updateQuizTags = (e) => setQuizTags(e.target.value.split(' '));
+
   useEffect(() => {
-    // Reset password when switching from "Yes" to "No"
-    if (!privateQuiz) {
-      setPrivateQuizPassword("");
-    }
+    if (!privateQuiz) setPrivateQuizPassword('');
   }, [privateQuiz]);
 
+  return (
+    <div className="min-h-screen py-16 px-4 md:px-20 bg-black text-white">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-center mb-12">Create a Custom Quiz!</h1>
 
-  const handlePrivateQuizChange = (e) => {
-    setPrivateQuiz((previousChoice) => {
-      let newChoice = previousChoice;
-      newChoice = e.target.value;
-      console.log(newChoice);
-      if (newChoice === "yes") {
-        return true
-      } else if (newChoice === "no") {
-        console.log(privateQuizPassword);
-        return false  
-      }
-    })
-  }
-
-  const handleQuizPasswordChange = (e) => {
-    setPrivateQuizPassword((prevQuizPassword) => {
-      let newPassword = prevQuizPassword;
-      newPassword = e.target.value;
-      console.log(newPassword)
-      return newPassword
-    })
-  }
-
-  const updateQuizTags = (e) => {
-    // Split the input string into an array of tags using space as the delimiter
-    const arr = e.target.value.split(' ');
-    // Update the quizTags state with the new array
-    console.log("Newtags: ", arr)
-    setQuizTags(arr);
-  };
-
-
-  return(
-    <>
-      <h1 className="text-3xl font-bold text-gray-300 mb-10">
-        Create a Custom Quiz!
-      </h1>
-      <div className='w-full'>
-        <div>
-          <div className='flex justify-center mb-10'>
-            <h1 className='font-bold text-gray-300 text-2xl'>Do you want this to be a private quiz?</h1>
-            <select name="privateQuiz" id="privateQuiz" onChange={handlePrivateQuizChange} className='ml-10'>
+        <div className="grid md:grid-cols-2 gap-8 mb-12">
+          <div>
+            <label className="block text-xl mb-2">Private Quiz?</label>
+            <select
+              onChange={handlePrivateQuizChange}
+              className="w-full text-black p-2 rounded-md"
+              value={privateQuiz ? 'yes' : 'no'}
+            >
               <option value="no">No</option>
               <option value="yes">Yes</option>
             </select>
-            <button></button>
           </div>
-          {privateQuiz ?
-           <input
-            type='text'
-            placeholder='Type your quiz password'
-            className='text-2xl mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
-            id="quizPassword"
-            value={privateQuizPassword}
-            onChange={handleQuizPasswordChange}
-           >
-           </input> : <></>}
-        </div>
-        <div name="quizName">
-          <h1 className='font-bold text-gray-300 text-2xl mb-10'>Type Your Quiz Name</h1>
-          <input 
-          type="text"
-          placeholder='Quiz Name'
-          className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
-          id="quizName"
-          value={quizName}
-          onChange={(e) => handleQuizNameChange(e)}
-          />
+
+          {privateQuiz && (
+            <div>
+              <label className="block text-xl mb-2">Quiz Password</label>
+              <input
+                type="text"
+                value={privateQuizPassword}
+                onChange={handleQuizPasswordChange}
+                className="w-full p-2 text-black rounded-md"
+              />
+            </div>
+          )}
+
+          <div className="md:col-span-2">
+            <label className="block text-xl mb-2">Quiz Name</label>
+            <input
+              type="text"
+              value={quizName}
+              onChange={handleQuizNameChange}
+              className="w-full p-3 text-black rounded-md"
+              placeholder="Enter quiz name"
+            />
+          </div>
         </div>
 
-        <div name="question-form" >
-          <h1 className='font-bold text-gray-300 text-2xl mb-8'>Now start adding your questions!</h1>
+        <h2 className="text-3xl font-semibold mb-4">Add a Question</h2>
+        <div className="space-y-4">
           <input
-            id="question"
             type="text"
-            placeholder="Enter your question"
             value={currentQuestion[0]}
             onChange={(e) => handleQuestionChange(e, 0)}
-            className='text-2xl bg-gray-300 mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
+            className="w-full p-3 text-black rounded-md"
+            placeholder="Enter your question"
           />
+
           <select
             value={currentQuestion[6]}
             onChange={(e) => handleQuestionChange(e, 6)}
-            className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
-            >
-            <option value= "">Select Question Type</option>
+            className="w-full p-3 text-black rounded-md"
+          >
+            <option value="">Select Question Type</option>
             <option value="Multiple">Multiple Choice</option>
+            <option value="MultipleAnswer">Multiple Answer</option>
             <option value="TrueFalse">True/False</option>
+            <option value="FillInTheBlank">Fill in the Blank</option>
+            <option value="DragAndDrop">Drag and Drop</option>
           </select>
-          {currentQuestion[6] === "Multiple" ? (
-            [0, 1, 2, 3, 4].map((optionIndex) => (
-            <div key={optionIndex}>
+
+          {(currentQuestion[6] === 'Multiple' ||
+            currentQuestion[6] === 'MultipleAnswer' ||
+            currentQuestion[6] === 'DragAndDrop') &&
+            [1, 2, 3, 4].map((idx) => (
+              <input
+                key={idx}
+                type="text"
+                value={currentQuestion[idx]}
+                onChange={(e) => handleQuestionChange(e, idx)}
+                className="w-full p-2 text-black rounded-md"
+                placeholder={`Option ${idx}`}
+              />
+            ))}
+
+          {currentQuestion[6] === 'Multiple' && (
+            <select
+              value={currentQuestion[5]}
+              onChange={(e) => handleQuestionChange(e, 5)}
+              className="w-full p-2 text-black rounded-md"
+            >
+              <option value="">Select correct answer</option>
+              {[1, 2, 3, 4].map((idx) => (
+                <option key={idx} value={currentQuestion[idx]}>
+                  {currentQuestion[idx] || `Option ${idx}`}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {currentQuestion[6] === 'MultipleAnswer' && (
+            [1, 2, 3, 4].map((idx) => (
+              <div key={idx} className="flex items-center space-x-2">
                 <input
-                  id= {optionIndex + 1}
-                  type="text"
-                  placeholder={`Option ${optionIndex + 1}`}
-                  value={currentQuestion[optionIndex + 1]}
-                  onChange={(e) => handleQuestionChange(e, optionIndex + 1)}
-                  className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-10 focus:scale-110 duration-300'
+                  type="checkbox"
+                  checked={selectedCorrectAnswers[idx - 1]}
+                  onChange={(e) => {
+                    const updated = [...selectedCorrectAnswers];
+                    updated[idx - 1] = e.target.checked;
+                    setSelectedCorrectAnswers(updated);
+                  }}
                 />
+                <span>{currentQuestion[idx] || `Option ${idx}`}</span>
               </div>
             ))
-          ) : currentQuestion[6]=== "TrueFalse" ? (
-            
-            <div className='mb-4'>  
-              <h1 className='font-bold text-gray-300 text-2xl mb-8'>Select The Correct Answer!</h1>
+          )}
 
-              <label htmlFor='true' className='ml-8 text-gray-300 text-x1'>True</label>
-              <input
-                type="radio"
-                id="true"
-                name="truefalse"
-                value="True"
-                onChange={(e) => handleQuestionChange(e, 5)}
-                checked={currentQuestion[5] === "True"}
-              />
-              <label htmlFor="false" className='ml-8 text-gray-300 text-xl'>False</label>
-              <input
-                type="radio"
-                id="false"
-                name="truefalse"
-                value="False"
-                onChange={(e) => handleQuestionChange(e, 5)}
-                checked={currentQuestion[5] === "False"}
-              />
-            </div>
-          ) : null}
-          {currentQuestion[6] === "Multiple" && (
-            <div name="correctChoiceSection" className='w-full'>
-              <h1 className='font-bold text-gray-300 text-2xl mb-8'>Select The Correct Answer!</h1>
-              <select 
-              name="correctChoice"
-              id="correct-choice"
-              placeholder='Select the correct answer'
-              className='w-full bg-gray-300 h-10 focus:scale-110 duration-300'
-              onChange={(e) => handleQuestionChange(e, 5)}
-              value={currentQuestion[5]}
-              >
-                <option value="">
-                  Please select the correct answer
-                </option>
-                {[1, 2, 3, 4, 5].map((question, index) => (
-                  <option value={currentQuestion[question]} key={index}>
-                    {currentQuestion[question] ? currentQuestion[question] : "Please type an answer for this option"}
-                  </option>
-                ))}
-              </select>
+          {currentQuestion[6] === 'FillInTheBlank' && (
+            <input
+              type="text"
+              value={currentQuestion[1]}
+              onChange={(e) => handleQuestionChange(e, 1)}
+              className="w-full p-2 text-black rounded-md"
+              placeholder="Enter the correct answer"
+            />
+          )}
+
+          {currentQuestion[6] === 'TrueFalse' && (
+            <div className="space-x-4">
+              <label>
+                <input
+                  type="radio"
+                  value="True"
+                  checked={currentQuestion[5] === 'True'}
+                  onChange={(e) => handleQuestionChange(e, 5)}
+                /> True
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="False"
+                  checked={currentQuestion[5] === 'False'}
+                  onChange={(e) => handleQuestionChange(e, 5)}
+                /> False
+              </label>
             </div>
           )}
-          <br />
-          <div name="quizTags">
-          <h1 className='font-bold text-gray-300  text-2xl mb-8'>Type Your Quiz Tags</h1>
-          <input 
-          type="text"
-          placeholder='Eg. history, sports'
-          className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
-          id="quizTags"
-          value={quizTags.join(' ')}
-          onChange={(e) => updateQuizTags(e)}
+
+          {currentQuestion[6] === 'DragAndDrop' && (
+            <>
+              {[1, 2, 3, 4].map((idx) => (
+                <div
+                  key={idx}
+                  draggable
+                  onDragStart={(e) => e.dataTransfer.setData('text/plain', currentQuestion[idx])}
+                  className="p-2 bg-gray-700 rounded-md text-white cursor-move my-1"
+                >
+                  {currentQuestion[idx]}
+                </div>
+              ))}
+
+              <div
+                className="w-full h-16 mt-4 flex items-center justify-center border-2 border-dashed border-blue-400 rounded-md text-center"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const data = e.dataTransfer.getData('text/plain');
+                  setDroppedOption(data);
+                }}
+              >
+                {currentQuestion[0].includes('[blank]')
+                  ? currentQuestion[0].replace('[blank]', droppedOption || '________')
+                  : 'Your sentence must include [blank]'}
+              </div>
+
+              <input
+                type="text"
+                value={currentQuestion[5]}
+                onChange={(e) => handleQuestionChange(e, 5)}
+                className="w-full mt-2 p-2 text-black rounded-md"
+                placeholder="Correct answer (must match one of the options)"
+              />
+            </>
+          )}
+
+          <input
+            type="text"
+            value={quizTags.join(' ')}
+            onChange={updateQuizTags}
+            className="w-full p-3 text-black rounded-md"
+            placeholder="Enter tags (e.g. history sports)"
           />
         </div>
+
+        <div className="grid grid-cols-2 gap-6 mt-10">
+          <button
+            onClick={addCurrentQuestion}
+            className="bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-md font-semibold"
+          >
+            Add Question
+          </button>
+          <button
+            onClick={sendQuiz}
+            className="bg-green-600 hover:bg-green-500 text-white py-3 rounded-md font-semibold"
+          >
+            Finish Quiz
+          </button>
         </div>
       </div>
-
-
-
-      <div className='grid grid-cols-2 gap-y-3 gap-x-3 -sm:gap-x-24'>
-        <button
-          type = 'submit'
-          onClick={addCurrentQuestion}
-          className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-          Add Question
-        </button>
-
-        <button
-          onClick={sendQuiz}
-          className='flex relative items-center justify-center mt-10 p-4 pl-8 pr-8 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:mr-20'>
-          Finish Quiz
-        </button>
-
-      </div>     
-    </>
-  )
+    </div>
+  );
 }
