@@ -1,18 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-function Question({ question, onAnswer }) {
+function Question({ question, onAnswer, isCompleted, onAnswerChange }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
   const [inputAnswer, setInputAnswer] = useState('');
-  const [answered, setAnswered] = useState(false);
   const [droppedOption, setDroppedOption] = useState('');
+  const [hasAnswered, setHasAnswered] = useState(false);
+  const [hasBeenCounted, setHasBeenCounted] = useState(false);
 
-  const isFillBlank = question.type === 'fill' || (!question.choices || question.choices.length === 0);
-  const isMultipleAnswer = question.type === 'multiple' || (question.correctAnswer && question.correctAnswer.includes('||'));
-  const isDragAndDrop = question.type === 'drag';
+  const type = question.type?.toLowerCase();
+  const isFillBlank = type === 'fill';
+  const isMultipleAnswer = type === 'multiple';
+  const isDragAndDrop = type === 'drag';
+
+  // Answer checking when quiz is submitted
+  useEffect(() => {
+    if (isCompleted) {
+      let isCorrect = false;
+  
+      if (isFillBlank) {
+        const user = inputAnswer.trim().toLowerCase();
+        const correct = String(question.correctAnswer).trim().toLowerCase();
+        isCorrect = user === correct;
+      } else if (isMultipleAnswer) {
+        const correctAnswers = String(question.correctAnswer)
+          .split('||')
+          .map(a => a.trim().toLowerCase());
+  
+        const selectedTexts = selectedIndexes.map(i =>
+          question.choices[i]?.trim().toLowerCase()
+        );
+  
+        isCorrect =
+          selectedTexts.length === correctAnswers.length &&
+          selectedTexts.every(ans => correctAnswers.includes(ans));
+      } else if (isDragAndDrop) {
+        isCorrect = droppedOption.trim().toLowerCase() === String(question.correctAnswer).trim().toLowerCase();
+      } else {
+        if (selectedIndex !== null) {
+          const selected = question.choices[selectedIndex]?.trim().toLowerCase();
+          const correct = String(question.correctAnswer).trim().toLowerCase();
+          isCorrect = selected === correct;
+        }
+      }
+  
+      if (onAnswer) onAnswer(isCorrect);
+    }
+  }, [isCompleted]);  
+
+  // Realtime answer count (fires once when user first interacts)
+  useEffect(() => {
+    if (!hasBeenCounted) {
+      const interacted =
+        isFillBlank ? inputAnswer.trim() !== '' :
+        isMultipleAnswer ? selectedIndexes.length > 0 :
+        isDragAndDrop ? droppedOption.trim() !== '' :
+        selectedIndex !== null;
+
+      if (interacted) {
+        if (onAnswerChange) onAnswerChange(true); // count this question
+        setHasBeenCounted(true);
+      }
+    }
+  }, [inputAnswer, selectedIndexes, droppedOption, selectedIndex]);
 
   const handleChoiceClick = (index) => {
-    if (answered) return;
+    if (isCompleted) return;
 
     if (isMultipleAnswer) {
       setSelectedIndexes((prev) =>
@@ -23,39 +76,16 @@ function Question({ question, onAnswer }) {
     }
   };
 
-  const handleSubmit = () => {
-    if (answered) return;
-    let correct = false;
-
-    if (isFillBlank) {
-      correct = inputAnswer.trim() === String(question.correctAnswer).trim();
-    } else if (isMultipleAnswer) {
-      const correctAnswers = String(question.correctAnswer).split('||').map((ans) => ans.trim());
-      const selectedTexts = selectedIndexes.map((i) => question.choices[i]);
-      correct =
-        selectedTexts.length === correctAnswers.length &&
-        selectedTexts.every((ans) => correctAnswers.includes(ans));
-    } else if (isDragAndDrop) {
-      correct = droppedOption === String(question.correctAnswer).trim();
-    } else {
-      if (selectedIndex !== null) {
-        correct = question.choices[selectedIndex] === question.correctAnswer;
-      }
-    }
-
-    setAnswered(true);
-    if (onAnswer) {
-      onAnswer(correct);
-    }
-  };
-
   return (
-    <div className="question p-4 bg-gray-800 text-white rounded-md mb-6 shadow-md">
-      <p className="text-lg font-semibold mb-4">{question.text}</p>
+    <div className="flex flex-col w-7/12 p-4 mb-4 bg-gray-900 text-white rounded-lg shadow-lg -md:pl-2 -md:pr-2 -md:pb-2 -md:w-10/12">
+      <p className="text-lg font-semibold mb-4">
+        {isDragAndDrop && question.questionText.includes('[blank]')
+          ? question.questionText.replace('[blank]', droppedOption || '________')
+          : question.questionText}
+      </p>
 
       {isDragAndDrop ? (
         <>
-          {/* Draggable Choices */}
           <div className="flex flex-wrap gap-2 mb-4">
             {question.choices.map((opt, idx) => (
               <div
@@ -69,7 +99,6 @@ function Question({ question, onAnswer }) {
             ))}
           </div>
 
-          {/* Drop Zone */}
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
@@ -79,9 +108,7 @@ function Question({ question, onAnswer }) {
             }}
             className="w-full h-16 flex items-center justify-center border-2 border-dashed border-blue-400 bg-gray-700 text-white rounded-md mb-4"
           >
-            {question.text.includes('[blank]')
-              ? question.text.replace('[blank]', droppedOption || '________')
-              : 'This question must include [blank]'}
+            Drop your answer here
           </div>
         </>
       ) : isFillBlank ? (
@@ -89,8 +116,9 @@ function Question({ question, onAnswer }) {
           type="text"
           value={inputAnswer}
           onChange={(e) => setInputAnswer(e.target.value)}
-          disabled={answered}
+          disabled={isCompleted}
           className="p-2 rounded w-full text-black mt-2"
+          placeholder="Type your answer here"
         />
       ) : (
         <div className="choices mt-4 space-y-2">
@@ -101,7 +129,7 @@ function Question({ question, onAnswer }) {
                   type="checkbox"
                   checked={selectedIndexes.includes(idx)}
                   onChange={() => handleChoiceClick(idx)}
-                  disabled={answered}
+                  disabled={isCompleted}
                 />
                 <span>{choice}</span>
               </label>
@@ -109,7 +137,7 @@ function Question({ question, onAnswer }) {
               <button
                 key={idx}
                 onClick={() => handleChoiceClick(idx)}
-                disabled={answered}
+                disabled={isCompleted}
                 className={`block w-full text-left p-2 rounded ${
                   selectedIndex === idx
                     ? 'bg-blue-600 text-white'
@@ -122,14 +150,6 @@ function Question({ question, onAnswer }) {
           )}
         </div>
       )}
-
-      <button
-        onClick={handleSubmit}
-        disabled={answered}
-        className="mt-4 bg-green-600 hover:bg-green-500 text-white py-2 px-4 rounded disabled:opacity-50"
-      >
-        Submit
-      </button>
     </div>
   );
 }
