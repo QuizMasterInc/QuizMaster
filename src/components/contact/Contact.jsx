@@ -25,6 +25,7 @@ import sami from "../../assets/sami.jpg"
 import erick from "../../assets/erick.jpg"
 import demetrius from "../../assets/demetrius.jpg"
 import nuvia from "../../assets/nuvia.jpg"
+import kolade from "../../assets/kolade.jpg"
 
 {/* IMPORT YOUR IMAGES ABOVE */}
 
@@ -47,22 +48,52 @@ const Contact = ({}) => (
           <h1 className="pl-8 pt-5 mb-4 text-5xl font-bold text-center">Contact Us</h1>
         </div>
     </div>
+      {/* THIS IS THE INFORMATION FOR THE SPRING 2025 TitanicSwimTeam group*/}
+      <div className="flex items-center justify-center ">
+          <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2025 Team</h1>
+      </div>
 
-    {/* THIS IS THE INFORMATION FOR THE SPRING 2025 SacredMyth group*/}
-    <div className="flex items-center justify-center ">
-      <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2025 Team</h1>
-    </div>
-    
-    {/* Container for contact information */}
+      {/* Container for contact information */}
+      <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+          <div className="flex flex-col items-center">
+              <a href="https://github.com/marskidris"
+                 target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+                  <img src={kolade} alt="headshot"
+                       className="object-cover w-48 h-48 rounded-full"/> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+              </a>
+              <h3 className="mt-4 text-lg font-medium text-gray-300">Kolade Idris</h3> {/* YOUR NAME GOES HERE */}
+              <div className="mt-0 text-gray-300">
+                  TitanicSwimTeam Group
+              </div>
+              <div className="mt-2 text-sm text-gray-400">
+
+                  <a href="mailto:koladeidris@lewisu.edu" target="_blank"
+                     className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+                      koladeidris@lewisu.edu
+                  </a>
+              </div>
+          </div>
+      </div>
+
+
+      {/* THIS IS THE INFORMATION FOR THE SPRING 2025 SacredMyth group*/}
+      <div className="flex items-center justify-center ">
+          <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2025 Team</h1>
+      </div>
+
+      {/* Container for contact information */}
       <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
 
-        {/* Grid layout for contact information */}
-        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-        <div className="flex flex-col items-center">
-            <a href="https://demetrius-price02.github.io/my-static-web-app/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-              <img src={demetrius} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-            </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">Demetrius Price</h3> {/* YOUR NAME GOES HERE */}
+          {/* Grid layout for contact information */}
+          <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+              <div className="flex flex-col items-center">
+                  <a href="https://demetrius-price02.github.io/my-static-web-app/"
+                     target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+                      <img src={demetrius} alt="headshot"
+                           className="object-cover w-48 h-48 rounded-full"/> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+                  </a>
+                  <h3 className="mt-4 text-lg font-medium text-gray-300">Demetrius Price</h3> {/* YOUR NAME GOES HERE */}
             <div className="mt-0 text-gray-300">
               SacredMyth Group
             </div>
