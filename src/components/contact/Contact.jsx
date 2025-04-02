@@ -26,6 +26,7 @@ import erick from "../../assets/erick.jpg"
 import demetrius from "../../assets/demetrius.jpg"
 import nuvia from "../../assets/nuvia.jpg"
 import kolade from "../../assets/kolade.jpg"
+import rudra from "../../assets/rudra.jpg"
 
 {/* IMPORT YOUR IMAGES ABOVE */}
 
@@ -55,6 +56,26 @@ const Contact = ({}) => (
 
       {/* Container for contact information */}
       <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+        <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+          <div className="flex flex-col items-center">
+              <a href="https://github.com/rpat9"
+                 target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+                  <img src={rudra} alt="headshot"
+                       className="object-cover w-48 h-48 rounded-full"/> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+              </a>
+              <h3 className="mt-4 text-lg font-medium text-gray-300">Rudra Patel</h3> {/* YOUR NAME GOES HERE */}
+              <div className="mt-0 text-gray-300">
+                  TitanicSwimTeam Group
+              </div>
+              <div className="mt-2 text-sm text-gray-400">
+
+                  <a href="mailto:koladeidris@lewisu.edu" target="_blank"
+                     className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+                      rudrappatel@lewisu.edu
+                  </a>
+              </div>
+          </div>
           <div className="flex flex-col items-center">
               <a href="https://github.com/marskidris"
                  target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
@@ -74,6 +95,7 @@ const Contact = ({}) => (
                   </a>
               </div>
           </div>
+        </div>
       </div>
 
 
