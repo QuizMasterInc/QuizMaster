@@ -2,84 +2,99 @@
  * This is the dashboard parent component
  * this will only get mounted if the user is logged in
  */
-import React, {useState, useEffect} from 'react'
-import { useCategory } from '../../contexts/CategoryContext'
-import {useAuth} from '../../contexts/AuthContext'
-import { QuizResult } from './QuizResult'
-import CustomQuizzesTable  from './CustomQuizzesTable'
-import { Link, Navigate } from 'react-router-dom'
-import StudyMaterial from './StudyMaterial'
+import React, { useState } from 'react';
+import { useCategory } from '../../contexts/CategoryContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { QuizResult } from './QuizResult';
+import CustomQuizzesTable from './CustomQuizzesTable';
+import { Link } from 'react-router-dom';
+import StudyMaterial from './StudyMaterial';
 
 export default function Dashboard() {
-  /**
-   * state variables
-   */
-    const [error, setError] = useState('')
-    const {currentUser, logout, isGoogleAuth} = useAuth()
-    const [loading, setLoading] = useState(false)
-    const {quizCategories, icons} = useCategory()
-    const [selectedCategory, setSelectedCategory] = useState(null);
+  const [error, setError] = useState('');
+  const { isGoogleAuth } = useAuth();
+  const { quizCategories, icons } = useCategory();
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
-    const handleStudy = (category) => {
-        setSelectedCategory((prevCategory) => (prevCategory === category ? null : category));
-    };
+  const handleStudy = (category) => {
+    setSelectedCategory((prev) => (prev === category ? null : category));
+  };
 
-  /**
-   * The view here...
-   * THis will generate a QuizResult for each quiz category
-   */
   return (
-    <>
-    <div className="flex min-h-full items-center justify-around py-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md space-y-8">
-          <div>
-            <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
-              <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Your QuizMaster Quiz Scores:</h2>
-              <div className="flex felx-col items-center">
-              {quizCategories.map((category, index) => (
-                  /* Grabs the scores for each category if they exist. If none exists, we return 0 for the scores */
-                    <QuizResult category={category} key={index} icon={icons[index]} />
-                ))}
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-gray-200 px-4 py-12">
+      <div className="max-w-7xl mx-auto space-y-20">
+
+        {/* Header Section */}
+        <section className="text-center">
+          <h1 className="text-4xl font-extrabold mb-2 text-white">Your Dashboard</h1>
+          <p className="text-lg text-gray-400">Track your scores, study, and master your knowledge!</p>
+        </section>
+
+        {/* Quiz Scores */}
+        <section>
+          <h2 className="text-3xl font-bold text-center mb-10">Your Quiz Scores</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+            {quizCategories.map((category, index) => (
+              <QuizResult key={index} category={category} icon={icons[index]} />
+            ))}
+          </div>
+          {error && (
+            <div className="mt-6 text-center bg-red-500 text-white py-2 px-4 rounded shadow-md">
+              {error}
+            </div>
+          )}
+        </section>
+
+        {/* Study Buttons */}
+        <section>
+          <h3 className="text-2xl font-semibold text-center mb-6">Study by Category</h3>
+          <div className="flex flex-wrap justify-center gap-4">
+            {quizCategories.map((category, index) => (
+              <button
+                key={index}
+                onClick={() => handleStudy(category)}
+                className="bg-blue-700 hover:bg-blue-600 text-white font-medium py-2 px-5 rounded-lg shadow-lg transition-all"
+              >
+                Study {category}
+              </button>
+            ))}
+          </div>
+          {selectedCategory && (
+            <div className="mt-8">
+              <StudyMaterial category={selectedCategory} />
+            </div>
+          )}
+        </section>
+
+        {/* Custom Quizzes */}
+        <section>
+          <h2 className="text-3xl font-bold text-center mb-10">Your Custom Quizzes</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <CustomQuizzesTable />
+          </div>
+        </section>
+
+        {/* Navigation Buttons */}
+        <section className="flex flex-col sm:flex-row justify-center gap-6 pt-10">
+          <Link to="/typeofquiz">
+            <div className="bg-green-600 hover:bg-green-500 text-white py-3 px-6 rounded-lg text-lg shadow-md transition">
+              Take Another Quiz
+            </div>
+          </Link>
+          <Link to="/flashcards">
+            <div className="bg-purple-600 hover:bg-purple-500 text-white py-3 px-6 rounded-lg text-lg shadow-md transition">
+              View Flashcards
+            </div>
+          </Link>
+          {isGoogleAuth && (
+            <Link to="/updateprofile">
+              <div className="bg-gray-700 hover:bg-gray-600 text-white py-3 px-6 rounded-lg text-lg shadow-md transition">
+                Update Profile
               </div>
-            </div>
-            {error && <label className="block mt-3 font-semi-bold text-center text-black bg-red-400 py-3">{error}</label>}
-          </div>
-            <div className="flex items-center justify-center">
-              {quizCategories.map((category, index) => (
-                <button key={index} onClick={() => handleStudy(category)} className="mt-2 ms-8 bg-gray-800 hover:bg-gray-600 text-gray-300 py-2 px-4 rounded">
-                  Study {category}
-                </button>
-              ))}
-            </div>
-            {selectedCategory && <StudyMaterial category={selectedCategory} />}
-          <div className="">
-            <h2 className="text-2xl font-bold text-gray-300 -md:text-lg">Your Custom Quizzes:</h2>
-            <div className = "flex items-center justify-around">
-              {/* Table of Custom Quizzes here */
-                <CustomQuizzesTable />
-              }
-            </div>
-          </div>
-          {/* Here are buttons that will show up at the bottom of the page that reroute the user accordingly */}
-          <div className='flex flex-col items-center justify-center'>
-            <Link to={'/typeofquiz'}>
-                  <div className='flex relative items-center mb-4 p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-                    Take another quiz!
-                  </div>
             </Link>
-            <Link to={'/flashcards'}>
-                  <div className='flex relative items-center mb-4 p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-                    View Flashcards
-                  </div>
-            </Link>
-            {isGoogleAuth && <Link to={'/updateprofile'}>
-                  <div className='flex relative items-center mb-4 p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-                    Update Profile
-                  </div>
-                  </Link>}
-          </div>
-        </div>
+          )}
+        </section>
+      </div>
     </div>
-    </>
-  )
+  );
 }
