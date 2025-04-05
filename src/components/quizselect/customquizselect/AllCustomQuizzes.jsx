@@ -1,187 +1,177 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from "react";
 import CustomQuizSelectButton from "./CustomQuizSelectButton";
-import SearchBar from "./SearchBar"
+import SearchBar from "./SearchBar";
 import PrivacyList from "./PrivacyList";
 import SortByList from "./SortByList";
 
-
-
 const AllCustomQuizzes = () => {
-	let [loading, setLoading] = useState(true)
-	
-	// quizzes contains array of all custom quizzes
-	
-  	let [quizzes, setQuizzes] = useState([
+	let [loading, setLoading] = useState(true);
+
+	let [quizzes, setQuizzes] = useState([
 		{
-			"numQuestions": 0,
-			"createdAt": "",
-			"creator": "",
-			"questions": {},
-			"quizTaken": 0,
-			"title": "Loading Questions...",
-			"lastEdit": "",
-			"tags": []
-	}])
-	// quizzesToDisplay will be mutable and contain filtered quizzes
-	let [quizzesToDisplay, setQuizzesToDisplay] = useState(quizzes)
-	let [quizzesByDate, setQuizzesByDate] = useState([...quizzes])
-	
-	/**
-	 * This useEffect() is used to grab all custom quizzes
-	 * We are using a Firebase cloud function (grabAllCustomQuizzes)
-	 */
-    useEffect(() => {
-      async function fetchCustomQuizzes() {
-        try {
-          //production: https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabAllCustomQuizzes
-          //testing: http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabAllCustomQuizzes
-          const response = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabAllCustomQuizzes', {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-          });
-    
-          if (response.ok) {
-            const json = await response.json()
-            const quizData = json.data
-            setQuizzes(quizData)
-			setQuizzesToDisplay(quizData)
-			// uses deep clone so quizzesByDate is constant
-			setQuizzesByDate([...quizData])
-			while (quizData.length == 1) {
-				// wait
+			numQuestions: 0,
+			createdAt: "",
+			creator: "",
+			questions: {},
+			quizTaken: 0,
+			title: "Loading Questions...",
+			lastEdit: "",
+			tags: []
+		}
+	]);
+	let [quizzesToDisplay, setQuizzesToDisplay] = useState(quizzes);
+
+	useEffect(() => {
+		async function fetchCustomQuizzes() {
+			try {
+				const response = await fetch(
+					"https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabAllCustomQuizzes",
+					{
+						method: "POST",
+						headers: {
+							Accept: "application/json",
+							"Content-Type": "application/json"
+						}
+					}
+				);
+
+				if (response.ok) {
+					const json = await response.json();
+					const quizData = json.data;
+					setQuizzes(quizData);
+					setQuizzesToDisplay(quizData);
+				} else {
+					console.error("Fetch error:", response.statusText);
+				}
+			} catch (error) {
+				console.error("Fetch error:", error);
 			}
-			quizzesByDate = [...quizData]
-
-          } else {
-            // Handle the case when the response is not okay
-            console.error('Fetch error:', response.statusText);
-          }
-
-        } catch (error) {
-          // Handle any fetch-related errors here
-          console.error('Fetch error:', error)
+			setLoading(false);
 		}
-		setLoading(false)
-      }
-    
-      
-      	fetchCustomQuizzes();
-    }, []);
 
-	
+		fetchCustomQuizzes();
+	}, []);
+
+	function parseCreatedAt(createdAt) {
+		if (!createdAt) return 0;
+
+		// Firestore Timestamp object
+		if (createdAt.seconds) {
+			return createdAt.seconds * 1000;
+		}
+
+		// Fallback for string
+		return new Date(createdAt).getTime();
+	}
+
 	function sortQuizzes() {
-		let sortedQuizzes = quizzes
-		switch(sessionStorage.getItem('sortingQuery')) {
-			case 'newest':
-				sortedQuizzes = [...quizzesByDate]
-				break
+		let sortedQuizzes = [...quizzes];
 
-			case 'oldest':
-				sortedQuizzes = [...quizzesByDate]
-				sortedQuizzes.reverse()
-				break
-
-			case 'title':
-				sortedQuizzes.sort((a, b) => (a.title > b.title) ? 1 : -1)
-				break
-
-			case 'titleReverse':
-				sortedQuizzes.sort((a, b) => (a.title < b.title) ? 1 : -1)
-				break
-
-			case 'shortest':
-				sortedQuizzes.sort((a, b) => (a.numQuestions > b.numQuestions) ? 1 : -1)
-				break
-	
-			case 'longest':					
-				sortedQuizzes.sort((a, b) => (a.numQuestions < b.numQuestions) ? 1 : -1)
-				break
-
+		switch (sessionStorage.getItem("sortingQuery")) {
+			case "newest":
+				sortedQuizzes.sort((a, b) => parseCreatedAt(b.createdAt) - parseCreatedAt(a.createdAt));
+				break;
+			case "oldest":
+				sortedQuizzes.sort((a, b) => parseCreatedAt(a.createdAt) - parseCreatedAt(b.createdAt));
+				break;
+			case "title":
+				sortedQuizzes.sort((a, b) => a.title.localeCompare(b.title));
+				break;
+			case "titleReverse":
+				sortedQuizzes.sort((a, b) => b.title.localeCompare(a.title));
+				break;
+			case "shortest":
+				sortedQuizzes.sort((a, b) => a.numQuestions - b.numQuestions);
+				break;
+			case "longest":
+				sortedQuizzes.sort((a, b) => b.numQuestions - a.numQuestions);
+				break;
 			default:
-				sortedQuizzes = quizzes
+				sortedQuizzes.sort((a, b) => parseCreatedAt(b.createdAt) - parseCreatedAt(a.createdAt));
 		}
 
-		setQuizzes([...sortedQuizzes])
+		setQuizzes(sortedQuizzes);
 	}
 
 	function filterByPrivacy() {
-		let newQuizzes
-		// gets privateQuizzes so we can filter out public quizzes later
-		// no way in Firebase to filter when field does not exist in a document/object
-		let privateQuizzes = quizzes.filter((quiz) => {
-			return quiz.quizPassword != null && quiz.quizPassword != ""
-		  })
+		let newQuizzes;
+		let privateQuizzes = quizzes.filter(
+			(quiz) => quiz.quizPassword != null && quiz.quizPassword !== ""
+		);
 
-		if (sessionStorage.getItem('privacy') === 'Public') {
-			newQuizzes = quizzes.filter((quiz) => {
-				return privateQuizzes.indexOf(quiz) == -1
-			  })
-
-		} else if (sessionStorage.getItem('privacy') === 'Private') {
-			newQuizzes = privateQuizzes
-		
+		if (sessionStorage.getItem("privacy") === "Public") {
+			newQuizzes = quizzes.filter((quiz) => !privateQuizzes.includes(quiz));
+		} else if (sessionStorage.getItem("privacy") === "Private") {
+			newQuizzes = privateQuizzes;
 		} else {
-			newQuizzes = quizzes
+			newQuizzes = quizzes;
 		}
-		
-		setQuizzesToDisplay([...newQuizzes])
+
+		setQuizzesToDisplay([...newQuizzes]);
 	}
 
-	// function that filters quizzes by title
-	function search() {
-		const searchTerm = sessionStorage.getItem('searchQuery').toLowerCase()
-		let searchedQuizzes
-		if(searchTerm.length > 0) {
-			searchedQuizzes = quizzesToDisplay.filter((quiz) => {
-				return quiz.title.toLowerCase().includes(searchTerm) || checkTags(quiz, searchTerm)
-			})
-
-			setQuizzesToDisplay([...searchedQuizzes])
-		} 
-	}
-
-	// function that filters quizzes by tags
 	function checkTags(quiz, searchTerm) {
-		if (quiz.tags != undefined && quiz.tags.length > 0) {
-			quiz.tags.forEach((tag) => {
-				if (tag.toLowerCase().includes(searchTerm)) {
-					console.log(tag, quiz.title)
-					return quiz
-				}
-			})
+		if (quiz.tags && quiz.tags.length > 0) {
+			for (let tag of quiz.tags) {
+				if (tag.toLowerCase().includes(searchTerm)) return true;
+			}
 		}
-		return false
+		return false;
+	}
+
+	function search() {
+		const searchTerm = sessionStorage.getItem("searchQuery")?.toLowerCase() || "";
+		let searchedQuizzes;
+
+		if (searchTerm.length > 0) {
+			searchedQuizzes = quizzesToDisplay.filter(
+				(quiz) =>
+					quiz.title.toLowerCase().includes(searchTerm) ||
+					checkTags(quiz, searchTerm)
+			);
+
+			setQuizzesToDisplay([...searchedQuizzes]);
+		}
 	}
 
 	function searchAndFilter() {
-		sortQuizzes()
-		filterByPrivacy()
-		search()
+		sortQuizzes();
+		filterByPrivacy();
+		search();
 	}
 
-	
-  return (
-    <div>
-        <h1 className="text-2xl font-bold text-gray-300 -sm:text-lg">User-Made Quizzes</h1>
-		<div className="justify-center mt-5">
-			<SearchBar />
+	return (
+		<div>
+			<h1 className="text-2xl font-bold text-gray-300 -sm:text-lg">User-Made Quizzes</h1>
+			<div className="justify-center mt-5">
+				<SearchBar />
+			</div>
+			<div className="flex flex-wrap justify-center mt-3 mx-3">
+				<PrivacyList />
+				<SortByList onSortChange={searchAndFilter} />
+				<button
+					className="bg-white font-bold float-right rounded mx-5 px-3"
+					onClick={searchAndFilter}
+				>
+					Search & Filter
+				</button>
+			</div>
+			<h2 className="text-white mt-4">
+				Displaying {quizzesToDisplay.length} quizzes
+			</h2>
+			<div id="customQuizDiv" className="flex flex-wrap justify-center mt-14 mx-32">
+				{quizzesToDisplay.map((q) => (
+					<CustomQuizSelectButton
+						title={q.title}
+						numQuestions={q.numQuestions}
+						tags={q.tags}
+						uid={q.uid}
+						quizPassword={q.quizPassword}
+					/>
+				))}
+			</div>
 		</div>
-		<div className="flex flex-wrap justify-center mt-3 mx-3">
-			<PrivacyList />
-			<SortByList />
-			<button className="bg-white font-bold float-right rounded mx-5 px-3" onClick={searchAndFilter}>Search & Filter</button>		
-		</div>
-		<h2 className="text-white mt-4">Displaying {quizzesToDisplay.length} quizzes</h2>
-		<div id="customQuizDiv" className="flex flex-wrap justify-center mt-14 mx-32">
-			{quizzesToDisplay.map(q => (<CustomQuizSelectButton title={q.title} numQuestions={q.numQuestions} tags={q.tags} uid={q.uid} quizPassword={q.quizPassword}/>))} 
-	  	</div>
-    </div>
-  )
-  }
+	);
+};
 
-
-export default AllCustomQuizzes
+export default AllCustomQuizzes;
