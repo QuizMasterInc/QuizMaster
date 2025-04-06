@@ -52,7 +52,7 @@ const Contact = ({}) => (
         </div>
         {/* THIS IS THE INFORMATION FOR THE SPRING 2025 TitanicSwimTeam group*/}
         <div className="flex items-center justify-center ">
-            <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2025 Team</h1>
+            <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Fall 2026 Team</h1>
         </div>
 
         {/* Container for contact information */}

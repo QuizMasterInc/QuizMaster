@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 import CategoryBackButton from './CategoryBackButton';
 
 function SelectQuiz() {
-  const {quizCategories, icons, destinations, selectCategory, allSubcategories, selectDifficulty, selectAmount} = useCategory()
+  const {quizCategories, icons, destinations, selectCategory, allSubcategories, selectDifficulty, selectAmount, toggleCategory} = useCategory()
   const randomIndex = Math.floor(Math.random() * quizCategories.length);
   selectDifficulty(0)
   selectAmount(10)
