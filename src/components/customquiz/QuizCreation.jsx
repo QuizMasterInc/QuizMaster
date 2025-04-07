@@ -14,6 +14,8 @@ export default function QuizCreation({
   setPrivateQuizPassword,
   quizTags,
   setQuizTags,
+  teacherQuiz,
+  setTeacherQuiz,
 }) {
   const { logout } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -66,9 +68,31 @@ export default function QuizCreation({
   }, [privateQuiz]);
 
   const handlePrivateQuizChange = (e) => {
-    const value = e.target.value;
-    setPrivateQuiz(value === 'yes');
+    const value = e.target.value === 'yes';
+    if (!teacherQuiz) {
+      setPrivateQuiz(value)
+    }
   };
+
+  const handleTeacherQuizChange = (e) => {
+    const value = e.target.value;
+    setTeacherQuiz(value);
+    
+    // Automatically set quiz to private if it's a teacher quiz
+    if (value) {
+    setPrivateQuiz(true);
+
+    // Optionally set a default password if none exists
+    if (!privateQuizPassword) {
+      setPrivateQuizPassword('teacherOnly');
+    }
+  }
+  else {
+    // If teacher quiz is set to "no", allow changing private quiz status
+    setPrivateQuiz(false);
+    setPrivateQuizPassword(''); // Clear password when not private
+  }
+};
 
   const handleQuizPasswordChange = (e) => setPrivateQuizPassword(e.target.value);
 
@@ -104,6 +128,24 @@ export default function QuizCreation({
               />
             </div>
           )}
+
+          <div>
+            <label className="block text-xl mb-2">Teacher Quiz?</label>
+            <select
+              onChange={handleTeacherQuizChange}
+              className="w-full text-black p-2 rounded-md"
+              value={teacherQuiz ? 'yes' : 'no'}
+            >
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+
+            {teacherQuiz && (
+              <p className="text-sm text-gray-300 mt-2">
+              All teacher-made quizzes are automatically set to private.
+              </p>
+            )}
+          </div>
 
           <div className="md:col-span-2">
             <label className="block text-xl mb-2">Quiz Name</label>

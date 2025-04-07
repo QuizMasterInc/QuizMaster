@@ -7,9 +7,8 @@ import SortByList from "./SortByList";
 
 
 
-const AllCustomQuizzes = () => {
+const AllTeacherQuizzes = () => {
 	let [loading, setLoading] = useState(true)
-	
 	// quizzes contains array of all custom quizzes
 	
   	let [quizzes, setQuizzes] = useState([
@@ -26,6 +25,8 @@ const AllCustomQuizzes = () => {
 	// quizzesToDisplay will be mutable and contain filtered quizzes
 	let [quizzesToDisplay, setQuizzesToDisplay] = useState(quizzes)
 	let [quizzesByDate, setQuizzesByDate] = useState([...quizzes])
+  
+
 	
 	/**
 	 * This useEffect() is used to grab all custom quizzes
@@ -47,14 +48,22 @@ const AllCustomQuizzes = () => {
           if (response.ok) {
             const json = await response.json()
             const quizData = json.data
-            setQuizzes(quizData)
-			setQuizzesToDisplay(quizData)
-			// uses deep clone so quizzesByDate is constant
-			setQuizzesByDate([...quizData])
-			while (quizData.length == 1) {
-				// wait
-			}
-			quizzesByDate = [...quizData]
+
+            let newQuizzes;
+            // Gets the teacher quizzes, so we can filter out non-teacher quizzes later
+            let teacherQuizzes = quizzes.filter((quiz) => quiz.teacherQuiz === true);
+        
+            // Check the teacher quiz flag in sessionStorage
+            if (sessionStorage.getItem('teacherQuiz') === 'Teacher') {
+                // Show only teacher quizzes
+                newQuizzes = teacherQuizzes;
+            } else {
+                // Show all quizzes (filter out teacher quizzes)
+                newQuizzes = quizzes
+            }
+        
+            // Update the quizzes to display with the filtered list
+            setQuizzesToDisplay([...newQuizzes]);
 
           } else {
             // Handle the case when the response is not okay
@@ -184,4 +193,4 @@ const AllCustomQuizzes = () => {
   }
 
 
-export default AllCustomQuizzes
+export default AllTeacherQuizzes

@@ -34,7 +34,7 @@ const TypeOfQuiz = () => {
           </Link>
 
           {/* Teacher-Made Quizzes */}
-          <Link to={'/quizzes'} className="w-full">
+          <Link to={'/allteacherquizzes'} className="w-full">
             <div className="p-6 bg-gray-800 hover:bg-gray-700 rounded-xl shadow-md hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out flex flex-col items-center">
               <UserIcon className="w-12 h-12 fill-white mb-4" />
               <h3 className="text-xl font-semibold">Teacher-Made Quizzes</h3>
