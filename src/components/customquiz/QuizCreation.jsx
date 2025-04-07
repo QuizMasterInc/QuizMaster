@@ -93,9 +93,6 @@ export default function QuizCreation({
   };
 
   const handleQuizNameChange = (e) => setQuizName(e.target.value);
-  const handlePrivateQuizChange = (e) => setPrivateQuiz(e.target.value === 'yes');
-  const handleQuizPasswordChange = (e) => setPrivateQuizPassword(e.target.value);
-  const updateQuizTags = (e) => setQuizTags(e.target.value.split(' '));
 
   useEffect(() => {
     if (!privateQuiz) setPrivateQuizPassword('');

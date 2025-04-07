@@ -70,8 +70,10 @@ const AllTeacherQuizzes = () => {
         } catch (error) {
           // Handle any fetch-related errors here
           console.error('Fetch error:', error)
-		}
-
+		} finally {
+            setLoading(false);
+        }
+    }
 		fetchCustomQuizzes();
 	}, []);
 
@@ -196,7 +198,5 @@ const AllTeacherQuizzes = () => {
 		</div>
 	);
 };
-
-export default AllCustomQuizzes;
 
 export default AllTeacherQuizzes
