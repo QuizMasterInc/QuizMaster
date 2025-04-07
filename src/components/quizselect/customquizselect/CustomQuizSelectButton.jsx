@@ -2,7 +2,7 @@
  * This component hosts a button to click for each custom quizz
  */
 import React, {useState, useEffect} from "react"
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from "../../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database"; 
 
