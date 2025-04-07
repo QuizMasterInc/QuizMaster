@@ -27,6 +27,7 @@ import demetrius from "../../assets/demetrius.jpg"
 import nuvia from "../../assets/nuvia.jpg"
 import kolade from "../../assets/kolade.jpg"
 import rudra from "../../assets/rudra.jpg"
+import ethan from "../../assets/ethan.jpg"
 
 {/* IMPORT YOUR IMAGES ABOVE */}
 
@@ -69,7 +70,7 @@ const Contact = ({}) => (
               </div>
               <div className="mt-2 text-sm text-gray-400">
 
-                  <a href="mailto:koladeidris@lewisu.edu" target="_blank"
+                  <a href="mailto:rudrappatel@lewisu.edu@lewisu.edu" target="_blank"
                      className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
 
                       rudrappatel@lewisu.edu
@@ -95,8 +96,29 @@ const Contact = ({}) => (
                   </a>
               </div>
           </div>
-        </div>
+
+          <div className="flex flex-col items-center">
+              <a href="https://github.com/emyers14"
+                 target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
+                  <img src={ethan} alt="headshot"
+                       className="object-cover w-48 h-48 rounded-full"/> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+              </a>
+              <h3 className="mt-4 text-lg font-medium text-gray-300">Ethan Myers</h3> {/* YOUR NAME GOES HERE */}
+              <div className="mt-0 text-gray-300">
+                  TitanicSwimTeam Group
+              </div>
+              <div className="mt-2 text-sm text-gray-400">
+
+                  <a href="mailto:ethanamyers@lewisu.edu" target="_blank"
+                     className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
+
+                      ethanamyers@lewisu.edu
+                  </a>
+              </div>
+          </div>
+          
       </div>
+    </div>
 
 
       {/* THIS IS THE INFORMATION FOR THE SPRING 2025 SacredMyth group*/}
