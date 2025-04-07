@@ -1,7 +1,7 @@
 import React from "react";
 import Student from "../../assets/student.jpg";
-import Bckg4 from '/Users/nuviahernandez/Lewis/QuizMaster/src/assets/background4.png';
-import Bckg5 from '/Users/nuviahernandez/Lewis/QuizMaster/src/assets/background5.png';
+import Bckg5 from  "../../assets/background5.png";
+;
 
 function Home() {
   const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
