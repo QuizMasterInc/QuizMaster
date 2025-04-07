@@ -1,81 +1,61 @@
-import React, { useEffect, useState } from 'react'
-import { ClipLoader } from 'react-spinners'
-import { useAuth } from '../../contexts/AuthContext'
-import { useNavigate } from 'react-router-dom'
-import Q from '../icons/Q'
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import Q from '../icons/Q';
 
 const CustomQuizzesTable = () => {
-    const [customQuizzes, setCustomQuizzes] = useState(null)
-    const [loading, setLoading] = useState(true)
-    const [loadingColor, setLoadingColor] = useState("d1d5db")
-    const {currentUser} = useAuth()
-    const Qicon = useState(<Q className={"w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8"}/>)[0];
+  const [customQuizzes, setCustomQuizzes] = useState(null);
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const Qicon = <Q className="w-10 h-10 fill-white" />;
 
-    const navigate = useNavigate() // used when custom quiz is clicked
-
-    async function fetchUserQuizzes() {
-      setLoading(true);
-      try {
-        //http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabCustomQuizzesByUser
-        //https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuizzesByUser
-        const response = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuizzesByUser?creator=' + currentUser.uid, {
+  async function fetchUserQuizzes() {
+    try {
+      const response = await fetch(
+        'https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuizzesByUser?creator=' + currentUser.uid,
+        {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
-        })
-        if (response.ok) {
-          const data = await response.json()
-          setCustomQuizzes(data.data)
-        } else {
-          // Handle the case when the response is not ok (e.g., error handling)
-          console.error('Response Error:', response.statusText);
         }
-      } catch (error) {
-        // Handle any fetch-related errors here
-        console.error('Fetch error:', error);
-        console.log(customQuizzes)
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setCustomQuizzes(data.data);
+      } else {
+        console.error('Fetch error:', response.statusText);
       }
-  
-      setLoading(false);
+    } catch (error) {
+      console.error('Fetch error:', error);
     }
+  }
 
-    const renderQuizzes = () => {
-      console.log("custom quizzes: ", customQuizzes)
-      return customQuizzes.map((quiz, index) => (
-         <div key={index} className="w-1/2 p-4 text-center -sm:p-1 hover:cursor-pointer hover:bg-slate-500" onClick={() => navigate(`/customquiz/${quiz.uid}`)} >
-            <div className="flex flex-col items-center p-4 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg">
-                <div className="-m:text-m font-bold">{quiz.data.title}</div>
-                <div>{Qicon}</div>
-            </div>
-        </div>
-        )
-      )
-    }
-    //////////////////////////////////////
-    /**
-   * This is useEffect() is used to grab the results for each quiz
-   * Here we are using a Firebase function 
-  */
   useEffect(() => {
-    fetchUserQuizzes(currentUser.uid);
-    
+    fetchUserQuizzes();
   }, []);
-  ///////////////////////////////////////////////////////////
-  //Conditional 
-  
-  return(
-    <>
-      {
-        customQuizzes == null
-        ?
-        <></>
-        :
-        renderQuizzes()
-      }
-    </>
-  )
-}
 
-export default CustomQuizzesTable
+  if (!customQuizzes) return null;
+
+  return (
+    <>
+      {customQuizzes.length > 0 ? (
+        customQuizzes.map((quiz, index) => (
+          <div
+            key={index}
+            onClick={() => navigate(`/customquiz/${quiz.uid}`)}
+            className="bg-gray-800 hover:bg-gray-700 text-white p-6 rounded-xl shadow-lg cursor-pointer flex flex-col items-center justify-center transition-all duration-200 hover:scale-105"
+          >
+            <div className="font-bold text-xl mb-2 text-center">{quiz.data.title}</div>
+            {Qicon}
+          </div>
+        ))
+      ) : (
+        <p className="text-center text-gray-400 col-span-full">No custom quizzes found.</p>
+      )}
+    </>
+  );
+};
+
+export default CustomQuizzesTable;
