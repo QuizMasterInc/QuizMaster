@@ -1,16 +1,46 @@
 /**
  * This component hosts a button to click for each custom quizz
  */
-import {React, useState} from "react"
+import React, {useState, useEffect} from "react"
+import { useAuth } from "../../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import { getDatabase, ref, get } from "firebase/database"; 
 
 
 
 const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword}) => {
 
+const { currentUser } = useAuth();
 const navigate = useNavigate()
 const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("")
 // const [quizPasswordAttemptCheck, setQuizPasswordAttemptCheck] = useState()
+const [creatorInfo, setCreatorInfo] = useState(null);
+
+// Fetch creator info based on creatorID (uid) (WORKS BUT NOT ALL USERS HAVE THE DISPLAY NAME LABEL IN FB)
+useEffect(() => {
+  const fetchCreatorInfo = async () => {
+    const db = getDatabase();
+    const creatorRef = ref(db, 'users/' + uid); 
+    const creatorSnapshot = await get(creatorRef);
+    if (creatorSnapshot.exists()) {
+      setCreatorInfo(creatorSnapshot.val());  // Store creator's data in state
+    } else {
+      console.log("No creator info found!");
+    }
+  };
+
+  if (uid) {
+    fetchCreatorInfo();
+  }
+}, [uid]); 
+
+
+function displayCreatorName() {
+    if (creatorInfo && creatorInfo.displayName) {
+        return "Created By: " + creatorInfo.displayName;
+      }
+      return "Created By: Unknown"; 
+    }
 
 function displayTags(tags) {
     if (tags != undefined && tags.length > 0) {
@@ -42,6 +72,7 @@ const handleQuizPasswordChange = (e) => {
         {quizPassword ? 
         <div className="flex flex-col items-center p-4 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl ">
             <div className="text-2xl">{title}</div>
+            <div className="text-base">{displayCreatorName()}</div>
             <div className="text-base">{displayTags(tags)}</div>
             <div className="text-base">Questions: {numQuestions}</div>
             <input type="text"

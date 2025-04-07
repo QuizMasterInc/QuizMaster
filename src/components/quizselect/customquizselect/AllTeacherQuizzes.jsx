@@ -4,51 +4,78 @@ import SearchBar from "./SearchBar";
 import PrivacyList from "./PrivacyList";
 import SortByList from "./SortByList";
 
-const AllCustomQuizzes = () => {
-	let [loading, setLoading] = useState(true);
+const AllTeacherQuizzes = () => {
+	let [loading, setLoading] = useState(true)
+	// quizzes contains array of all custom quizzes
 
-	let [quizzes, setQuizzes] = useState([
+    
+	
+  	let [quizzes, setQuizzes] = useState([
 		{
-			numQuestions: 0,
-			createdAt: "",
-			creator: "",
-			questions: {},
-			quizTaken: 0,
-			title: "Loading Questions...",
-			lastEdit: "",
-			tags: []
-		}
-	]);
-	let [quizzesToDisplay, setQuizzesToDisplay] = useState(quizzes);
+			"numQuestions": 0,
+			"createdAt": "",
+			"creator": "",
+			"questions": {},
+			"quizTaken": 0,
+			"title": "Loading Questions...",
+			"lastEdit": "",
+			"tags": []
+	}])
+	// quizzesToDisplay will be mutable and contain filtered quizzes
+	let [quizzesToDisplay, setQuizzesToDisplay] = useState(quizzes)
+	let [quizzesByDate, setQuizzesByDate] = useState([...quizzes])
+  
 
-	useEffect(() => {
-		async function fetchCustomQuizzes() {
-			try {
-				const response = await fetch(
-					"https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabAllCustomQuizzes",
-					{
-						method: "POST",
-						headers: {
-							Accept: "application/json",
-							"Content-Type": "application/json"
-						}
-					}
-				);
+	
+	/**
+	 * This useEffect() is used to grab all custom quizzes
+	 * We are using a Firebase cloud function (grabAllCustomQuizzes)
+	 */
+    useEffect(() => {
+      async function fetchCustomQuizzes() {
+        try {
+          //production: https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabAllCustomQuizzes
+          //testing: http://127.0.0.1:6001/quizmaster-c66a2/us-central1/grabAllCustomQuizzes
+          const response = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabAllCustomQuizzes', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+          });
+    
+          if (response.ok) {
+            const json = await response.json()
+            const quizData = json.data
 
-				if (response.ok) {
-					const json = await response.json();
-					const quizData = json.data;
-					setQuizzes(quizData);
-					setQuizzesToDisplay(quizData);
-				} else {
-					console.error("Fetch error:", response.statusText);
-				}
-			} catch (error) {
-				console.error("Fetch error:", error);
-			}
-			setLoading(false);
-		}
+            let newQuizzes;
+            // Gets the teacher quizzes, so we can filter out non-teacher quizzes later
+            let teacherQuizzes = quizzes.filter((quiz) => quiz.teacherQuiz === true);
+        
+            // Check the teacher quiz flag in sessionStorage
+            if (sessionStorage.getItem('teacherQuiz') === 'Teacher') {
+                // Show only teacher quizzes
+                newQuizzes = teacherQuizzes;
+            } else {
+                // Show all quizzes (filter out teacher quizzes)
+                newQuizzes = quizzes
+            }
+        
+            // Update the quizzes to display with the filtered list
+            setQuizzesToDisplay([...newQuizzes]);
 
+          } else {
+            // Handle the case when the response is not okay
+            console.error('Fetch error:', response.statusText);
+          }
+
+        } catch (error) {
+          // Handle any fetch-related errors here
+          console.error('Fetch error:', error)
+		} finally {
+            setLoading(false);
+        }
+    }
 		fetchCustomQuizzes();
 	}, []);
 
@@ -174,4 +201,4 @@ const AllCustomQuizzes = () => {
 	);
 };
 
-export default AllCustomQuizzes;
+export default AllTeacherQuizzes

@@ -35,6 +35,7 @@ import SelectSubCategory from './components/quizselect/SelectSubCategory';
 import TypeOfQuiz from './components/typeofquiz/TypeOfQuiz';
 import Developer from './components/developer/AddDefaultQuestion';
 import AllCustomQuizzes from './components/quizselect/customquizselect/AllCustomQuizzes';
+import AllTeacherQuizzes from './components/quizselect/customquizselect/AllTeacherQuizzes';
 import CustomQuizActivity from './components/quiz/CustomQuizActivity'
 import Footer from './components/footer/footer';
 import Header from './components/header/header';
@@ -151,7 +152,7 @@ function App() {
             }/>
             <Route path="/allteacherquizzes" element={
               <PrivateRoute>
-                <AllCustomQuizzes />
+                <AllTeacherQuizzes />
               </PrivateRoute>
             }/>
             <Route path="/updateprofile" element={

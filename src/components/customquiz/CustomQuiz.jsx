@@ -13,7 +13,9 @@ export default function CustomQuiz () {
   const [privateQuiz, setPrivateQuiz] = useState(false)
   const [quizTags, setQuizTags] = useState([])
   const [customQuizzes, setCustomQuizzes] = useState([])
+  const [teacherQuiz, setTeacherQuiz] = useState(false)
   const { currentUser } = useAuth()
+  
 
   const navigate = useNavigate()
 
@@ -233,6 +235,8 @@ export default function CustomQuiz () {
               setPrivateQuizPassword={setPrivateQuizPassword}
               quizTags={quizTags}
               setQuizTags={setQuizTags}
+              teacherQuiz={teacherQuiz}
+              setTeacherQuiz={setTeacherQuiz}
             />
             <QuizQuestionsList quizData={quizData} setQuizData={setQuizData} handleDeleteQuestion={handleDeleteQuestion}/>  
           </div>
