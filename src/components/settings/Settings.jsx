@@ -6,6 +6,7 @@ import VolumeControl from './SoundEffectsVolumeControl';
 import GlobalThresholdInput from './ThresholdInput '; 
 import HighContrastToggle from './HighContrastToggle';
 import BackGroundMusicControl from './BackGroundMusicControl';
+import DarkLightMode from './DarkLightMode';
 
 const SettingsPage = () => {
   
@@ -18,6 +19,7 @@ const SettingsPage = () => {
 
 
         <HighContrastToggle />
+        <DarkLightMode />
         
         <GlobalThresholdInput />
         <VolumeControl />
