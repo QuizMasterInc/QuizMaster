@@ -13,10 +13,12 @@ const DarkLightMode = () => {
     useEffect(() => {
         if (darkMode) {
             document.body.classList.add('dark-mode');
+            document.body.classList.remove('light-mode');
             localStorage.setItem('darkMode', 'true');
         }
         else {
             document.body.classList.remove('dark-mode');
+            document.body.classList.add('light-mode');
             localStorage.setItem('darkMode', 'false');
         }
     }, [darkMode]);
@@ -24,7 +26,7 @@ const DarkLightMode = () => {
     return (
         <div className="mb-4 flex justify-center items-center">
             <label className="flex items-center cursor-pointer">
-                <span className="mr-4 text-gray-200">Dark Mode</span>
+                <span className="mr-4 text-gray-700">Dark Mode</span>
                 <div className="relative">
                     <input
                         type="checkbox"
