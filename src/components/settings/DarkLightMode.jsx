@@ -1,4 +1,5 @@
 // This will be the light and darkmode switch for QuizMaster. Done by Kolade
+// Plan to change to system light/dark mode once given full control of project in Capstone.
 import React, { useState, useEffect } from 'react';
 
 const DarkLightMode = () => {
@@ -11,7 +12,7 @@ const DarkLightMode = () => {
 
     useEffect(() => {
         if (darkMode) {
-            document.body.classList.remove('dark-mode');
+            document.body.classList.add('dark-mode');
             localStorage.setItem('darkMode', 'true');
         }
         else {
@@ -32,7 +33,7 @@ const DarkLightMode = () => {
                         className="sr-only"
                     />
                     <div
-                        className={`w-12 h-6 rounded-full transition-colors duration-200 ${isHighContrast ? 'bg-blue-500' : 'bg-white'}`}
+                        className={`w-12 h-6 rounded-full transition-colors duration-200 ${darkMode ? 'bg-blue-500' : 'bg-white'}`}
                     ></div>
                     <div
                         className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transform transition-transform duration-200 ${darkMode ? 'translate-x-6' : ''}`}
