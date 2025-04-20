@@ -4,8 +4,9 @@ This is the main settings page , this page renders  all the setting components w
 import React from 'react';
 import VolumeControl from './SoundEffectsVolumeControl';
 import GlobalThresholdInput from './ThresholdInput '; 
-import HighContrastToggle from './HighContrastToggle';
+// import HighContrastToggle from './HighContrastToggle';
 import BackGroundMusicControl from './BackGroundMusicControl';
+import DarkLightMode from './DarkLightMode';
 
 const SettingsPage = () => {
   
@@ -17,7 +18,8 @@ const SettingsPage = () => {
         <p className="text-lg mb-4">Adjust your settings below:</p>
 
 
-        <HighContrastToggle />
+        {/*<HighContrastToggle />*/}
+        <DarkLightMode />
         
         <GlobalThresholdInput />
         <VolumeControl />

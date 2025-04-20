@@ -33,9 +33,16 @@
   --background-color: #020202;
 }
 
-/* High Contrast Mode */
-.high-contrast {
-  --background-color: #928f8f; /* High contrast background color */
+/*!* High Contrast Mode *!*/
+/*.high-contrast {*/
+/*  --background-color: #928f8f; !* High contrast background color *!*/
+/*}*/
+.light-mode {
+    --background-color: #ffffff; /* White background color */
+}
+
+.dark-mode {
+    --background-color: #1a202c; /* Dark background color */
 }
 
 /* Apply background color to body */
