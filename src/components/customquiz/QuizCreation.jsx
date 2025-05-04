@@ -43,11 +43,9 @@ export default function QuizCreation({
     } else if (type === 'FillInTheBlank') {
       return question[0].trim() !== '' && question[1].trim() !== '';
     } else if (type === 'MultipleAnswer') {
-      const atLeastOneSelected = selectedCorrectAnswers.some((val) => val);
-      return question[0].trim() !== '' && optionsFilled && atLeastOneSelected;
+      return question[0].trim() !== '' && optionsFilled && selectedCorrectAnswers.some(Boolean);
     } else if (type === 'DragAndDrop') {
-      const hasBlank = question[0].includes('[blank]');
-      return question[0].trim() !== '' && hasBlank && optionsFilled && question[5].trim() !== '';
+      return question[0].includes('[blank]') && optionsFilled && question[5].trim() !== '';
     } else if (type === 'Multiple') {
       return question[0].trim() !== '' && optionsFilled && question[5].trim() !== '';
     }
@@ -67,8 +65,8 @@ export default function QuizCreation({
       return;
     }
 
-    const type = currentQuestion[6];
     let question;
+    const type = currentQuestion[6];
 
     if (type === 'TrueFalse') {
       question = [currentQuestion[0], 'True', 'False', '', '', currentQuestion[5], 'TrueFalse'];
@@ -92,54 +90,42 @@ export default function QuizCreation({
     setDroppedOption('');
   };
 
-  const handleQuizNameChange = (e) => setQuizName(e.target.value);
-
   useEffect(() => {
     if (!privateQuiz) setPrivateQuizPassword('');
   }, [privateQuiz]);
 
   const handlePrivateQuizChange = (e) => {
     const value = e.target.value === 'yes';
-    if (!teacherQuiz) {
-      setPrivateQuiz(value)
-    }
+    if (!teacherQuiz) setPrivateQuiz(value);
   };
 
   const handleTeacherQuizChange = (e) => {
-    const value = e.target.value;
+    const value = e.target.value === 'yes';
     setTeacherQuiz(value);
-    
-    // Automatically set quiz to private if it's a teacher quiz
     if (value) {
-    setPrivateQuiz(true);
-
-    // Optionally set a default password if none exists
-    if (!privateQuizPassword) {
-      setPrivateQuizPassword('teacherOnly');
+      setPrivateQuiz(true);
+      if (!privateQuizPassword) setPrivateQuizPassword('teacherOnly');
+    } else {
+      setPrivateQuiz(false);
+      setPrivateQuizPassword('');
     }
-  }
-  else {
-    // If teacher quiz is set to "no", allow changing private quiz status
-    setPrivateQuiz(false);
-    setPrivateQuizPassword(''); // Clear password when not private
-  }
-};
+  };
 
   const handleQuizPasswordChange = (e) => setPrivateQuizPassword(e.target.value);
-
+  const handleQuizNameChange = (e) => setQuizName(e.target.value);
   const updateQuizTags = (e) => setQuizTags(e.target.value.split(' '));
 
   return (
-    <div className="min-h-screen py-16 px-4 md:px-20 bg-black text-white">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-12">Create a Custom Quiz!</h1>
+    <div className="min-h-screen bg-gradient-to-br from-[#0f051d] via-[#1b1444] to-[#0f051d] text-white py-16 px-6">
+      <div className="max-w-4xl mx-auto bg-black bg-opacity-30 backdrop-blur-xl rounded-lg p-8 shadow-xl">
+        <h1 className="text-4xl font-bold text-center mb-10 drop-shadow-lg">Create a Custom Quiz!</h1>
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           <div>
             <label className="block text-xl mb-2">Private Quiz?</label>
             <select
               onChange={handlePrivateQuizChange}
-              className="w-full text-black p-2 rounded-md"
+              className="w-full p-2 rounded-md text-black"
               value={privateQuiz ? 'yes' : 'no'}
             >
               <option value="no">No</option>
@@ -154,7 +140,7 @@ export default function QuizCreation({
                 type="text"
                 value={privateQuizPassword}
                 onChange={handleQuizPasswordChange}
-                className="w-full p-2 text-black rounded-md"
+                className="w-full p-2 rounded-md text-black"
               />
             </div>
           )}
@@ -163,16 +149,15 @@ export default function QuizCreation({
             <label className="block text-xl mb-2">Teacher Quiz?</label>
             <select
               onChange={handleTeacherQuizChange}
-              className="w-full text-black p-2 rounded-md"
+              className="w-full p-2 rounded-md text-black"
               value={teacherQuiz ? 'yes' : 'no'}
             >
               <option value="no">No</option>
               <option value="yes">Yes</option>
             </select>
-
             {teacherQuiz && (
-              <p className="text-sm text-gray-300 mt-2">
-              All teacher-made quizzes are automatically set to private.
+              <p className="text-sm text-purple-300 mt-1">
+                All teacher quizzes are automatically set to private.
               </p>
             )}
           </div>
@@ -183,13 +168,13 @@ export default function QuizCreation({
               type="text"
               value={quizName}
               onChange={handleQuizNameChange}
-              className="w-full p-3 text-black rounded-md"
+              className="w-full p-3 rounded-md text-black"
               placeholder="Enter quiz name"
             />
           </div>
         </div>
 
-        <h2 className="text-3xl font-semibold mb-4">Add a Question</h2>
+        <h2 className="text-2xl font-semibold mb-4">Add a Question</h2>
         <div className="space-y-4">
           <input
             type="text"
@@ -212,9 +197,7 @@ export default function QuizCreation({
             <option value="DragAndDrop">Drag and Drop</option>
           </select>
 
-          {(currentQuestion[6] === 'Multiple' ||
-            currentQuestion[6] === 'MultipleAnswer' ||
-            currentQuestion[6] === 'DragAndDrop') &&
+          {(currentQuestion[6] === 'Multiple' || currentQuestion[6] === 'MultipleAnswer' || currentQuestion[6] === 'DragAndDrop') &&
             [1, 2, 3, 4].map((idx) => (
               <input
                 key={idx}
@@ -241,7 +224,7 @@ export default function QuizCreation({
             </select>
           )}
 
-          {currentQuestion[6] === 'MultipleAnswer' && (
+          {currentQuestion[6] === 'MultipleAnswer' &&
             [1, 2, 3, 4].map((idx) => (
               <div key={idx} className="flex items-center space-x-2">
                 <input
@@ -255,8 +238,7 @@ export default function QuizCreation({
                 />
                 <span>{currentQuestion[idx] || `Option ${idx}`}</span>
               </div>
-            ))
-          )}
+            ))}
 
           {currentQuestion[6] === 'FillInTheBlank' && (
             <input
@@ -270,40 +252,20 @@ export default function QuizCreation({
 
           {currentQuestion[6] === 'TrueFalse' && (
             <div className="space-x-4">
-              <label>
-                <input
-                  type="radio"
-                  value="True"
-                  checked={currentQuestion[5] === 'True'}
-                  onChange={(e) => handleQuestionChange(e, 5)}
-                /> True
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  value="False"
-                  checked={currentQuestion[5] === 'False'}
-                  onChange={(e) => handleQuestionChange(e, 5)}
-                /> False
-              </label>
+              <label><input type="radio" value="True" checked={currentQuestion[5] === 'True'} onChange={(e) => handleQuestionChange(e, 5)} /> True</label>
+              <label><input type="radio" value="False" checked={currentQuestion[5] === 'False'} onChange={(e) => handleQuestionChange(e, 5)} /> False</label>
             </div>
           )}
 
           {currentQuestion[6] === 'DragAndDrop' && (
             <>
               {[1, 2, 3, 4].map((idx) => (
-                <div
-                  key={idx}
-                  draggable
-                  onDragStart={(e) => e.dataTransfer.setData('text/plain', currentQuestion[idx])}
-                  className="p-2 bg-gray-700 rounded-md text-white cursor-move my-1"
-                >
+                <div key={idx} draggable onDragStart={(e) => e.dataTransfer.setData('text/plain', currentQuestion[idx])}
+                  className="p-2 bg-purple-700 text-white rounded-md cursor-move">
                   {currentQuestion[idx]}
                 </div>
               ))}
-
-              <div
-                className="w-full h-16 mt-4 flex items-center justify-center border-2 border-dashed border-blue-400 rounded-md text-center"
+              <div className="w-full h-16 mt-4 flex items-center justify-center border-2 border-dashed border-purple-400 rounded-md"
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   e.preventDefault();
@@ -315,7 +277,6 @@ export default function QuizCreation({
                   ? currentQuestion[0].replace('[blank]', droppedOption || '________')
                   : 'Your sentence must include [blank]'}
               </div>
-
               <input
                 type="text"
                 value={currentQuestion[5]}
@@ -338,13 +299,13 @@ export default function QuizCreation({
         <div className="grid grid-cols-2 gap-6 mt-10">
           <button
             onClick={addCurrentQuestion}
-            className="bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-md font-semibold"
+            className="bg-purple-600 hover:bg-purple-500 transition text-white py-3 rounded-md font-semibold"
           >
             Add Question
           </button>
           <button
             onClick={sendQuiz}
-            className="bg-green-600 hover:bg-green-500 text-white py-3 rounded-md font-semibold"
+            className="bg-green-600 hover:bg-green-500 transition text-white py-3 rounded-md font-semibold"
           >
             Finish Quiz
           </button>

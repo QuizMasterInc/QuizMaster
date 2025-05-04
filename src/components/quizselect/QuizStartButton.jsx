@@ -3,14 +3,14 @@
  */
 import { Link } from "react-router-dom";
 
-const QuizStartButton = ({category, destination}) => (
-    <div className="w-1/2 p-4 text-center -sm:p-1">
-        <Link to={'/quizzes/quizstarted'} state={{category}}>
-            <div className="flex flex-col items-center p-4 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600">
-                <div className="-sm:text-sm">{category}</div>
-            </div>
-        </Link>
-    </div>
-)
+const QuizStartButton = ({ category, destination }) => (
+  <div className="text-center">
+    <Link to={`/quizzes/${destination}`} state={{ category }}>
+      <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-bold shadow-lg hover:shadow-pink-500/40 hover:scale-105 transition">
+        {category}
+      </button>
+    </Link>
+  </div>
+);
 
 export default QuizStartButton;

@@ -1,16 +1,17 @@
 import React from "react";
 
-
 const NavBarIcon = ({ icon, text }) => (
-    <div className="flex flex-col items-center  p-3 rounded-3xl hover:bg-gray-600 bg-gray-800 group ">
-      {/* Set a fixed size for the icons */}
-      <div className="w-10 h-10 fill-gray-300">
-        {icon}
-      </div>
-      <span className="absolute bottom-16 w-auto p-3 min-w-max left-1/2 transform -translate-x-1/2 rounded-md shadow-md text-white bg-gray-900 text-xs font-bold transition-all duration-100 scale-0 origin-left group-hover:scale-100 pointer-events-none">
-        {text}
-      </span>
+  <div className="group relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-b from-gray-800 to-gray-900 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 ease-in-out shadow-md hover:scale-110 cursor-pointer">
+    {/* Icon */}
+    <div className="flex items-center justify-center text-gray-200 w-full h-full">
+      {icon}
     </div>
-  );
+
+    {/* Tooltip */}
+    <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-black text-white text-xs font-semibold px-3 py-1 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-[999]">
+      {text}
+    </div>
+  </div>
+);
 
 export default NavBarIcon;

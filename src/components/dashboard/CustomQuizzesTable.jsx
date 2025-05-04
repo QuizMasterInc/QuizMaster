@@ -7,32 +7,31 @@ const CustomQuizzesTable = () => {
   const [customQuizzes, setCustomQuizzes] = useState(null);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
-  const Qicon = <Q className="w-10 h-10 fill-white" />;
-
-  async function fetchUserQuizzes() {
-    try {
-      const response = await fetch(
-        'https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuizzesByUser?creator=' + currentUser.uid,
-        {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setCustomQuizzes(data.data);
-      } else {
-        console.error('Fetch error:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Fetch error:', error);
-    }
-  }
 
   useEffect(() => {
+    const fetchUserQuizzes = async () => {
+      try {
+        const response = await fetch(
+          `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuizzesByUser?creator=${currentUser.uid}`,
+          {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setCustomQuizzes(data.data);
+        } else {
+          console.error('Fetch error:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    };
+
     fetchUserQuizzes();
   }, []);
 
@@ -41,18 +40,26 @@ const CustomQuizzesTable = () => {
   return (
     <>
       {customQuizzes.length > 0 ? (
-        customQuizzes.map((quiz, index) => (
-          <div
-            key={index}
-            onClick={() => navigate(`/customquiz/${quiz.uid}`)}
-            className="bg-gray-800 hover:bg-gray-700 text-white p-6 rounded-xl shadow-lg cursor-pointer flex flex-col items-center justify-center transition-all duration-200 hover:scale-105"
-          >
-            <div className="font-bold text-xl mb-2 text-center">{quiz.data.title}</div>
-            {Qicon}
-          </div>
-        ))
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
+          {customQuizzes.map((quiz, index) => (
+            <div
+              key={index}
+              onClick={() => navigate(`/customquiz/${quiz.uid}`)}
+              className="cursor-pointer rounded-xl bg-gradient-to-br from-[#3a1069] to-[#200e40] border border-purple-700 hover:border-white p-6 text-white shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
+            >
+              <div className="flex flex-col items-center justify-center space-y-3">
+                <Q className="w-12 h-12 fill-white opacity-90" />
+                <div className="text-center font-bold text-lg tracking-wide truncate w-full">
+                  {quiz.data.title}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
-        <p className="text-center text-gray-400 col-span-full">No custom quizzes found.</p>
+        <p className="text-center text-gray-400 text-sm">
+          No custom quizzes found.
+        </p>
       )}
     </>
   );

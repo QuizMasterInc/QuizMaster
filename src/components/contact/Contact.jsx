@@ -36,7 +36,25 @@ import ethan from "../../assets/ethan.jpg"
 
 const Contact = ({}) => (
     // Top-level container with text and background styling
-    <div className="text-gray-300 bg-gradient-to-t from-black via-gray-900 to-gray-950 pt-15">
+    <div className="relative text-gray-300 bg-gradient-to-br from-[#0f051d] via-[#1b1444] to-[#0f051d] min-h-screen pt-15 overflow-hidden">
+    {/* Glowing background blobs */}
+    <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] bg-purple-700 rounded-full opacity-30 blur-[150px] z-0"></div>
+    <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] bg-blue-500 rounded-full opacity-30 blur-[150px] z-0"></div>
+  
+    {/* Content wrapper */}
+    <div className="relative z-10">
+      {/* Everything inside your Contact.jsx goes here — don't change it */}
+  
+        <div className="pointer-events-none absolute inset-0 overflow-hidden -z-10">
+  {/* Top left purple blur */}
+  <div className="absolute top-[-100px] left-[-100px] w-[400px] h-[400px] bg-purple-600 opacity-30 blur-3xl rounded-full"></div>
+
+  {/* Bottom right blue blur */}
+  <div className="absolute bottom-[-100px] right-[-100px] w-[400px] h-[400px] bg-blue-500 opacity-30 blur-3xl rounded-full"></div>
+
+  {/* Center soft halo glow */}
+  <div className="absolute top-[50%] left-[50%] w-[800px] h-[800px] bg-violet-900 opacity-20 blur-[120px] rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+</div>
         {/* Inner container for text content */}
         <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 text-center">
             {/* Sub-container for the header and subtitle */}
@@ -52,15 +70,19 @@ const Contact = ({}) => (
             </div>
         </div>
         {/* THIS IS THE INFORMATION FOR THE SPRING 2025 TitanicSwimTeam group*/}
-        <div className="flex items-center justify-center ">
-            <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Fall 2026 Team</h1>
-        </div>
+        <div className="flex flex-col items-center justify-center my-12">
+  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
+    Fall 2026 Team
+  </h2>
+  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
+</div>
+
 
         {/* Container for contact information */}
-        <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
             <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
 
-            <div className="flex flex-col items-center">
+           <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
                     <a href="https://github.com/beneiler"
                        target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={ben} alt="headshot"
@@ -80,7 +102,8 @@ const Contact = ({}) => (
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://github.com/rpat9"
                        target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={rudra} alt="headshot"
@@ -99,7 +122,8 @@ const Contact = ({}) => (
                         </a>
                     </div>
                 </div>
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://github.com/marskidris"
                        target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={kolade} alt="headshot"
@@ -119,7 +143,8 @@ const Contact = ({}) => (
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://github.com/ethanmy14"
                        target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={ethan} alt="headshot"
@@ -143,16 +168,22 @@ const Contact = ({}) => (
 
 
         {/* THIS IS THE INFORMATION FOR THE SPRING 2025 SacredMyth group*/}
-        <div className="flex items-center justify-center ">
-            <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2025 Team</h1>
-        </div>
+        <div className="flex flex-col items-center justify-center my-12">
+  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
+    Spring 2025 Team
+    
+  </h2>
+  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
+</div>
+
 
         {/* Container for contact information */}
-        <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
 
             {/* Grid layout for contact information */}
             <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://demetrius-price02.github.io/my-static-web-app/"
                        target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={demetrius} alt="headshot"
@@ -171,7 +202,8 @@ const Contact = ({}) => (
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://samdwag.github.io/Salzoubi/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={sami} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -188,7 +220,8 @@ const Contact = ({}) => (
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://node-js-portfolio-ajb8b4grbscbe0a6.centralus-01.azurewebsites.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={erick} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -208,7 +241,8 @@ const Contact = ({}) => (
             </div>
         </div>
 
-        <div className="flex flex-col items-center">
+       <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
             <a href="https://purple-field-031659910.5.azurestaticapps.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                 <img src={nuvia} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
             </a>
@@ -229,14 +263,18 @@ const Contact = ({}) => (
 
         {/* THIS IS THE INFORMATION FOR THE FALL 2024 ChairForceOne group*/}
 
-        <div className="flex items-center justify-center ">
-            <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Fall 2024 Team</h1>
-        </div>
+        <div className="flex flex-col items-center justify-center my-12">
+  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
+    Fall 2024 Team
+  </h2>
+  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
+</div>
         {/* Container for contact information */}
-        <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
             {/* Grid layout for contact information */}
             <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://yellow-ocean-0fcfe0910.4.azurestaticapps.net" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={danielj} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -253,7 +291,8 @@ const Contact = ({}) => (
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://jayrellg.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={jayrell} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -270,7 +309,8 @@ const Contact = ({}) => (
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://hmadhavann.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={hima} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -286,7 +326,8 @@ const Contact = ({}) => (
                         </a>
                     </div>
                 </div>
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://briang38.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={brian} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -302,7 +343,8 @@ const Contact = ({}) => (
                         </a>
                     </div>
                 </div>
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://nice-stone-0faf59710.4.azurestaticapps.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={ahmad} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -324,14 +366,19 @@ const Contact = ({}) => (
         {/* THIS IS THE INFORMATION FOR THE SPRING 2024 TEAM*/}
 
 
-        <div className="flex items-center justify-center ">
-            <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2024 Team</h1>
-        </div>
+        <div className="flex flex-col items-center justify-center my-12">
+  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
+    Spring 2024 Team
+  </h2>
+  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
+</div>
+
         {/* Container for contact information */}
-        <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
             {/* Grid layout for contact information */}
             <div className="grid-cols-1 gap-6 flex flex-wrap justify-center">
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://ashy-mud-0329c4e10.3.azurestaticapps.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={alexk} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -347,7 +394,8 @@ const Contact = ({}) => (
                         </a>
                     </div>
                 </div>
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://jamesmackowiak.github.io/about.html" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={james} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -361,7 +409,8 @@ const Contact = ({}) => (
                         </a>
                     </div>
                 </div>
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://halbaz.github.io" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={hamzeh} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -381,7 +430,8 @@ const Contact = ({}) => (
 
             {/* SECOND ROW */}
             <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://github.com/alexh1424" target="_blank">
                         <img src={alex} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
                     </a>
@@ -398,7 +448,8 @@ const Contact = ({}) => (
                     </div>
                 </div>
                 {/* REPLACE WITH TEAM MEMBER 5 */}
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://github.com/raxtt" target="_blank">
                         <img src={evan} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
                     </a>
@@ -419,14 +470,18 @@ const Contact = ({}) => (
 
         {/* THIS IS THE INFORMATION FOR THE FALL 2023 TEAM*/}
 
-        <div className="flex items-center justify-center ">
-            <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Fall 2023 Team</h1>
-        </div>
+        <div className="flex flex-col items-center justify-center my-12">
+  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
+    Fall 2023 Team
+  </h2>
+  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
+</div>
         {/* Container for contact information */}
-        <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
             {/* Grid layout for contact information */}
             <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank">
                         <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
                     </a>
@@ -440,7 +495,8 @@ const Contact = ({}) => (
                         </a>
                     </div>
                 </div>
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://red-coast-075a6b510.3.azurestaticapps.net" target="_blank">
                         <img src={matthew} alt="Matthew" className="object-cover w-48 h-48 rounded-full" />
                     </a>
@@ -454,7 +510,8 @@ const Contact = ({}) => (
                         </a>
                     </div>
                 </div>
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://lemon-stone-0f92af610.3.azurestaticapps.net/" target="_blank">
                         <img src={julie} alt="Julie" className="object-cover w-48 h-48 rounded-full" />
                     </a>
@@ -472,7 +529,8 @@ const Contact = ({}) => (
 
             {/* SECOND ROW FOR THE FALL 2023 TEAM*/}
             <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://node-js-azure-fa23-tyler-site.azurewebsites.net" target="_blank">
                         <img src={tyler} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
                     </a>
@@ -487,7 +545,8 @@ const Contact = ({}) => (
                     </div>
                 </div>
                 {/* REPLACE WITH TEAM MEMBER 5 */}
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://github.com/JahiStewart" target="_blank">
                         <img src={logo} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
                     </a>
@@ -508,7 +567,8 @@ const Contact = ({}) => (
 
                 {/* THIS SECTION IS FOR JEFFERSON CHERRINGTON */}
 
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://jacnok.github.io/cpsc-44000-s1-helloworld/intro.html" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={jeff} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -530,7 +590,8 @@ const Contact = ({}) => (
 
                 {/* THIS SECTION IS FOR JOEY DEVITO */}
 
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://getting-2-know-you.azurewebsites.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
                         <img src={joey} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
                     </a>
@@ -559,14 +620,18 @@ const Contact = ({}) => (
         {/* THIS IS THE INFORMATION FOR THE SPRING 2023 TEAM*/}
 
 
-        <div className="flex items-center justify-center ">
-            <h1 className="pl-8 pt-5 mb-4 text-4xl font-bold text-center">Spring 2023 Team</h1>
-        </div>
+        <div className="flex flex-col items-center justify-center my-12">
+  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
+    Spring 2023 Team
+  </h2>
+  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
+</div>
         {/* Container for contact information */}
-        <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24">
+        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
             {/* Grid layout for contact information */}
             <div className="grid-cols-1 gap-6 flex flex-wrap justify-center">
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://lively-bay-020649610.2.azurestaticapps.net/" target="_blank">
                         <img src={max} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
                     </a>
@@ -577,7 +642,8 @@ const Contact = ({}) => (
                         </a>
                     </div>
                 </div>
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://anthonymastores.github.io/getting-to-know-eachother/" target="_blank">
                         <img src={anthony} alt="anthony" className="object-cover w-48 h-48 rounded-full" />
                     </a>
@@ -588,7 +654,8 @@ const Contact = ({}) => (
                         </a>
                     </div>
                 </div>
-                <div className="flex flex-col items-center">
+               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+
                     <a href="https://assignment-portfolio-me.azurewebsites.net/getting-to-know-me-version-2.html" target="_blank">
                         <img src={matt} alt="matthew" className="object-cover w-48 h-48 rounded-full" />
                     </a>
@@ -601,7 +668,8 @@ const Contact = ({}) => (
                 </div>
             </div>
         </div>
-    </div>
-)
+        </div> {/* End of content wrapper */}
+  </div> 
+);
 
 export default Contact;

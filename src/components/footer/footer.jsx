@@ -1,11 +1,11 @@
 import React from 'react';
 
 const Footer = () => {
-  const footerClasses = 'text-white text-center box-border w-full fixed bottom-0 left-0 right-0 p-2 bg-gray-900';
-
   return (
-    <footer className={footerClasses}>
-      <p>QuizMaster. All rights reserved.</p>
+    <footer className="w-full bg-gradient-to-r from-[#1a0533] via-[#220b47] to-[#100222] text-center py-4 text-sm text-gray-300 mt-auto border-t border-purple-800 shadow-inner z-50">
+      <p className="font-medium tracking-wide text-gray-400">
+        © 2025 <span className="text-purple-400 font-semibold">QuizMaster</span>. All rights reserved.
+      </p>
     </footer>
   );
 };

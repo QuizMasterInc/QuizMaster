@@ -168,25 +168,34 @@ const AllTeacherQuizzes = () => {
 	}
 
 	return (
+		<div className="min-h-screen bg-gradient-to-br from-[#0f051d] via-[#1b1444] to-[#0f051d] text-white relative overflow-hidden py-20 px-6">
+		  {/* Background glow effects */}
+		  <div className="absolute top-[-150px] left-[-150px] w-[500px] h-[500px] bg-purple-700 opacity-30 blur-[120px] rounded-full z-0" />
+		  <div className="absolute bottom-[-150px] right-[-150px] w-[500px] h-[500px] bg-blue-500 opacity-30 blur-[120px] rounded-full z-0" />
+		  <div className="relative z-10">
+	  
 		<div>
-			<h1 className="text-2xl font-bold text-gray-300 -sm:text-lg">Teacher-Made Quizzes</h1>
+			<h1 className="text-4xl font-extrabold text-white text-center mb-6 drop-shadow-lg">
+  Teacher-Made Quizzes
+</h1>
 			<div className="justify-center mt-5">
 				<SearchBar />
 			</div>
-			<div className="flex flex-wrap justify-center mt-3 mx-3">
-				<PrivacyList />
-				<SortByList onSortChange={searchAndFilter} />
-				<button
-					className="bg-white font-bold float-right rounded mx-5 px-3"
-					onClick={searchAndFilter}
-				>
-					Search & Filter
-				</button>
-			</div>
-			<h2 className="text-white mt-4">
-				Displaying {quizzesToDisplay.length} quizzes
-			</h2>
-			<div id="customQuizDiv" className="flex flex-wrap justify-center mt-14 mx-32">
+			<div className="flex flex-wrap justify-center items-center gap-4 mt-4">
+  <PrivacyList />
+  <SortByList onSortChange={searchAndFilter} />
+  <button
+    className="bg-purple-600 hover:bg-purple-500 transition text-white font-semibold px-4 py-2 rounded shadow-md"
+    onClick={searchAndFilter}
+  >
+    Search & Filter
+  </button>
+</div>
+	<p className="mt-6 text-center text-gray-300 text-lg">
+  		Displaying <span className="font-bold text-white">{quizzesToDisplay.length}</span> quizzes
+	</p>
+
+	<div id="customQuizDiv" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
 				{quizzesToDisplay.map((q) => (
 					<CustomQuizSelectButton
 						title={q.title}
@@ -197,8 +206,11 @@ const AllTeacherQuizzes = () => {
 					/>
 				))}
 			</div>
-		</div>
+			</div> {/* End of z-10 content wrapper */}
+		  </div> {/* End of background gradient wrapper */}
+		</div> 
 	);
 };
 
-export default AllTeacherQuizzes
+
+export default AllTeacherQuizzes;

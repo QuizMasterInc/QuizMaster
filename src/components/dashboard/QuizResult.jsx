@@ -17,14 +17,17 @@ export const QuizResult = ({ category, icon }) => {
       const data = { uid: uid, category: category.toLowerCase() };
 
       try {
-        const response = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
+        const response = await fetch(
+          'https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults',
+          {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          }
+        );
 
         if (response.ok) {
           const resultData = await response.json();
@@ -44,17 +47,25 @@ export const QuizResult = ({ category, icon }) => {
   }, []);
 
   return (
-    <div className="p-2 text-center">
-      <div className="flex flex-col items-center p-4 space-y-3 bg-gray-800 rounded-xl text-white shadow-md">
-        <div className="text-md font-semibold">{category}</div>
-        <div>{icon}</div>
+    <div className="p-2">
+      <div className="flex flex-col items-center px-6 py-6 rounded-xl bg-gradient-to-br from-[#35106a] to-[#210d42] border border-violet-700 text-white shadow-md hover:shadow-xl hover:scale-[1.03] transition-transform duration-200">
+        <div className="text-xs font-bold uppercase tracking-wide text-violet-300 mb-2">
+          {category}
+        </div>
+        <div className="mb-4">{icon}</div>
         {loading ? (
-          <ClipLoader color={'#d1d5db'} size={25} />
+          <ClipLoader color="#ffffff" size={22} />
         ) : (
-          <>
-            <p className="text-sm">Best: {Math.round(result * 100)}%</p>
-            <p className="text-sm">Avg: {Math.round(avgScore * 100)}%</p>
-          </>
+          <div className="space-y-1 text-sm text-gray-200 text-center">
+            <p>
+              <span className="text-white font-medium">Best:</span>{' '}
+              {Math.round(result * 100)}%
+            </p>
+            <p>
+              <span className="text-white font-medium">Avg:</span>{' '}
+              {Math.round(avgScore * 100)}%
+            </p>
+          </div>
         )}
       </div>
     </div>

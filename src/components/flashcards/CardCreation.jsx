@@ -1,19 +1,4 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
-
-const handleLogout = async () => {
-    try {
-      await logout();
-      setLoading(true);
-      localStorage.setItem('isAuthenticated', 'false');
-      return <Navigate to="/signin" />;
-    } catch {
-      alert('Failed to logout');
-    }
-    setLoading(false);
-  };
-
 
 export default function CardCreation({ addCard }) {
   const [front, setFront] = useState('');
@@ -24,48 +9,41 @@ export default function CardCreation({ addCard }) {
 
   const handleSubmit = () => {
     if (front.trim() !== '' && back.trim() !== '') {
-      const newCard = { front, back };
-      addCard(newCard); // Pass the new card to the parent component (Flashcards)
-      setFront(''); // Reset the front input
-      setBack('');  // Reset the back input
+      addCard({ front, back });
+      setFront('');
+      setBack('');
     } else {
-      alert('Please fill in both the front and back text for the card.');
+      alert('Please fill in both the front and back of the flashcard.');
     }
   };
 
   return (
-    <div className="min-h-screen py-16 px-4 md:px-20 bg-black text-white">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-12">Create a Flashcard Set</h1>
+    <div className="w-full max-w-4xl mx-auto bg-[#1b1444] border border-violet-700 rounded-2xl p-8 shadow-lg">
+      <h1 className="text-3xl font-bold text-white mb-6 text-center">
+        Create a Flashcard
+      </h1>
 
-        <h2 className="text-3xl font-semibold mb-4">Add a Flashcard</h2>
-
-        <div className="space-y-4">
-          <input
-            type="text"
-            value={front}
-            onChange={handleFrontChange}
-            className="w-full p-3 text-black rounded-md"
-            placeholder="Enter the front of the flashcard"
-          />
-
-          <input
-            type="text"
-            value={back}
-            onChange={handleBackChange}
-            className="w-full p-3 text-black rounded-md"
-            placeholder="Enter the back of the flashcard"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-6 mt-10">
-          <button
-            onClick={handleSubmit} // Trigger handleSubmit when the button is clicked
-            className="bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-md font-semibold"
-          >
-            Add Flashcard
-          </button>
-        </div>
+      <div className="space-y-4">
+        <input
+          type="text"
+          value={front}
+          onChange={handleFrontChange}
+          placeholder="Front text"
+          className="w-full p-4 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <input
+          type="text"
+          value={back}
+          onChange={handleBackChange}
+          placeholder="Back text"
+          className="w-full p-4 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+        />
+        <button
+          onClick={handleSubmit}
+          className="w-full bg-gradient-to-r from-purple-600 to-blue-500 hover:opacity-90 text-white font-semibold py-3 rounded-lg shadow-md transition"
+        >
+          Add Flashcard
+        </button>
       </div>
     </div>
   );
