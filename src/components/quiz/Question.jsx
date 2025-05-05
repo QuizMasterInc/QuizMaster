@@ -5,8 +5,9 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange }) {
   const [selectedIndexes, setSelectedIndexes] = useState([]);
   const [inputAnswer, setInputAnswer] = useState('');
   const [droppedOption, setDroppedOption] = useState('');
-  const [hasAnswered, setHasAnswered] = useState(false);
   const [hasBeenCounted, setHasBeenCounted] = useState(false);
+
+  const qText = question.questionText ?? question.text ?? '';
 
   const type = question.type?.toLowerCase();
   const isFillBlank = type === 'fill';
@@ -17,7 +18,7 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange }) {
   useEffect(() => {
     if (isCompleted) {
       let isCorrect = false;
-  
+
       if (isFillBlank) {
         const user = inputAnswer.trim().toLowerCase();
         const correct = String(question.correctAnswer).trim().toLowerCase();
@@ -25,37 +26,45 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange }) {
       } else if (isMultipleAnswer) {
         const correctAnswers = String(question.correctAnswer)
           .split('||')
-          .map(a => a.trim().toLowerCase());
-  
-        const selectedTexts = selectedIndexes.map(i =>
+          .map((a) => a.trim().toLowerCase());
+
+        const selectedTexts = selectedIndexes.map((i) =>
           question.choices[i]?.trim().toLowerCase()
         );
-  
+
         isCorrect =
           selectedTexts.length === correctAnswers.length &&
-          selectedTexts.every(ans => correctAnswers.includes(ans));
+          selectedTexts.every((ans) => correctAnswers.includes(ans));
       } else if (isDragAndDrop) {
-        isCorrect = droppedOption.trim().toLowerCase() === String(question.correctAnswer).trim().toLowerCase();
+        isCorrect =
+          droppedOption.trim().toLowerCase() ===
+          String(question.correctAnswer).trim().toLowerCase();
       } else {
         if (selectedIndex !== null) {
-          const selected = question.choices[selectedIndex]?.trim().toLowerCase();
-          const correct = String(question.correctAnswer).trim().toLowerCase();
+          const selected = question.choices[selectedIndex]
+            ?.trim()
+            .toLowerCase();
+          const correct = String(question.correctAnswer)
+            .trim()
+            .toLowerCase();
           isCorrect = selected === correct;
         }
       }
-  
+
       if (onAnswer) onAnswer(isCorrect);
     }
-  }, [isCompleted]);  
+  }, [isCompleted]);
 
   // Realtime answer count (fires once when user first interacts)
   useEffect(() => {
     if (!hasBeenCounted) {
-      const interacted =
-        isFillBlank ? inputAnswer.trim() !== '' :
-        isMultipleAnswer ? selectedIndexes.length > 0 :
-        isDragAndDrop ? droppedOption.trim() !== '' :
-        selectedIndex !== null;
+      const interacted = isFillBlank
+        ? inputAnswer.trim() !== ''
+        : isMultipleAnswer
+        ? selectedIndexes.length > 0
+        : isDragAndDrop
+        ? droppedOption.trim() !== ''
+        : selectedIndex !== null;
 
       if (interacted) {
         if (onAnswerChange) onAnswerChange(true); // count this question
@@ -79,9 +88,9 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange }) {
   return (
     <div className="flex flex-col w-7/12 p-4 mb-4 bg-gray-900 text-white rounded-lg shadow-lg -md:pl-2 -md:pr-2 -md:pb-2 -md:w-10/12">
       <p className="text-lg font-semibold mb-4">
-        {isDragAndDrop && question.questionText.includes('[blank]')
-          ? question.questionText.replace('[blank]', droppedOption || '________')
-          : question.questionText}
+        {isDragAndDrop && qText.includes('[blank]')
+          ? qText.replace('[blank]', droppedOption || '________')
+          : qText}
       </p>
 
       {isDragAndDrop ? (

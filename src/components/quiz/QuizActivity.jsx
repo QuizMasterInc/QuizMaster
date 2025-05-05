@@ -1,168 +1,197 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { ScaleLoader } from "react-spinners";
-import { useAuth } from "../../contexts/AuthContext";
-import Question from "./Question";
-import DoneModal from "./DoneModal";
-import HelpModal from "./HelpModal";
-import Timer from "./Timer";
-import ProgressBar from "./ProgressBar";
-import BackToTop from "./BackToTopButton";
-import BackGroundMusic from "../sounds/BackGroundMusic";
-import { useCategory } from "../../contexts/CategoryContext";
+import React, { useCallback, useEffect, useState } from 'react';
+import { ScaleLoader } from 'react-spinners';
+import { useCategory } from '../../contexts/CategoryContext';
+import Question from './Question';
+import DoneModal from './DoneModal';
+import HelpModal from './HelpModal';
+import Timer from './Timer';
+import ProgressBar from './ProgressBar';
+import BackToTop from './BackToTopButton';
+import BackGroundMusic from '../sounds/BackGroundMusic';
+
+// Fisher‑Yates shuffle 
+const shuffle = (array) => {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
 
 function QuizActivity() {
-  const { category, subcategories, difficulty, amount, duration, showTimer, showPauseButton } = useCategory();
-  const [questions, setQuestions] = useState([]);
-  const [completed, setCompleted] = useState(false);
-  const [helpModalActive, setHelpModalActive] = useState(false);
-  const [doneModalActive, setDoneModalActive] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [amountCorrect, setAmountCorrect] = useState(0);
-  const [timerFinished, setTimerFinished] = useState(false);
-  const [answeredCount, setAnsweredCount] = useState(0);
-  const [flaggedQuestion, setFlaggedQuestion] = useState(0);
-  const { currentUser } = useAuth();
+  const {
+    category,
+    subcategories,
+    difficulty,
+    amount,
+    duration,
+    showTimer,
+    showPauseButton,
+  } = useCategory();
 
-  const grabCorrect = useCallback((correct) => {
-    if (correct) setAmountCorrect((prev) => prev + 1);
-  }, []);
+  const [questions,      setQuestions]      = useState([]);
+  const [loading,        setLoading]        = useState(true);
+  const [completed,      setCompleted]      = useState(false);
+  const [helpActive,     setHelpActive]     = useState(false);
+  const [doneActive,     setDoneActive]     = useState(false);
+  const [timerFinished,  setTimerFinished]  = useState(false);
+  const [answeredCount,  setAnsweredCount]  = useState(0);
+  const [correctCount,   setCorrectCount]   = useState(0);
 
-  const handleFlagButton = (flagged) => {
-    setFlaggedQuestion((prev) => (flagged ? prev + 1 : prev - 1));
-  };
+  //  CALLBACKS FROM <Question>
+  const recordCorrect = useCallback(
+    (isCorrect) => isCorrect && setCorrectCount((c) => c + 1),
+    []
+  );
 
-  const handleAnswerQuestion = (isSelected) => {
-    setAnsweredCount((prevCount) => prevCount + (isSelected ? 1 : -1));
-  };
+  const recordAnswered = useCallback(
+    (firstInteraction) => firstInteraction && setAnsweredCount((c) => c + 1),
+    []
+  );
 
-  const handleSubmit = () => {
-    if (flaggedQuestion > 0) {
-      const confirmSubmit = window.confirm(`You have flagged ${flaggedQuestion} questions. Submit anyway?`);
-      if (!confirmSubmit) return;
-    }
-    setCompleted(true);
-    setDoneModalActive(true);
-    setTimerFinished(true);
-  };
-
-  function shuffle(array) {
-    let currentIndex = array.length, temp, randomIndex;
-    while (currentIndex !== 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-      temp = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temp;
-    }
-    return array;
-  }
-
+  //  FETCH & NORMALISE QUIZ DATA 
   useEffect(() => {
     async function fetchQuiz() {
-      const res = await fetch(`https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabSub?category=${category.toLowerCase()}`);
-      const data = await res.json();
+      setLoading(true);
+      try {
+        const url = `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabSub?category=${encodeURIComponent(
+          category.toLowerCase()
+        )}`;
+        const res  = await fetch(url);
+        const data = await res.json();
 
-      let allQuestions = [];
-      subcategories.forEach((sub) => allQuestions.push(...data[sub]));
-
-      let filtered = difficulty > 0
-        ? allQuestions.filter((q) => q.difficulty == difficulty)
-        : allQuestions;
-
-      if (filtered.length < amount) {
-        const extras = allQuestions.filter((q) =>
-          Math.abs(q.difficulty - difficulty) === 1
+        // gather rows for chosen sub‑categories (or all of them)
+        let pool = [];
+        (subcategories.length ? subcategories : Object.keys(data)).forEach(
+          (sub) => data[sub] && (pool = [...pool, ...data[sub]])
         );
-        filtered = [...filtered, ...shuffle(extras).slice(0, amount - filtered.length)];
+
+        // difficulty filter (if one passed one in)
+        if (difficulty && difficulty > 0) {
+          pool = pool.filter(
+            (q) => Number(q.difficulty) === Number(difficulty)
+          );
+        }
+
+        // shuffle and cap to requested amount
+        pool = shuffle(pool).slice(0, amount);
+
+        // normalise every row so <Question> understands it
+        const mapped = pool.map((row) => {
+          const raw = (row.type || 'Multiple').replace(/\s+/g, '').toLowerCase();
+          let tag;
+          if (raw === 'multipleanswer')          tag = 'multiple'; // select‑all
+          else if (raw === 'fillintheblank')     tag = 'fill';
+          else if (raw === 'draganddrop' || raw === 'drag')
+                                                tag = 'drag';
+          else                                   tag = 'single';   // Multiple / TrueFalse
+
+          // choices & answers
+          const choices =
+            tag === 'single' || tag === 'multiple' || tag === 'drag'
+              ? shuffle([
+                  row.option_1 ?? row.a,
+                  row.option_2 ?? row.b,
+                  row.option_3 ?? row.c,
+                  row.option_4 ?? row.d,
+                ]).filter(Boolean)
+              : tag === 'single' && raw === 'truefalse'
+              ? ['True', 'False']
+              : [];
+
+          const correct = row.correct_answer ?? row.correct;
+
+          return {
+            questionText  : row.question,
+            text          : row.question,
+            choices,
+            correctAnswer : correct,
+            type          : tag,
+          };
+        });
+
+        setQuestions(mapped);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-
-      const selected = shuffle(filtered).slice(0, amount).map((data) => {
-        const type = data.type || "Multiple";
-        const choices = ["Multiple", "MultipleAnswer", "DragAndDrop"].includes(type)
-          ? shuffle([data.option_1, data.option_2, data.option_3, data.option_4])
-          : [];
-
-        return {
-          text: data.question,
-          choices,
-          correctAnswer: data.correct_answer,
-          type: type === "FillInTheBlank"
-            ? "fill"
-            : type === "MultipleAnswer"
-            ? "multiple"
-            : type === "DragAndDrop"
-            ? "drag"
-            : "single"
-        };
-      });
-
-      setQuestions(selected);
-      setLoading(false);
     }
 
     fetchQuiz();
-  }, [category]);
+  }, [category, subcategories, difficulty, amount]);
 
+  //  TIMER → auto‑submit
   useEffect(() => {
-    if (timerFinished && !completed) {
-      setCompleted(true);
-      setDoneModalActive(true);
-    }
+    if (timerFinished && !completed) handleSubmit();
   }, [timerFinished, completed]);
+
+  //  SUBMIT
+  const handleSubmit = () => {
+    setCompleted(true);
+    setDoneActive(true);
+    setTimerFinished(true);
+  };
+
+  // RENDER
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <ScaleLoader color="#2563eb" />
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
         <div className="bg-blue-600 text-white p-4 rounded-lg shadow-lg inline-block pointer-events-auto">
-          <ProgressBar answeredCount={answeredCount} totalQuestions={amount} />
+          <ProgressBar
+            answeredCount={answeredCount}
+            totalQuestions={amount}
+          />
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center">
-        <div className="fixed top-12 right-4 text-lg bg-gray-900 text-white p-2 rounded">
-          <Timer
-            timeLimit={duration * 60}
-            onStopTimer={() => setTimerFinished(true)}
-            onTimeUp={() => {
-              setCompleted(true);
-              setDoneModalActive(true);
-            }}
-            timerFinished={timerFinished}
-            showTimer={showTimer}
-            showPauseButton={showPauseButton}
-          />
-        </div>
+      {showTimer && (
+        <Timer
+          duration={duration}
+          showPause={showPauseButton}
+          onFinish={() => setTimerFinished(true)}
+        />
+      )}
 
-        {!loading && (
-          <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg">
-            Welcome to the {category} Quiz
-          </h1>
-        )}
+      <div className="flex flex-col items-center mt-24">
+        <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg">
+          Welcome to the {category} Quiz
+        </h1>
 
         <button
-          onClick={() => setHelpModalActive(true)}
+          onClick={() => setHelpActive(true)}
           className="mb-8 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-600"
+          disabled={completed}
         >
           Help
         </button>
 
-        {helpModalActive && (
+        {helpActive && (
           <HelpModal
-            isActive={setHelpModalActive}
-            active={helpModalActive}
+            isActive={setHelpActive}
+            active={helpActive}
             amount={amount}
             duration={duration}
           />
         )}
 
-        {questions.map((q, index) => (
+        {questions.map((q, i) => (
           <Question
-          key={index}
-          question={q}
-          isCompleted={completed}
-          onAnswer={grabCorrect}
-          onAnswerChange={handleAnswerQuestion}
-        />
+            key={i}
+            question={q}
+            isCompleted={completed}
+            onAnswer={recordCorrect}
+            onAnswerChange={recordAnswered}
+          />
         ))}
 
         {!loading && (
@@ -176,13 +205,12 @@ function QuizActivity() {
         )}
       </div>
 
-      <ScaleLoader loading={loading} color="#111827" height={100} width={25} />
-      {doneModalActive && (
+      {doneActive && (
         <DoneModal
-          isActive={setDoneModalActive}
-          amountCorrect={amountCorrect}
-          totalAmount={amount}
-          active={doneModalActive}
+          isActive={setDoneActive}
+          active={doneActive}
+          amountCorrect={correctCount}
+          totalAmount={questions.length}
         />
       )}
 
