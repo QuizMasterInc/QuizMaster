@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function Question({ question, onAnswer, isCompleted, onAnswerChange }) {
+function Question({ question, onAnswer, isCompleted, onAnswerChange, answerCount }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
   const [inputAnswer, setInputAnswer] = useState('');
@@ -14,7 +14,6 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange }) {
   const isMultipleAnswer = type === 'multiple';
   const isDragAndDrop = type === 'drag';
 
-  // Answer checking when quiz is submitted
   useEffect(() => {
     if (isCompleted) {
       let isCorrect = false;
@@ -55,7 +54,6 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange }) {
     }
   }, [isCompleted]);
 
-  // Realtime answer count (fires once when user first interacts)
   useEffect(() => {
     if (!hasBeenCounted) {
       const interacted = isFillBlank
@@ -67,7 +65,7 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange }) {
         : selectedIndex !== null;
 
       if (interacted) {
-        if (onAnswerChange) onAnswerChange(true); // count this question
+        if (onAnswerChange) onAnswerChange(true);
         setHasBeenCounted(true);
       }
     }
@@ -96,7 +94,7 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange }) {
       {isDragAndDrop ? (
         <>
           <div className="flex flex-wrap gap-2 mb-4">
-            {question.choices.map((opt, idx) => (
+            {question.choices.slice(0, answerCount).map((opt, idx) => (
               <div
                 key={idx}
                 draggable
@@ -131,7 +129,7 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange }) {
         />
       ) : (
         <div className="choices mt-4 space-y-2">
-          {question.choices.map((choice, idx) =>
+          {question.choices.slice(0, answerCount).map((choice, idx) =>
             isMultipleAnswer ? (
               <label key={idx} className="flex items-center space-x-2">
                 <input

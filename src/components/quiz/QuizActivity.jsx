@@ -9,7 +9,6 @@ import ProgressBar from './ProgressBar';
 import BackToTop from './BackToTopButton';
 import BackGroundMusic from '../sounds/BackGroundMusic';
 
-// Fisher‑Yates shuffle 
 const shuffle = (array) => {
   const a = [...array];
   for (let i = a.length - 1; i > 0; i--) {
@@ -30,17 +29,17 @@ function QuizActivity() {
     showPauseButton,
   } = useCategory();
 
-  const [questions,      setQuestions]      = useState([]);
-  const [loading,        setLoading]        = useState(true);
-  const [completed,      setCompleted]      = useState(false);
-  const [helpActive,     setHelpActive]     = useState(false);
-  const [doneActive,     setDoneActive]     = useState(false);
-  const [timerFinished,  setTimerFinished]  = useState(false);
-  const [answeredCount,  setAnsweredCount]  = useState(0);
-  const [correctCount,   setCorrectCount]   = useState(0);
-  const [quizId,          setQuizId]         = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [completed, setCompleted] = useState(false);
+  const [helpActive, setHelpActive] = useState(false);
+  const [doneActive, setDoneActive] = useState(false);
+  const [timerFinished, setTimerFinished] = useState(false);
+  const [answeredCount, setAnsweredCount] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [quizId, setQuizId] = useState(null);
+  const [answerCount, setAnswerCount] = useState(4); // ✅ default max
 
-  //  CALLBACKS FROM <Question>
   const recordCorrect = useCallback(
     (isCorrect) => isCorrect && setCorrectCount((c) => c + 1),
     []
@@ -51,7 +50,6 @@ function QuizActivity() {
     []
   );
 
-  //  FETCH & NORMALISE QUIZ DATA 
   useEffect(() => {
     async function fetchQuiz() {
       setLoading(true);
@@ -59,56 +57,57 @@ function QuizActivity() {
         const url = `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabSub?category=${encodeURIComponent(
           category.toLowerCase()
         )}`;
-        const res  = await fetch(url);
+        const res = await fetch(url);
         const data = await res.json();
 
-        // gather rows for chosen sub‑categories (or all of them)
         let pool = [];
         (subcategories.length ? subcategories : Object.keys(data)).forEach(
           (sub) => data[sub] && (pool = [...pool, ...data[sub]])
         );
 
-        // difficulty filter (if one passed one in)
         if (difficulty && difficulty > 0) {
-          pool = pool.filter(
-            (q) => Number(q.difficulty) === Number(difficulty)
-          );
+          pool = pool.filter((q) => Number(q.difficulty) === Number(difficulty));
         }
 
-        // shuffle and cap to requested amount
         pool = shuffle(pool).slice(0, amount);
 
-        // normalise every row so <Question> understands it
         const mapped = pool.map((row) => {
           const raw = (row.type || 'Multiple').replace(/\s+/g, '').toLowerCase();
           let tag;
-          if (raw === 'multipleanswer')          tag = 'multiple'; // select‑all
-          else if (raw === 'fillintheblank')     tag = 'fill';
-          else if (raw === 'draganddrop' || raw === 'drag')
-                                                tag = 'drag';
-          else                                   tag = 'single';   // Multiple / TrueFalse
+          if (raw === 'multipleanswer') tag = 'multiple';
+          else if (raw === 'fillintheblank') tag = 'fill';
+          else if (raw === 'draganddrop' || raw === 'drag') tag = 'drag';
+          else tag = 'single';
 
-          // choices & answers
-          const choices =
-            tag === 'single' || tag === 'multiple' || tag === 'drag'
-              ? shuffle([
-                  row.option_1 ?? row.a,
-                  row.option_2 ?? row.b,
-                  row.option_3 ?? row.c,
-                  row.option_4 ?? row.d,
-                ]).filter(Boolean)
-              : tag === 'single' && raw === 'truefalse'
-              ? ['True', 'False']
-              : [];
+          const correctAnswer = row.correct_answer ?? row.correct;
+          const correctLower = String(correctAnswer).trim().toLowerCase();
 
-          const correct = row.correct_answer ?? row.correct;
+          const allChoices = [
+            row.option_1 ?? row.a,
+            row.option_2 ?? row.b,
+            row.option_3 ?? row.c,
+            row.option_4 ?? row.d,
+          ].filter(Boolean);
+
+          const correctChoice = allChoices.find(
+            (c) => c?.trim().toLowerCase() === correctLower
+          );
+
+          const wrongChoices = allChoices.filter(
+            (c) => c?.trim().toLowerCase() !== correctLower
+          );
+
+          const finalChoices = shuffle([
+            correctChoice,
+            ...shuffle(wrongChoices).slice(0, Math.max(0, answerCount - 1)),
+          ]);
 
           return {
-            questionText  : row.question,
-            text          : row.question,
-            choices,
-            correctAnswer : correct,
-            type          : tag,
+            questionText: row.question,
+            text: row.question,
+            choices: finalChoices,
+            correctAnswer: correctAnswer,
+            type: tag,
           };
         });
 
@@ -121,21 +120,18 @@ function QuizActivity() {
     }
 
     fetchQuiz();
-  }, [category, subcategories, difficulty, amount]);
+  }, [category, subcategories, difficulty, amount, answerCount]); // re-map if answerCount changes
 
-  //  TIMER → auto‑submit
   useEffect(() => {
     if (timerFinished && !completed) handleSubmit();
   }, [timerFinished, completed]);
 
-  //  SUBMIT
   const handleSubmit = () => {
     setCompleted(true);
     setDoneActive(true);
     setTimerFinished(true);
   };
 
-  // RENDER
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -148,10 +144,7 @@ function QuizActivity() {
     <>
       <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
         <div className="bg-blue-600 text-white p-4 rounded-lg shadow-lg inline-block pointer-events-auto">
-          <ProgressBar
-            answeredCount={answeredCount}
-            totalQuestions={amount}
-          />
+          <ProgressBar answeredCount={answeredCount} totalQuestions={amount} />
         </div>
       </div>
 
@@ -164,9 +157,25 @@ function QuizActivity() {
       )}
 
       <div className="flex flex-col items-center mt-24">
-        <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg">
+        <h1 className="p-10 mb-4 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg">
           Welcome to the {category} Quiz
         </h1>
+
+        <div className="mb-6 text-white">
+          <label className="mr-2">Answers per question:</label>
+          <select
+            value={answerCount}
+            onChange={(e) => setAnswerCount(Number(e.target.value))}
+            className="text-black px-2 py-1 rounded"
+            disabled={completed}
+          >
+            {[2, 3, 4].map((num) => (
+              <option key={num} value={num}>
+                {num}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <button
           onClick={() => setHelpActive(true)}
@@ -192,6 +201,7 @@ function QuizActivity() {
             isCompleted={completed}
             onAnswer={recordCorrect}
             onAnswerChange={recordAnswered}
+            answerCount={answerCount}
           />
         ))}
 
@@ -212,7 +222,7 @@ function QuizActivity() {
           active={doneActive}
           amountCorrect={correctCount}
           totalAmount={questions.length}
-          quizId = {quizId}
+          quizId={quizId}
         />
       )}
 
