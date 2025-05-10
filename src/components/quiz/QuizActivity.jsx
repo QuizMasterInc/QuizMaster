@@ -38,6 +38,7 @@ function QuizActivity() {
   const [timerFinished,  setTimerFinished]  = useState(false);
   const [answeredCount,  setAnsweredCount]  = useState(0);
   const [correctCount,   setCorrectCount]   = useState(0);
+  const [quizId,          setQuizId]         = useState(null);
 
   //  CALLBACKS FROM <Question>
   const recordCorrect = useCallback(
@@ -211,6 +212,7 @@ function QuizActivity() {
           active={doneActive}
           amountCorrect={correctCount}
           totalAmount={questions.length}
+          quizId = {quizId}
         />
       )}
 

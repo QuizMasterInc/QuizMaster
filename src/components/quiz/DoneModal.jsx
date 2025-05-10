@@ -17,7 +17,7 @@ import AverageSound from "../sounds/AverageSound.jsx";
  
 
 
-const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading }) => {
+const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading, quizId, isCustomQuiz=false }) => {
     
     //set varible to user inputed PassThreshold
     const { passThreshold } = useVolumeSettings();
@@ -26,6 +26,7 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading }) =>
     const [playPassSound, setPassSound] = useState(false);
     const [playFailSound, setFailSound] = useState(false);
     const [playAverageSound, setAverageSound] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
   
     useEffect(() => {
       const score = (amountCorrect / totalAmount) * 100;
@@ -44,6 +45,28 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading }) =>
       }
     }, [amountCorrect, totalAmount, passThreshold]);
   
+
+    const handleDownload = async () => {
+      setIsDownloading(true);
+      try {
+          const response = await fetch(`https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz?quizid=${quizId}&download=true`);
+          if (!response.ok) {
+              throw new Error("Failed to download study guide");
+          }
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "study_guide.json";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+      } catch (error) {
+          console.error("Error downloading study guide:", error);
+      } finally {
+          setIsDownloading(false);
+      }
+  };
 
 
     return (
@@ -87,6 +110,15 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading }) =>
                 </div>
               </div>
               <div className="flex items-center justify-center p-6 border-t rounded-b border-gray-600 space-x-8">
+                {isCustomQuiz && (
+                  <button 
+                    onClick={handleDownload}
+                    disabled={isDownloading || loading}
+                    className="text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                    >
+                      {isDownloading ? "Downloading..." : "Download Study Guide"}
+                  </button>
+                )}
                 <Link to={"/typeofquiz"}>
                   <div
                     type="button"

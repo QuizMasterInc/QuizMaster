@@ -257,15 +257,17 @@ exports.deletedUser = functions.auth.user().onDelete(user => {
     return doc.delete()
 })
 
+// Retrives quiz data and includes the option to download quizzes
 exports.grabCustomQuiz = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
         const  uid  = req.query.quizid
+        const download = req.query.download; // Checks if request is to download
 
         if (!uid) {
             return res.status(401).json({
                 result: false,
                 message: "No UID field."
-            })
+            });
         }
 
         try {
@@ -274,24 +276,36 @@ exports.grabCustomQuiz = functions.https.onRequest(async (req, res) => {
                 return res.json({
                     result: false,
                     message: "Invalid UID"
-                })
+                });
             }
-            else {
-                return res.json({
-                    result: true,
-                    status: 200,
-                    message: "quiz found",
-                    data: quiz.data()
-                })
+            const quizData = quiz.data();
+            console.log(quizData);
+            if (download === 'true') {
+                const studyGuide = Object.values(quizData.questions).map((q) => ({
+                    question: q.question,
+                    correctAnswer: q.correct_answer,
+                    choices: [q.option_1, q.option_2, q.option_3, q.option_4]
+                }));
+
+                res.setHeader("Content-Disposition", "attachment; filename=study-guide.json");
+                return res.status(200).json(studyGuide);
             }
+
+            return res.json({
+                result: true,
+                status: 200,
+                message: "Quiz found.",
+                data: quizData
+            });
+
         } catch(error) {
             return res.json({
                 result: false,
                 message: error.message
-            })
+            });
         }
-    }) 
-})
+    }) ;
+});
 
 // grabs all custom quizzes made by current user for Dashboard
 // Is duplicate of grabUserCustomQuzzies(), replace in later update

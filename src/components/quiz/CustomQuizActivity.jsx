@@ -141,6 +141,8 @@ function CustomQuizActivity() {
           amountCorrect={amountCorrect}
           totalAmount={questions.length}
           active={doneModalActive}
+          quizId={quizID}
+          isCustomQuiz={true}
         />
       )}
 
