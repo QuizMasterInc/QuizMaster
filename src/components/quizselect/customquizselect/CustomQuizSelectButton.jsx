@@ -8,7 +8,8 @@ import { getDatabase, ref, get } from "firebase/database";
 
 
 
-const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword}) => {
+const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, creator}) => {
+
 
 const { currentUser } = useAuth();
 const navigate = useNavigate()
@@ -16,31 +17,39 @@ const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("")
 // const [quizPasswordAttemptCheck, setQuizPasswordAttemptCheck] = useState()
 const [creatorInfo, setCreatorInfo] = useState(null);
 
-// Fetch creator info based on creatorID (uid) (WORKS BUT NOT ALL USERS HAVE THE DISPLAY NAME LABEL IN FB)
 useEffect(() => {
   const fetchCreatorInfo = async () => {
-    const db = getDatabase();
-    const creatorRef = ref(db, 'users/' + uid); 
-    const creatorSnapshot = await get(creatorRef);
-    if (creatorSnapshot.exists()) {
-      setCreatorInfo(creatorSnapshot.val());  // Store creator's data in state
-    } else {
-      console.log("No creator info found!");
+    try {
+      const db = getDatabase();
+      const creatorRef = ref(db, 'users/' + creator);  // 'creator' is the user ID
+
+      // Fetch user info from the database using the creator ID
+      const creatorSnapshot = await get(creatorRef);
+
+      if (creatorSnapshot.exists()) {
+        const data = creatorSnapshot.val();
+        console.log("Fetched Creator Info:", data);  // Log the data to check its structure
+        setCreatorInfo(data);  // Set the creator info to state
+      } else {
+        console.warn("No creator info found for ID:", creator);
+        setCreatorInfo(null);  // Set to null if no data exists
+      }
+    } catch (error) {
+      console.error("Error fetching creator info:", error);
     }
   };
 
-  if (uid) {
-    fetchCreatorInfo();
+  if (creator) {
+    fetchCreatorInfo();  // Only fetch if creator ID exists
   }
-}, [uid]); 
+}, [creator]);  // Dependency on 'creator' to refetch if creator changes
+
 
 
 function displayCreatorName() {
-    if (creatorInfo && creatorInfo.displayName) {
-        return "Created By: " + creatorInfo.displayName;
-      }
-      return "Created By: Unknown"; 
-    }
+  return "Created By: " + creator;
+}
+
 
 function displayTags(tags) {
     if (tags != undefined && tags.length > 0) {
@@ -91,6 +100,7 @@ const handleQuizPasswordChange = (e) => {
         <Link to={'/quizstarted/' + uid}>
         <div className="flex flex-col items-center p-4 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600">
             <div className="text-2xl">{title}</div>
+            <div className="text-base">{displayCreatorName()}</div>
             <div className="text-base">{displayTags(tags)}</div>
             <div className="text-base">Questions: {numQuestions}</div>
         </div>

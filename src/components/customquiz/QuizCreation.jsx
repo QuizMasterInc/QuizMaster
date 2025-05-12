@@ -105,15 +105,39 @@ export default function QuizCreation({
     if (value) {
       setPrivateQuiz(true);
       if (!privateQuizPassword) setPrivateQuizPassword('teacherOnly');
+      setQuizTags((prevTags) => {
+        const updatedTags = new Set(prevTags);
+        updatedTags.add('teachermade (no other tags can be added)');
+        return Array.from(updatedTags);
+      });
     } else {
       setPrivateQuiz(false);
       setPrivateQuizPassword('');
+      setQuizTags((prevTags) => prevTags.filter(tag => tag !== 'teachermade (no other tags can be added)'));
     }
   };
 
   const handleQuizPasswordChange = (e) => setPrivateQuizPassword(e.target.value);
   const handleQuizNameChange = (e) => setQuizName(e.target.value);
-  const updateQuizTags = (e) => setQuizTags(e.target.value.split(' '));
+  const updateQuizTags = (e) => {
+    if (teacherQuiz) {
+      // Automatically set the tags to "teachermade" when teacherQuiz is enabled
+      setQuizTags(['teachermade (no other tags can be added)']); // Only "teachermade" is allowed
+    } else {
+      // Otherwise, allow the user to input tags (without "teachermade")
+      const inputTags = e.target.value
+        .split(' ') // Split the input into tags based on spaces
+        .map(tag => tag.trim()) // Trim each tag to remove extra spaces
+        .filter(tag => tag !== ''); // Remove any empty entries
+      
+      // Remove "teachermade" from the list if it's in the input
+      let filteredTags = inputTags.filter(tag => tag !== 'teachermade (no other tags can be added)');
+      setQuizTags(filteredTags); // Update the tags list
+    }
+  };
+
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f051d] via-[#1b1444] to-[#0f051d] text-white py-16 px-6">

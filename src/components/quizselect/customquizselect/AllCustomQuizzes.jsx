@@ -174,6 +174,7 @@ const AllCustomQuizzes = () => {
               tags={q.tags}
               uid={q.uid}
               quizPassword={q.quizPassword}
+              creator={q.creator}
             />
           ))}
         </div>
