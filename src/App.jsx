@@ -28,11 +28,13 @@ import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import DeveloperRoute from './routes/DeveloperRoute';
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
 import CustomQuiz from './components/customquiz/CustomQuiz';
+import Flashcards from './components/flashcards/Flashcards';
 import EditCustomQuiz from "./components/customquiz/EditCustomQuiz"
 import SelectSubCategory from './components/quizselect/SelectSubCategory';
 import TypeOfQuiz from './components/typeofquiz/TypeOfQuiz';
 import Developer from './components/developer/AddDefaultQuestion';
 import AllCustomQuizzes from './components/quizselect/customquizselect/AllCustomQuizzes';
+import AllTeacherQuizzes from './components/quizselect/customquizselect/AllTeacherQuizzes';
 import CustomQuizActivity from './components/quiz/CustomQuizActivity'
 import Footer from './components/footer/footer';
 import Header from './components/header/header';
@@ -126,6 +128,11 @@ function App() {
                 </CustomQuizProvider>
               </PrivateRoute>
             }/>
+            <Route path="/flashcards" element={
+              <PrivateRoute>
+                  <Flashcards />
+              </PrivateRoute>
+            }/>
 
             <Route path="/typeofquiz" element={
               <PrivateRoute>
@@ -133,6 +140,11 @@ function App() {
               </PrivateRoute>
             }/>
             <Route path="/allcustomquizzes" element={
+              <PrivateRoute>
+                <AllCustomQuizzes />
+              </PrivateRoute>
+            }/>
+            <Route path="/allteacherquizzes" element={
               <PrivateRoute>
                 <AllCustomQuizzes />
               </PrivateRoute>
@@ -168,6 +180,7 @@ function App() {
           </Routes>
 
           <Chatbot />
+          
 
           <div className="navbar">
           <NavBar />

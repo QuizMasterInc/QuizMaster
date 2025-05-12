@@ -7,10 +7,29 @@ const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const responses = {
-    greeting: "Hello! How can I assist you today?",
-    quiz: "You can start using this app by pressing the take a quiz button to then see the quiz options we provide.",
-    help: "I'm here to help! You can ask me about quizzes, categories, difficulty levels, quiz results, and more.",
-    default: "Sorry, I didn't understand that. Could you please ask something else?"
+    greeting: "Hey there! 👋 How can I help you with quizzes today?",
+    quiz: "To take a quiz, click 'Take a Quiz' on the homepage or dashboard.",
+    help: "I'm here to help! You can ask about quiz options, scoring, categories, or how to build your own quizzes.",
+    results: "You can view your quiz scores and progress on the dashboard 📊.",
+    create: "To create a custom quiz, click on 'Create Quizzes' and fill in your quiz info.",
+    default: "Hmm, I didn’t quite get that. Try asking something like 'how do I start a quiz?' or 'how do I create my own?'"
+  };
+
+  const keywordMap = {
+    greeting: ["hello", "hi", "hey", "yo", "sup"],
+    quiz: ["quiz", "start", "take quiz", "play", "question", "test"],
+    help: ["help", "assist", "support", "stuck", "issue"],
+    results: ["score", "results", "how did i do", "grade", "ranking"],
+    create: ["custom", "create", "build", "make quiz"]
+  };
+
+  const detectIntent = (input) => {
+    for (const intent in keywordMap) {
+      if (keywordMap[intent].some(keyword => input.includes(keyword))) {
+        return intent;
+      }
+    }
+    return "default";
   };
 
   const handleChange = (event) => {
@@ -26,24 +45,22 @@ const Chatbot = () => {
     }
 
     setMessages(prevMessages => [...prevMessages, { sender: 'user', text: userInput }]);
+    const lowerInput = userInput.toLowerCase();
+    const intent = detectIntent(lowerInput);
+    const response = responses[intent] || responses.default;
+
     setUserInput('');
     setIsLoading(true);
 
-    const lowerInput = userInput.toLowerCase();
-    let response = responses.default;
-
-    if (/(hello|hi|hey)/.test(lowerInput)) {
-      response = responses.greeting;
-    } else if (/(quiz|start quiz|take a quiz)/.test(lowerInput)) {
-      response = responses.quiz;
-    } else if (/(help|assist|support)/.test(lowerInput)) {
-      response = responses.help;
-    }
-
     setTimeout(() => {
-      setMessages(prevMessages => [...prevMessages, { sender: 'bot', text: response }]);
+      setMessages(prevMessages => [...prevMessages, { sender: 'bot', text: response, intent }]);
       setIsLoading(false);
-    }, 1000);
+    }, 800);
+  };
+
+  const handleQuickReply = (text) => {
+    setUserInput(text);
+    setTimeout(() => handleSubmit({ preventDefault: () => {} }), 100);
   };
 
   const toggleChatbot = () => {
@@ -73,6 +90,14 @@ const Chatbot = () => {
               {messages.map((message, index) => (
                 <div key={index} style={message.sender === 'user' ? styles.userMessage : styles.botMessage}>
                   <div style={styles.messageBubble}>{message.text}</div>
+
+                  {/* Quick replies for default response */}
+                  {message.intent === "default" && message.sender === 'bot' && (
+                    <div style={{ paddingLeft: '5px' }}>
+                      <button style={styles.quickButton} onClick={() => handleQuickReply("How do I start a quiz?")}>Start Quiz</button>
+                      <button style={styles.quickButton} onClick={() => handleQuickReply("How do I create a quiz?")}>Create Quiz</button>
+                    </div>
+                  )}
                 </div>
               ))}
               {isLoading && <div style={styles.botMessage}><div style={styles.messageBubble}>...</div></div>}
@@ -123,9 +148,6 @@ const styles = {
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
     transition: 'transform 0.2s',
   },
-  chatbotButtonHover: {
-    transform: 'scale(1.1)',
-  },
   chatbotContainer: {
     position: 'fixed',
     bottom: '80px',
@@ -156,6 +178,7 @@ const styles = {
   },
   botMessage: {
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'flex-start',
     marginBottom: '10px',
   },
@@ -166,6 +189,16 @@ const styles = {
     backgroundColor: '#495057',
     color: '#f8f9fa',
     wordWrap: 'break-word',
+  },
+  quickButton: {
+    backgroundColor: "#17a2b8",
+    color: "#fff",
+    border: "none",
+    borderRadius: "20px",
+    padding: "5px 10px",
+    margin: "5px 5px 0 0",
+    cursor: "pointer",
+    fontSize: "13px",
   },
   chatForm: {
     display: 'flex',

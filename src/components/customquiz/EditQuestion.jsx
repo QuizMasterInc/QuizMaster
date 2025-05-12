@@ -27,322 +27,209 @@ This component is what allows the editing capability of each individual question
 import { useState, useEffect } from 'react'
 import { useCustomQuizContext } from '../../contexts/CustomQuizContext'
 
-function EditQuestion({num, q}) {
-    const [editingQuestion, toggleEditing] = useState(false)
-    const [question, editQuestion] = useState(q.question)
-    const [questionNum, changeQuestionNum] = useState(num.split(" ")[1])
-    const [answer_A, editAnswer_A] = useState(q.option_1) 
-    const [answer_B, editAnswer_B] = useState(q.option_2)
-    const [answer_C, editAnswer_C] = useState(q.option_3)
-    const [answer_D, editAnswer_D] = useState(q.option_4)
-    const [correctAnswer, changeCorrectAnswer] = useState(q.correct_answer)
+function EditQuestion({ num, q }) {
+  const type = q.type || q.questionType || "Multiple";
+  const [editingQuestion, toggleEditing] = useState(false);
+  const [question, editQuestion] = useState(q.question);
+  const [questionNum, changeQuestionNum] = useState(num.split(" ")[1]);
+  const [answer_A, editAnswer_A] = useState(q.option_1);
+  const [answer_B, editAnswer_B] = useState(q.option_2);
+  const [answer_C, editAnswer_C] = useState(q.option_3);
+  const [answer_D, editAnswer_D] = useState(q.option_4);
+  const [selectedCorrectAnswers, setSelectedCorrectAnswers] = useState([]);
+  const [correctAnswer, changeCorrectAnswer] = useState(q.correct_answer);
 
-    const customQuizData = useCustomQuizContext() // custom quiz context object
+  const customQuizData = useCustomQuizContext();
 
-    // Following functions handle onChange handlers for all input fields
-    const questionChange = (e) => {
-        editQuestion(e.target.value)
-    }
+  const isMultipleAnswer = type === "MultipleAnswer";
 
-    const questionNumChange = (e) => {
-        changeQuestionNum(e.target.value)
-    }
+  const handleFinishClick = () => {
+    toggleEditing(false);
 
-    const changeAnswer_A = (e) => {
-        editAnswer_A(e.target.value)
-    }
+    const sameQuestion = customQuizData.quiz.questions[num].question === question;
+    const sameOrder = num.split(" ")[1] === questionNum;
+    const sameAnswers = (
+      customQuizData.quiz.questions[num].option_1 === answer_A &&
+      customQuizData.quiz.questions[num].option_2 === answer_B &&
+      customQuizData.quiz.questions[num].option_3 === answer_C &&
+      customQuizData.quiz.questions[num].option_4 === answer_D &&
+      customQuizData.quiz.questions[num].correct_answer === correctAnswer
+    );
+    const sameFillInBlank = customQuizData.quiz.questions[num].option_1 === answer_A;
 
-    const changeAnswer_B = (e) => {
-        editAnswer_B(e.target.value)
-    }
+    if (sameQuestion && sameOrder && (type === "FillInTheBlank" ? sameFillInBlank : sameAnswers)) return;
 
-    const changeAnswer_C = (e) => {
-        editAnswer_C(e.target.value)
-    }
+    const newMap = { ...customQuizData.quiz.questions };
 
-    const changeAnswer_D = (e) => {
-        editAnswer_D(e.target.value)
-    }
+    const updateFields = (mapKey) => {
+      newMap[mapKey].question = question;
 
-    const changeCorrect_AnswerHandler = (e) => {
-        changeCorrectAnswer(e.target.value)
-    }
+      if (type === "FillInTheBlank") {
+        newMap[mapKey].option_1 = answer_A;
+        newMap[mapKey].option_2 = "";
+        newMap[mapKey].option_3 = "";
+        newMap[mapKey].option_4 = "";
+        newMap[mapKey].correct_answer = answer_A;
+      } else {
+        newMap[mapKey].option_1 = answer_A;
+        newMap[mapKey].option_2 = answer_B;
+        newMap[mapKey].option_3 = answer_C;
+        newMap[mapKey].option_4 = answer_D;
+        newMap[mapKey].correct_answer = isMultipleAnswer
+          ? selectedCorrectAnswers.join("||")
+          : correctAnswer;
+      }
+    };
 
-    // following functions handle onBlur handlers for all inputs to check for empty strings
-    // onBlur is called when an input field is un focused 
-    const questionBlur = (e) => {
-        if (question == "") {
-            editQuestion(q.question)
+    if (!sameOrder) {
+      const reorderedMap = {};
+      let counter = 1;
+      Object.keys(customQuizData.quiz.questions).forEach((key) => {
+        if (`Question ${counter}` === num) {
+          reorderedMap[`Question ${questionNum}`] = { ...customQuizData.quiz.questions[num] };
+          updateFields(`Question ${questionNum}`);
+        } else if (`Question ${counter}` === `Question ${questionNum}`) {
+          reorderedMap[`Question ${counter}`] = { ...customQuizData.quiz.questions[num] };
+        } else {
+          reorderedMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter}`];
         }
+        counter++;
+      });
+      customQuizData.updateQuiz(prev => ({ ...prev, questions: reorderedMap }));
+    } else {
+      updateFields(num);
+      customQuizData.updateQuiz(prev => ({ ...prev, questions: newMap }));
     }
+  };
 
-    const answer_A_Blur = (e) => {
-        if (answer_A == "") {
-            editAnswer_A(q.option_1)
-        }
+  const handleCheckboxChange = (option) => {
+    setSelectedCorrectAnswers(prev =>
+      prev.includes(option)
+        ? prev.filter(val => val !== option)
+        : [...prev, option]
+    );
+  };
+
+  useEffect(() => {
+    editQuestion(q.question);
+    editAnswer_A(q.option_1);
+    editAnswer_B(q.option_2);
+    editAnswer_C(q.option_3);
+    editAnswer_D(q.option_4);
+    changeCorrectAnswer(q.correct_answer);
+    changeQuestionNum(num.split(" ")[1]);
+
+    if (type === "MultipleAnswer") {
+      const splitAnswers = q.correct_answer?.split("||").map(s => s.trim()) || [];
+      setSelectedCorrectAnswers(splitAnswers);
     }
+  }, [customQuizData.quiz]);
 
-    const answer_B_Blur = (e) => {
-        if (answer_B == "") {
-            editAnswer_B(q.option_2)
-        }
-    }
+  const allAnswers = [answer_A, answer_B, answer_C, answer_D];
+  const answerSetters = [editAnswer_A, editAnswer_B, editAnswer_C, editAnswer_D];
 
-    const answer_C_Blur = (e) => {
-        if (answer_C == "") {
-            editAnswer_C(q.option_3)
-        }
-    }
+  return (
+    <div className="flex flex-col bg-gray-900 rounded-3xl shadow-lg m-5 p-4 items-center">
+      {editingQuestion ? (
+        <>
+          <form className="flex w-10/12">
+            <input
+              type="number"
+              min="1"
+              max={customQuizData.quiz.numQuestions}
+              onChange={(e) => changeQuestionNum(e.target.value)}
+              value={questionNum}
+              className="bg-inherit text-black w-9 p-0 bg-slate-500 focus:bg-slate-300 mr-1 rounded"
+            />
+            <textarea
+              value={question}
+              onChange={(e) => editQuestion(e.target.value)}
+              className="bg-slate-400 focus:bg-slate-300 text-black w-full p-2 rounded"
+            />
+          </form>
 
-    const answer_D_Blur = (e) => {
-        if (answer_D == "") {
-            editAnswer_D(q.option_4)
-        }
-    }
+          <div className="mt-3 p-2 flex flex-col items-start w-10/12">
+            {type === "FillInTheBlank" ? (
+              <form className="flex justify-center w-full mb-4">
+                <label className="mr-3">Answer:</label>
+                <textarea
+                  value={answer_A}
+                  onChange={(e) => editAnswer_A(e.target.value)}
+                  className="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black"
+                />
+              </form>
+            ) : (
+              <>
+                {allAnswers.map((val, idx) => (
+                  <form key={idx} className="flex justify-center w-full mb-4 items-center">
+                    <label className="mr-3">{String.fromCharCode(65 + idx)} :</label>
+                    <textarea
+                      value={val}
+                      onChange={(e) => answerSetters[idx](e.target.value)}
+                      className="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black mr-2"
+                    />
+                    {type === "MultipleAnswer" && (
+                      <input
+                        type="checkbox"
+                        checked={selectedCorrectAnswers.includes(val)}
+                        onChange={() => handleCheckboxChange(val)}
+                      />
+                    )}
+                  </form>
+                ))}
 
-    // button click handles updating the quiz in the custom quiz context as needed based on the edited data in each question
-    const handleFinishClick = (e) => {
-        toggleEditing(!editingQuestion)
+                {type === "Multiple" && (
+                  <form className="w-full mb-4 mt-1">
+                    <label className="mr-2">Correct Answer:</label>
+                    <select
+                      onChange={(e) => changeCorrectAnswer(e.target.value)}
+                      value={correctAnswer}
+                      className="text-black w-full"
+                    >
+                      <option value="">--Select the correct answer--</option>
+                      {allAnswers.map((opt, idx) => (
+                        <option key={idx} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </form>
+                )}
+              </>
+            )}
 
-        // checks to see if data has been changed 
-        if (customQuizData.quiz.questions[num].question == question && customQuizData.quiz.questions[num].option_1 == answer_A && customQuizData.quiz.questions[num].option_2 == answer_B && customQuizData.quiz.questions[num].option_3 == answer_C && customQuizData.quiz.questions[num].option_4 == answer_D && customQuizData.quiz.questions[num].correct_answer == correctAnswer &&
-        num.split(" ")[1] == questionNum) return 
-
-        // update quiz data in custom quiz context
-        // - first checks to see if the order of questions has changed
-        if (num.split(" ")[1] != questionNum) {
-            const newMap = {}
-            // check if question is moved downward
-            // - creates new map of questions with updated question data
-            if (num.split(" ")[1] > questionNum) {
-                var counter = 1
-                while (counter != questionNum) {
-                    newMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter}`]
-                    counter++
-                }
-
-                let obj_1 = customQuizData.quiz.questions[`Question ${questionNum}`]
-                newMap[`Question ${counter}`] = customQuizData.quiz.questions[num]
-                counter++
-                let obj_2 = customQuizData.quiz.questions[`Question ${counter}`]
-
-                while (counter <= num.split(" ")[1]) {
-                    newMap[`Question ${counter}`] = obj_1
-                    obj_1 = obj_2
-                    counter++
-                    obj_2 = customQuizData.quiz.questions[`Question ${counter}`]
-                }
-
-                while (customQuizData.quiz.questions[`Question ${counter}`]) {
-                    newMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter}`]
-                    counter++
-                }
-            }
-            else {
-                // question was moved upwards
-                var counter = 1
-                while (counter < num.split(" ")[1]) {
-                    newMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter}`]
-                    counter++
-                }
-
-                let hold = customQuizData.quiz.questions[`Question ${questionNum}`]
-                newMap[`Question ${questionNum}`] = customQuizData.quiz.questions[num]
-
-                while (counter != questionNum - 1) {
-                    newMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter + 1}`]
-                    counter++
-                }
-
-                newMap[`Question ${counter}`] = hold
-                counter += 2
-
-                while (customQuizData.quiz.questions[`Question ${counter}`]) {
-                    newMap[`Question ${counter}`] = customQuizData.quiz.questions[`Question ${counter}`]
-                    counter++
-                }
-            }
-
-            // checks for changed data and updates map
-            if (customQuizData.quiz.questions[num].question != question) {
-                newMap[`Question ${questionNum}`].question = question
-            }
-            if (customQuizData.quiz.questions[num].option_1 != answer_A) {
-                newMap[`Question ${questionNum}`].option_1 = answer_A
-            }
-            if (customQuizData.quiz.questions[num].option_2 != answer_B) {
-                newMap[`Question ${questionNum}`].option_2 = answer_B
-            }
-            if (customQuizData.quiz.questions[num].option_3 != answer_C) {
-                newMap[`Question ${questionNum}`].option_3 = answer_C
-            }
-            if (customQuizData.quiz.questions[num].option_4 != answer_D) {
-                newMap[`Question ${questionNum}`].option_4 = answer_D
-            }
-            if (customQuizData.quiz.questions[num].correct_answer != correctAnswer) {
-                newMap[`Question ${questionNum}`].correct_answer = correctAnswer
-            }
-
-            // updates the custom quiz context state
-            customQuizData.updateQuiz(prev => {
-                return {
-                  ...prev,
-                  questions: newMap
-                }
-              })
-        }
-        else {
-            // updates custom quiz context state when no question has changed the order
-            const newMap = customQuizData.quiz.questions 
-
-            if (customQuizData.quiz.questions[num].question != question) {
-                newMap[num].question = question
-            }
-            if (customQuizData.quiz.questions[num].option_1 != answer_A) {
-                newMap[num].option_1 = answer_A
-            }
-            if (customQuizData.quiz.questions[num].option_2 != answer_B) {
-                newMap[num].option_2 = answer_B
-            }
-            if (customQuizData.quiz.questions[num].option_3 != answer_C) {
-                newMap[num].option_3 = answer_C
-            }
-            if (customQuizData.quiz.questions[num].option_4 != answer_D) {
-                newMap[num].option_4 = answer_D
-            }
-            if (customQuizData.quiz.questions[num].correct_answer != correctAnswer) {
-                newMap[num].correct_answer = correctAnswer
-            }
-
-            // updates custom quiz context state
-            customQuizData.updateQuiz(prev => {
-                return {
-                  ...prev,
-                  questions: newMap
-                }
-              })
-        }
-    }
-
-    // useEffect to provide listerner on when custom quiz state changes in context
-    // - NECESSARY to update all the question components with the changed data
-    useEffect(() => {
-        // calls state change functions on all changabale data for the edited question
-        editAnswer_A(q.option_1)
-        editAnswer_B(q.option_2)
-        editAnswer_C(q.option_3)
-        editAnswer_D(q.option_4)
-        editQuestion(q.question)
-        changeCorrectAnswer(q.correct_answer)
-        changeQuestionNum(num.split(" ")[1])
-    }, [customQuizData.quiz])
-
-    return (
-        <div class="flex flex-col bg-gray-900 rounded-3xl shadow-lg -md:pl-2 -md:pr-2 -md:pb-2 m-5 p-4 items-center">
-            {
-                editingQuestion 
-                ? 
-                <form class="flex w-10/12">
-                    <input type="number" min="1" max={customQuizData.quiz.numQuestions} onChange={questionNumChange} value={questionNum} class="bg-inherit text-black w-9 p-0 bg-slate-500 focus:bg-slate-300 mr-1 rounded" />
-                    <textarea value={question} onChange={questionChange} onBlur={questionBlur} class="bg-slate-400 focus:bg-slate-300 text-black w-full p-2 rounded" />
-                </form>
-                :
-                <div class="flex">
-                    <h1>{num.split(" ")[1]}</h1>
-                    <h1>. &nbsp;&nbsp;</h1>
-                    <h1>{q.question}</h1>
-                </div>
-            }
-
-            <div class="mt-3 p-2 flex flex-col items-start w-10/12">
-                {
-                    editingQuestion
-                    ?
-                    <form class="flex justify-center w-full mb-4">
-                        <label class="mr-3" >A&nbsp;:</label>
-                        <textarea value={answer_A} onChange={changeAnswer_A} onBlur={answer_A_Blur} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black" />
-                    </form>
-                    :
-                    <div class="flex w-full mb-3">
-                        <h2>A&nbsp;: &nbsp;</h2>
-                        <h2 class="bg-slate-400 w-full flex items-start ml-2 pl-2 rounded">{q.option_1}</h2>
-                    </div>
-                }
-                {
-                    editingQuestion
-                    ?
-                    <form class="flex justify-center w-full mb-4">
-                        <label class="mr-3" >B&nbsp;:</label>
-                        <textarea value={answer_B} onChange={changeAnswer_B} onBlur={answer_B_Blur} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black" />
-                    </form>
-                    :
-                    <div class="flex w-full mb-3">
-                        <h2>B&nbsp;: &nbsp;</h2>
-                        <h2 class="bg-slate-400 w-full flex items-start ml-2 pl-2 rounded">{q.option_2}</h2>
-                    </div>
-                }
-                {
-                    editingQuestion
-                    ?
-                    <form class="flex justify-center w-full mb-4">
-                        <label class="mr-3" >C&nbsp;:</label>
-                        <textarea value={answer_C} onChange={changeAnswer_C} onBlur={answer_C_Blur} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black" />
-                    </form>
-                    :
-                    <div class="flex w-full mb-3">
-                        <h2>C&nbsp;: &nbsp;</h2>
-                        <h2 class="bg-slate-400 w-full flex items-start ml-2 pl-2 rounded">{q.option_3}</h2>
-                    </div>
-                }
-                {
-                    editingQuestion
-                    ?
-                    <form class="flex justify-center w-full mb-3">
-                        <label class="mr-3" >D&nbsp;:</label>
-                        <textarea value={answer_D} onChange={changeAnswer_D} onBlur={answer_D_Blur} class="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black" />
-                    </form>
-                    :
-                    <div class="flex w-full mb-3">
-                        <h2>D&nbsp;: &nbsp;</h2>
-                        <h2 class="bg-slate-400 w-full flex items-start ml-2 pl-2 rounded">{q.option_4}</h2>
-                    </div>
-                }
-                <span class="bg-slate-400 w-full h-0.5"></span>
-
-                {
-                    editingQuestion
-                    ?
-                    <form class="w-full mb-4 mt-1">
-                        <label class="mr-2">Correct Answer:</label>
-                        <select onChange={changeCorrect_AnswerHandler} class= "text-black" name="correct_answer">
-                            <option value="">--Select the correct answer--</option>
-                            <option value={answer_A}>{answer_A}</option>
-                            <option value={answer_B}>{answer_B}</option>
-                            <option value={answer_C}>{answer_C}</option>
-                            <option value={answer_D}>{answer_D}</option>
-                        </select>
-                    </form>
-                    :
-                    <h1 class="mt-1 mb-2">Correct Answer: {q.correct_answer}</h1>
-                }
-
-                <div class="w-full">
-                {
-                    editingQuestion
-                    ?
-                    <>
-                        <button onClick={handleFinishClick} class="border rounded p-2 mr-4">Finish</button>
-                        <button class="border rounded p-2 bg-red-600">Delete Question</button>
-                    </>
-                    :
-                    <>   
-                        <button onClick={() => toggleEditing(!editingQuestion)} class="border rounded p-2">Edit Question</button>
-                    </>
-                }
-                </div>
+            <div className="w-full">
+              <button onClick={handleFinishClick} className="border rounded p-2 mr-4">Finish</button>
+              <button className="border rounded p-2 bg-red-600">Delete Question</button>
             </div>
-        </div>
-    )
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex">
+            <h1>{questionNum}.&nbsp;&nbsp;</h1>
+            <h1>{q.question}</h1>
+          </div>
+          <div className="mt-3 p-2 flex flex-col items-start w-10/12">
+            {(type === "FillInTheBlank"
+              ? [q.option_1]
+              : [q.option_1, q.option_2, q.option_3, q.option_4]
+            )
+              .filter(Boolean)
+              .map((opt, idx) => (
+                <div key={idx} className="flex w-full mb-3">
+                  <h2 className="bg-slate-400 w-full flex items-start ml-2 pl-2 rounded">{opt}</h2>
+                </div>
+              ))}
+            <span className="bg-slate-400 w-full h-0.5" />
+            <h1 className="mt-2">
+              Correct Answer{type === "MultipleAnswer" ? "s" : ""}:{" "}
+              {type === "MultipleAnswer" ? correctAnswer?.split("||").join(", ") : correctAnswer}
+            </h1>
+            <button onClick={() => toggleEditing(!editingQuestion)} className="mt-3 border rounded p-2">Edit Question</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
 
 export default EditQuestion

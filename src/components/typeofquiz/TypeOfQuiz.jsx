@@ -5,25 +5,58 @@ import QuizMasterIcon from '../icons/Scroll.jsx'
 
 const TypeOfQuiz = () => {
   return (
-    <div >
-        <h1 className="text-2xl font-bold text-gray-300 -sm:text-lg">Select what kind of quiz you want to take!</h1>
-        <div className="flex justify-center my-10 -sm:p-1">
-            
-            <Link to={'/quizzes'} >
-                <div className="p-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 flex flex-col items-center">
-                    <QuizMasterIcon className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8 flex flex-col items-center"} />
-                    <div className="-sm:text-sm m-2">QuizMaster Quizzes</div>
-                </div>
-            </Link>
-            <Link to={'/allcustomquizzes'} >
-                <div className="p-4 mx-10 -sm:mx-2 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 flex flex-col items-center">
-                    <UserIcon className={"w-10 h-10 fill-gray-300  -sm:w-8 -sm:h-8"} />
-                    <div className="-sm:text-sm m-2">User-Made Quizzes</div>
-                </div>
-            </Link>
+    <div className="min-h-screen text-white py-20 px-6 relative overflow-hidden">
+      {/* Glowing background blobs */}
+      <div className="absolute top-[-150px] left-[-150px] w-[500px] h-[500px] bg-purple-700 opacity-30 blur-[120px] rounded-full z-0" />
+      <div className="absolute bottom-[-150px] right-[-150px] w-[500px] h-[500px] bg-blue-500 opacity-30 blur-[120px] rounded-full z-0" />
+
+      {/* Main content */}
+      <div className="relative z-10 max-w-5xl mx-auto text-center">
+        <h1 className="text-5xl font-extrabold text-white drop-shadow-md mb-4">
+          Choose Your Quiz Type
+        </h1>
+        <p className="text-lg text-gray-300 mb-14 max-w-2xl mx-auto">
+          Select a quiz type to begin. Whether you're up for a challenge from QuizMaster,
+          exploring quizzes made by others, or testing yourself with teacher-curated quizzes—
+          there's something for everyone.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 justify-items-center">
+          {/* QuizMaster Quizzes */}
+          <Link to="/quizzes" className="w-full">
+            <div className="bg-[#1b1444] border border-purple-700 p-6 rounded-2xl shadow-xl hover:shadow-purple-500/50 hover:-translate-y-1 transition-all duration-300 text-center">
+              <QuizMasterIcon className="w-14 h-14 fill-purple-400 mb-4" />
+              <h3 className="text-xl font-semibold text-white">QuizMaster Quizzes</h3>
+              <p className="text-sm text-gray-400 mt-2">
+                Challenging quizzes created by our team
+              </p>
+            </div>
+          </Link>
+
+          {/* User-Made Quizzes */}
+          <Link to="/allcustomquizzes" className="w-full">
+            <div className="bg-[#1b1444] border border-purple-700 p-6 rounded-2xl shadow-xl hover:shadow-purple-500/50 hover:-translate-y-1 transition-all duration-300 text-center">
+              <UserIcon className="w-14 h-14 fill-blue-400 mb-4" />
+              <h3 className="text-xl font-semibold text-white">User-Made Quizzes</h3>
+              <p className="text-sm text-gray-400 mt-2">
+                Discover quizzes made by other users
+              </p>
+            </div>
+          </Link>
+
+          {/* Teacher-Made Quizzes */}
+          <Link to="/allteacherquizzes" className="w-full">
+            <div className="bg-[#1b1444] border border-purple-700 p-6 rounded-2xl shadow-xl hover:shadow-purple-500/50 hover:-translate-y-1 transition-all duration-300 text-center">
+              <UserIcon className="w-14 h-14 fill-pink-400 mb-4" />
+              <h3 className="text-xl font-semibold text-white">Teacher-Made Quizzes</h3>
+              <p className="text-sm text-gray-400 mt-2">
+                Educational quizzes curated by instructors
+              </p>
+            </div>
+          </Link>
         </div>
     </div>
   )
 }
 
-export default TypeOfQuiz
+export default TypeOfQuiz;

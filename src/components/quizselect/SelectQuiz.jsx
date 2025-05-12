@@ -1,7 +1,3 @@
-/**
- * This parent component will allow users to navigate to the various quizzes
- * based on the quiz category
- */
 import React from 'react';
 import { useCategory } from '../../contexts/CategoryContext';
 import QuizSelectButton from './QuizSelectButton';
@@ -9,36 +5,69 @@ import RandomQuizButton from './RandomQuizButton';
 import Random from '../icons/Random';
 import { Link } from 'react-router-dom';
 import CategoryBackButton from './CategoryBackButton';
+import { motion } from 'framer-motion';
 
 function SelectQuiz() {
-  const {quizCategories, icons, destinations, selectCategory, allSubcategories, selectDifficulty, selectAmount} = useCategory()
+  const {
+    quizCategories,
+    icons,
+    destinations,
+    selectCategory,
+    allSubcategories,
+    selectDifficulty,
+    selectAmount,
+  } = useCategory();
+
   const randomIndex = Math.floor(Math.random() * quizCategories.length);
-  selectDifficulty(0)
-  selectAmount(10)
-  /**
-   * View
-   * This will generate each QuizSelectButton and the RandomQuizButton
-   */
+  selectDifficulty(0);
+  selectAmount(10);
+
   return (
-    <>
-      <div className="flex flex-col items-center h-full mb-4 -xl:ml-20 -xl:w-3/4">
-        <h2 className="text-2xl font-bold text-gray-300">Choose Your Quiz Category</h2>
-        <div className="flex flex-wrap justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-[#0f051d] via-[#1b1444] to-[#0f051d] text-white relative overflow-hidden py-20 px-6">
+      {/* Animated background glow */}
+      <div className="absolute top-[-150px] left-[-150px] w-[400px] h-[400px] bg-purple-700 opacity-30 blur-[100px] rounded-full z-0" />
+      <div className="absolute bottom-[-150px] right-[-150px] w-[400px] h-[400px] bg-blue-500 opacity-30 blur-[100px] rounded-full z-0" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="relative z-10 max-w-6xl mx-auto text-center"
+      >
+        <h2 className="text-4xl font-extrabold text-white mb-10 drop-shadow-md">
+          Choose Your Quiz Category
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
           {quizCategories.map((category, index) => (
-            <QuizSelectButton category={category} key={index} icon={icons[index]} destination={destinations[index]} selectCategory={selectCategory} allSubcategories={allSubcategories} />
+            <QuizSelectButton
+              key={index}
+              category={category}
+              icon={icons[index]}
+              destination={destinations[index]}
+              selectCategory={selectCategory}
+              allSubcategories={allSubcategories}
+            />
           ))}
-            <RandomQuizButton category={quizCategories[randomIndex]} icon={<Random/>} allSubcategories={allSubcategories} selectCategory={selectCategory}/>
+          <RandomQuizButton
+            category={quizCategories[randomIndex]}
+            icon={<Random />}
+            allSubcategories={allSubcategories}
+            selectCategory={selectCategory}
+          />
         </div>
+
         <CategoryBackButton />
-        <p className="text-sm text-gray-300 -sm:mt-4">
-        Not finding the quiz you're looking for?{' '}
+
+        <p className="text-sm text-gray-300 mt-12">
+          Not finding the quiz you're looking for?{' '}
+          <Link to="/contact" className="underline hover:text-blue-400">
+            Suggest a quiz
+          </Link>
         </p>
-        <Link to={'/contact'}>
-          <p className='underline text-sm text-gray-300 -sm:mt-4'>Suggest a quiz</p>
-        </Link>
-      </div>
-    </>
+      </motion.div>
+    </div>
   );
-};
+}
 
 export default SelectQuiz;

@@ -1,48 +1,26 @@
 import React, { useState, useEffect } from 'react';
 
 const HighContrastToggle = () => {
-  const [isHighContrast, setIsHighContrast] = useState(() => {
-    // Check localStorage for saved state on initial render
-    return localStorage.getItem('isHighContrast') === 'true';
-  });
+  const [isHighContrast, setIsHighContrast] = useState(false);
 
-  const toggleContrast = () => {
-    setIsHighContrast(prevState => !prevState);
-  };
-
-  // Effect to add/remove high-contrast class based on isHighContrast state
   useEffect(() => {
-    if (isHighContrast) {
-      document.body.classList.add('high-contrast');
-      localStorage.setItem('isHighContrast', 'true');  // Save state to localStorage
-    } else {
-      document.body.classList.remove('high-contrast');
-      localStorage.setItem('isHighContrast', 'false'); // Save state to localStorage
-    }
+    document.body.classList.toggle('high-contrast', isHighContrast);
   }, [isHighContrast]);
 
+  const toggleContrast = () => {
+    setIsHighContrast((prev) => !prev);
+  };
+
   return (
-    <div className="mb-4 flex justify-center items-center">
-      <label className="flex items-center cursor-pointer">
-        <span className="mr-4 text-gray-200">High Contrast Mode</span>
-        <div className="relative">
-          <input 
-            type="checkbox" 
-            checked={isHighContrast} 
-            onChange={toggleContrast} 
-            className="sr-only" 
-          />
-          <div 
-            className={`w-12 h-6 rounded-full transition-colors duration-200 ${isHighContrast ? 'bg-blue-500' : 'bg-gray-700'}`}
-          ></div>
-          <div
-            className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transform transition-transform duration-200 ${isHighContrast ? 'translate-x-6' : ''}`}
-          ></div>
-        </div>
-        <span className={`ml-4 text-sm font-semibold ${isHighContrast ? 'text-blue-500' : 'text-gray-400'}`}>
-          {isHighContrast ? 'On' : 'Off'}
-        </span>
-      </label>
+    <div className="p-6 rounded-lg bg-gradient-to-br from-indigo-800 to-purple-700 shadow-lg text-white space-y-4">
+      <h3 className="text-xl font-bold">High Contrast Mode</h3>
+      <p className="text-sm text-gray-300">Improve visibility with a high contrast color scheme.</p>
+      <button
+        onClick={toggleContrast}
+        className="px-4 py-2 rounded-md font-semibold transition bg-white text-gray-900 hover:bg-gray-100"
+      >
+        {isHighContrast ? 'Disable' : 'Enable'} High Contrast
+      </button>
     </div>
   );
 };

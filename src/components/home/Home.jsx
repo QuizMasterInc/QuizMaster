@@ -1,84 +1,74 @@
-import React from "react";
-import Student from "../../assets/student.jpg";
+import React, { useEffect, useState } from "react";
+import HeroSection from "./HeroSection";
+import FeatureCard from "./FeatureCard";
+import { FaRocket, FaChartLine, FaPenFancy } from "react-icons/fa";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 function Home() {
   const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+  const { scrollY } = useScroll();
+
+  // Parallax on Hero Text
+  const parallaxY = useTransform(scrollY, [0, 300], [0, -40]);
+  const parallaxOpacity = useTransform(scrollY, [0, 300], [1, 0.4]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-black text-gray-300">
-      {/* Hero Section */}
-      <section
-        className="flex items-center justify-center bg-cover bg-center py-24"
-        style={{
-          backgroundImage: `url(${Student})`,
-        }}
-      >
-        <div className="backdrop-blur-sm bg-black/60 p-6 rounded-lg shadow-lg text-center max-w-3xl">
-          <p className="text-lg font-bold text-white">Welcome to QuizMaster</p>
-          <h1 className="mt-4 text-4xl font-extrabold text-white leading-tight">
-            The ultimate destination for all your quiz needs.
-          </h1>
-          <p className="mt-3 text-white text-lg">
-            Unlock the world of quizzes with QuizMaster, your ultimate
-            destination for interactive learning.
-          </p>
-          {!isAuthenticated && ( //Screen that shows when not logged in
-            <div className="mt-6 flex justify-center space-x-4">
-              <a
-                href="/register"
-                className="bg-indigo-600 px-5 py-3 rounded-md text-white font-semibold hover:bg-indigo-700"
-              >
-                Get started for free
-              </a>
-              <a
-                href="/signin"
-                className="bg-indigo-600 px-5 py-3 rounded-md text-white font-semibold hover:bg-indigo-700"
-              >
-                Login
-              </a>
-            </div>
-          )}
-        </div>
-      </section>
+    <div className="relative bg-[#0c0121] text-white font-main min-h-screen overflow-x-hidden">
+      {/* Glow Background Blobs */}
+      <motion.div
+        className="absolute w-[500px] h-[500px] bg-purple-500 rounded-full opacity-20 blur-[100px] -top-20 -left-40 z-0"
+        animate={{ x: [0, 20, 0], y: [0, 20, 0] }}
+        transition={{ repeat: Infinity, duration: 10, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute w-[500px] h-[500px] bg-blue-400 rounded-full opacity-20 blur-[100px] bottom-[-100px] right-[-100px] z-0"
+        animate={{ x: [0, -30, 0], y: [0, -30, 0] }}
+        transition={{ repeat: Infinity, duration: 12, ease: "easeInOut" }}
+      />
 
-      {/* Content Section */}
-      <div className="flex flex-col justify-center items-center py-12 px-4">
-        {isAuthenticated ? (
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-300">
-              You are already logged in!
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-gray-300">
-              You can now explore everything QuizMaster has to offer. Take
-              quizzes made by developers or other users, or create your own to
-              study for tests or challenge yourself!
-            </p>
-          </div>
-        ) : (
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-300">
-              Are you ready to start the QuizMaster experience?
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-gray-300">
-              Take a quiz{" "}
-              <a
-                href="/typeofquiz"
-                className="font-bold text-indigo-400 underline"
-              >
-                here
-              </a>{" "}
-              or head to your{" "}
-              <a
-                href="/dashboard"
-                className="font-bold text-indigo-400 underline"
-              >
-                dashboard
-              </a>{" "}
-              to track your progress. Enjoy!
-            </p>
-          </div>
-        )}
-      </div>
+      {/* Hero Section with Parallax */}
+      <motion.div style={{ y: parallaxY, opacity: parallaxOpacity }}>
+        <HeroSection isAuthenticated={isAuthenticated} />
+      </motion.div>
+
+      {/* Animated Feature Section */}
+      <motion.section
+        initial={{ opacity: 0, rotateX: -10 }}
+        whileInView={{ opacity: 1, rotateX: 0 }}
+        transition={{ duration: 1 }}
+        viewport={{ once: true }}
+        className="py-20 text-center px-4 relative z-10"
+      >
+        <h2 className="text-4xl font-bold mb-12 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent font-main">
+          What can you do?
+        </h2>
+        <div className="flex flex-wrap justify-center gap-10">
+          <FeatureCard
+            icon={<FaRocket />}
+            title="Take Quizzes"
+            desc="Test your knowledge!"
+            delay={0.1}
+            route="/typeofquiz"
+            isAuthenticated={isAuthenticated}
+          />
+          <FeatureCard
+            icon={<FaChartLine />}
+            title="Track Progress"
+            desc="Visualize your performance."
+            delay={0.2}
+            route="/dashboard"
+            isAuthenticated={isAuthenticated}
+          />
+          <FeatureCard
+            icon={<FaPenFancy />}
+            title="Create Quizzes"
+            desc="Craft your own challenges."
+            delay={0.3}
+            route="/customquiz"
+            isAuthenticated={isAuthenticated}
+          />
+        </div>
+      </motion.section>
     </div>
   );
 }
