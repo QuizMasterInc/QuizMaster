@@ -3,7 +3,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { useLocation, NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
-/* ---------- your existing icon imports ---------- */
+
 import House from "../icons/House";
 import Info from "../icons/Info";
 import Developer from "../icons/Developer";

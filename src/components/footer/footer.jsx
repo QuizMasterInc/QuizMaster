@@ -1,11 +1,14 @@
 import React from 'react';
 
+/**
+ * Non‑sticky footer for QuizMaster.
+ * ‑ Renders at the bottom of the page after all content.
+ * ‑ Uses Tailwind for full‑width layout and dark background.
+ */
 const Footer = () => {
-  const footerClasses = 'text-white text-center box-border w-full fixed bottom-0 left-0 right-0 p-2 bg-gray-900';
-
   return (
-    <footer className={footerClasses}>
-      <p>QuizMaster. All rights reserved.</p>
+    <footer className="w-full bg-gray-900 text-white text-center p-4">
+      <p>© {new Date().getFullYear()} QuizMaster. All rights reserved.</p>
     </footer>
   );
 };
