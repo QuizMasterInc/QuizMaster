@@ -11,7 +11,6 @@ const BackGroundMusicControl = () => {
     'jazzyvibes.mp3',
     'focuswave.mp3',
     'calmrain.mp3',
-    'Straight-Ahead.mp3',
   ]);
 
   useEffect(() => {
