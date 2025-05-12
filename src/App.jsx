@@ -30,6 +30,7 @@ import DeveloperRoute from './routes/DeveloperRoute';
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';
 import CustomQuiz from './components/customquiz/CustomQuiz';
 import Flashcards from './components/flashcards/Flashcards';
+import DeckManager from './components/flashcards/DeckManager';
 import EditCustomQuiz from "./components/customquiz/EditCustomQuiz"
 import SelectSubCategory from './components/quizselect/SelectSubCategory';
 import TypeOfQuiz from './components/typeofquiz/TypeOfQuiz';
@@ -137,6 +138,7 @@ function App() {
             <Route path="/flashcards" element={
               <PrivateRoute>
                   <Flashcards />
+                  
               </PrivateRoute>
             }/>
 
@@ -186,6 +188,7 @@ function App() {
           </Routes>
 
           <Chatbot />
+          
 
           <div className="navbar">
           <NavBar />

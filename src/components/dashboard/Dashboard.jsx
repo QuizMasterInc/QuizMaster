@@ -85,6 +85,12 @@ export default function Dashboard() {
           <CustomQuizzesTable />
         </section>
 
+        {/* Flashcards */}
+        <section>
+          <h2 className="text-3xl font-bold text-center text-pink-300 mb-10">Your Flashcards</h2>
+          <CustomQuizzesTable />
+        </section>
+
         {/* Navigation Buttons */}
         <section className="flex flex-col sm:flex-row justify-center gap-6 pt-10">
           <Link to="/typeofquiz">
@@ -94,7 +100,7 @@ export default function Dashboard() {
           </Link>
           <Link to="/flashcards">
             <div className="bg-fuchsia-600 hover:bg-fuchsia-500 text-white py-3 px-6 rounded-full text-lg shadow-lg transition-all">
-              View Flashcards
+              Make Flashcards
             </div>
           </Link>
           {isGoogleAuth && (
