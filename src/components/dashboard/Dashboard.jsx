@@ -97,23 +97,6 @@ export default function Dashboard() {
             <div className="bg-green-500 hover:bg-green-400 text-white py-3 px-6 rounded-full text-lg shadow-lg transition-all">
               Take Another Quiz
             </div>
-<<<<<<< HEAD
-          </div>
-          {/* Here are buttons that will show up at the bottom of the page that reroute the user accordingly */}
-          <div className='flex flex-col items-center justify-center'>
-            <Link to={'/typeofquiz'}>
-                  <div className='flex relative items-center mb-4 p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-                    Take another quiz!
-                  </div>
-            </Link>
-            {isGoogleAuth && <Link to={'/updateprofile'}>
-                  <div className='flex relative items-center mb-4 p-4 pl-8 pr-8 space-y-4 text-gray-300 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-600 -md:ml-20'>
-                    Update Profile
-                  </div>
-                  </Link>}
-          </div>
-        </div>
-=======
           </Link>
           <Link to="/flashcards">
             <div className="bg-fuchsia-600 hover:bg-fuchsia-500 text-white py-3 px-6 rounded-full text-lg shadow-lg transition-all">
@@ -130,7 +113,6 @@ export default function Dashboard() {
         </section>
 
       </div>
->>>>>>> testing
     </div>
   );
 }
