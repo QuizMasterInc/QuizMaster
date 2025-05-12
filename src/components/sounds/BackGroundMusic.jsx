@@ -11,7 +11,7 @@ import Funk2Min from "./SoundAssets/BackGroundMusic/funk-2-min.mp3";
 
 
 // Add the imported files to an array
-const musicTracks = [ChillMusic, Lofi, DeepElectronic, DebussyClairDeLune, BeethovenFurElise, Funk2Min, StraightAhead];
+const musicTracks = [ChillMusic, Lofi, DeepElectronic, DebussyClairDeLune, BeethovenFurElise, Funk2Min];
 
 
 function BackGroundMusic() {
