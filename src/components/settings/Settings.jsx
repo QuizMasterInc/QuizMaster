@@ -1,6 +1,6 @@
 import React from 'react';
 import VolumeControl from './SoundEffectsVolumeControl';
-import GlobalThresholdInput from './ThresholdInput '; 
+import GlobalThresholdInput from './ThresholdInput'; 
 // import HighContrastToggle from './HighContrastToggle';
 import BackGroundMusicControl from './BackGroundMusicControl';
 import DarkLightMode from './DarkLightMode';
