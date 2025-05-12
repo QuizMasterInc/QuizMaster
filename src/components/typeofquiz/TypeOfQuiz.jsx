@@ -56,6 +56,7 @@ const TypeOfQuiz = () => {
           </Link>
         </div>
     </div>
+  </div>
   )
 }
 

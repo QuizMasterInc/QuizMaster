@@ -158,7 +158,6 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange, answerCount
         </div>
       )}
     </div>
-    </>
     )
 }
 
