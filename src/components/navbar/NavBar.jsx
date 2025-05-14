@@ -8,7 +8,6 @@ import Writing from "../icons/Writing";
 import Developer from "../icons/Developer";
 import Email from "../icons/Email";
 import Gear from "../icons/Gear";
-import Board from "../icons/Board";
 import NavBarIcon from "./NavBarIcon";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -41,7 +40,7 @@ export default function NavBar() {
         className="fixed top-16 left-4 z-50 p-2 bg-gray-800 text-white rounded-full shadow-lg hover:scale-110 transition-transform duration-300"
         onClick={toggleNav}
       >
-        {isNavOpen ? <FaTimes size={24} /> : <FaBars size={32} />}
+        {isNavOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
       </button>
 
       {isNavOpen && (
@@ -74,8 +73,9 @@ export default function NavBar() {
           </NavLink>
 
           <NavLink to="/flashcards" onClick={handleClick}>
-            <NavBarIcon icon={<Board className="w-6 h-6 fill-white" />} text="Make Flashcards" />
+            <NavBarIcon text="Make Flashcards" />
           </NavLink>
+
 
           {currentUser ? (
             <NavLink to="/dashboard" onClick={handleClick}>

@@ -1,7 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import UserIcon from '../icons/User.jsx';
-import QuizMasterIcon from '../icons/Scroll.jsx';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import UserIcon from '../icons/User.jsx'
+import QuizMasterIcon from '../icons/Scroll.jsx'
 
 const TypeOfQuiz = () => {
   return (
@@ -55,9 +55,9 @@ const TypeOfQuiz = () => {
             </div>
           </Link>
         </div>
-      </div>
     </div>
-  );
-};
+  </div>
+  )
+}
 
 export default TypeOfQuiz;
