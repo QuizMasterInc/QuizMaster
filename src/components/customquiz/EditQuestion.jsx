@@ -1,5 +1,31 @@
-import { useState, useEffect } from 'react';
-import { useCustomQuizContext } from '../../contexts/CustomQuizContext';
+/* 
+This component is for each question provided via a custom quiz.
+- Component provides state for each input field that allows editing the question data.
+
+- COMPONENT PARAMS ({num, q})}
+    - num: string 
+        # Always comes in as a string in the format "Question (whatver the question number is)"
+        Ex: "Question 5"
+        # this is also the key used to access the questions data from the custom quiz context provider 
+            - customQuizData: customQuizContextProvider()
+            # use "num" as the key to access questions in the quiz object provided via the custom quiz context. NECESSARY FOR HANDLING CHANGING A QUESTIONS NUMBER ORDER.
+            Ex: customQuizData.quiz.questions[num]
+
+    - q: object
+        # q is the question object passed to the component so the data can be displayed and used for editing
+        - Currently every question contains:
+            - The Question
+            - Answer A
+            - Answer B
+            - Answer C
+            - Answer D
+            - The Correct Answer
+    
+This component is what allows the editing capability of each individual question in a custom quiz. 
+*/
+
+import { useState, useEffect } from 'react'
+import { useCustomQuizContext } from '../../contexts/CustomQuizContext'
 
 function EditQuestion({ num, q }) {
   const type = q.type || q.questionType || "Multiple";
@@ -206,4 +232,4 @@ function EditQuestion({ num, q }) {
   );
 }
 
-export default EditQuestion;
+export default EditQuestion

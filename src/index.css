@@ -26,22 +26,21 @@
   --gradient-2: linear-gradient(to right, #9333ea, #3b82f6);
 }
 
-/* === Fix root + body layout === */
-html, body, #root {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-main);
-  overflow-x: hidden;
-  overflow-y: auto;
-  background-color: var(--bg-dark);
-  background-image: 
-    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%236b21a8' fill-opacity='0.03'%3E%3Cpath d='M0 80L80 0H70L0 70zM10 80L80 10V0L0 80zM30 80L80 30V20L20 80zM50 80L80 50V40L40 80zM70 80L80 70V60L60 80z'/%3E%3C/g%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 100px 100px;
-  background-attachment: fixed;
-  position: relative;
+/*!* High Contrast Mode *!*/
+/*.high-contrast {*/
+/*  --background-color: #928f8f; !* High contrast background color *!*/
+/*}*/
+.light-mode {
+    --background-color: #ffffff; /* White background color */
+}
+
+.dark-mode {
+    --background-color: #1a202c; /* Dark background color */
+}
+
+/* Apply background color to body */
+body {
+  background-color: var(--background-color);
 }
 
 /* Main React App Wrapper */

@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+//This file handles creating the users custom quiz and making it able to be accessed within the product and database
+import React, {useState, useEffect} from 'react'
+import {useAuth} from '../../contexts/AuthContext'
+import { Link, Navigate } from 'react-router-dom'
+
+
 
 export default function QuizCreation({
   setQuizData,
@@ -53,12 +56,15 @@ export default function QuizCreation({
   };
 
   const handleQuestionChange = (e, index) => {
-    const updated = [...currentQuestion];
-    updated[index] = e.target.value;
-    setCurrentQuestion(updated);
-    if (index === 0) setDroppedOption('');
+    setCurrentQuestion((prevCurrentQuestion) => {
+      const updatedQuestion = [...prevCurrentQuestion];
+      updatedQuestion[index] = e.target.value;
+      return updatedQuestion;
+    })
   };
 
+  //this function adds the question to the quizData array after user finished making the question 
+  // ALSO CALLS THE FUNCTION THAT VERIFIES IF THE QUESTION INPUTS ARE ALL COMPLETED
   const addCurrentQuestion = () => {
     if (!verifyQuestionInput(currentQuestion)) {
       alert('Please fill out all inputs for the question.');
@@ -91,7 +97,10 @@ export default function QuizCreation({
   };
 
   useEffect(() => {
-    if (!privateQuiz) setPrivateQuizPassword('');
+    // Reset password when switching from "Yes" to "No"
+    if (!privateQuiz) {
+      setPrivateQuizPassword("");
+    }
   }, [privateQuiz]);
 
   const handlePrivateQuizChange = (e) => {
@@ -138,7 +147,6 @@ export default function QuizCreation({
 
 
 
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f051d] via-[#1b1444] to-[#0f051d] text-white py-16 px-6">
       <div className="max-w-4xl mx-auto bg-black bg-opacity-30 backdrop-blur-xl rounded-lg p-8 shadow-xl">
@@ -155,6 +163,7 @@ export default function QuizCreation({
               <option value="no">No</option>
               <option value="yes">Yes</option>
             </select>
+            <button></button>
           </div>
 
           {privateQuiz && (
@@ -196,29 +205,25 @@ export default function QuizCreation({
               placeholder="Enter quiz name"
             />
           </div>
-        </div>
 
         <h2 className="text-2xl font-semibold mb-4">Add a Question</h2>
         <div className="space-y-4">
           <input
+            id="question"
             type="text"
+            placeholder="Enter your question"
             value={currentQuestion[0]}
             onChange={(e) => handleQuestionChange(e, 0)}
-            className="w-full p-3 text-black rounded-md"
-            placeholder="Enter your question"
+            className='text-2xl bg-gray-300 mb-4 rounded-md w-full h-12 focus:scale-110 duration-300'
           />
-
           <select
             value={currentQuestion[6]}
             onChange={(e) => handleQuestionChange(e, 6)}
-            className="w-full p-3 text-black rounded-md"
-          >
-            <option value="">Select Question Type</option>
+            className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-12 focus:scale-110 duration-300'
+            >
+            <option value= "">Select Question Type</option>
             <option value="Multiple">Multiple Choice</option>
-            <option value="MultipleAnswer">Multiple Answer</option>
             <option value="TrueFalse">True/False</option>
-            <option value="FillInTheBlank">Fill in the Blank</option>
-            <option value="DragAndDrop">Drag and Drop</option>
           </select>
 
           {(currentQuestion[6] === 'Multiple' || currentQuestion[6] === 'MultipleAnswer' || currentQuestion[6] === 'DragAndDrop') &&
@@ -252,15 +257,13 @@ export default function QuizCreation({
             [1, 2, 3, 4].map((idx) => (
               <div key={idx} className="flex items-center space-x-2">
                 <input
-                  type="checkbox"
-                  checked={selectedCorrectAnswers[idx - 1]}
-                  onChange={(e) => {
-                    const updated = [...selectedCorrectAnswers];
-                    updated[idx - 1] = e.target.checked;
-                    setSelectedCorrectAnswers(updated);
-                  }}
+                  id= {optionIndex + 1}
+                  type="text"
+                  placeholder={`Option ${optionIndex + 1}`}
+                  value={currentQuestion[optionIndex + 1]}
+                  onChange={(e) => handleQuestionChange(e, optionIndex + 1)}
+                  className='text-2xl mb-4 bg-gray-300 rounded-md w-full h-10 focus:scale-110 duration-300'
                 />
-                <span>{currentQuestion[idx] || `Option ${idx}`}</span>
               </div>
             ))}
 
@@ -319,6 +322,10 @@ export default function QuizCreation({
             placeholder="Enter tags (e.g. history sports)"
           />
         </div>
+        </div>
+      </div>
+
+
 
         <div className="grid grid-cols-2 gap-6 mt-10">
           <button
@@ -334,7 +341,6 @@ export default function QuizCreation({
             Finish Quiz
           </button>
         </div>
-      </div>
     </div>
   );
 }

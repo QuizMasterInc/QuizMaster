@@ -28,12 +28,6 @@ function CustomQuizActivity() {
   const handleAnswerQuestion = (isSelected) => {
     setAnsweredCount((prev) => prev + (isSelected ? 1 : -1));
   };
-  
-  const handleSubmit = () => {
-    setCompleted(true);
-    setDoneModalActive(true);
-    setTimerFinished(true);
-  };
 
   useEffect(() => {
     async function fetchCustomQuiz() {
@@ -71,6 +65,29 @@ function CustomQuizActivity() {
     fetchCustomQuiz();
   }, [quizID]);
 
+  //hnadles when user clicks submit
+  const handleSubmit = () => {
+    if(flaggedQuestion > 0) {
+      const userConfirmed = window.confirm(
+        `You have flagged ${flaggedQuestion} questions. Do you still want to submit?`
+      )
+      if (!userConfirmed) {
+        return //if user wants to go back to review flagged
+      }
+    }
+    setCompleted(true) //Set Quiz state to completed
+    setDoneModalActive(true) //Open Done modal when quiz is completed
+    setTimerFinished(true) //stop timer when  is completed
+
+  }
+
+  
+  /**
+   * This is the actual view element. Here we are creating the actual 
+   * style of the component. We are creating a list of questions by mapping
+   * through the questions array. The ScaleLoader gets mounted in the questions are still
+   * loading into from the database
+   */
   return (
     <>
       <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
