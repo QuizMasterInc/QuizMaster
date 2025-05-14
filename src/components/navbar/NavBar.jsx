@@ -73,8 +73,9 @@ export default function NavBar() {
           </NavLink>
 
           <NavLink to="/flashcards" onClick={handleClick}>
-            <NavBarIcon icon={<Board className="w-6 h-6 fill-white" />} text="Make Flashcards" />
+            <NavBarIcon text="Make Flashcards" />
           </NavLink>
+
 
           {currentUser ? (
             <NavLink to="/dashboard" onClick={handleClick}>
