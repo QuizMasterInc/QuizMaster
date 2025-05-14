@@ -43,155 +43,163 @@ import { VolumeSettingsProvider } from './contexts/VolumeContext';
 import Chatbot from './components/chatbot/chatbot'
 
 function App() {
-  //importing destinations here from the context. 
-  const {destinations} = useCategory();
+  // importing destinations here from the context. 
+  const { destinations } = useCategory();
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
 
   return (
     <div className="App">
       <AuthProvider>
-          <Header/>
-          <Routes>
-            {isAuthenticated ? (
-              <Route path="/" element={
-                <PrivateRoute>
-                  <CategoryProvider>
-                    <Dashboard />
-                  </CategoryProvider>
-                </PrivateRoute>
-              } />
-
-              
-            ) : (
-              <Route path="/" element={<Home />} />
-            )
-            }
-            
-            <Route path="/developer" element={
-              <DeveloperRoute>
-                <Developer />
-              </DeveloperRoute>
-            }/>
-            <Route path="/home" element={<Home />}/>
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/settings" element={
-              <VolumeSettingsProvider>
-                  <Settings/>
-              </VolumeSettingsProvider>
-            }/>
-            <Route path="/quizzes">
-              <Route index element={
-                <PrivateRoute>
-                  <CategoryProvider>
-                    <SelectQuiz />
-                  </CategoryProvider>
-                </PrivateRoute>
-              }/>
-              {destinations.map((destination, index) => {
-                //rendering the routes based on the categories we have.
-                return ( //this return here is extremely important. do not delete it unless you want to go through the same pain i did :)
-                <Route key={index} path={destination} element={
-                  <PrivateRoute>
-                    <CategoryProvider>
-                      <SelectSubCategory />
-                    </CategoryProvider>
-                  </PrivateRoute>
-                } caseSensitive/>)
-              })}
-              <Route path="quizstarted" element={
-                <PrivateRoute>
-                  <CategoryProvider>
-                      <VolumeSettingsProvider>
-                        <QuizActivity />
-                      </VolumeSettingsProvider>
-                  </CategoryProvider>
-                </PrivateRoute>
-              }/>
-            </Route>
-            <Route index path="/quizstarted/:quizID" element={
-              <PrivateRoute>
-                  <VolumeSettingsProvider>
-                    <CustomQuizActivity/>
-                  </VolumeSettingsProvider>
-              </PrivateRoute>
-            }/>
-            <Route path="/customquiz" element={
-              <PrivateRoute>
-                  <CustomQuiz />
-              </PrivateRoute>
-            }/>
-            <Route index path="/customquiz/:quizID" element={
-              <PrivateRoute>
-                <CustomQuizProvider>
-                  <EditCustomQuiz />
-                </CustomQuizProvider>
-              </PrivateRoute>
-            }/>
-            <Route path="/flashcards" element={
-              <PrivateRoute>
-                  <Flashcards />
-              </PrivateRoute>
-            }/>
-
-            <Route path="/typeofquiz" element={
-              <PrivateRoute>
-                <TypeOfQuiz />
-              </PrivateRoute>
-            }/>
-            <Route path="/allcustomquizzes" element={
-              <PrivateRoute>
-                <AllCustomQuizzes />
-              </PrivateRoute>
-            }/>
-            <Route path="/allteacherquizzes" element={
-              <PrivateRoute>
-                <AllCustomQuizzes />
-              </PrivateRoute>
-            }/>
-            <Route path="/updateprofile" element={
-              <PrivateRoute>
-                <UpdateProfile />
-              </PrivateRoute>
-            }/>
-            <Route path='/signin' element={
-              <PrivateSigninRoute>
-                <Login />
-              </PrivateSigninRoute>
-            }/>
-            <Route path="/forgotpassword" element={
-              <PrivateSigninRoute>
-                <ForgotPassword />
-              </PrivateSigninRoute>
-            }/>
-            <Route path='/register' element={
-              <PrivateSigninRoute>
-                <Register />
-              </PrivateSigninRoute>
-            }/>
-            <Route path='/dashboard' element={
+        <Header />
+        <Routes>
+          {isAuthenticated ? (
+            <Route path="/" element={
               <PrivateRoute>
                 <CategoryProvider>
                   <Dashboard />
                 </CategoryProvider>
               </PrivateRoute>
+            } />
+          ) : (
+            <Route path="/" element={<Home />} />
+          )}
+
+          <Route path="/developer" element={
+            <DeveloperRoute>
+              <Developer />
+            </DeveloperRoute>
+          }/>
+          <Route path="/home" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/settings" element={
+            <VolumeSettingsProvider>
+              <Settings />
+            </VolumeSettingsProvider>
+          }/>
+
+          <Route path="/quizzes">
+            <Route index element={
+              <PrivateRoute>
+                <CategoryProvider>
+                  <SelectQuiz />
+                </CategoryProvider>
+              </PrivateRoute>
             }/>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+            {destinations.map((destination, index) => (
+              <Route 
+                key={index} 
+                path={destination} 
+                element={
+                  <PrivateRoute>
+                    <CategoryProvider>
+                      <SelectSubCategory />
+                    </CategoryProvider>
+                  </PrivateRoute>
+                } 
+                caseSensitive
+              />
+            ))}
+            <Route path="quizstarted" element={
+              <PrivateRoute>
+                <CategoryProvider>
+                  <VolumeSettingsProvider>
+                    <QuizActivity />
+                  </VolumeSettingsProvider>
+                </CategoryProvider>
+              </PrivateRoute>
+            }/>
+          </Route>
 
-          <Chatbot />
-          
+          <Route index path="/quizstarted/:quizID" element={
+            <PrivateRoute>
+              <VolumeSettingsProvider>
+                <CustomQuizActivity />
+              </VolumeSettingsProvider>
+            </PrivateRoute>
+          }/>
 
-          <div className="navbar">
+          <Route path="/customquiz" element={
+            <PrivateRoute>
+              <CustomQuiz />
+            </PrivateRoute>
+          }/>
+          <Route index path="/customquiz/:quizID" element={
+            <PrivateRoute>
+              <CustomQuizProvider>
+                <EditCustomQuiz />
+              </CustomQuizProvider>
+            </PrivateRoute>
+          }/>
+
+          <Route path="/flashcards" element={
+            <PrivateRoute>
+              <Flashcards />
+            </PrivateRoute>
+          }/>
+
+          {/* Wrapped in CategoryProvider so useCategory() works inside TypeOfQuiz */}
+          <Route path="/typeofquiz" element={
+            <PrivateRoute>
+              <CategoryProvider>
+                <TypeOfQuiz />
+              </CategoryProvider>
+            </PrivateRoute>
+          }/>
+
+          <Route path="/allcustomquizzes" element={
+            <PrivateRoute>
+              <AllCustomQuizzes />
+            </PrivateRoute>
+          }/>
+          <Route path="/allteacherquizzes" element={
+            <PrivateRoute>
+              <AllTeacherQuizzes />
+            </PrivateRoute>
+          }/>
+
+          <Route path="/updateprofile" element={
+            <PrivateRoute>
+              <UpdateProfile />
+            </PrivateRoute>
+          }/>
+          <Route path="/signin" element={
+            <PrivateSigninRoute>
+              <Login />
+            </PrivateSigninRoute>
+          }/>
+          <Route path="/forgotpassword" element={
+            <PrivateSigninRoute>
+              <ForgotPassword />
+            </PrivateSigninRoute>
+          }/>
+          <Route path="/register" element={
+            <PrivateSigninRoute>
+              <Register />
+            </PrivateSigninRoute>
+          }/>
+
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <CategoryProvider>
+                <Dashboard />
+              </CategoryProvider>
+            </PrivateRoute>
+          }/>
+
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+
+        <Chatbot />
+
+        <div className="navbar">
           <NavBar />
-          </div> 
+        </div>
 
-
-          <Footer />
+        <Footer />
       </AuthProvider>
-      
     </div>
-    
   )
 }
+
 export default App
