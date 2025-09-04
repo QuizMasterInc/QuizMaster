@@ -33,6 +33,13 @@ Team Fun | Software Systems Capstone Project
 Our capstone project that allows users to take quizzes on a variety of different topics. 
 </h4>
 
+## Development Team (Titanic Swim Team)
+<div>
+<h4>Rudra Patel</h4>
+
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:rudrappatel@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/rpat9)
+</div>
+
 ## Development Team (ScramJets)
 <div>
 <h4>Alex Kaminski</h4> 

@@ -7,7 +7,6 @@
  */
 import './App.css'
 import NavBar from './components/navbar/NavBar'
-import NavBarUser from './components/navbar/NavBarUser' //I bealive not used anymore to handle logout funtion , this is hadled by Header.jsx
 import { Route, Routes } from "react-router-dom";
 import NotFound from './components/404/NotFound';
 import SelectQuiz from './components/quizselect/SelectQuiz';
@@ -23,7 +22,6 @@ import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
 import UpdateProfile from './components/login/UpdateProfile'
 import PrivateRoute from './routes/PrivateRoute';
-import PublicRoute from './routes/PublicRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import DeveloperRoute from './routes/DeveloperRoute';
 import { CategoryProvider, useCategory } from './contexts/CategoryContext';

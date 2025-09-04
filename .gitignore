@@ -26,3 +26,5 @@ dist-ssr
 # Ignore serviceAccountKey.json
 update.cjs
 serviceAccountKey.json
+
+.env
