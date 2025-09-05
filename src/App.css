@@ -2,7 +2,7 @@
 .App > :not(header):not(navbar):not(footer) {
   width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
   text-align: center;
   height: auto;
 }

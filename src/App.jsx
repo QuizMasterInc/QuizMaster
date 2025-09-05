@@ -243,7 +243,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
 
-        <Chatbot />
+        {/*<Chatbot />*/}
 
         <div className="navbar">
           <NavBar />

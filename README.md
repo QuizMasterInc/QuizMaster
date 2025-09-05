@@ -39,7 +39,11 @@ Our capstone project that allows users to take quizzes on a variety of different
 
 [![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:rudrappatel@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/rpat9)
 </div>
+<div>
+<h4>Kolade Idris</h4>
 
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:koladeidris@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/marskidris)
+</div>
 ## Development Team (ScramJets)
 <div>
 <h4>Alex Kaminski</h4> 
