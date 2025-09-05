@@ -9,8 +9,8 @@
         "prod": [
           "quizmaster-c66a2"
         ],
-        "testing": [
-          "quizmaster-testing-ee900"
+        "development": [
+          "quizmaster-testing-new"
         ]
       }
     }

@@ -32,7 +32,7 @@
       ]
     },
     {
-      "target": "testing",
+      "target": "development",
       "public": "dist",
       "ignore": [
         "firebase.json",
