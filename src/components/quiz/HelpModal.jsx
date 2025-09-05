@@ -1,5 +1,5 @@
 import React from "react";
-import SquareX from "../icons/SquareX";
+import { SquareX } from "../icons/index.jsx";
 import Modal from "react-modal";
 
 const HelpModal = ({ isActive, active, amount, duration }) => (

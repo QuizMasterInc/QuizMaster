@@ -46,7 +46,8 @@ function Timer({ timeLimit, onStopTimer, timerFinished, showTimer, loading , sho
 
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
-  const offset = (timeLeft / timeLimit) * circumference;
+  // Prevent NaN by ensuring timeLimit is valid
+  const offset = timeLimit > 0 ? (timeLeft / timeLimit) * circumference : 0;
 
   return (
     <div style={{position: 'relative', zIndex: 1}}>

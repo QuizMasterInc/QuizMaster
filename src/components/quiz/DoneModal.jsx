@@ -6,14 +6,12 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import Modal from "react-modal";
-import SquareX from "../icons/SquareX";
+import { SquareX } from "../icons/index.jsx";
 import { Link } from "react-router-dom";
 import { useVolumeSettings } from "../../contexts/VolumeContext.jsx";
 
 //Import sound components for quiz results
-import PassedSound from "../sounds/PassedSound.jsx"; 
-import FailSound from "../sounds/FailSound.jsx"; 
-import AverageSound from "../sounds/AverageSound.jsx"; 
+import { PassedSound, FailSound, AverageSound } from "../sounds/index.jsx"; 
  
 
 

@@ -29,7 +29,6 @@ export default function QuizCreation({
     try {
       await logout();
       setLoading(true);
-      localStorage.setItem('isAuthenticated', 'false');
       return <Navigate to="/signin" />;
     } catch {
       alert('Failed to logout');

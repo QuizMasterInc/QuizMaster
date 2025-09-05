@@ -1,6 +1,6 @@
 /**
 * Template used from https://tailwindui.com/components/application-ui/forms/sign-in-forms
-* This is used for the update the profile.
+* This is used for the update the profile - UI focused, business logic in authService.
 * This only will show up email/password accounts inside the dashboard.
 * Will check if the user is using a Google account and prevent them from changing anything.
 * This will update both email and password at the same time. Or one at a time.
@@ -10,7 +10,8 @@
 import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
-import Q from '../icons/Q';
+import { Q } from '../icons/index.jsx';
+import authService from '../../services/authService';
 
 //State variables
 export default function UpdateProfile() {
@@ -19,7 +20,7 @@ export default function UpdateProfile() {
   const newPasswordRef = useRef()
   const confirmNewPasswordRef = useRef()
   const displayNameRef = useRef()
-  const {currentUser, updateEmail, updatePassword, isGoogleAuth, reAuthUser} = useAuth()
+  const {currentUser, isGoogleAuth} = useAuth()
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
@@ -27,66 +28,58 @@ export default function UpdateProfile() {
   const [newPasswordDefault, setNewPasswordDefault] = useState('')
   const [confirmNewPasswordDefault, setConfirmNewPasswordDefault] = useState('')
 
-//Handles form submit
+  // Handle form submit using authService
   async function handleSubmit(e) {
     e.preventDefault()
 
     setError('')
     setMessage('')
-//If the user if a Google account, stop and return an error
-    if(isGoogleAuth){     
-        return setError("Can not update Google account")
-    }
-    if(newPasswordRef.current.value !== confirmNewPasswordRef.current.value){
-        return setError("New Passwords do not match")
-    }
-//This will check to see if the user entered their current password correctly
-    let reAuth = true
-    await reAuthUser(currentPasswordRef.current.value)
-      .catch(error => {
-        reAuth = false
-      })
-    //If re-authentication fails
-    if(!reAuth){
-      return setError("Current password is incorrect")
-    }
-     
-    const promises = []
-    setLoading(true)
-// If there is a new password entered, add to the promises list
-    if(newPasswordRef.current.value){
-      promises.push(reAuthUser(currentPasswordRef.current.value).then(() => {
-        return updatePassword(newPasswordRef.current.value)}))
-  }
-// If there is a new email entered, add to the promises list
-    if(newEmailRef.current.value !== currentUser.email){
-        promises.push(updateEmail(newEmailRef.current.value))
-    }
-
-// If there is a new display name entered, add to the promises list
-    if (displayNameRef.current.value !== currentUser.email) {
-      promises.push(updateProfile(currentUser, {
+    
+    try {
+      setLoading(true)
+      
+      // Prepare update data
+      const updateData = {
+        currentPassword: currentPasswordRef.current.value,
+        newPassword: newPasswordRef.current.value,
+        confirmNewPassword: confirmNewPasswordRef.current.value,
+        newEmail: newEmailRef.current.value,
         displayName: displayNameRef.current.value
-      }).then(() => {
-        setMessage("Display name updated successfully")
-      }).catch((error) => {
-        setError("Failed to update display name: " +error.message)
-      }))
-    }
+      };
 
-//Fulfilling the promises
-    await Promise.all(promises).then(() => {
-        setMessage('Profile has been updated')
-        setCurrentPasswordDefault('')
-        setNewPasswordDefault('')
-        setConfirmNewPasswordDefault('')
-    }).catch(error => {
-        console.log(error.code)
-        setError("Failed to update account. (Try logging out and updating again)")
-    }).finally(() => {
-        setLoading(false)
-    })
+      // Use authService to handle all validation and updates
+      const results = await authService.updateCompleteProfile(updateData);
+      
+      // Handle results
+      const successMessages = [];
+      if (results.email) successMessages.push('Email updated successfully');
+      if (results.password) successMessages.push('Password updated successfully');
+      if (results.displayName) successMessages.push('Display name updated successfully');
+      
+      if (successMessages.length > 0) {
+        setMessage(successMessages.join(', '));
+        // Clear form fields
+        setCurrentPasswordDefault('');
+        setNewPasswordDefault('');
+        setConfirmNewPasswordDefault('');
+      }
+      
+      // Handle any errors that occurred
+      if (results.errors.length > 0) {
+        setError(results.errors.join(', '));
+      }
+      
+      if (successMessages.length === 0 && results.errors.length === 0) {
+        setMessage('No changes were made');
+      }
+
+    } catch (error) {
+      console.error('Profile update error:', error);
+      setError(error.message || 'Failed to update profile. Please try again.');
+    } finally {
+      setLoading(false);
     }
+  }
 
   return (
     <>

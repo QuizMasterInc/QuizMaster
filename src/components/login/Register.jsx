@@ -6,7 +6,7 @@ import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import Q from '../icons/Q';
+import { Q } from '../icons/index.jsx';
 
 //State variables
 export default function Register() {

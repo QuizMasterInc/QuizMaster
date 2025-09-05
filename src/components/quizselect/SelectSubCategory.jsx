@@ -4,15 +4,11 @@
  */
 // Full updated SelectSub.jsx
 import React from 'react';
-import { useCategory } from '../../contexts/CategoryContext';
-import SubCategoryButton from './SubCategoryButton';
-import QuizStartButton from './QuizStartButton';
-import QuizBackButton from './QuizBackButton';
+import { Link } from 'react-router-dom';
+import { useCategory } from '../../contexts/AppContext';
+import { BackButton } from '../ui/index.jsx';
 import StarRating from './DifficultyRating';
 import QuestionAmount from './QuestionAmount';
-import ShowTime from './ShowTimeButton';
-import TimerLength from './TimerLength';
-import ShowPauseButton from './ShowPauseButton';
 
 function SelectSub() {
   const {
@@ -47,7 +43,7 @@ function SelectSub() {
             Category: <span className="text-white">{category}</span>
           </h1>
           <div className="rounded-lg shadow-lg hover:shadow-pink-500/40 transition duration-200">
-            <QuizBackButton />
+            <BackButton />
           </div>
         </div>
 
@@ -83,13 +79,36 @@ function SelectSub() {
         </section>
 
         <section className="space-y-4">
-          <ShowTime toggleTimerVisibility={toggleTimerVisibility} showTimer={showTimer} />
+          {/* Inlined ShowTime Component */}
+          <div className="flex items-center p-4 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg">
+            <label className="text-white font-semibold mr-4">Show Timer</label>
+            <input
+              type="checkbox"
+              checked={showTimer}
+              onChange={toggleTimerVisibility}
+              className="form-checkbox h-5 w-5 text-white border-white focus:ring-white"
+            />
+            <span className="ml-4 text-white text-sm">
+              {showTimer ? 'Timer is visible' : 'Timer is hidden'}
+            </span>
+          </div>
+          
           {showTimer && (
             <>
-              <ShowPauseButton
-                togglePauseButtonVisibility={togglePauseButtonVisibility}
-                showPauseButton={showPauseButton}
-              />
+              {/* Inlined ShowPauseButton Component */}
+              <div className="flex items-center p-4 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 shadow-lg">
+                <label className="text-white font-semibold mr-4">Show Pause Button</label>
+                <input
+                  type="checkbox"
+                  checked={showPauseButton}
+                  onChange={togglePauseButtonVisibility}
+                  className="form-checkbox h-5 w-5 text-white border-white focus:ring-white"
+                />
+                <span className="ml-4 text-white text-sm">
+                  {showPauseButton ? 'Pause Button is visible' : 'Pause Button is hidden'}
+                </span>
+              </div>
+              
               <div className="text-center">
                 <h2 className="text-2xl font-semibold text-purple-200 mb-2">
                   Select Quiz Duration (In minutes)
@@ -108,11 +127,13 @@ function SelectSub() {
 
         <div className="pt-8 flex justify-center gap-8">
           {subcategories.length > 0 && (
-            <QuizStartButton
-              category="Start"
-              destination="quizstarted"
-              className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-pink-400/50 hover:scale-105 transition"
-            />
+            <div className="text-center">
+              <Link to={`/quizzes/quizstarted`} state={{ category: "Start" }}>
+                <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white font-bold shadow-lg hover:shadow-pink-500/40 hover:scale-105 transition">
+                  Start
+                </button>
+              </Link>
+            </div>
           )}
         </div>
       </div>

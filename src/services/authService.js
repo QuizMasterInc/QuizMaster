@@ -1,8 +1,8 @@
 /**
  * Authentication service - handles all user authentication operations
  */
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,sendPasswordResetEmail, updatePassword, updateProfile, onAuthStateChanged,
-    EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updatePassword, updateProfile, onAuthStateChanged,
+    EmailAuthProvider, reauthenticateWithCredential, signInWithPopup, GoogleAuthProvider, updateEmail } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db, handleFirebaseError, withRetry, timestamp } from './firebaseService';
   
@@ -99,6 +99,72 @@ class AuthService {
             
         } catch (error) {
             throw handleFirebaseError(error);
+        }
+    }
+
+    /**
+     * Sign in with Google using popup
+     * @returns {Promise<Object>} User data and profile
+     */
+    async signInWithGoogle() {
+        try {
+            const provider = new GoogleAuthProvider();
+            provider.addScope('email');
+            provider.addScope('profile');
+            
+            const result = await signInWithPopup(auth, provider);
+            
+            if (result && result.user) {
+                // Handle profile creation/update for Google user
+                await this.handleGoogleUserProfile(result.user);
+                
+                return {
+                    user: result.user,
+                    profile: await this.getUserProfile(result.user.uid)
+                };
+            }
+            
+            throw new Error('No user returned from Google sign-in');
+            
+        } catch (error) {
+            console.error('Error with Google sign-in:', error);
+            throw handleFirebaseError(error);
+        }
+    }
+
+    /**
+     * Handle Google user profile creation/update
+     * @param {Object} user - Firebase user object
+     */
+    async handleGoogleUserProfile(user) {
+        try {
+            let profile = await this.getUserProfile(user.uid);
+            
+            if (!profile) {
+                console.log('Creating new profile for Google user');
+                const userData = {
+                    firstName: user.displayName?.split(' ')[0] || '',
+                    lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+                    email: user.email,
+                    role: 'student',
+                    isGoogleAuth: true,
+                    createdAt: timestamp.now(),
+                    updatedAt: timestamp.now(),
+                    lastLoginAt: timestamp.now()
+                };
+                
+                await setDoc(doc(db, 'users', user.uid), userData);
+                console.log('Profile created successfully');
+            } else {
+                console.log('Updating existing user login time');
+                await updateDoc(doc(db, 'users', user.uid), {
+                    lastLoginAt: timestamp.now(),
+                    updatedAt: timestamp.now()
+                });
+            }
+        } catch (error) {
+            console.error('Error handling Google user profile:', error);
+            throw error;
         }
     }
   
@@ -247,6 +313,110 @@ class AuthService {
      */
     isAuthenticated() {
         return !!this.currentUser;
+    }
+
+    /**
+     * Update complete user profile with email, password, and display name
+     * @param {Object} updates - Profile update data
+     * @returns {Promise<Object>} Update results
+     */
+    async updateCompleteProfile(updates) {
+        try {
+            const { 
+                currentPassword, 
+                newPassword, 
+                confirmNewPassword, 
+                newEmail, 
+                displayName 
+            } = updates;
+
+            const user = auth.currentUser;
+            if (!user) {
+                throw new Error('No user is currently signed in');
+            }
+
+            // Check if user is Google authenticated
+            const isGoogleAuth = user.providerData.some(provider => 
+                provider.providerId === 'google.com'
+            );
+
+            if (isGoogleAuth) {
+                throw new Error('Cannot update Google account credentials');
+            }
+
+            // Validate password confirmation
+            if (newPassword && newPassword !== confirmNewPassword) {
+                throw new Error('New passwords do not match');
+            }
+
+            // Re-authenticate user if password changes are needed
+            if (newPassword || (newEmail && newEmail !== user.email)) {
+                if (!currentPassword) {
+                    throw new Error('Current password is required for account changes');
+                }
+                
+                const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                await reauthenticateWithCredential(user, credential);
+            }
+
+            const updatePromises = [];
+            const updateResults = {
+                email: false,
+                password: false,
+                displayName: false,
+                errors: []
+            };
+
+            // Update password
+            if (newPassword) {
+                updatePromises.push(
+                    updatePassword(user, newPassword)
+                        .then(() => { updateResults.password = true; })
+                        .catch(error => { 
+                            updateResults.errors.push(`Password update failed: ${error.message}`); 
+                        })
+                );
+            }
+
+            // Update email
+            if (newEmail && newEmail !== user.email) {
+                updatePromises.push(
+                    updateEmail(user, newEmail)
+                        .then(() => { updateResults.email = true; })
+                        .catch(error => { 
+                            updateResults.errors.push(`Email update failed: ${error.message}`); 
+                        })
+                );
+            }
+
+            // Update display name
+            if (displayName && displayName !== user.displayName) {
+                updatePromises.push(
+                    updateProfile(user, { displayName })
+                        .then(() => { updateResults.displayName = true; })
+                        .catch(error => { 
+                            updateResults.errors.push(`Display name update failed: ${error.message}`); 
+                        })
+                );
+            }
+
+            // Execute all updates
+            await Promise.allSettled(updatePromises);
+
+            // Update user document in Firestore
+            if (updateResults.email || updateResults.displayName) {
+                const docUpdates = { updatedAt: timestamp.now() };
+                if (newEmail && updateResults.email) docUpdates.email = newEmail;
+                if (displayName && updateResults.displayName) docUpdates.displayName = displayName;
+                
+                await updateDoc(doc(db, 'users', user.uid), docUpdates);
+            }
+
+            return updateResults;
+
+        } catch (error) {
+            throw handleFirebaseError(error);
+        }
     }
   }
   

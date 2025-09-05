@@ -1,16 +1,24 @@
 import React, { useState } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
-import House from "../icons/House";
-import Info from "../icons/Info";
-import SignIn from "../icons/SignIn";
-import School from "../icons/School";
-import Writing from "../icons/Writing";
-import Developer from "../icons/Developer";
-import Email from "../icons/Email";
-import Gear from "../icons/Gear";
-import NavBarIcon from "./NavBarIcon";
+import { House, School, Computer, Profile, Info, SignIn, Writing, Developer, Email, Gear } from "../icons/index.jsx";
+import NavBarUser from "./NavBarUser";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+
+// Inlined NavBarIcon component
+const NavBarIcon = ({ icon, text }) => (
+  <div className="group relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-b from-gray-800 to-gray-900 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 ease-in-out shadow-md hover:scale-110 cursor-pointer">
+    {/* Icon */}
+    <div className="flex items-center justify-center text-gray-200 w-full h-full">
+      {icon}
+    </div>
+
+    {/* Tooltip */}
+    <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-black text-white text-xs font-semibold px-3 py-1 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-[999]">
+      {text}
+    </div>
+  </div>
+);
 
 export default function NavBar() {
   const { currentUser } = useAuth();
@@ -45,13 +53,13 @@ export default function NavBar() {
 
       {isNavOpen && (
         <nav
-          className="fixed w-16 h-[80vh] bg-gray-900 rounded-xl shadow-lg left-2 top-32 space-y-6 overflow-visible no-scrollbar flex flex-col items-center py-4"
-
+          className="fixed w-16 bg-gray-900 rounded-xl shadow-lg left-2 top-32 space-y-4 overflow-visible no-scrollbar flex flex-col items-center py-4 z-40"
+          style={{ height: 'calc(100vh - 140px)' }}
         >
           {/* Optional top toggle icon */}
           <div className="group hover:scale-125 p-2" onClick={toggleNav}>
-            <FaBars size={26} className="text-white group-hover:hidden" />
-            <FaTimes size={24} className="text-white hidden group-hover:block" />
+            <FaBars size={22} className="text-white group-hover:hidden" />
+            <FaTimes size={20} className="text-white hidden group-hover:block" />
           </div>
 
           {currentUser?.role === "developer" && (
@@ -73,13 +81,12 @@ export default function NavBar() {
           </NavLink>
 
           <NavLink to="/flashcards" onClick={handleClick}>
-            <NavBarIcon text="Make Flashcards" />
+            <NavBarIcon icon={<Computer className="w-6 h-6 fill-white" />} text="Make Flashcards" />
           </NavLink>
-
 
           {currentUser ? (
             <NavLink to="/dashboard" onClick={handleClick}>
-              <NavBarIcon icon={<SignIn className="w-6 h-6 fill-white" />} text="Dashboard" />
+              <NavBarIcon icon={<Profile className="w-6 h-6 fill-white" />} text="Dashboard" />
             </NavLink>
           ) : (
             <NavLink to="/signin" onClick={handleClick}>

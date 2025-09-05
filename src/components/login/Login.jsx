@@ -2,37 +2,39 @@
 * Template used from https://tailwindui.com/components/application-ui/forms/sign-in-forms
 * This is used for the login page for email/password and Google signin
 */
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { GoogleButton } from "react-google-button";
-import Q from "../icons/Q";
+import { Q } from "../icons/index.jsx";
 
 export default function Login() {
   const emailRef = useRef();
   const passwordRef = useRef();
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, isAuthenticated, loading: authLoading } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Redirect to dashboard if user is already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    let isAuth = false;
 
     try {
       setError("");
       setLoading(true);
       await login(emailRef.current.value, passwordRef.current.value);
-      isAuth = true;
-      localStorage.setItem("isAuthenticated", "true");
+      // AuthContext will handle auth state and navigation
     } catch {
       setError("Failed to sign in");
     }
     setLoading(false);
-
-    if (isAuth) {
-      return <Navigate to="/quizzes" />;
-    }
   }
 
   async function handleGoogleSignIn(e) {
@@ -41,12 +43,13 @@ export default function Login() {
     try {
       setError("");
       setLoading(true);
+      // Just initiate the redirect - auth state will be handled after redirect back
       await googleLogin();
-      localStorage.setItem("isAuthenticated", "true");
-    } catch {
+    } catch (error) {
       setError("Failed to sign in with Google");
+      setLoading(false);
     }
-    setLoading(false);
+    // Don't set loading to false here since we're redirecting
   }
 
   return (

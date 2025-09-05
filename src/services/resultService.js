@@ -225,9 +225,51 @@ class ResultService {
             averageScore: Math.round((total / attempts.length) * 100) / 100,
             highestScore: Math.max(...scores),
             lowestScore: Math.min(...scores),
-            passingRate: Math.round((scores.filter(s => s >= 60).length / scores.length) * 100),
+            passingRate: Math.round((scores.filter(s => s >= 60).length / 60) * 100),
             gradeDistribution: gradeRanges
         };
+    }
+
+    /**
+     * Get quiz results by category for a user
+     * @param {string} userId - User ID
+     * @param {string} category - Quiz category
+     * @returns {Promise<Object>} Quiz results for the category
+     */
+    async getResultsByCategory(userId, category) {
+        try {
+            const data = { 
+                uid: userId, 
+                category: category.toLowerCase() 
+            };
+
+            const response = await fetch(
+                'https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const resultData = await response.json();
+            return {
+                score: resultData.score ?? 0,
+                avgScore: resultData.avgScore ?? 0,
+                attempts: resultData.attempts ?? 0
+            };
+
+        } catch (error) {
+            console.error('Error fetching results by category:', error);
+            throw new Error('Failed to fetch quiz results. Please try again.');
+        }
     }
 }
 

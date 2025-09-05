@@ -3,65 +3,100 @@ import authService from '../services/authService';
 
 const AuthContext = createContext(null);
 
-/**
- * Authentication provider component
- */
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isGoogleAuth, setIsGoogleAuth] = useState(false);
+    const [authInitialized, setAuthInitialized] = useState(false);
 
-    // Initialize auth service and listen to auth state changes
+    // Single useEffect to handle all auth initialization
     useEffect(() => {
-        const unsubscribe = authService.init();
+        let isMounted = true;
+        let authUnsubscribe = null;
+        
+        const initializeAuth = async () => {
+            try {
+                console.log('Initializing auth...');
+                
+                // Initialize auth service
+                const unsubscribe = authService.init();
+                
+                                // Subscribe to auth state changes
+                const authUnsubscribe = authService.onAuthStateChange(async (firebaseUser) => {
+                    if (!isMounted) return;
+                    
+                    if (firebaseUser) {
+                        try {
+                            setLoading(true);
+                            setIsGoogleAuth(firebaseUser.providerData[0]?.providerId === 'google.com');
+                        
+                            // Fetch or create user profile
+                            let userProfile = null;
+                            try {
+                                userProfile = await authService.getUserProfile(firebaseUser.uid);
+                                
+                                // Create profile for new Google users
+                                if (!userProfile && firebaseUser.providerData[0]?.providerId === 'google.com') {
+                                    await authService.handleGoogleUserProfile(firebaseUser);
+                                    userProfile = await authService.getUserProfile(firebaseUser.uid);
+                                }
+                            } catch (profileError) {
+                                console.error('Error with user profile:', profileError);
+                            }
+                        
+                            setUser(firebaseUser);
+                            setProfile(userProfile);
+                            setError(null);
+                        
+                        } catch (err) {
+                            console.error('Error in auth state change:', err);
+                            setError(err.message || 'Authentication error');
+                            setUser(firebaseUser);
+                            setProfile(null);
+                        } finally {
+                            setLoading(false);
+                        }
+                    } else {
+                        setUser(null);
+                        setProfile(null);
+                        setIsGoogleAuth(false);
+                        setError(null);
+                        setLoading(false);
+                    }
+                });
 
-        // Subscribe to auth state changes
-        const authUnsubscribe = authService.onAuthStateChange(async (firebaseUser) => {
-            if (firebaseUser) {
-                try {
-                    setLoading(true);
-                    setIsGoogleAuth(firebaseUser.providerData[0]?.providerId === 'google.com');
+                // Mark auth as initialized
+                setAuthInitialized(true);
                 
-                    const userProfile = await authService.getUserProfile(firebaseUser.uid);
+                return unsubscribe;
                 
-                    setUser(firebaseUser);
-                    setProfile(userProfile);
-                    setError(null);
-                
-                } catch (err) {
-                    console.error('Error fetching user profile:', err);
-                    setError(err.message || 'Failed to load user profile');
-                    setUser(firebaseUser);
-                    setProfile(null);
+            } catch (error) {
+                console.error('Auth initialization error:', error);
+                if (isMounted) {
+                    setError(error.message || 'Failed to initialize authentication');
+                    setLoading(false);
                 }
-            } else {
-                setUser(null);
-                setProfile(null);
-                setIsGoogleAuth(false);
             }
-            
-            setLoading(false);
-        });
+        };
 
-        // Cleanup function
+        initializeAuth();
+        
         return () => {
-            unsubscribe();
-            authUnsubscribe();
+            isMounted = false;
+            if (authUnsubscribe) {
+                authUnsubscribe();
+            }
         };
     }, []);
 
-    /**
-     * Sign in user
-     */
     const signIn = useCallback(async (email, password) => {
         setLoading(true);
         setError(null);
 
         try {
             const result = await authService.signIn(email, password);
-            // User state will be updated via auth state listener
             return result;
         } catch (err) {
             setError(err.message || 'Sign in failed');
@@ -71,34 +106,44 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    /**
-     * Register new user
-     */
+    const googleLogin = useCallback(async () => {
+        setError(null);
+
+        try {
+            const result = await authService.signInWithGoogle();
+            
+            if (result && result.user) {
+                return result;
+            }
+            
+        } catch (err) {
+            console.error('Failed to sign in with Google:', err);
+            const errorMessage = err.message || 'Failed to sign in with Google';
+            setError(errorMessage);
+            throw new Error(errorMessage);
+        }
+    }, []);
+
     const signUp = useCallback(async (userData) => {
         setLoading(true);
         setError(null);
 
         try {
-        const result = await authService.register(userData);
-        // User state will be updated via auth state listener
-        return result;
+            const result = await authService.register(userData);
+            return result;
         } catch (err) {
-        setError(err.message || 'Registration failed');
-        throw err;
+            setError(err.message || 'Registration failed');
+            throw err;
         } finally {
-        setLoading(false);
+            setLoading(false);
         }
     }, []);
 
-    /**
-     * Sign out user
-     */
     const signOut = useCallback(async () => {
         setLoading(true);
 
         try {
             await authService.signOut();
-            // User state will be updated via auth state listener
         } catch (err) {
             setError(err.message || 'Sign out failed');
             console.error('Sign out error:', err);
@@ -107,9 +152,6 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    /**
-     * Send password reset email
-     */
     const resetPassword = useCallback(async (email) => {
         setError(null);
 
@@ -121,9 +163,6 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    /**
-     * Update user profile
-     */
     const updateUserProfile = useCallback(async (updates) => {
         if (!user) {
             throw new Error('No user is currently signed in');
@@ -144,9 +183,6 @@ export const AuthProvider = ({ children }) => {
         }
     }, [user]);
 
-    /**
-     * Change password
-     */
     const changePassword = useCallback(async (currentPassword, newPassword) => {
         setError(null);
 
@@ -158,9 +194,6 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    /**
-     * Check if user has specific role
-     */
     const hasRole = useCallback(async (roles) => {
         if (!user) return false;
 
@@ -172,24 +205,25 @@ export const AuthProvider = ({ children }) => {
         }
     }, [user]);
 
-    // Context values
     const value = {
         user,
         profile,
-        currentUser: user, // For backward compatibility        
+        currentUser: user,
         loading,
         error,
         isGoogleAuth,
+        authInitialized,
         isAuthenticated: !!user,
-        login: signIn, // For backward compatibility
-        signup: signUp, // For backward compatibility
+        login: signIn,
+        googleLogin,
+        signup: signUp,
         signIn,
         signUp,
-        logout: signOut, // For backward compatibility
+        logout: signOut,
         signOut,
         resetPassword,
         updateUserProfile,
-        updateProfile: updateUserProfile, // For backward compatibility
+        updateProfile: updateUserProfile,
         changePassword,
         hasRole,
         clearError: () => setError(null),
@@ -202,9 +236,6 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-/**
- * Hook for using authentication context
- */
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
@@ -212,5 +243,3 @@ export const useAuth = () => {
     }
     return context;
 };
-
-export default AuthContext;

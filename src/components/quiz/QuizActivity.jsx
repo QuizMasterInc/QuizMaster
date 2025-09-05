@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ScaleLoader } from 'react-spinners';
-import { useCategory } from '../../contexts/CategoryContext';
+import { useCategory } from '../../contexts/AppContext';
 import Question from './Question';
 import DoneModal from './DoneModal';
 import HelpModal from './HelpModal';

@@ -13,7 +13,6 @@ export default function NavBarUser() {
   async function handleLogout() {
     try {
       await logout();
-      localStorage.setItem('isAuthenticated', 'false');
       navigate('/signin');
     } catch {
       console.error("Failed to logout");

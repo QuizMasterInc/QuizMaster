@@ -1,9 +1,10 @@
 /**
- * This hosts the results for each quiz 
+ * This hosts the results for each quiz - UI focused, business logic in resultService
  */
 import React, { useEffect, useState } from 'react';
 import { ClipLoader } from 'react-spinners';
 import { useAuth } from '../../contexts/AuthContext';
+import resultService from '../../services/resultService';
 
 export const QuizResult = ({ category, icon }) => {
   const [loading, setLoading] = useState(true);
@@ -12,39 +13,24 @@ export const QuizResult = ({ category, icon }) => {
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    async function fetchResults(uid) {
-      setLoading(true);
-      const data = { uid: uid, category: category.toLowerCase() };
-
+    async function fetchResults() {
       try {
-        const response = await fetch(
-          'https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults',
-          {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-          }
-        );
-
-        if (response.ok) {
-          const resultData = await response.json();
-          setResult(resultData.score ?? 0);
-          setAvgScore(resultData.avgScore ?? 0);
-        } else {
-          console.error('Fetch error:', response.statusText);
-        }
+        setLoading(true);
+        const results = await resultService.getResultsByCategory(currentUser.uid, category);
+        setResult(results.score);
+        setAvgScore(results.avgScore);
       } catch (error) {
-        console.error('Fetch error:', error);
+        console.error('Error fetching quiz results:', error);
+        // Set default values on error
+        setResult(0);
+        setAvgScore(0);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     }
 
-    fetchResults(currentUser.uid);
-  }, []);
+    fetchResults();
+  }, [currentUser.uid, category]);
 
   return (
     <div className="p-2">

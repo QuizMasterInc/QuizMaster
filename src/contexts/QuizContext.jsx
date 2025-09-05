@@ -280,5 +280,4 @@ export const useQuiz = () => {
     return context;
 };
 
-export const useCustomQuizContext = useQuiz;
 export default QuizContext;

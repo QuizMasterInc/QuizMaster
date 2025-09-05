@@ -165,7 +165,27 @@ Our capstone project that allows users to take quizzes on a variety of different
 [![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:nuviahernandez@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/nuviah8)
 </div>
 
+## Architecture Overview
 
+### 🏗️ **Component Architecture (Updated September 2025)**
+QuizMaster features a modernized React component architecture optimized for maintainability and scalability:
+
+- **📁 Consolidated Structure**: Reduced from 29+ to 16 logical directories (45% reduction)
+- **🎨 Shared Libraries**: Unified UI, icons, and sound systems eliminate code duplication  
+- **📄 Pages Organization**: Route-level components organized in dedicated `/src/pages/` directory
+- **🔧 Service Layer**: Centralized Firebase and business logic in `/src/services/`
+
+### 📊 **Key Improvements**
+- ✅ **20+ micro-components eliminated** through strategic consolidation
+- ✅ **Unified icon system** (22 individual files → 1 library)
+- ✅ **Shared UI library** for consistent design system
+- ✅ **Consolidated sound effects** with volume control integration
+
+### 📖 **Documentation**
+- [`/src/components/COMPONENTS_ARCHITECTURE.md`](src/components/COMPONENTS_ARCHITECTURE.md) - Component organization guide
+- [`/src/components/ui/UI_LIBRARY.md`](src/components/ui/UI_LIBRARY.md) - Shared UI component library
+- [`/src/components/icons/ICON_SYSTEM.md`](src/components/icons/ICON_SYSTEM.md) - Unified icon system
+- [`/src/pages/PAGES_DIRECTORY.md`](src/pages/PAGES_DIRECTORY.md) - Page component organization
 
 ## Installation and Setup
 1. Install Firebase CLI 

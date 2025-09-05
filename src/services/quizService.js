@@ -271,6 +271,180 @@ class QuizService {
             throw handleFirebaseError(error);
         }
     }
+
+    // ===== CUSTOM QUIZ BUSINESS LOGIC =====
+
+    /**
+     * Validate quiz name input
+     * @param {string} quizName - Quiz name to validate
+     * @returns {boolean} - Validation result
+     */
+    validateQuizName(quizName) {
+        return !!(quizName && quizName.trim());
+    }
+
+    /**
+     * Validate quiz password input
+     * @param {string} password - Password to validate
+     * @returns {boolean} - Validation result
+     */
+    validateQuizPassword(password) {
+        return !!(password && password.trim());
+    }
+
+    /**
+     * Validate quiz tags input
+     * @param {string} tags - Tags to validate
+     * @returns {boolean} - Validation result
+     */
+    validateQuizTags(tags) {
+        return !!(tags && tags.trim());
+    }
+
+    /**
+     * Check if quiz title already exists for user
+     * @param {Array} userQuizzes - User's existing quizzes
+     * @param {string} newTitle - New quiz title to check
+     * @returns {boolean} - True if title exists
+     */
+    isTitleDuplicate(userQuizzes, newTitle) {
+        if (!userQuizzes || !Array.isArray(userQuizzes)) return false;
+        
+        const titles = userQuizzes.map(quiz => 
+            quiz.title || (quiz.data && quiz.data.title) || ''
+        );
+        
+        return titles.some(title => 
+            title.toLowerCase() === newTitle.toLowerCase()
+        );
+    }
+
+    /**
+     * Transform quiz data array into Firestore object format
+     * @param {Array} quizDataArray - Array of question data
+     * @returns {Object} - Formatted quiz data object
+     */
+    createQuizDataObject(quizDataArray) {
+        const quizDataObject = {};
+        
+        for (let i = 0; i < quizDataArray.length; i++) {
+            const questionDetailsArray = quizDataArray[i];
+            const questionNumber = `Question ${i + 1}`;
+            
+            quizDataObject[questionNumber] = {
+                question: questionDetailsArray[0],
+                option_1: questionDetailsArray[1],
+                option_2: questionDetailsArray[2],
+                option_3: questionDetailsArray[3],
+                option_4: questionDetailsArray[4],
+                correct_answer: questionDetailsArray[5],
+            };
+        }
+        
+        return quizDataObject;
+    }
+
+    /**
+     * Create complete quiz object with validation
+     * @param {Object} quizInput - Quiz creation data
+     * @returns {Object} - Validated quiz object or validation errors
+     */
+    createValidatedQuizObject(quizInput) {
+        const {
+            quizName,
+            quizData,
+            quizTags,
+            privateQuiz,
+            privateQuizPassword,
+            currentUserId,
+            userQuizzes
+        } = quizInput;
+
+        // Validation
+        const validations = {
+            validQuizName: this.validateQuizName(quizName),
+            validQuizTags: this.validateQuizTags(quizTags),
+            duplicateTitle: this.isTitleDuplicate(userQuizzes, quizName),
+            validPassword: privateQuiz ? this.validateQuizPassword(privateQuizPassword) : true
+        };
+
+        // Check for validation errors
+        if (validations.duplicateTitle) {
+            return { 
+                success: false, 
+                error: "You already have a quiz with this title. Please choose a different title." 
+            };
+        }
+
+        if (!validations.validQuizName) {
+            return { 
+                success: false, 
+                error: "Please enter a valid quiz name." 
+            };
+        }
+
+        if (!validations.validQuizTags) {
+            return { 
+                success: false, 
+                error: "Please enter valid quiz tags." 
+            };
+        }
+
+        if (privateQuiz && !validations.validPassword) {
+            return { 
+                success: false, 
+                error: "Please enter a valid password for private quiz." 
+            };
+        }
+
+        // Create quiz object
+        const quizObject = {
+            creatorID: currentUserId,
+            title: quizName,
+            questionCount: quizData.length,
+            quizData: this.createQuizDataObject(quizData),
+            quizTags: quizTags,
+            createdAt: new Date().toISOString(),
+            isActive: true
+        };
+
+        // Add password if private quiz
+        if (privateQuiz) {
+            quizObject.quizPassword = privateQuizPassword;
+        }
+
+        return { success: true, quizObject };
+    }
+
+    /**
+     * Submit quiz to Firebase Cloud Function
+     * @param {Object} quizObject - Validated quiz object
+     * @returns {Promise<Object>} - API response
+     */
+    async submitCustomQuiz(quizObject) {
+        try {
+            const response = await fetch(
+                'https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(quizObject)
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error submitting quiz:', error);
+            throw new Error('Failed to create quiz. Please try again.');
+        }
+    }
 }
 
 export default new QuizService();

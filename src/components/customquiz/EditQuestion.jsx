@@ -25,7 +25,7 @@ This component is what allows the editing capability of each individual question
 */
 
 import { useState, useEffect } from 'react'
-import { useCustomQuizContext } from '../../contexts/CustomQuizContext'
+import { useQuiz } from '../../contexts/QuizContext'
 
 function EditQuestion({ num, q }) {
   const type = q.type || q.questionType || "Multiple";
@@ -39,7 +39,7 @@ function EditQuestion({ num, q }) {
   const [selectedCorrectAnswers, setSelectedCorrectAnswers] = useState([]);
   const [correctAnswer, changeCorrectAnswer] = useState(q.correct_answer);
 
-  const customQuizData = useCustomQuizContext();
+  const customQuizData = useQuiz();
 
   const isMultipleAnswer = type === "MultipleAnswer";
 

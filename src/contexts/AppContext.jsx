@@ -2,6 +2,7 @@
  * Main application context that combines category selection with global app state
  */
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { QUIZ_CATEGORIES, QUIZ_SUBCATEGORIES, CATEGORY_ICONS, CATEGORY_DESTINATIONS } from '../constants/quizConstants';
 
 // Create context
 const AppContext = createContext(null);
@@ -10,24 +11,9 @@ const AppContext = createContext(null);
  * Main application provider
  */
 export const AppProvider = ({ children }) => {
-    // Quiz categories and configuration
-    const [quizCategories] = useState([
-        'Geography',
-        'Science',
-        'Sports',
-        'Entertainment',
-        'Mathematics',
-        'History'
-    ]);
-
-    const [quizSubcategories] = useState({
-        'geography': ['world', 'americas'],
-        'science': ['biology', 'chemistry', 'astronomy', 'physics'],
-        'sports': ['soccer', 'basketball', 'football'],
-        'entertainment': ['tv', 'music', 'movies', 'video games'],
-        'mathematics': ['algebra', 'geometry', 'calculus'],
-        'history': ['global', 'america', 'norse mythology'],
-    });
+    // Quiz categories and configuration - imported from constants
+    const [quizCategories] = useState(QUIZ_CATEGORIES);
+    const [quizSubcategories] = useState(QUIZ_SUBCATEGORIES);
 
     // User quiz selections - persist to sessionStorage
     const [category, setCategory] = useState(
@@ -158,6 +144,8 @@ export const AppProvider = ({ children }) => {
     const value = {
         quizCategories,
         quizSubcategories,
+        icons: CATEGORY_ICONS,
+        destinations: CATEGORY_DESTINATIONS,
         category,
         subcategories,
         difficulty,

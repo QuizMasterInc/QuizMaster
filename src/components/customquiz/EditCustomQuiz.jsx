@@ -18,7 +18,7 @@ This component provides state to allow the following editing features on a custo
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { useCustomQuizContext } from '../../contexts/CustomQuizContext'
+import { useQuiz } from '../../contexts/QuizContext'
 import EditQuestion from './EditQuestion'
 
 export default function EditCustomQuiz() {
@@ -27,7 +27,7 @@ export default function EditCustomQuiz() {
   const [quizTitle, changeQuizTitle] = useState("")
   const [quizDeletionText, updateDeletionText] = useState("")
 
-  const customQuiz = useCustomQuizContext() // customQuiz object to access custom context state
+  const customQuiz = useQuiz() // quiz context to access quiz state
   const { quizID } = useParams()  // retrieves quiz ID from URL params 
 
   const handleTitleClick = (e) => {

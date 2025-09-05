@@ -3,17 +3,17 @@
  * this will only get mounted if the user is logged in
  */
 import React, { useState } from 'react';
-import { useCategory } from '../../contexts/CategoryContext';
+import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { QuizResult } from './QuizResult';
 import CustomQuizzesTable from './CustomQuizzesTable';
 import { Link } from 'react-router-dom';
 import StudyMaterial from './StudyMaterial';
+import { QUIZ_CATEGORIES, CATEGORY_ICONS } from '../../constants/quizConstants.jsx';
 
 export default function Dashboard() {
   const [error, setError] = useState('');
   const { isGoogleAuth } = useAuth();
-  const { quizCategories, icons } = useCategory();
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const handleStudy = (category) => {
@@ -47,8 +47,8 @@ export default function Dashboard() {
         <section>
           <h2 className="text-3xl font-bold text-center text-violet-300 mb-10">Your Quiz Scores</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-            {quizCategories.map((category, index) => (
-              <QuizResult key={index} category={category} icon={icons[index]} />
+            {QUIZ_CATEGORIES.map((category, index) => (
+              <QuizResult key={index} category={category} icon={CATEGORY_ICONS[index]} />
             ))}
           </div>
           {error && (
@@ -62,7 +62,7 @@ export default function Dashboard() {
         <section>
           <h3 className="text-2xl font-semibold text-center text-sky-300 mb-6">Study by Category</h3>
           <div className="flex flex-wrap justify-center gap-4">
-            {quizCategories.map((category, index) => (
+            {QUIZ_CATEGORIES.map((category, index) => (
               <button
                 key={index}
                 onClick={() => handleStudy(category)}
