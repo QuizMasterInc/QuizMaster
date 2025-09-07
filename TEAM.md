@@ -1,5 +1,9 @@
 Scrum will be implemented by assigning the following roles: Product Owner, Scrum Master, and Development Members. Each new Sprint, there will be a new Product Owner and Scrum Master assigned. 
 
+### Fall 2025 Team Roles
+
+Rudra Patel - Scrum Master
+
 ### Spring 2025 Team Roles
 
 Nuvia Hernandez - Development Team

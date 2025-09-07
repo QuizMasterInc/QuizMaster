@@ -1,10 +1,10 @@
 ### Overview
 
-The team plans to meet on Monday at 3PM every week in order to review the progress that has been made.
+The team plans to meet on Monday at 1PM every week in order to review the progress that has been made.
 
 We also plan on using our Discord server for consistent communication throughout each sprint nearly every day. 
 
-The team uses GitHub projects for management of the developement of this project.
+The team uses an organized spreadsheet for management of the development of this project.
 
 ### Plans for CI/CD
 
@@ -29,4 +29,3 @@ Here is our definition of done.
 - In production
 - Can be demoed
 - Everyone agrees that it meets the expectations outlined in the story 
-
