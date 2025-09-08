@@ -4,6 +4,9 @@ Scrum will be implemented by assigning the following roles: Product Owner, Scrum
 
 Rudra Patel - Scrum Master
 
+Kolade Idris - Product Owner
+
+
 ### Spring 2025 Team Roles
 
 Nuvia Hernandez - Development Team
