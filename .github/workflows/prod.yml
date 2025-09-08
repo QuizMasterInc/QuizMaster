@@ -5,13 +5,13 @@ name: Production
 'on':
   push:
     branches:
-      - main
+      - production  # Changed from 'main'
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     environment: 
       name: Production
-      url: https://quizmaster-c66a2.web.app/
+      url: https://quizmaster-4006b.firebaseapp.com/  # Updated URL
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
