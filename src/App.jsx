@@ -59,11 +59,9 @@ const Header = () => {
 
   return (
     <header className="backdrop-blur bg-gradient-to-r from-[#1e0a3c] via-[#240e56] to-[#0f051d] shadow-md border-b border-purple-800 text-white h-16 flex items-center justify-between px-6 z-50 relative">
-      
-      {/* Q Icon */}
-      <div className="w-10 h-10 flex items-center">
-        <Q className="fill-white w-8 h-8 drop-shadow" />
-      </div>
+
+
+      <NavBar />
 
       {/* Centered Brand Name */}
       <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl sm:text-2xl font-extrabold tracking-wider bg-gradient-to-r from-purple-400 to-blue-400 text-transparent bg-clip-text drop-shadow">
@@ -245,9 +243,9 @@ function App() {
 
         {/*<Chatbot />*/}
 
-        <div className="navbar">
-          <NavBar />
-        </div>
+        {/*<div className="navbar">*/}
+        {/*  <NavBar />*/}
+        {/*</div>*/}
 
         <Footer />
         </QuizProvider>

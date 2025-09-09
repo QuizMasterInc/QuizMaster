@@ -35,7 +35,7 @@ export default function Dashboard() {
 
         {/* Welcome Header */}
         <section className="text-center space-y-2">
-          <h1 className="text-5xl font-extrabold tracking-tight text-white drop-shadow">
+          <h1 className="text-5xl font-extrabold tracking-tight text-white drop-shadow paddings-10 sm:text-6xl">
             Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">QuizMaster</span>!
           </h1>
           <p className="text-lg text-gray-300">
