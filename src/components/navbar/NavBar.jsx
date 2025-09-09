@@ -105,7 +105,7 @@ export default function NavBar() {
             <div className="relative group ml-4" ref={infoRef}>
                 <div className="flex">
                     <NavLink
-                        to="/info"
+                        to="/about"
                         onClick={handleClick}
                         className="flex items-center gap-2 text-white font-semibold px-4 py-2 hover:bg-gray-800 rounded-l transition"
                         style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
