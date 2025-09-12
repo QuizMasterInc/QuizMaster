@@ -111,7 +111,7 @@ export default function NavBar() {
                         style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
                     >
                         <Info className="w-5 h-5 fill-white" />
-                        Information
+                        About
                     </NavLink>
                     <button
                         onClick={() => setInfoOpen((open) => !open)}
