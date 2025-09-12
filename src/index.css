@@ -26,10 +26,7 @@
   --gradient-2: linear-gradient(to right, #9333ea, #3b82f6);
 }
 
-/*!* High Contrast Mode *!*/
-/*.high-contrast {*/
-/*  --background-color: #928f8f; !* High contrast background color *!*/
-/*}*/
+
 .light-mode {
     --background-color: #ffffff; /* White background color */
 }
@@ -46,8 +43,6 @@ body {
 /* Main React App Wrapper */
 .App {
   height: auto;
-  min-height: 100%;
-  overflow: visible;
 }
 
 /* === Subtle Glows (Gamefam inspired) === */

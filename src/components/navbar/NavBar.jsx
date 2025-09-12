@@ -159,7 +159,7 @@ export default function NavBar() {
             <div className="flex-1" />
 
             {/* Sign In / Dashboard */}
-            <div>
+            <div className="pr-4">
                 {currentUser ? (
                     <NavLink
                         to="/dashboard"

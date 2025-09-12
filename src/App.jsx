@@ -5,7 +5,6 @@
  * Notice that some components are enclosed in the contexts, this is how we share state between these components. 
  * The routes are enclosed in the authprovider, this is how we ensure authenticaiton throughout the application
  */
-import './App.css'
 import NavBar from './components/navbar/NavBar'
 import { Route, Routes, useNavigate } from "react-router-dom";
 import React, { useState } from 'react';
