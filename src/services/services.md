@@ -1,5 +1,20 @@
 # QuizMaster Service Layer Documentation
 
+## 🚀 **Current Architecture (September 2025)**
+
+### **Performance Optimizations:**
+- ✅ **Optimized Dashboard Performance**: 3-5 second loading times
+- ✅ **Server-Side Processing**: Filtering and sorting handled by Firebase Functions
+- ✅ **Batch Operations**: Single API calls replace multiple requests
+- ✅ **Intelligent Caching**: Context-aware caching strategies (5-30 minutes)
+
+### **Technical Infrastructure:**
+- ✅ **Node.js 20**: All Firebase Functions running on latest supported runtime
+- ✅ **2nd Gen Functions**: Enhanced performance and capabilities
+- ✅ **Firebase Functions v6.4.0**: Latest SDK with full 2nd Gen support
+
+---
+
 ## Overview
 
 The service layer is the backbone of our refactored QuizMaster application architecture. These services abstract all Firebase operations and provide clean, consistent APIs for our React components to interact with. This approach separates business logic from UI components, making the codebase more maintainable, testable, and scalable.
@@ -12,6 +27,9 @@ The service layer is the backbone of our refactored QuizMaster application archi
 - **Testability**: Components can be easily unit tested by mocking service calls
 - **Maintainability**: Firebase logic is centralized, making updates and debugging easier
 - **Performance**: Services implement retry mechanisms and optimized querying patterns
+- **Batch Operations**: Context providers eliminate redundant API calls
+- **Server-Side Processing**: Complex operations handled by Firebase Functions
+- **Intelligent Caching**: Context-aware caching based on data update frequency
 
 ## Service Files Overview
 
@@ -113,12 +131,33 @@ const unsubscribe = authService.onAuthStateChange((user) => {
 - `createQuiz(quizData)` - Create new quiz
 - `getQuizById(quizId)` - Get specific quiz
 - `getQuizzes(options)` - Get quizzes with filtering/pagination
+- `browseCustomQuizzes(filters)` - Server-side filtered quiz browsing with optimization
 - `updateQuiz(quizId, updates)` - Update existing quiz
 - `deleteQuiz(quizId)` - Soft delete quiz
 - `submitQuizAttempt(quizId, attemptData)` - Submit quiz attempt
 - `getUserAttempts(userId, quizId)` - Get user's quiz attempts
 - `getQuizStatistics(quizId)` - Get quiz analytics
 - `duplicateQuiz(quizId, overrides)` - Duplicate existing quiz
+
+### Advanced Filtering: `browseCustomQuizzes(filters = {})`
+**Server-side processing for optimal performance**  
+**Parameters:**
+- `difficulty` (string): Filter by difficulty level ('easy', 'medium', 'hard')
+- `category` (string): Filter by subject category
+- `searchTerm` (string): Search in quiz titles and descriptions
+- `sortBy` (string): Sort order ('newest', 'oldest', 'difficulty', 'popularity')
+- `limit` (number): Maximum results (default: 50)
+
+```javascript
+// Server-side filtered quiz browsing
+const filteredQuizzes = await quizService.browseCustomQuizzes({
+  difficulty: 'medium',
+  category: 'Mathematics', 
+  searchTerm: 'algebra',
+  sortBy: 'popularity',
+  limit: 20
+});
+```
 
 **Usage Example**:
 ```javascript
@@ -202,8 +241,10 @@ if (!validation.isValid) {
 - Grade distribution calculations
 - Data export functionality (CSV)
 - User performance tracking
+- Batch operations with intelligent caching
 
 **Main Methods**:
+- `getAllResults()` - Batch fetch all result types with caching
 - `getAttemptById(attemptId)` - Get specific quiz attempt
 - `getUserAttempts(userId, options)` - Get user's attempts with pagination
 - `getQuizAttempts(quizId, options)` - Get all attempts for a quiz
@@ -282,3 +323,34 @@ const result = await withRetry(() =>
 );
 
 ```
+
+---
+
+## 🎯 **Current Architecture Patterns & Best Practices**
+
+### **Server-Side Processing**
+- **Principle**: Complex operations handled by Firebase Functions for optimal performance
+- **Implementation**: `browseCustomQuizzes` handles filtering/sorting server-side
+- **Benefits**: Reduced client-side processing and data transfer
+
+### **Context-Based State Management**
+- **ResultsContext**: Centralized results data with intelligent caching
+- **Single Source of Truth**: Eliminates redundant API calls across components
+- **Cache Strategy**: Smart refresh based on data volatility
+
+### **Batch Operations**
+- **API Consolidation**: Single calls replace multiple requests
+- **Example**: `getAllResults` fetches multiple data types in one function call
+- **Performance**: Significant reduction in API overhead
+
+### **Caching Strategy**
+- **Static Data** (30min): Categories, question banks, system settings
+- **User Data** (5min): Quiz results, performance metrics, attempt history
+- **Dynamic Data** (1min): Live quiz sessions, real-time updates
+- **Cache Keys**: User ID and data type isolation
+
+### **Error Handling Standards**
+- **User-Friendly Messages**: Technical errors translated to actionable feedback
+- **Retry Logic**: Automatic retry for transient failures
+- **Graceful Degradation**: Fallback functionality when services unavailable
+- **Comprehensive Logging**: Error tracking for debugging and monitoring

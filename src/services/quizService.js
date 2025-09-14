@@ -445,6 +445,102 @@ class QuizService {
             throw new Error('Failed to create quiz. Please try again.');
         }
     }
+
+    /**
+     * Get custom quizzes by user (optimized V2)
+     * @param {string} userId - User ID (creator)
+     * @returns {Promise<Array>} User's custom quizzes
+     */
+    async getCustomQuizzesByUser(userId) {
+        try {
+            const response = await fetch(
+                `https://grabcustomquizzesbyuserv2-ukhjsvkoca-uc.a.run.app`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ creator: userId })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+
+        } catch (error) {
+            console.error('Error fetching user custom quizzes:', error);
+            throw new Error('Failed to fetch custom quizzes. Please try again.');
+        }
+    }
+
+    /**
+     * Browse custom quizzes with server-side filtering, sorting, and searching
+     * Replaces client-side operations for better performance and security
+     * @param {Object} options - Browse options
+     * @param {string} options.searchTerm - Search term for title/tags
+     * @param {string} options.sortBy - Sort method: 'newest', 'oldest', 'title', etc.
+     * @param {string} options.privacy - Privacy filter: 'all', 'public', 'private'
+     * @param {number} options.limit - Maximum results to return
+     * @param {string} options.currentUserId - Current user ID (for private quiz access)
+     * @returns {Promise<Object>} Browse results with metadata
+     */
+    async browseCustomQuizzes(options = {}) {
+        const {
+            searchTerm = '',
+            sortBy = 'newest',
+            privacy = 'all',
+            limit = 50,
+            currentUserId = null
+        } = options;
+
+        try {
+            const response = await fetch(
+                'https://us-central1-quizmaster-c66a2.cloudfunctions.net/browseCustomQuizzesV2',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        searchTerm,
+                        sortBy,
+                        privacy,
+                        limit,
+                        currentUserId
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to browse quizzes');
+            }
+
+            return {
+                quizzes: data.data || [],
+                count: data.count || 0,
+                searchTerm: data.searchTerm,
+                sortBy: data.sortBy,
+                privacy: data.privacy,
+                timestamp: data.timestamp
+            };
+
+        } catch (error) {
+            console.error('Error browsing custom quizzes:', error);
+            throw new Error('Failed to browse quizzes. Please try again.');
+        }
+    }
 }
 
 export default new QuizService();

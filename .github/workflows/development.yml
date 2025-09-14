@@ -3,10 +3,10 @@ name: Deploy to Firebase Hosting (Development)
 on:
   push:
     branches:
-      - development  # Changed from development-restructure
+      - development
   pull_request:
     branches:
-      - development  # Changed from development-restructure
+      - development
 
 jobs:
   build_and_deploy:

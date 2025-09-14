@@ -5,7 +5,6 @@
  * Notice that some components are enclosed in the contexts, this is how we share state between these components. 
  * The routes are enclosed in the authprovider, this is how we ensure authenticaiton throughout the application
  */
-import './App.css'
 import NavBar from './components/navbar/NavBar'
 import { Route, Routes, useNavigate } from "react-router-dom";
 import React, { useState } from 'react';
@@ -19,6 +18,7 @@ import About from './components/about/About';
 import Contact from './components/contact/Contact';
 import { AppProvider } from './contexts/AppContext';
 import { QuizProvider } from './contexts/QuizContext';
+import { ResultsProvider } from './contexts/ResultsContext';
 import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
 import UpdateProfile from './components/login/UpdateProfile'
@@ -59,11 +59,9 @@ const Header = () => {
 
   return (
     <header className="backdrop-blur bg-gradient-to-r from-[#1e0a3c] via-[#240e56] to-[#0f051d] shadow-md border-b border-purple-800 text-white h-16 flex items-center justify-between px-6 z-50 relative">
-      
-      {/* Q Icon */}
-      <div className="w-10 h-10 flex items-center">
-        <Q className="fill-white w-8 h-8 drop-shadow" />
-      </div>
+
+
+      <NavBar />
 
       {/* Centered Brand Name */}
       <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl sm:text-2xl font-extrabold tracking-wider bg-gradient-to-r from-purple-400 to-blue-400 text-transparent bg-clip-text drop-shadow">
@@ -125,7 +123,9 @@ function App() {
         {isAuthenticated ? (
           <Route path="/" element={
             <PrivateRoute>
-              <Dashboard />
+              <ResultsProvider>
+                <Dashboard />
+              </ResultsProvider>
             </PrivateRoute>
           } />
         ) : (
@@ -236,7 +236,9 @@ function App() {
 
           <Route path="/dashboard" element={
             <PrivateRoute>
-              <Dashboard />
+              <ResultsProvider>
+                <Dashboard />
+              </ResultsProvider>
             </PrivateRoute>
           }/>
 
@@ -245,9 +247,9 @@ function App() {
 
         {/*<Chatbot />*/}
 
-        <div className="navbar">
-          <NavBar />
-        </div>
+        {/*<div className="navbar">*/}
+        {/*  <NavBar />*/}
+        {/*</div>*/}
 
         <Footer />
         </QuizProvider>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Q } from '../icons/index.jsx';
+import QuizService from '../../services/quizService.js';
 
 const CustomQuizzesTable = () => {
   const [customQuizzes, setCustomQuizzes] = useState(null);
@@ -11,29 +12,18 @@ const CustomQuizzesTable = () => {
   useEffect(() => {
     const fetchUserQuizzes = async () => {
       try {
-        const response = await fetch(
-          `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuizzesByUser?creator=${currentUser.uid}`,
-          {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setCustomQuizzes(data.data);
-        } else {
-          console.error('Fetch error:', response.statusText);
-        }
+        const quizzes = await QuizService.getCustomQuizzesByUser(currentUser.uid);
+        setCustomQuizzes(quizzes);
       } catch (error) {
-        console.error('Fetch error:', error);
+        console.error('Error fetching user quizzes:', error);
+        setCustomQuizzes([]);
       }
     };
 
-    fetchUserQuizzes();
-  }, []);
+    if (currentUser?.uid) {
+      fetchUserQuizzes();
+    }
+  }, [currentUser]);
 
   if (!customQuizzes) return null;
 
@@ -50,7 +40,7 @@ const CustomQuizzesTable = () => {
               <div className="flex flex-col items-center justify-center space-y-3">
                 <Q className="w-12 h-12 fill-white opacity-90" />
                 <div className="text-center font-bold text-lg tracking-wide truncate w-full">
-                  {quiz.data.title}
+                  {quiz.title}
                 </div>
               </div>
             </div>

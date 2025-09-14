@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
 
-// Importing images
 import max from "../../assets/max.jpg"
 import anthony from "../../assets/anthony.jpg"
 import matt from "../../assets/matt.jpg"
@@ -30,646 +29,298 @@ import rudra from "../../assets/rudra.jpg"
 import ben from "../../assets/ben.jpg"
 import ethan from "../../assets/ethan.jpg"
 
-{/* IMPORT YOUR IMAGES ABOVE */}
-
-
-
-const Contact = ({}) => (
-    // Top-level container with text and background styling
-    <div className="relative text-gray-300 bg-gradient-to-br from-[#0f051d] via-[#1b1444] to-[#0f051d] min-h-screen pt-15 overflow-hidden">
-    {/* Glowing background blobs */}
-    <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] bg-purple-700 rounded-full opacity-30 blur-[150px] z-0"></div>
-    <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] bg-blue-500 rounded-full opacity-30 blur-[150px] z-0"></div>
-  
-    {/* Content wrapper */}
-    <div className="relative z-10">
-      {/* Everything inside your Contact.jsx goes here — don't change it */}
-  
-        <div className="pointer-events-none absolute inset-0 overflow-hidden -z-10">
-  {/* Top left purple blur */}
-  <div className="absolute top-[-100px] left-[-100px] w-[400px] h-[400px] bg-purple-600 opacity-30 blur-3xl rounded-full"></div>
-
-  {/* Bottom right blue blur */}
-  <div className="absolute bottom-[-100px] right-[-100px] w-[400px] h-[400px] bg-blue-500 opacity-30 blur-3xl rounded-full"></div>
-
-  {/* Center soft halo glow */}
-  <div className="absolute top-[50%] left-[50%] w-[800px] h-[800px] bg-violet-900 opacity-20 blur-[120px] rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-</div>
-        {/* Inner container for text content */}
-        <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 text-center">
-            {/* Sub-container for the header and subtitle */}
-            <div className="pl-10 text-left">
-                <h1 className="text-4xl font-bold text-gray-300">Quiz Master</h1>
-                <h2 className="text-lg font-semibold text-gray-300 ">
-                    This site is still in development
-                </h2>
+const TeamSection = ({ title, isOpen = false, children }) => {
+    const [expanded, setExpanded] = useState(isOpen);
+    return (
+        <>
+            <div className="flex flex-col items-center justify-center my-12">
+                <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-2">
+                    <div className="flex flex-col items-center">
+                        <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
+                            {title}
+                        </h2>
+                        <div className="mt-2 h-1 w-full rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
+                    </div>
+                    <span className={`text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 transition-transform ${expanded ? 'rotate-45' : ''}`}>
+                        +
+                    </span>
+                </button>
             </div>
-            {/* Sub-container for the "Contact Us" header */}
-            <div className="flex items-center justify-center ">
-                <h1 className="pl-8 pt-5 mb-4 text-5xl font-bold text-center">Contact Us</h1>
-            </div>
-        </div>
-        {/* THIS IS THE INFORMATION FOR THE SPRING 2025 TitanicSwimTeam group*/}
-        <div className="flex flex-col items-center justify-center my-12">
-  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
-    Fall 2026 Team
-  </h2>
-  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
-</div>
-
-
-        {/* Container for contact information */}
-        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
-            <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-
-           <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-                    <a href="https://github.com/beneiler"
-                       target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={ben} alt="headshot"
-                             className="object-cover w-48 h-48 rounded-full"/> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Benjamin Eiler</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        TitanicSwimTeam Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="benjaminseiler@lewisu.edu" target="_blank"
-                           className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            benjaminseiler@lewisu.edu
-                        </a>
+            {expanded && (
+                <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
+                    <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+                        {children}
                     </div>
                 </div>
-
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://github.com/rpat9"
-                       target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={rudra} alt="headshot"
-                             className="object-cover w-48 h-48 rounded-full"/> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Rudra Patel</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        TitanicSwimTeam Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:rudrappatel@lewisu.edu" target="_blank"
-                           className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            rudrappatel@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://github.com/marskidris"
-                       target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={kolade} alt="headshot"
-                             className="object-cover w-48 h-48 rounded-full"/> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Kolade Idris</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        TitanicSwimTeam Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:koladeidris@lewisu.edu" target="_blank"
-                           className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            koladeidris@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://github.com/ethanmy14"
-                       target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={ethan} alt="headshot"
-                             className="object-cover w-48 h-48 rounded-full"/> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Ethan Myers</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        TitanicSwimTeam Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:ethanamyers@lewisu.edu" target="_blank"
-                           className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            ethanamyers@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+            )}
+        </>
+    );
+};
 
 
-        {/* THIS IS THE INFORMATION FOR THE SPRING 2025 SacredMyth group*/}
-        <div className="flex flex-col items-center justify-center my-12">
-  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
-    Spring 2025 Team
-    
-  </h2>
-  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
-</div>
 
 
-        {/* Container for contact information */}
-        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
 
-            {/* Grid layout for contact information */}
-            <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://demetrius-price02.github.io/my-static-web-app/"
-                       target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={demetrius} alt="headshot"
-                             className="object-cover w-48 h-48 rounded-full"/> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Demetrius Price</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        SacredMyth Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:demetriusaprice@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            demetriusaprice@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://samdwag.github.io/Salzoubi/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={sami} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Sami Alzoubi</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        SacredMyth Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:samialzoubi@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            samialzoubi@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://node-js-portfolio-ajb8b4grbscbe0a6.centralus-01.azurewebsites.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={erick} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Erick Martinez</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        SacredMyth Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:erickrmartinezzepeda@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            erickrmartinezzepeda@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-       <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-            <a href="https://purple-field-031659910.5.azurestaticapps.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                <img src={nuvia} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
+const TeamMember = ({ image, name, group, email, githubLink }) => (
+    <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
+        <a href={githubLink} target="_blank">
+            <img src={image} alt={name} className="object-cover w-48 h-48 rounded-full" />
+        </a>
+        <h3 className="mt-4 text-lg font-medium text-gray-300">{name}</h3>
+        <div className="mt-0 text-gray-300">{group}</div>
+        <div className="mt-2 text-sm text-gray-400">
+            <a href={`mailto:${email}`} target="_blank" className="hover:underline">
+                {email}
             </a>
-            <h3 className="mt-4 text-lg font-medium text-gray-300">Nuvia Hernandez</h3> {/* YOUR NAME GOES HERE */}
-            <div className="mt-0 text-gray-300">
-                SacredMyth Group
-            </div>
-            <div className="mt-2 text-sm text-gray-400">
-
-                <a href="mailto:nuviahernandez@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                    nuviahernandez@lewisu.edu
-                </a>
-            </div>
         </div>
+    </div>
+);
 
+const Contact = () => (
+    <div className="relative text-gray-300 bg-gradient-to-br from-[#0f051d] via-[#1b1444] to-[#0f051d] min-h-screen pt-15 overflow-hidden">
+        <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] bg-purple-700 rounded-full opacity-30 blur-[150px] z-0"></div>
+        <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] bg-blue-500 rounded-full opacity-30 blur-[150px] z-0"></div>
 
+        <div className="relative z-10">
+            <div className="pointer-events-none absolute inset-0 overflow-hidden -z-10">
+                <div className="absolute top-[-100px] left-[-100px] w-[400px] h-[400px] bg-purple-600 opacity-30 blur-3xl rounded-full"></div>
+                <div className="absolute bottom-[-100px] right-[-100px] w-[400px] h-[400px] bg-blue-500 opacity-30 blur-3xl rounded-full"></div>
+                <div className="absolute top-[50%] left-[50%] w-[800px] h-[800px] bg-violet-900 opacity-20 blur-[120px] rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
+            </div>
 
-        {/* THIS IS THE INFORMATION FOR THE FALL 2024 ChairForceOne group*/}
-
-        <div className="flex flex-col items-center justify-center my-12">
-  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
-    Fall 2024 Team
-  </h2>
-  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
-</div>
-        {/* Container for contact information */}
-        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
-            {/* Grid layout for contact information */}
-            <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://yellow-ocean-0fcfe0910.4.azurestaticapps.net" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={danielj} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Daniel Jazowski</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        ChairForceOne Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:danieljjazowski@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            danieljjazowski@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://jayrellg.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={jayrell} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Jayrell Garcia</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        ChairForceOne Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:jayrellgarcia@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            jayrellgarcia@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://hmadhavann.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={hima} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Hima Madhavan</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        ChairForceOne Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:himajmadhavan@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            himajmadhavan@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://briang38.github.io/me/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={brian} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Brian Gutt</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        ChairForceOne Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:brianmgutt@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            brianmgutt@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://nice-stone-0faf59710.4.azurestaticapps.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={ahmad} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Ahmad Yousuf</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        ChairForceOne Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:ahmadoyousuf@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            ahmadoyousuf@lewisu.edu
-                        </a>
-                    </div>
+            <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 text-center">
+                <div className="flex flex-col items-center justify-center">
+                    <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
+                        Contact Us
+                    </h1>
+                    <div className="mt-2 h-1 w-48 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
                 </div>
             </div>
+
+
+            <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 mt-12">
+                <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center mb-12">
+                    Fall 2025 Team
+                </h2>
+                <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+                    <TeamMember
+                        image={ben}
+                        name="Benjamin Eiler"
+                        group="TitanicSwimTeam Group"
+                        email="benjaminseiler@lewisu.edu"
+                        githubLink="https://github.com/beneiler"
+                    />
+                    <TeamMember
+                        image={rudra}
+                        name="Rudra Patel"
+                        group="TitanicSwimTeam Group"
+                        email="rudrappatel@lewisu.edu"
+                        githubLink="https://github.com/rpat9"
+                    />
+                    <TeamMember
+                        image={kolade}
+                        name="Kolade Idris"
+                        group="TitanicSwimTeam Group"
+                        email="koladeidris@lewisu.edu"
+                        githubLink="https://github.com/marskidris"
+                    />
+                    <TeamMember
+                        image={ethan}
+                        name="Ethan Myers"
+                        group="TitanicSwimTeam Group"
+                        email="ethanamyers@lewisu.edu"
+                        githubLink="https://github.com/ethanmy14"
+                    />
+                </div>
+            </div>
+
+
+            <TeamSection title="Spring 2025 Team">
+                <TeamMember
+                    image={demetrius}
+                    name="Demetrius Price"
+                    group="SacredMyth Group"
+                    email="demetriusaprice@lewisu.edu"
+                    githubLink="https://demetrius-price02.github.io/my-static-web-app/"
+                />
+                <TeamMember
+                    image={sami}
+                    name="Sami Alzoubi"
+                    group="SacredMyth Group"
+                    email="samialzoubi@lewisu.edu"
+                    githubLink="https://samdwag.github.io/Salzoubi/"
+                />
+                <TeamMember
+                    image={erick}
+                    name="Erick Martinez"
+                    group="SacredMyth Group"
+                    email="erickrmartinezzepeda@lewisu.edu"
+                    githubLink="https://node-js-portfolio-ajb8b4grbscbe0a6.centralus-01.azurewebsites.net/"
+                />
+                <TeamMember
+                    image={nuvia}
+                    name="Nuvia Hernandez"
+                    group="SacredMyth Group"
+                    email="nuviahernandez@lewisu.edu"
+                    githubLink="https://purple-field-031659910.5.azurestaticapps.net/"
+                />
+            </TeamSection>
+
+            <TeamSection title="Fall 2024 Team">
+                <TeamMember
+                    image={danielj}
+                    name="Daniel Jazowski"
+                    group="ChairForceOne Group"
+                    email="danieljjazowski@lewisu.edu"
+                    githubLink="https://yellow-ocean-0fcfe0910.4.azurestaticapps.net"
+                />
+                <TeamMember
+                    image={jayrell}
+                    name="Jayrell Garcia"
+                    group="ChairForceOne Group"
+                    email="jayrellgarcia@lewisu.edu"
+                    githubLink="https://jayrellg.github.io/me/"
+                />
+                <TeamMember
+                    image={hima}
+                    name="Hima Madhavan"
+                    group="ChairForceOne Group"
+                    email="himajmadhavan@lewisu.edu"
+                    githubLink="https://hmadhavann.github.io/me/"
+                />
+                <TeamMember
+                    image={brian}
+                    name="Brian Gutt"
+                    group="ChairForceOne Group"
+                    email="brianmgutt@lewisu.edu"
+                    githubLink="https://briang38.github.io/me/"
+                />
+                <TeamMember
+                    image={ahmad}
+                    name="Ahmad Yousuf"
+                    group="ChairForceOne Group"
+                    email="ahmadoyousuf@lewisu.edu"
+                    githubLink="https://nice-stone-0faf59710.4.azurestaticapps.net/"
+                />
+            </TeamSection>
+
+            <TeamSection title="Spring 2024 Team">
+                <TeamMember
+                    image={alexk}
+                    name="Alex Kaminski"
+                    group="Core2 Group"
+                    email="alexmkaminski@lewisu.edu"
+                    githubLink="https://ashy-mud-0329c4e10.3.azurestaticapps.net/"
+                />
+                <TeamMember
+                    image={james}
+                    name="James Mackowiak"
+                    group="Core2 Group"
+                    email="jamesvmackowiak@lewisu.edu"
+                    githubLink="https://jamesmackowiak.github.io/about.html"
+                />
+                <TeamMember
+                    image={hamzeh}
+                    name="Hamzeh Albaz"
+                    group="Core2 Group"
+                    email="hamzehoalbaz@lewisu.edu"
+                    githubLink="https://halbaz.github.io"
+                />
+                <TeamMember
+                    image={alex}
+                    name="Alex Hernandez"
+                    group="Core2 Group"
+                    email="alexhernandez@lewisu.edu"
+                    githubLink="https://github.com/alexh1424"
+                />
+                <TeamMember
+                    image={evan}
+                    name="Evan Hartke"
+                    group="Core2 Group"
+                    email="evanmhartke@lewisu.edu"
+                    githubLink="https://github.com/raxtt"
+                />
+            </TeamSection>
+
+            <TeamSection title="Fall 2023 Team">
+                <TeamMember
+                    image={jose}
+                    name="Jose Montes De Oca Morfin"
+                    group="Core Group"
+                    email="joseamontesdeocamo@lewisu.edu"
+                    githubLink="https://josemdo.github.io/Getting-to-Know-Eachother/"
+                />
+                <TeamMember
+                    image={matthew}
+                    name="Matthew Senese"
+                    group="Core Group"
+                    email="matthewjsenese@lewisu.edu"
+                    githubLink="https://red-coast-075a6b510.3.azurestaticapps.net"
+                />
+                <TeamMember
+                    image={julie}
+                    name="Julie Dosher"
+                    group="Core Group"
+                    email="juliegdosher@lewisu.edu"
+                    githubLink="https://lemon-stone-0f92af610.3.azurestaticapps.net/"
+                />
+                <TeamMember
+                    image={tyler}
+                    name="Tyler Zenisek"
+                    group="Core Group"
+                    email="tylerzenisek@lewisu.edu"
+                    githubLink="https://node-js-azure-fa23-tyler-site.azurewebsites.net"
+                />
+                <TeamMember
+                    image={logo}
+                    name="Jahi Stewart"
+                    group="Core Group"
+                    email="jahikstewart@lewisu.edu"
+                    githubLink="https://github.com/JahiStewart"
+                />
+                <TeamMember
+                    image={jeff}
+                    name="Jefferson Cherrington"
+                    group="NextGen Group"
+                    email="jeffersonacherring@lewisu.edu"
+                    githubLink="https://jacnok.github.io/cpsc-44000-s1-helloworld/intro.html"
+                />
+                <TeamMember
+                    image={joey}
+                    name="Joey Devito"
+                    group="NextGen Group"
+                    email="josephmdevito@lewisu.edu"
+                    githubLink="https://getting-2-know-you.azurewebsites.net/"
+                />
+            </TeamSection>
+
+            <TeamSection title="Spring 2023 Team">
+                <TeamMember
+                    image={max}
+                    name="Maximus Lewis"
+                    group="Spring 2023"
+                    email="maximusslewis@lewisu.edu"
+                    githubLink="https://lively-bay-020649610.2.azurestaticapps.net/"
+                />
+                <TeamMember
+                    image={anthony}
+                    name="Anthony Mastores"
+                    group="Spring 2023"
+                    email="anthonyjmastores@lewisu.edu"
+                    githubLink="https://anthonymastores.github.io/getting-to-know-eachother/"
+                />
+                <TeamMember
+                    image={matt}
+                    name="Matthew Espinos"
+                    group="Spring 2023"
+                    email="matthewwespinos@lewisu.edu"
+                    githubLink="https://assignment-portfolio-me.azurewebsites.net/getting-to-know-me-version-2.html"
+                />
+            </TeamSection>
+
+
         </div>
-
-        {/* THIS IS THE INFORMATION FOR THE SPRING 2024 TEAM*/}
-
-
-        <div className="flex flex-col items-center justify-center my-12">
-  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
-    Spring 2024 Team
-  </h2>
-  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
-</div>
-
-        {/* Container for contact information */}
-        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
-            {/* Grid layout for contact information */}
-            <div className="grid-cols-1 gap-6 flex flex-wrap justify-center">
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://ashy-mud-0329c4e10.3.azurestaticapps.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={alexk} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Alex Kaminski</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        Core2 Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:alexmkaminski@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            alexmkaminski@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://jamesmackowiak.github.io/about.html" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={james} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">James Mackowiak</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        Core2 Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-                        <a href="mailto:jamesvmackowiak@lewisu.edu" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-                            jamesvmackowiak@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://halbaz.github.io" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={hamzeh} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Hamzeh Albaz</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        Core2 Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:hamzehoalbaz@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-
-                            hamzehoalbaz@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            {/* SECOND ROW */}
-            <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://github.com/alexh1424" target="_blank">
-                        <img src={alex} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Alex Hernandez</h3>
-                    <div className="mt-0 text-gray-300">
-                        Core2 Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:alexhernandez@lewisu.edu" target="_blank" className="hover:underline">
-
-                            alexhernandez@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-                {/* REPLACE WITH TEAM MEMBER 5 */}
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://github.com/raxtt" target="_blank">
-                        <img src={evan} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Evan Hartke</h3>
-                    <div className="mt-0 text-gray-300">
-                        Core2 Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-
-                        <a href="mailto:evanmhartke@lewisu.edu" target="_blank" className="hover:underline">
-
-                            evanmhartke@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {/* THIS IS THE INFORMATION FOR THE FALL 2023 TEAM*/}
-
-        <div className="flex flex-col items-center justify-center my-12">
-  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
-    Fall 2023 Team
-  </h2>
-  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
-</div>
-        {/* Container for contact information */}
-        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
-            {/* Grid layout for contact information */}
-            <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://josemdo.github.io/Getting-to-Know-Eachother/" target="_blank">
-                        <img src={jose} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Jose Montes De Oca Morfin</h3>
-                    <div className="mt-0 text-gray-300">
-                        Core Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-                        <a href="mailto:joseamontesdeocamo@lewisu.edu" target="_blank" className="hover:underline">
-                            joseamontesdeocamo@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://red-coast-075a6b510.3.azurestaticapps.net" target="_blank">
-                        <img src={matthew} alt="Matthew" className="object-cover w-48 h-48 rounded-full" />
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Matthew Senese</h3>
-                    <div className="mt-0 text-gray-300">
-                        Core Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-                        <a href="mailto:matthewjsenese@lewisu.edu" target="_blank" className="hover:underline">
-                            matthewjsenese@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://lemon-stone-0f92af610.3.azurestaticapps.net/" target="_blank">
-                        <img src={julie} alt="Julie" className="object-cover w-48 h-48 rounded-full" />
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Julie Dosher</h3>
-                    <div className="mt-0 text-gray-300">
-                        Core Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-                        <a href="mailto:juliegdosher@lewisu.edu" target="_blank" className="hover:underline">
-                            juliegdosher@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            {/* SECOND ROW FOR THE FALL 2023 TEAM*/}
-            <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://node-js-azure-fa23-tyler-site.azurewebsites.net" target="_blank">
-                        <img src={tyler} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Tyler Zenisek</h3>
-                    <div className="mt-0 text-gray-300">
-                        Core Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-                        <a href="mailto:tylerzenisek@lewisu.edu" target="_blank" className="hover:underline">
-                            tylerzenisek@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-                {/* REPLACE WITH TEAM MEMBER 5 */}
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://github.com/JahiStewart" target="_blank">
-                        <img src={logo} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Jahi Stewart</h3>
-                    <div className="mt-0 text-gray-300">
-                        Core Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-                        <a href="mailto:jahikstewart@lewisu.edu" target="_blank" className="hover:underline">
-                            jahikstewart@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            {/*THIRD ROW FOR FALL 2023 TEAM */ }
-            <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-
-                {/* THIS SECTION IS FOR JEFFERSON CHERRINGTON */}
-
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://jacnok.github.io/cpsc-44000-s1-helloworld/intro.html" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={jeff} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Jefferson Cherrington</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        NextGen Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-                        <a href="mailto:jeffersonacherring@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-                            jeffersonacherring@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-
-
-
-
-
-
-                {/* THIS SECTION IS FOR JOEY DEVITO */}
-
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://getting-2-know-you.azurewebsites.net/" target="_blank"> {/* REPLACE MY GETTING TO KNOW EACHOTHER LINK WITH YOURS */}
-                        <img src={joey} alt="headshot" className="object-cover w-48 h-48 rounded-full" /> {/* REPLACE MY IMAGE SRC WITH YOUR IMAGE IMPORT NAME */}
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Joey Devito</h3> {/* YOUR NAME GOES HERE */}
-                    <div className="mt-0 text-gray-300">
-                        NextGen Group
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-                        <a href="mailto:josephmdevito@lewisu.edu" target="_blank" className="hover:underline"> {/* REPLACE MY EMAIL WITH YOUR EMAIL BOTH IN THE HREF AND IN THE TEXT ITSELF */}
-                            josephmdevito@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            {/*FINAL ROW FOR FALL 2023 TEAM*/ }
-            <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-
-                {/* THIS SECTION IS FOR THE LAST TEAM MEMBER (HAMZEH) */}
-
-
-            </div>
-        </div>
-
-
-        {/* THIS IS THE INFORMATION FOR THE SPRING 2023 TEAM*/}
-
-
-        <div className="flex flex-col items-center justify-center my-12">
-  <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center">
-    Spring 2023 Team
-  </h2>
-  <div className="mt-2 w-24 h-1 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
-</div>
-        {/* Container for contact information */}
-        <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
-            {/* Grid layout for contact information */}
-            <div className="grid-cols-1 gap-6 flex flex-wrap justify-center">
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://lively-bay-020649610.2.azurestaticapps.net/" target="_blank">
-                        <img src={max} alt="headshot" className="object-cover w-48 h-48 rounded-full" />
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Maximus Lewis</h3>
-                    <div className="mt-2 text-gray-300">
-                        <a href="mailto:maximusslewis@lewisu.edu" className="hover:underline">
-                            maximusslewis@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://anthonymastores.github.io/getting-to-know-eachother/" target="_blank">
-                        <img src={anthony} alt="anthony" className="object-cover w-48 h-48 rounded-full" />
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Anthony Mastores</h3>
-                    <div className="mt-2 text-gray-300">
-                        <a href="mailto:anthonyjmastores@lewisu.edu" target="_blank" className="hover:underline">
-                            anthonyjmastores@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-               <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-
-                    <a href="https://assignment-portfolio-me.azurewebsites.net/getting-to-know-me-version-2.html" target="_blank">
-                        <img src={matt} alt="matthew" className="object-cover w-48 h-48 rounded-full" />
-                    </a>
-                    <h3 className="mt-4 text-lg font-medium text-gray-300">Matthew Espinos</h3>
-                    <div className="mt-2 text-gray-300">
-                        <a href="mailto:matthewwespinos@lewisu.edu" target="_blank" className="hover:underline">
-                            matthewwespinos@lewisu.edu
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div> {/* End of content wrapper */}
-  </div> 
+    </div>
 );
 
 export default Contact;

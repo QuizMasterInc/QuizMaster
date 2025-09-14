@@ -54,7 +54,7 @@ function QuizActivity() {
     async function fetchQuiz() {
       setLoading(true);
       try {
-        const url = `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabSub?category=${encodeURIComponent(
+        const url = `https://grabsubv2-ukhjsvkoca-uc.a.run.app?category=${encodeURIComponent(
           category.toLowerCase()
         )}`;
         const res = await fetch(url);
