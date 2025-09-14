@@ -231,20 +231,31 @@ class ResultService {
     }
 
     /**
-     * Get quiz results by category for a user
-     * @param {string} userId - User ID
-     * @param {string} category - Quiz category
-     * @returns {Promise<Object>} Quiz results for the category
+     * Cache for all results to avoid multiple API calls
      */
-    async getResultsByCategory(userId, category) {
+    _allResultsCache = null;
+    _cacheTimestamp = null;
+    _cacheExpiryMs = 300000; // 5 minutes cache for better performance
+
+    /**
+     * Get all quiz results for a user (optimized V2 - single call)
+     * @param {string} userId - User ID
+     * @returns {Promise<Object>} All quiz results by category
+     */
+    async getAllResults(userId) {
         try {
-            const data = { 
-                uid: userId, 
-                category: category.toLowerCase() 
-            };
+            // Check cache first
+            const now = Date.now();
+            if (this._allResultsCache && 
+                this._cacheTimestamp && 
+                (now - this._cacheTimestamp) < this._cacheExpiryMs) {
+                return this._allResultsCache;
+            }
+
+            const data = { uid: userId };
 
             const response = await fetch(
-                'https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabResults',
+                'https://graballresultsv2-ukhjsvkoca-uc.a.run.app',
                 {
                     method: 'POST',
                     headers: {
@@ -259,17 +270,63 @@ class ResultService {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const resultData = await response.json();
+            const allResults = await response.json();
+            
+            // Cache the results
+            this._allResultsCache = allResults;
+            this._cacheTimestamp = now;
+
+            return allResults;
+
+        } catch (error) {
+            console.error('Error fetching all results:', error);
+            throw new Error('Failed to fetch quiz results. Please try again.');
+        }
+    }
+
+    /**
+     * Get quiz results by category for a user (now uses cached batch call)
+     * @param {string} userId - User ID 
+     * @param {string} category - Quiz category
+     * @returns {Promise<Object>} Quiz results for the category
+     */
+    async getResultsByCategory(userId, category) {
+        try {
+            // Use the optimized batch call
+            const allResults = await this.getAllResults(userId);
+            
+            // Find the specific category (case insensitive)
+            const categoryKey = Object.keys(allResults).find(
+                key => key.toLowerCase() === category.toLowerCase()
+            );
+
+            if (categoryKey && allResults[categoryKey]) {
+                return {
+                    score: allResults[categoryKey].score ?? 0,
+                    avgScore: allResults[categoryKey].avgScore ?? 0,
+                    attempts: allResults[categoryKey].attempts ?? 0
+                };
+            }
+
+            // Return empty results if category not found
             return {
-                score: resultData.score ?? 0,
-                avgScore: resultData.avgScore ?? 0,
-                attempts: resultData.attempts ?? 0
+                score: 0,
+                avgScore: 0,
+                attempts: 0
             };
 
         } catch (error) {
             console.error('Error fetching results by category:', error);
             throw new Error('Failed to fetch quiz results. Please try again.');
         }
+    }
+
+    /**
+     * Clear results cache (useful after taking a new quiz)
+     */
+    clearResultsCache() {
+        this._allResultsCache = null;
+        this._cacheTimestamp = null;
     }
 }
 

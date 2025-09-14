@@ -1,36 +1,16 @@
 /**
- * This hosts the results for each quiz - UI focused, business logic in resultService
+ * This hosts the results for each quiz - UI focused, uses ResultsContext for optimized data
  */
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ClipLoader } from 'react-spinners';
-import { useAuth } from '../../contexts/AuthContext';
-import resultService from '../../services/resultService';
+import { useResults } from '../../contexts/ResultsContext';
 
 export const QuizResult = ({ category, icon }) => {
-  const [loading, setLoading] = useState(true);
-  const [result, setResult] = useState(0);
-  const [avgScore, setAvgScore] = useState(0);
-  const { currentUser } = useAuth();
-
-  useEffect(() => {
-    async function fetchResults() {
-      try {
-        setLoading(true);
-        const results = await resultService.getResultsByCategory(currentUser.uid, category);
-        setResult(results.score);
-        setAvgScore(results.avgScore);
-      } catch (error) {
-        console.error('Error fetching quiz results:', error);
-        // Set default values on error
-        setResult(0);
-        setAvgScore(0);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchResults();
-  }, [currentUser.uid, category]);
+  const { loading, getResultsByCategory } = useResults();
+  
+  // Get results for this category from context (no API call needed!)
+  const results = getResultsByCategory(category);
+  const { score, avgScore } = results;
 
   return (
     <div className="p-2">
@@ -45,7 +25,7 @@ export const QuizResult = ({ category, icon }) => {
           <div className="space-y-1 text-sm text-gray-200 text-center">
             <p>
               <span className="text-white font-medium">Best:</span>{' '}
-              {Math.round(result * 100)}%
+              {Math.round(score * 100)}%
             </p>
             <p>
               <span className="text-white font-medium">Avg:</span>{' '}

@@ -18,6 +18,7 @@ import About from './components/about/About';
 import Contact from './components/contact/Contact';
 import { AppProvider } from './contexts/AppContext';
 import { QuizProvider } from './contexts/QuizContext';
+import { ResultsProvider } from './contexts/ResultsContext';
 import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
 import UpdateProfile from './components/login/UpdateProfile'
@@ -122,7 +123,9 @@ function App() {
         {isAuthenticated ? (
           <Route path="/" element={
             <PrivateRoute>
-              <Dashboard />
+              <ResultsProvider>
+                <Dashboard />
+              </ResultsProvider>
             </PrivateRoute>
           } />
         ) : (
@@ -233,7 +236,9 @@ function App() {
 
           <Route path="/dashboard" element={
             <PrivateRoute>
-              <Dashboard />
+              <ResultsProvider>
+                <Dashboard />
+              </ResultsProvider>
             </PrivateRoute>
           }/>
 
