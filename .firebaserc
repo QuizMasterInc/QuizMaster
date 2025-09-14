@@ -7,7 +7,7 @@
     "quizmaster-c66a2": {
       "hosting": {
         "prod": [
-          "quizmaster-c66a2"
+          "quizmaster-4006b"
         ],
         "development": [
           "quizmaster-testing-new"
