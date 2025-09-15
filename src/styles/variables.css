@@ -1,0 +1,96 @@
+/* CSS Variables - Design System */
+:root {
+  /* Primary colors - Purple theme to match screenshots */
+  --primary-100: #f3e8ff;
+  --primary-200: #e9d5ff;
+  --primary-300: #d8b4fe;
+  --primary-400: #c084fc;
+  --primary-500: #a855f7;
+  --primary-600: #9333ea;
+  --primary-700: #7c3aed;
+  --primary-800: #6b21a8;
+  --primary-900: #581c87;
+  
+  /* Neutrals */
+  --neutral-100: #f5f5f5;
+  --neutral-200: #e5e5e5;
+  --neutral-300: #d4d4d4;
+  --neutral-400: #a3a3a3;
+  --neutral-500: #737373;
+  --neutral-600: #525252;
+  --neutral-700: #404040;
+  --neutral-800: #262626;
+  --neutral-900: #171717;
+  
+  /* Accents */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  
+  /* Light mode defaults */
+  --bg-primary: var(--neutral-100);
+  --bg-secondary: white;
+  --bg-tertiary: var(--primary-50);
+  --text-primary: var(--neutral-900);
+  --text-secondary: var(--neutral-700);
+  --text-muted: var(--neutral-500);
+  --accent: var(--primary-600);
+  --accent-hover: var(--primary-700);
+  --border: var(--neutral-200);
+  --border-color: var(--neutral-300);
+  --border-secondary: var(--neutral-300);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  
+  /* Error colors */
+  --error-bg: #fee2e2;
+  --error-text: #dc2626;
+  --error-border: #f87171;
+  
+  /* UI elements */
+  --btn-primary-bg: var(--primary-600);
+  --btn-primary-text: white;
+  --btn-secondary-bg: white;
+  --btn-secondary-text: var(--primary-700);
+  --sidebar-bg: var(--primary-800);
+  --sidebar-text: white;
+  --card-bg: white;
+  --input-bg: white;
+  --input-border: var(--neutral-300);
+  --header-bg: white;
+  --footer-bg: var(--neutral-100);
+}
+
+/* Dark mode theme */
+.dark {
+  --bg-primary: var(--neutral-900);
+  --bg-secondary: var(--neutral-800);
+  --bg-tertiary: var(--neutral-700);
+  --text-primary: white;
+  --text-secondary: var(--neutral-300);
+  --text-muted: var(--neutral-400);
+  --accent: var(--primary-400);
+  --accent-hover: var(--primary-300);
+  --border: var(--neutral-700);
+  --border-color: var(--neutral-600);
+  --border-secondary: var(--neutral-600);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+  
+  /* Error colors for dark mode */
+  --error-bg: #450a0a;
+  --error-text: #fca5a5;
+  --error-border: #dc2626;
+  
+  /* UI elements in dark mode */
+  --btn-primary-bg: var(--primary-500);
+  --btn-primary-text: var(--neutral-100);
+  --btn-secondary-bg: var(--neutral-700);
+  --btn-secondary-text: var(--neutral-100);
+  --sidebar-bg: var(--neutral-900);
+  --sidebar-text: var(--neutral-100);
+  --card-bg: var(--neutral-800);
+  --input-bg: var(--neutral-800);
+  --input-border: var(--neutral-600);
+  --header-bg: var(--neutral-900);
+  --footer-bg: var(--neutral-800);
+}

@@ -34,20 +34,20 @@ const TeamSection = ({ title, isOpen = false, children }) => {
     return (
         <>
             <div className="flex flex-col items-center justify-center my-12">
-                <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-2">
+                <button onClick={() => setExpanded(!expanded)} className="flex items-center gap-3 transition-all duration-300 hover:scale-105">
                     <div className="flex flex-col items-center">
-                        <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
+                        <h2 className="text-gradient-primary text-4xl font-bold">
                             {title}
                         </h2>
-                        <div className="mt-2 h-1 w-full rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
+                        <div className="mt-2 h-1 w-full rounded-full bg-accent" />
                     </div>
-                    <span className={`text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 transition-transform ${expanded ? 'rotate-45' : ''}`}>
+                    <span className={`text-4xl font-bold text-accent transition-transform duration-300 ${expanded ? 'rotate-45' : ''}`}>
                         +
                     </span>
                 </button>
             </div>
             {expanded && (
-                <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-gray-800 mt-12">
+                <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 border-t border-primary mt-12">
                     <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
                         {children}
                     </div>
@@ -62,14 +62,14 @@ const TeamSection = ({ title, isOpen = false, children }) => {
 
 
 const TeamMember = ({ image, name, group, email, githubLink }) => (
-    <div className="flex flex-col items-center bg-[#1b1444] border border-violet-700 rounded-3xl p-6 shadow-lg transition hover:shadow-violet-500/50 hover:-translate-y-1 transform duration-300">
-        <a href={githubLink} target="_blank">
-            <img src={image} alt={name} className="object-cover w-48 h-48 rounded-full" />
+    <div className="flex flex-col items-center bg-card border border-primary rounded-xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+        <a href={githubLink} target="_blank" rel="noopener noreferrer">
+            <img src={image} alt={name} className="object-cover w-48 h-48 rounded-full border-2 border-accent transition-all duration-300 hover:border-accent-hover" />
         </a>
-        <h3 className="mt-4 text-lg font-medium text-gray-300">{name}</h3>
-        <div className="mt-0 text-gray-300">{group}</div>
-        <div className="mt-2 text-sm text-gray-400">
-            <a href={`mailto:${email}`} target="_blank" className="hover:underline">
+        <h3 className="mt-4 text-lg font-medium text-primary">{name}</h3>
+        <div className="mt-1 text-accent font-medium">{group}</div>
+        <div className="mt-2 text-sm text-secondary">
+            <a href={`mailto:${email}`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-accent transition-colors duration-200">
                 {email}
             </a>
         </div>
@@ -77,29 +77,20 @@ const TeamMember = ({ image, name, group, email, githubLink }) => (
 );
 
 const Contact = () => (
-    <div className="relative text-gray-300 bg-gradient-to-br from-[#0f051d] via-[#1b1444] to-[#0f051d] min-h-screen pt-15 overflow-hidden">
-        <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] bg-purple-700 rounded-full opacity-30 blur-[150px] z-0"></div>
-        <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] bg-blue-500 rounded-full opacity-30 blur-[150px] z-0"></div>
-
+    <div className="relative min-h-screen pt-15 bg-primary text-primary">
         <div className="relative z-10">
-            <div className="pointer-events-none absolute inset-0 overflow-hidden -z-10">
-                <div className="absolute top-[-100px] left-[-100px] w-[400px] h-[400px] bg-purple-600 opacity-30 blur-3xl rounded-full"></div>
-                <div className="absolute bottom-[-100px] right-[-100px] w-[400px] h-[400px] bg-blue-500 opacity-30 blur-3xl rounded-full"></div>
-                <div className="absolute top-[50%] left-[50%] w-[800px] h-[800px] bg-violet-900 opacity-20 blur-[120px] rounded-full transform -translate-x-1/2 -translate-y-1/2"></div>
-            </div>
-
             <div className="py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 text-center">
                 <div className="flex flex-col items-center justify-center">
-                    <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
+                    <h1 className="text-gradient-primary text-5xl font-bold">
                         Contact Us
                     </h1>
-                    <div className="mt-2 h-1 w-48 rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 shadow-lg" />
+                    <div className="mt-4 h-1 w-48 rounded-full bg-accent" />
                 </div>
             </div>
 
 
             <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 mt-12">
-                <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 text-center mb-12">
+                <h2 className="text-gradient-primary text-4xl font-bold text-center mb-12">
                     Fall 2025 Team
                 </h2>
                 <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
