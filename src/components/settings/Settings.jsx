@@ -1,8 +1,6 @@
 import React from 'react';
 import DarkLightMode from './DarkLightMode';
 import HighContrastToggle from './HighContrastToggle';
-import BackGroundMusicControl from './BackGroundMusicControl';
-import SoundEffectsVolumeControl from './SoundEffectsVolumeControl';
 import ThresholdInput from './ThresholdInput';
 
 export default function Settings() {
@@ -31,9 +29,8 @@ export default function Settings() {
           {/* Music & Sound Section */}
           <div className="bg-gradient-to-r from-blue-800 to-purple-700 p-6 rounded-2xl shadow-lg space-y-6">
             <h2 className="text-2xl font-bold text-white">Music & Sound</h2>
-            <BackGroundMusicControl />
-            <SoundEffectsVolumeControl />
-          </div>
+            <p>Discontinued.</p>
+        </div>
         </div>
 
         {/* Threshold Section */}
