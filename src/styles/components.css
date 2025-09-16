@@ -206,10 +206,6 @@
   fill: var(--accent);
 }
 
-.navbar-title {
-  color: var(--text-primary);
-}
-
 .navbar-link {
   color: var(--text-primary);
   transition: all 0.2s ease;
@@ -258,4 +254,101 @@
 .navbar-dropdown-item:hover {
   background-color: var(--bg-secondary);
   color: var(--accent);
+}
+
+/* Additional component-specific styles to add to components.css */
+
+/* Quiz Result Card */
+.quiz-result-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid var(--accent);
+  transition: all 0.2s ease;
+}
+
+.quiz-result-card:hover {
+  border-color: var(--primary-300);
+  transform: scale(1.05);
+}
+
+/* Study Material Card */
+.study-material-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--accent);
+  transition: all 0.3s ease;
+}
+
+.study-material-card:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark mode adjustments for study material */
+.dark .study-material-card {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+/* Custom Quiz Cards */
+.custom-quiz-card {
+  background: linear-gradient(135deg, var(--primary-800), var(--primary-900));
+  border: 1px solid var(--primary-700);
+  color: var(--neutral-100);
+  transition: all 0.2s ease;
+}
+
+.custom-quiz-card:hover {
+  border-color: var(--neutral-100);
+  transform: scale(1.02);
+}
+
+/* Error styling */
+.error-message {
+  background-color: var(--error);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+}
+
+/* Link button styling */
+.link-btn {
+  display: inline-block;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.link-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Content wrapper for dashboard */
+.dashboard-content {
+  padding: 64px 16px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  width: 100%;
+  overflow-x: hidden;
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+}
+
+/* Section spacing */
+.dashboard-section {
+  margin-bottom: 80px;
+}
+
+/* Responsive text sizing */
+@media (max-width: 640px) {
+  .dashboard-title {
+    font-size: 2.5rem;
+  }
+  
+  .dashboard-subtitle {
+    font-size: 1rem;
+  }
+  
 }

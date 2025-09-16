@@ -904,119 +904,106 @@ exports.grabResultsV2 = onRequest(async (req, res) => {
  */
 exports.browseCustomQuizzesV2 = onRequest(async (req, res) => {
     cors(req, res, async () => {
-        const dataType = req.get('content-type')
-        if (dataType === 'application/json') {
-            const data = JSON.parse(JSON.stringify(req.body))
-            const { 
-                searchTerm = '', 
-                sortBy = 'newest', 
-                privacy = 'all', 
-                limit = 50,
-                currentUserId = null 
-            } = data
-
-            try {
-                let query = admin.firestore().collection('custom_quizzes')
-
-                // Server-side privacy filtering (security improvement)
-                if (privacy === 'public') {
-                    query = query.where('isPublic', '==', true)
-                } else if (privacy === 'private' && currentUserId) {
-                    // Only show private quizzes to their creators
-                    query = query.where('creator', '==', currentUserId)
-                        .where('isPublic', '==', false)
-                }
-
-                // Server-side text search (if searchTerm provided)
-                if (searchTerm && searchTerm.length > 0) {
-                    // Use array-contains for tag searching
-                    const lowerSearchTerm = searchTerm.toLowerCase()
-                    // Note: For title search, we'd need full-text search or use multiple queries
-                    // For now, we'll do a compound approach
-                }
-
-                // Server-side sorting
-                switch (sortBy) {
-                    case 'newest':
-                        query = query.orderBy('createdAt', 'desc')
-                        break
-                    case 'oldest':
-                        query = query.orderBy('createdAt', 'asc')
-                        break
-                    case 'title':
-                        query = query.orderBy('title', 'asc')
-                        break
-                    case 'titleReverse':
-                        query = query.orderBy('title', 'desc')
-                        break
-                    case 'shortest':
-                        query = query.orderBy('numQuestions', 'asc')
-                        break
-                    case 'longest':
-                        query = query.orderBy('numQuestions', 'desc')
-                        break
-                    default:
-                        query = query.orderBy('createdAt', 'desc')
-                }
-
-                // Apply limit for performance
-                query = query.limit(Math.min(limit, 100))
-
-                const snapshot = await query.get()
-                const quizzes = []
-
-                snapshot.forEach(doc => {
-                    const data = doc.data()
-                    
-                    // Server-side text search filter (after query)
-                    if (searchTerm && searchTerm.length > 0) {
-                        const lowerSearchTerm = searchTerm.toLowerCase()
-                        const titleMatch = (data.title || '').toLowerCase().includes(lowerSearchTerm)
-                        const tagMatch = data.tags && Array.isArray(data.tags) && 
-                            data.tags.some(tag => tag.toLowerCase().includes(lowerSearchTerm))
-                        
-                        if (!titleMatch && !tagMatch) {
-                            return // Skip this quiz
-                        }
-                    }
-
-                    quizzes.push({
-                        uid: doc.id,
-                        title: data.title || 'Untitled Quiz',
-                        description: data.description || '',
-                        numQuestions: data.questions ? 
-                            (Array.isArray(data.questions) ? data.questions.length : Object.keys(data.questions).length) : 0,
-                        createdAt: data.createdAt,
-                        creator: data.creator,
-                        tags: data.tags || [],
-                        isPublic: data.isPublic || false,
-                        quizPassword: data.quizPassword ? '***' : null, // Mask password
-                        lastEdit: data.lastEdit,
-                        quizTaken: data.quizTaken || 0
-                    })
-                })
-
-                res.set('Cache-Control', 'public, max-age=300') // 5 minute cache
-                res.json({
-                    success: true,
-                    data: quizzes,
-                    count: quizzes.length,
-                    searchTerm,
-                    sortBy,
-                    privacy,
-                    timestamp: new Date().toISOString()
-                })
-
-            } catch (error) {
-                console.error('Error browsing custom quizzes V2:', error)
-                res.status(500).json({
-                    success: false,
-                    error: 'Error fetching quiz results',
-                    timestamp: new Date().toISOString()
-                })
-            }
-        } else {
-            res.status(400).json({ error: 'Invalid content type. Expected application/json' })
+      if (req.get("content-type") !== "application/json") {
+        return res.status(400).json({ error: "Invalid content type. Expected application/json" });
+      }
+  
+      const { 
+        searchTerm = "", 
+        sortBy = "newest", 
+        privacy = "all", 
+        limit = 50,
+        currentUserId = null 
+      } = req.body;
+  
+      try {
+        let query = admin.firestore().collection("custom_quizzes");
+  
+        // Privacy filter
+        if (privacy === "public") {
+          query = query.where("isPublic", "==", true);
+        } else if (privacy === "private" && currentUserId) {
+          query = query
+            .where("creator", "==", currentUserId)
+            .where("isPublic", "==", false);
         }
-    })
-})
+  
+        // Sorting
+        switch (sortBy) {
+          case "newest":
+            query = query.orderBy("createdAt", "desc");
+            break;
+          case "oldest":
+            query = query.orderBy("createdAt", "asc");
+            break;
+          case "title":
+            query = query.orderBy("title", "asc");
+            break;
+          case "titleReverse":
+            query = query.orderBy("title", "desc");
+            break;
+          case "shortest":
+            query = query.orderBy("numQuestions", "asc");
+            break;
+          case "longest":
+            query = query.orderBy("numQuestions", "desc");
+            break;
+          default:
+            query = query.orderBy("createdAt", "desc");
+        }
+  
+        // Apply limit
+        query = query.limit(Math.min(limit, 100));
+  
+        const snapshot = await query.get();
+        const quizzes = [];
+  
+        snapshot.forEach(doc => {
+          const data = doc.data();
+  
+          // Post-query text filtering
+          if (searchTerm) {
+            const lowerSearch = searchTerm.toLowerCase();
+            const titleMatch = (data.title || "").toLowerCase().includes(lowerSearch);
+            const tagMatch = Array.isArray(data.tags) && data.tags.some(tag => tag.toLowerCase().includes(lowerSearch));
+  
+            if (!titleMatch && !tagMatch) {
+              return; // skip
+            }
+          }
+  
+          quizzes.push({
+            uid: doc.id,
+            title: data.title || "Untitled Quiz",
+            numQuestions: data.numQuestions || 0,
+            createdAt: data.createdAt || null, // keep raw string
+            lastEdit: data.lastEdit || null,
+            creator: data.creator || null,
+            tags: Array.isArray(data.tags) ? data.tags : [],
+            isPublic: data.isPublic || false,
+            quizPassword: data.quizPassword ? "***" : null,
+            quizTaken: data.quizTaken || 0
+          });
+        });
+  
+        res.set("Cache-Control", "public, max-age=300"); // 5 min cache
+        res.json({
+          success: true,
+          data: quizzes,
+          count: quizzes.length,
+          searchTerm,
+          sortBy,
+          privacy,
+          timestamp: new Date().toISOString()
+        });
+  
+      } catch (error) {
+        console.error("Error browsing custom quizzes V2:", error);
+        res.status(500).json({
+          success: false,
+          error: error.message || "Error fetching quiz results",
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+});

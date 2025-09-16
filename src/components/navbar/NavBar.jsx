@@ -171,8 +171,8 @@ export default function NavBar() {
             <div className="flex-1" />
 
             {/* Centered Brand Name */}
-            <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xl sm:text-2xl font-extrabold tracking-wider navbar-title">
-                QUIZMASTER
+            <h1 className="absolute left-1/2 transform -translate-x-1/2 sm:text-2xl font-extrabold">
+                <span className="text-3xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">QuizMaster</span>
             </h1>
 
             {/* Sign In / Dashboard */}

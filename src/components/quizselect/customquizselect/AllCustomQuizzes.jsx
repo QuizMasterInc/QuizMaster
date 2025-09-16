@@ -56,28 +56,20 @@ const AllCustomQuizzes = () => {
     fetchQuizzes();
   };
 
-  // All sorting, filtering, and searching now handled server-side!
-  // This eliminates O(n²) client-side operations
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f051d] via-[#1b1444] to-[#0f051d] text-white relative overflow-hidden py-20 px-6">
-      {/* Background glow effects */}
-      <div className="absolute top-[-150px] left-[-150px] w-[500px] h-[500px] bg-purple-700 opacity-30 blur-[120px] rounded-full z-0" />
-      <div className="absolute bottom-[-150px] right-[-150px] w-[500px] h-[500px] bg-blue-500 opacity-30 blur-[120px] rounded-full z-0" />
+    <div className="min-h-screen bg-primary relative overflow-hidden py-20 px-6 text-[var(--text-primary)]">
+      
       <div className="relative z-10">
-        <h1 className="text-4xl font-extrabold text-white text-center mb-6 drop-shadow-lg">
+        <h1 className="text-4xl font-extrabold text-gradient-primary text-center mb-6 drop-shadow-lg">
           User-Made Quizzes
         </h1>
 
-        <div className="justify-center mt-5">
+        <div className="flex justify-center items-center gap-4 mt-4">
           <SearchBar />
-        </div>
-
-        <div className="flex flex-wrap justify-center items-center gap-4 mt-4">
           <PrivacyList />
           <SortByList onSortChange={handleSearchAndFilter} />
           <button
-            className="bg-purple-600 hover:bg-purple-500 transition text-white font-semibold px-4 py-2 rounded shadow-md"
+            className="inline-block px-4 py-1 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
             onClick={handleSearchAndFilter}
             disabled={loading}
           >
@@ -86,18 +78,20 @@ const AllCustomQuizzes = () => {
         </div>
 
         {error && (
-          <div className="mt-6 text-center bg-red-500 text-white py-2 px-4 rounded shadow-md">
-            {error}
+          <div className="flex mt-5 justify-center items-center">
+            <div className="error-message font-medium">
+              {error}
+            </div>
           </div>
         )}
 
-        <p className="mt-6 text-center text-gray-300 text-lg">
-          Displaying <span className="font-bold text-white">{quizzes.length}</span> quizzes
+        <p className="mt-6 text-center text-lg">
+          Displaying <span className="font-bold text-[var(--primary-400)]">{quizzes.length}</span> quizzes
         </p>
 
         {loading ? (
           <div className="flex justify-center items-center mt-10">
-            <div className="text-white text-lg">Loading optimized results...</div>
+            <div className="text-gradient-primary text-lg">Loading optimized results...</div>
           </div>
         ) : (
           <div id="customQuizDiv" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
@@ -114,9 +108,11 @@ const AllCustomQuizzes = () => {
             ))}
           </div>
         )}
-      </div> {/* End of z-10 content wrapper */}
+
+      </div>
     </div> 
   );
+  
 };
 
 export default AllCustomQuizzes;

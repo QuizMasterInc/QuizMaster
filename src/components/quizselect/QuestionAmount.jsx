@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 
 function QuestionAmount ({ min, max , amount, selectAmount}) {
     const inputRef = useRef(null)
@@ -34,17 +34,17 @@ function QuestionAmount ({ min, max , amount, selectAmount}) {
       <div className="flex items-center space-x-2">
         <input
           type="number"
-          className="w-16 text-center border border-gray-300 bg-gray-800 text-gray-300 mt-4"
+          className="mt-2 p-2 w-16 text-center border-2 border-accent text-black rounded-lg"
           value={amount}
           onChange={handleInputChange}
-          onKeyDown={(e) => e.key === "Enter" && handleEnterKey()}//Handle enter
+          onKeyDown={(e) => e.key === "Enter" && handleEnterKey()}
           ref={inputRef}
           min={min}
           max={max}
-          pattern="[0-9]*" //Prevent non integer inputs
+          pattern="[0-9]*"
         />
       </div>
     )
   }
 
-export default QuestionAmount
+export default QuestionAmount;
