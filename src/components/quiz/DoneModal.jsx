@@ -13,13 +13,12 @@ import { useVolumeSettings } from "../../contexts/VolumeContext.jsx";
 //Import sound components for quiz results
 import { PassedSound, FailSound, AverageSound } from "../sounds/index.jsx"; 
  
-
-
 const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading, quizId, isCustomQuiz=false }) => {
     
     //set varible to user inputed PassThreshold
     const { passThreshold } = useVolumeSettings();
-  console.log('Modal open')
+    console.log('Modal open')
+    
     // Handles which sounds to play depending on the score
     const [playPassSound, setPassSound] = useState(false);
     const [playFailSound, setFailSound] = useState(false);
@@ -43,7 +42,6 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading, quiz
       }
     }, [amountCorrect, totalAmount, passThreshold]);
   
-
     const handleDownload = async () => {
       setIsDownloading(true);
       try {
@@ -66,7 +64,6 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading, quiz
       }
   };
 
-
     return (
       <Modal
         isOpen={active}
@@ -74,77 +71,94 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading, quiz
         ariaHideApp={false}
         style={{
           overlay: {
-            backgroundColor: "transparent",
-            height: "max-content",
-            width: "max-content",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backdropFilter: "blur(5px)",
+            zIndex: 1000,
           },
           content: {
             background: "transparent",
             outline: "none",
             border: "none",
+            padding: 0,
           },
         }}
       >
-        <div className="flex fixed z-50 align-middle justify-center w-full p-4 overflow-x-hidden overflow-y-auto h-modal">
-          <div className="relative align-middle justify-center w-full h-full max-w-2xl right-16 -md:ml-20 -md:mr-2 -md:mt-6">
-            <div className="relative bg-gray-900 rounded-xl shadow -md:text-small">
-              <div className="flex items-center justify-center p-4 border-b rounded-t dark:border-gray-600">
-                <h3 className="text-2xl font-semibold text-gray-300 -md:text-xl">
-                  Results!
-                </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl">
+            <div className="bg-card rounded-3xl shadow-xl border border-accent">
+              {/* Header */}
+              <div className="flex items-center justify-between p-8 border-b border-primary">
+                <h2 className="text-3xl font-semibold text-gradient-primary">
+                  Quiz Results!
+                </h2>
                 <button
                   type="button"
-                  className="text-gray-300 bg-transparent hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center hover:bg-gray-600"
+                  className="text-secondary hover:text-accent transition-colors duration-200 p-2 rounded-lg hover:bg-[var(--neutral-200)]"
                   onClick={() => isActive(false)}
                 >
-                  <SquareX className={"w-10 h-10 fill-gray-300"} />
+                  <SquareX className="w-8 h-8" />
                 </button>
               </div>
-              <div className="p-6 space-y-6">
-                <div className="flex items-center justify-center leading-relaxed text-gray-300 dark:text-gray-400 text-9xl -md:text-xl">
-                  <div>
-                    {amountCorrect.toString()}/{totalAmount.toString()}
+              
+              {/* Score Display */}
+              <div className="p-8">
+                <div className="text-center">
+                  <div className="text-8xl font-bold text-gradient-primary mb-4">
+                    {amountCorrect}/{totalAmount}
+                  </div>
+                  <p className="text-xl text-secondary">
+                    You answered {amountCorrect} out of {totalAmount} questions correctly
+                  </p>
+                  <div className="mt-4">
+                    <div className="text-2xl font-semibold text-accent">
+                      {Math.round((amountCorrect / totalAmount) * 100)}%
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center justify-center p-6 border-t rounded-b border-gray-600 space-x-8">
+              
+              {/* Action Buttons */}
+              <div className="flex items-center justify-center gap-4 p-8 border-t border-primary">
                 {isCustomQuiz && (
                   <button 
                     onClick={handleDownload}
                     disabled={isDownloading || loading}
-                    className="text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                    >
-                      {isDownloading ? "Downloading..." : "Download Study Guide"}
+                    className="px-6 py-3 bg-[var(--neutral-200)] text-black rounded-lg font-medium transition-all duration-200 hover:bg-[var(--neutral-300)] hover:shadow-lg border border-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isDownloading ? "Downloading..." : "Download Study Guide"}
                   </button>
                 )}
-                <Link to={"/typeofquiz"}>
-                  <div
+                
+                <Link to="/typeofquiz">
+                  <button
                     type="button"
-                    className="text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                    className="px-6 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
                     onClick={() => isActive(false)}
                   >
                     Take Another Quiz!
-                  </div>
+                  </button>
                 </Link>
-                <Link to={"/dashboard"}>
-                  <div
+                
+                <Link to="/dashboard">
+                  <button
                     type="button"
-                    className="text-gray-300 bg-gray-700 hover:bg-gray-600 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                    className="px-6 py-3 bg-[var(--neutral-200)] text-black rounded-lg font-medium transition-all duration-200 hover:bg-[var(--neutral-300)] hover:shadow-lg border border-primary"
                     onClick={() => isActive(false)}
                   >
-                    View Results!
-                  </div>
+                    View Dashboard
+                  </button>
                 </Link>
               </div>
             </div>
           </div>
         </div>
+        
         {/* Conditionally render the sound components based on score */}
         {playPassSound && <PassedSound />}
         {playFailSound && <FailSound />}
         {playAverageSound && <AverageSound/>}
       </Modal>
     );
-  };
+};
   
-  export default DoneModal;
+export default DoneModal;

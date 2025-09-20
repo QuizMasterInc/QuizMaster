@@ -120,7 +120,14 @@ function QuizActivity() {
     }
 
     fetchQuiz();
-  }, [category, subcategories, difficulty, amount, answerCount]); // re-map if answerCount changes
+  }, [category, subcategories, difficulty, amount, answerCount]);
+
+  // Scroll to top when quiz loads
+  useEffect(() => {
+    if (!loading && questions.length > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [loading, questions.length]);
 
   useEffect(() => {
     if (timerFinished && !completed) handleSubmit();
@@ -134,87 +141,147 @@ function QuizActivity() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <ScaleLoader color="#2563eb" />
+      <div className="min-h-screen py-20 px-6 bg-primary text-primary flex justify-center items-center">
+        <ScaleLoader color="var(--accent)" />
       </div>
     );
   }
 
   return (
-    <>
-      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
-        <div className="bg-blue-600 text-white p-4 rounded-lg shadow-lg inline-block pointer-events-auto">
-          <ProgressBar answeredCount={answeredCount} totalQuestions={amount} />
+    <div className="min-h-screen py-20 px-6 bg-primary text-primary">
+      <div className="max-w-6xl mx-auto">
+        {/* Conditional Layout Based on Timer */}
+        {showTimer ? (
+          <>
+            {/* Header Section with Title */}
+            <div className="mb-8">
+              <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
+                <h1 className="text-5xl font-bold text-center mb-4 text-gradient-primary">
+                  {category} Quiz!
+                </h1>
+                <p className="text-xl text-center text-secondary">
+                  Test your knowledge with {amount} questions
+                </p>
+              </div>
+            </div>
+
+            {/* Timer and Progress Section */}
+            <div className="flex items-stretch justify-center gap-8 mb-8">
+              <div className="bg-card rounded-3xl p-6 shadow-xl border border-accent flex-1 max-w-xs">
+                <Timer
+                  duration={duration}
+                  showPause={showPauseButton}
+                  onFinish={() => setTimerFinished(true)}
+                />
+              </div>
+              
+              <div className="bg-card rounded-3xl p-6 shadow-xl border border-accent flex-1 max-w-xs">
+                <ProgressBar answeredCount={answeredCount} totalQuestions={amount} />
+              </div>
+            </div>
+          </>
+        ) : (
+          /* 2x2 Grid Layout when no timer */
+          <div className="grid grid-cols-2 gap-8 mb-8">
+            {/* Top Row */}
+            <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
+              <h1 className="text-4xl font-bold text-center mb-4 text-gradient-primary">
+                {category} Quiz!
+              </h1>
+              <p className="text-lg text-center text-secondary">
+                Test your knowledge with {amount} questions
+              </p>
+            </div>
+            
+            <div className="bg-card rounded-3xl p-6 shadow-xl border border-accent flex items-center justify-center">
+              <ProgressBar answeredCount={answeredCount} totalQuestions={amount} />
+            </div>
+
+            {/* Bottom Row */}
+            <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
+              <h2 className="text-2xl font-semibold mb-6 text-center text-gradient-primary">
+                Quiz Settings
+              </h2>
+              <div className="mb-6">
+                <label className="block text-lg mb-2 text-secondary">
+                  Answers per question:
+                </label>
+                <select
+                  value={answerCount}
+                  onChange={(e) => setAnswerCount(Number(e.target.value))}
+                  className="w-full px-4 py-2 rounded-lg bg-input text-primary border border-accent"
+                  disabled={completed}
+                >
+                  {[2, 3, 4].map((num) => (
+                    <option key={num} value={num}>
+                      {num} options
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                onClick={() => setHelpActive(true)}
+                className="w-full px-8 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
+                disabled={completed}
+              >
+                Help
+              </button>
+            </div>
+
+            <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
+              <h2 className="text-2xl font-semibold mb-6 text-center text-gradient-primary">
+                Quiz Progress
+              </h2>
+              <p className="text-lg text-secondary mb-4">
+                Questions answered: <span className="font-medium text-accent">{answeredCount} / {amount}</span>
+              </p>
+              <p className="text-lg text-secondary mb-6">
+                Correct answers: <span className="font-medium text-accent">{correctCount}</span>
+              </p>
+              
+              {!loading && (
+                <button
+                  onClick={handleSubmit}
+                  className={`w-full px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 ${
+                    completed 
+                      ? 'bg-neutral-400 border-neutral-400 text-white cursor-not-allowed' 
+                      : 'bg-accent hover:bg-accent-hover text-btn-primary border-accent'
+                  }`}
+                  disabled={completed}
+                >
+                  {completed ? 'Quiz Completed!' : 'Submit Quiz'}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Questions Section */}
+        <div className="space-y-8">
+          {questions.map((q, i) => (
+            <div key={i} className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
+              <Question
+                question={q}
+                isCompleted={completed}
+                onAnswer={recordCorrect}
+                onAnswerChange={recordAnswered}
+                answerCount={answerCount}
+              />
+            </div>
+          ))}
         </div>
       </div>
 
-      {showTimer && (
-        <Timer
+      {/* Modals */}
+      {helpActive && (
+        <HelpModal
+          isActive={setHelpActive}
+          active={helpActive}
+          amount={amount}
           duration={duration}
-          showPause={showPauseButton}
-          onFinish={() => setTimerFinished(true)}
         />
       )}
-
-      <div className="flex flex-col items-center mt-24">
-        <h1 className="p-10 mb-4 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg">
-          Welcome to the {category} Quiz
-        </h1>
-
-        <div className="mb-6 text-white">
-          <label className="mr-2">Answers per question:</label>
-          <select
-            value={answerCount}
-            onChange={(e) => setAnswerCount(Number(e.target.value))}
-            className="text-black px-2 py-1 rounded"
-            disabled={completed}
-          >
-            {[2, 3, 4].map((num) => (
-              <option key={num} value={num}>
-                {num}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button
-          onClick={() => setHelpActive(true)}
-          className="mb-8 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-600"
-          disabled={completed}
-        >
-          Help
-        </button>
-
-        {helpActive && (
-          <HelpModal
-            isActive={setHelpActive}
-            active={helpActive}
-            amount={amount}
-            duration={duration}
-          />
-        )}
-
-        {questions.map((q, i) => (
-          <Question
-            key={i}
-            question={q}
-            isCompleted={completed}
-            onAnswer={recordCorrect}
-            onAnswerChange={recordAnswered}
-            answerCount={answerCount}
-          />
-        ))}
-
-        {!loading && (
-          <button
-            onClick={handleSubmit}
-            className="mt-8 px-6 py-3 bg-green-600 text-white rounded hover:bg-green-500"
-            disabled={completed}
-          >
-            Submit!
-          </button>
-        )}
-      </div>
 
       {doneActive && (
         <DoneModal
@@ -228,7 +295,7 @@ function QuizActivity() {
 
       <BackToTop />
       {!completed && <BackGroundMusic />}
-    </>
+    </div>
   );
 }
 

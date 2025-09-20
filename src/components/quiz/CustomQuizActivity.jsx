@@ -1,163 +1,270 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { ScaleLoader } from "react-spinners";
-import { useAuth } from "../../contexts/AuthContext";
-import Question from "./Question";
-import DoneModal from "./DoneModal";
-import HelpModal from "./HelpModal";
-import Timer from "./Timer";
-import ProgressBar from "./ProgressBar";
-import BackToTop from "./BackToTopButton";
-import BackGroundMusic from "../sounds/BackGroundMusic";
+// CustomQuizActivity.jsx
+import React, { useCallback, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { ScaleLoader } from 'react-spinners';
+import Question from './Question';
+import DoneModal from './DoneModal';
+import HelpModal from './HelpModal';
+import Timer from './Timer';
+import ProgressBar from './ProgressBar';
+import BackToTop from './BackToTopButton';
+import BackGroundMusic from '../sounds/BackGroundMusic';
+
+const shuffle = (array) => {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
 
 function CustomQuizActivity() {
-  const [questions, setQuestions] = useState([]);
-  const [completed, setCompleted] = useState(false);
-  const [helpModalActive, setHelpModalActive] = useState(false);
-  const [doneModalActive, setDoneModalActive] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [amountCorrect, setAmountCorrect] = useState(0);
-  const [answeredCount, setAnsweredCount] = useState(0);
-  const [timerFinished, setTimerFinished] = useState(false);
   const { quizID } = useParams();
 
-  const grabCorrect = useCallback((correct) => {
-    if (correct) setAmountCorrect((prev) => prev + 1);
-  }, []);
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [completed, setCompleted] = useState(false);
+  const [helpActive, setHelpActive] = useState(false);
+  const [doneActive, setDoneActive] = useState(false);
+  const [timerFinished, setTimerFinished] = useState(false);
+  const [answeredCount, setAnsweredCount] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [answerCount, setAnswerCount] = useState(4); // default max
 
-  const handleAnswerQuestion = (isSelected) => {
-    setAnsweredCount((prev) => prev + (isSelected ? 1 : -1));
-  };
+  const recordCorrect = useCallback(
+    (isCorrect) => isCorrect && setCorrectCount((c) => c + 1),
+    []
+  );
+
+  const recordAnswered = useCallback(
+    (firstInteraction) => firstInteraction && setAnsweredCount((c) => c + 1),
+    []
+  );
 
   useEffect(() => {
     async function fetchCustomQuiz() {
+      setLoading(true);
       try {
-        const res = await fetch(`https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz?quizid=${quizID}`);
+        const res = await fetch(
+          `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz?quizid=${quizID}`
+        );
         const data = await res.json();
         const quiz = data.data;
 
         const selected = Object.values(quiz.questions).map((q) => {
-          const type = q.type || "Multiple";
-          const formatted = {
+          const type = q.type || 'Multiple';
+          const tag =
+            type === 'DragAndDrop'
+              ? 'drag'
+              : type === 'FillInTheBlank'
+              ? 'fill'
+              : type === 'MultipleAnswer'
+              ? 'multiple'
+              : 'single';
+
+          const correctAnswer = q.correct_answer;
+          const correctLower = String(correctAnswer).trim().toLowerCase();
+
+          const allChoices = [
+            q.option_1,
+            q.option_2,
+            q.option_3,
+            q.option_4,
+          ].filter(Boolean);
+
+          const correctChoice = allChoices.find(
+            (c) => c?.trim().toLowerCase() === correctLower
+          );
+
+          const wrongChoices = allChoices.filter(
+            (c) => c?.trim().toLowerCase() !== correctLower
+          );
+
+          const finalChoices =
+            tag === 'fill'
+              ? []
+              : shuffle([
+                  correctChoice,
+                  ...shuffle(wrongChoices).slice(0, Math.max(0, answerCount - 1)),
+                ]);
+
+          return {
             questionText: q.question,
-            choices: [],
-            correctAnswer: q.correct_answer,
-            type: type === "DragAndDrop" ? "drag"
-                : type === "FillInTheBlank" ? "fill"
-                : type === "MultipleAnswer" ? "multiple"
-                : "single",
+            text: q.question,
+            choices: finalChoices,
+            correctAnswer: correctAnswer,
+            type: tag,
           };
-
-          if (type !== "FillInTheBlank") {
-            formatted.choices = [q.option_1, q.option_2, q.option_3, q.option_4].filter(Boolean);
-          }
-
-          return formatted;
         });
 
         setQuestions(selected);
-        setLoading(false);
       } catch (error) {
-        console.error("Failed to fetch custom quiz:", error);
+        console.error('Failed to fetch custom quiz:', error);
+      } finally {
+        setLoading(false);
       }
     }
 
     fetchCustomQuiz();
-  }, [quizID]);
+  }, [quizID, answerCount]);
 
-  //hnadles when user clicks submit
-  const handleSubmit = () => {
-    if(flaggedQuestion > 0) {
-      const userConfirmed = window.confirm(
-        `You have flagged ${flaggedQuestion} questions. Do you still want to submit?`
-      )
-      if (!userConfirmed) {
-        return //if user wants to go back to review flagged
-      }
+  // Scroll to top when quiz loads
+  useEffect(() => {
+    if (!loading && questions.length > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    setCompleted(true) //Set Quiz state to completed
-    setDoneModalActive(true) //Open Done modal when quiz is completed
-    setTimerFinished(true) //stop timer when  is completed
+  }, [loading, questions.length]);
 
+  useEffect(() => {
+    if (timerFinished && !completed) handleSubmit();
+  }, [timerFinished, completed]);
+
+  const handleSubmit = () => {
+    setCompleted(true);
+    setDoneActive(true);
+    setTimerFinished(true);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen py-20 px-6 bg-primary text-primary flex justify-center items-center">
+        <ScaleLoader color="var(--accent)" />
+      </div>
+    );
   }
 
-  
-  /**
-   * This is the actual view element. Here we are creating the actual 
-   * style of the component. We are creating a list of questions by mapping
-   * through the questions array. The ScaleLoader gets mounted in the questions are still
-   * loading into from the database
-   */
   return (
-    <>
-      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
-        <div className="bg-blue-600 text-white p-4 rounded-lg shadow-lg inline-block pointer-events-auto">
-          <ProgressBar answeredCount={answeredCount} totalQuestions={questions.length} />
+    <div className="min-h-screen py-20 px-6 bg-primary text-primary">
+      <div className="max-w-6xl mx-auto">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
+            <h1 className="text-5xl font-bold text-center mb-4 text-gradient-primary">
+              Custom Quiz!
+            </h1>
+            <p className="text-xl text-center text-secondary">
+              Test your knowledge with {questions.length} questions
+            </p>
+          </div>
+        </div>
+
+        {/* Timer and Progress Section */}
+        <div className="flex items-stretch justify-center gap-8 mb-8">
+          <div className="bg-card rounded-3xl p-6 shadow-xl border border-accent flex-1 max-w-xs">
+            <Timer
+              duration={5} // 5 minutes
+              showPause={true}
+              onFinish={() => setTimerFinished(true)}
+            />
+          </div>
+
+          <div className="bg-card rounded-3xl p-6 shadow-xl border border-accent flex-1 max-w-xs">
+            <ProgressBar answeredCount={answeredCount} totalQuestions={questions.length} />
+          </div>
+        </div>
+
+        {/* Settings + Stats Section */}
+        <div className="grid grid-cols-2 gap-8 mb-8">
+          {/* Settings */}
+          <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
+            <h2 className="text-2xl font-semibold mb-6 text-center text-gradient-primary">
+              Quiz Settings
+            </h2>
+            <div className="mb-6">
+              <label className="block text-lg mb-2 text-secondary">
+                Answers per question:
+              </label>
+              <select
+                value={answerCount}
+                onChange={(e) => setAnswerCount(Number(e.target.value))}
+                className="w-full px-4 py-2 rounded-lg bg-input text-primary border border-accent"
+                disabled={completed}
+              >
+                {[2, 3, 4].map((num) => (
+                  <option key={num} value={num}>
+                    {num} options
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={() => setHelpActive(true)}
+              className="w-full px-8 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
+              disabled={completed}
+            >
+              Help
+            </button>
+          </div>
+
+          {/* Progress / Submit */}
+          <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
+            <h2 className="text-2xl font-semibold mb-6 text-center text-gradient-primary">
+              Quiz Progress
+            </h2>
+            <p className="text-lg text-secondary mb-4">
+              Questions answered:{' '}
+              <span className="font-medium text-accent">
+                {answeredCount} / {questions.length}
+              </span>
+            </p>
+            <p className="text-lg text-secondary mb-6">
+              Correct answers:{' '}
+              <span className="font-medium text-accent">{correctCount}</span>
+            </p>
+
+            {!loading && (
+              <button
+                onClick={handleSubmit}
+                className={`w-full px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 ${
+                  completed
+                    ? 'bg-neutral-400 border-neutral-400 text-white cursor-not-allowed'
+                    : 'bg-accent hover:bg-accent-hover text-btn-primary border-accent'
+                }`}
+                disabled={completed}
+              >
+                {completed ? 'Quiz Completed!' : 'Submit Quiz'}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Questions Section */}
+        <div className="space-y-8">
+          {questions.map((q, i) => (
+            <div
+              key={i}
+              className="bg-card rounded-3xl p-8 shadow-xl border border-accent"
+            >
+              <Question
+                question={q}
+                isCompleted={completed}
+                onAnswer={recordCorrect}
+                onAnswerChange={recordAnswered}
+                answerCount={answerCount}
+              />
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center">
-        <div className="fixed top-12 right-4 text-lg bg-gray-900 text-white p-2 rounded">
-          <Timer
-            timeLimit={300}
-            onStopTimer={() => setTimerFinished(true)}
-            onTimeUp={handleSubmit}
-            timerFinished={timerFinished}
-            showTimer={true}
-            showPauseButton={true}
-          />
-        </div>
+      {/* Modals */}
+      {helpActive && (
+        <HelpModal
+          isActive={setHelpActive}
+          active={helpActive}
+          amount={questions.length}
+          duration={5}
+        />
+      )}
 
-        {!loading && (
-          <h1 className="p-10 mb-8 text-4xl text-gray-300 bg-gray-900 rounded-lg shadow-lg">
-            Custom Quiz
-          </h1>
-        )}
-
-        <button
-          onClick={() => setHelpModalActive(true)}
-          className="mb-8 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-600"
-        >
-          Help
-        </button>
-
-        {helpModalActive && (
-          <HelpModal
-            isActive={setHelpModalActive}
-            active={helpModalActive}
-            amount={questions.length}
-            duration={5}
-          />
-        )}
-
-        {questions.map((q, index) => (
-          <Question
-            key={index}
-            question={q}
-            onAnswer={grabCorrect}
-            onAnswerChange={handleAnswerQuestion}
-            isCompleted={completed}
-          />
-        ))}
-
-        {!loading && (
-          <button
-            onClick={handleSubmit}
-            className="mt-8 px-6 py-3 bg-green-600 text-white rounded hover:bg-green-500"
-            disabled={completed}
-          >
-            Submit!
-          </button>
-        )}
-      </div>
-
-      <ScaleLoader loading={loading} color="#111827" height={100} width={25} />
-      {doneModalActive && (
+      {doneActive && (
         <DoneModal
-          isActive={setDoneModalActive}
-          amountCorrect={amountCorrect}
+          isActive={setDoneActive}
+          active={doneActive}
+          amountCorrect={correctCount}
           totalAmount={questions.length}
-          active={doneModalActive}
           quizId={quizID}
           isCustomQuiz={true}
         />
@@ -165,7 +272,7 @@ function CustomQuizActivity() {
 
       <BackToTop />
       {!completed && <BackGroundMusic />}
-    </>
+    </div>
   );
 }
 

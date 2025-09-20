@@ -4,38 +4,32 @@
  */
 import { useState, useEffect } from "react";
 
-function Timer({ timeLimit, onStopTimer, timerFinished, showTimer, loading , showPauseButton}) {
-  const [timeLeft, setTimeLeft] = useState(timeLimit);
+function Timer({ duration, onFinish, timerFinished, showTimer = true, loading , showPause}) {
+  const [timeLeft, setTimeLeft] = useState(duration * 60); // Convert minutes to seconds
   const [isPaused, setIsPaused] = useState(false);
   const [halfTimeAlert, setHalfTimeAlert] = useState(false);
   const [lowTimeAlert, setLowTimeAlert] = useState(false);
 
-  const halfTimeLimit = timeLimit / 2; // Sets the half-time threshold
-  const lowTimeLimit = timeLimit * 0.2; // Set 20% left threshold
+  const lowTimeLimit = 30; // 30 seconds warning only
 
   useEffect(() => {
     let timer = null;
 
     if (timeLeft === 0 || timerFinished) {
-      onStopTimer();
+      onFinish();
     } else if (!isPaused && !loading) {
       timer = setTimeout(() => {
         setTimeLeft((prevTime) => prevTime - 1);
       }, 1000);
     }
 
-    if (timeLeft <= halfTimeLimit && !halfTimeAlert) {
-      alert("Half of the Time Remains");
-      setHalfTimeAlert(true);
-    }
-
     if (timeLeft <= lowTimeLimit && !lowTimeAlert) {
-      alert("Time is Nearly Up!");
+      alert("30 seconds remaining!");
       setLowTimeAlert(true);
     }
 
     return () => clearTimeout(timer);
-  }, [timeLeft, isPaused, onStopTimer, loading, halfTimeAlert, halfTimeLimit, lowTimeAlert, lowTimeLimit]);
+  }, [timeLeft, isPaused, onFinish, loading, lowTimeAlert, lowTimeLimit]);
 
   const handlePauseToggle = () => {
     setIsPaused((prev) => !prev);
@@ -46,63 +40,85 @@ function Timer({ timeLimit, onStopTimer, timerFinished, showTimer, loading , sho
 
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
-  // Prevent NaN by ensuring timeLimit is valid
-  const offset = timeLimit > 0 ? (timeLeft / timeLimit) * circumference : 0;
+  // Prevent NaN by ensuring duration is valid - convert to seconds for calculation
+  const totalTimeInSeconds = duration * 60;
+  const offset = totalTimeInSeconds > 0 ? (timeLeft / totalTimeInSeconds) * circumference : 0;
+
+  // Determine colors based on time remaining
+  const getTimerColor = () => {
+    if (timeLeft <= 30) return 'var(--error)'; // Only red for last 30 seconds
+    return 'var(--accent)';
+  };
+
+  const getTextColor = () => {
+    if (timeLeft <= 30) return 'var(--error)'; // Only red text for last 30 seconds
+    return 'var(--text-primary)';
+  };
 
   return (
-    <div style={{position: 'relative', zIndex: 1}}>
+    <div className="relative">
       {isPaused && (
-        <div style={{
-          position:'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.5)', //Adds a semi-transparent overlay
-          backdropFilter: 'blur(5px)', //Adds a blurring effect
-          zIndex: 5, //Lower z-index allows timer button to still be visible
-        }} />
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"
+        />
       )}
-      <div>
-      </div>
-      <div style={{ display: showTimer ? 'block' : 'none', position: 'relative', width: '120px', height: '120px', zIndex: 10 }}>
-        <svg width="120" height="120">
-          <circle
-            cx="60"
-            cy="60"
-            r={radius}
-            stroke="rgba(255, 255, 255, 0.2)"
-            strokeWidth="10"
-            fill="transparent"
-          />
-          <circle
-            cx="60"
-            cy="60"
-            r={radius}
-            stroke={timeLeft <= lowTimeLimit ? 'red' : timeLeft <= halfTimeLimit ? 'orange' : 'white'}
-            strokeWidth="10"
-            fill="transparent"
-            strokeDasharray={circumference}
-            strokeDashoffset={circumference - offset} 
-            style={{ transition: 'stroke-dashoffset 1s linear' }}
-          />
-        </svg>
-        <div
-          className="timer"
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            color: timeLeft <= lowTimeLimit ? 'red' : timeLeft <= halfTimeLimit ? 'orange' : 'white',
-            fontSize: '24px',
-          }}
-        >
-          {minutes}:{seconds < 10 ? "0" : ""}
-          {seconds}
+      
+      <div 
+        className={`relative z-50 text-center ${showTimer ? 'block' : 'hidden'}`}
+      >
+        <div className="relative inline-block">
+          <svg width="120" height="120" className="transform -rotate-90">
+            {/* Background circle */}
+            <circle
+              cx="60"
+              cy="60"
+              r={radius}
+              stroke="var(--neutral-300)"
+              strokeWidth="8"
+              fill="transparent"
+            />
+            {/* Progress circle */}
+            <circle
+              cx="60"
+              cy="60"
+              r={radius}
+              stroke={getTimerColor()}
+              strokeWidth="8"
+              fill="transparent"
+              strokeDasharray={circumference}
+              strokeDashoffset={circumference - offset} 
+              style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease' }}
+            />
+          </svg>
+          
+          {/* Timer text overlay */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div
+              className="text-2xl font-bold font-mono"
+              style={{ color: getTextColor() }}
+            >
+              {minutes}:{seconds < 10 ? "0" : ""}{seconds}
+            </div>
+            <div className="text-xs text-secondary mt-1">
+              Time Left
+            </div>
+            
+            {/* Pause/Resume Button - inside timer */}
+            {showPause && (
+              <button 
+                onClick={handlePauseToggle}
+                className="mt-2 px-2 py-1 text-xs bg-[var(--neutral-200)] text-black rounded font-medium transition-all duration-200 hover:bg-[var(--neutral-300)]"
+              >
+                {isPaused ? "▶" : "⏸"}
+              </button>
+            )}
+          </div>
         </div>
-        <div style={{ marginTop: '10px', position: 'relative', zIndex: 10 }}>
-        {showPauseButton && (<button onClick={handlePauseToggle}> {isPaused ? "Resume" : "Pause"}</button>)}
+        
+        <div className="mt-2">
+          <p className="text-sm text-secondary font-medium">
+            Time Remaining
+          </p>
         </div>
       </div>
     </div>

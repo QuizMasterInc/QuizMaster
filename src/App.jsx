@@ -24,7 +24,7 @@ import UpdateProfile from './components/login/UpdateProfile'
 import PrivateRoute from './routes/PrivateRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import DeveloperRoute from './routes/DeveloperRoute';
-import CustomQuiz from './components/customquiz/CustomQuiz';
+import CustomQuiz from './components/customquiz/CustomQuiz.jsx';
 import DeckManager from './components/flashcards/DeckManager';
 import EditCustomQuiz from "./components/customquiz/EditCustomQuiz"
 import SelectSubCategory from './components/quizselect/SelectSubCategory';
@@ -45,8 +45,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0f051d] via-[#1b1444] to-[#0f051d] flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="min-h-screen bg-primary flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
       </div>
     );
   }

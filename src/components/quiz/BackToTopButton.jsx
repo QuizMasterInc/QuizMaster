@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 const ScrollToTopButton = () => {
   const [isVisible, setIsVisible] = useState(false);
 
-  // Toggle visibility when scrolling down past a certain point
   const toggleVisibility = () => {
     if (window.pageYOffset > 300) {
       setIsVisible(true);
@@ -12,7 +11,6 @@ const ScrollToTopButton = () => {
     }
   };
 
-  // Scroll the user back to the top when clicked
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -32,7 +30,7 @@ const ScrollToTopButton = () => {
       {isVisible && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-40 right-20 p-3 text-lg bg-gray-900 text-white rounded-lg cursor-pointer z-50 shadow-lg"
+          className="fixed bottom-40 right-20 px-4 py-1 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
         >
           ↑ Top
         </button>

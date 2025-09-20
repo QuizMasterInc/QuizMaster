@@ -17,7 +17,6 @@ export default function CardCreation({ saveDeck }) {
     }
   };
 
-  /* Lets the User create and save the deck */
   const handleSaveDeck = () => {
     if (!deckName.trim()) {
       alert('Please enter a deck name.');
@@ -33,46 +32,48 @@ export default function CardCreation({ saveDeck }) {
   };
 
 
-
   return (
-    <div className="w-full max-w-4xl mx-auto bg-[#1b1444] border border-violet-700 rounded-2xl p-8 shadow-lg">
-      <h1 className="text-3xl font-bold text-white mb-6 text-center">Create a Deck</h1>
+    <div className="w-full max-w-4xl mx-auto card border-2 border-accent">
+      <h1 className="text-3xl font-bold text-gradient-primary mb-6 text-center">Create a Deck</h1>
 
       <input
-        type="text" /* Where the user inputs the deck name*/
+        type="text"
         value={deckName}
         onChange={(e) => setDeckName(e.target.value)}
         placeholder="Deck name"
-        className="w-full p-4 mb-4 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+        className="w-full p-4 mb-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2"
       />
 
       <div className="space-y-4">
         <input
-          type="text" /* Where the user inputs the front of the card*/
+          type="text"
           value={front}
           onChange={(e) => setFront(e.target.value)}
           placeholder="Front of card"
-          className="w-full p-4 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-4 mb-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2"
         />
         <input
-          type="text" /* Where the user inputs the back of the card*/
+          type="text"
           value={back}
           onChange={(e) => setBack(e.target.value)}
           placeholder="Back of card"
-          className="w-full p-4 rounded-lg text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full p-4 mb-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2"
         />
-        <button /* Button that adds the card to the deck*/
+        <div className="flex justify-center align-center">
+          <button
           onClick={handleAddCard}
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-500 hover:opacity-90 text-white font-semibold py-3 rounded-lg shadow-md transition"
-        >
-          Add Card
-        </button>
+          className="inline-block px-4 py-1 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
+          >
+            Add Card
+          </button>
+        </div>
+        
       </div>
 
-      {cards.length > 0 && ( /* How the cards are displayed*/
+      {cards.length > 0 && (
         <div className="mt-6">
-          <h2 className="text-xl font-semibold text-white mb-2">Cards in Deck:</h2>
-          <ul className="text-white list-disc pl-6 space-y-1">
+          <h2 className="text-xl font-semibold mb-2">Cards in Deck:</h2>
+          <ul className="list-disc pl-6 space-y-1">
             {cards.map((card, index) => (
               <li key={index}>
                 <strong>Front:</strong> {card.front}, <strong>Back:</strong> {card.back}
