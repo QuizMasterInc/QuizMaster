@@ -137,48 +137,33 @@ function CustomQuizActivity() {
   return (
     <div className="min-h-screen py-20 px-6 bg-primary text-primary">
       <div className="max-w-6xl mx-auto">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
-            <h1 className="text-5xl font-bold text-center mb-4 text-gradient-primary">
+        {/* Header */}
+        <div className="mb-6">
+          <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
+            <h1 className="text-4xl font-bold text-center mb-2 text-gradient-primary">
               Custom Quiz!
             </h1>
-            <p className="text-xl text-center text-secondary">
+            <p className="text-lg text-center text-secondary">
               Test your knowledge with {questions.length} questions
             </p>
           </div>
         </div>
 
-        {/* Timer and Progress Section */}
-        <div className="flex items-stretch justify-center gap-8 mb-8">
-          <div className="bg-card rounded-3xl p-6 shadow-xl border border-accent flex-1 max-w-xs">
-            <Timer
-              duration={5} // 5 minutes
-              showPause={true}
-              onFinish={() => setTimerFinished(true)}
-            />
-          </div>
-
-          <div className="bg-card rounded-3xl p-6 shadow-xl border border-accent flex-1 max-w-xs">
-            <ProgressBar answeredCount={answeredCount} totalQuestions={questions.length} />
-          </div>
-        </div>
-
-        {/* Settings + Stats Section */}
-        <div className="grid grid-cols-2 gap-8 mb-8">
+        {/* Settings + Submit row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Settings */}
-          <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
-            <h2 className="text-2xl font-semibold mb-6 text-center text-gradient-primary">
+          <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
+            <h2 className="text-2xl font-semibold mb-4 text-center text-gradient-primary">
               Quiz Settings
             </h2>
-            <div className="mb-6">
-              <label className="block text-lg mb-2 text-secondary">
+            <div className="mb-4">
+              <label className="block text-base mb-2 text-secondary">
                 Answers per question:
               </label>
               <select
                 value={answerCount}
                 onChange={(e) => setAnswerCount(Number(e.target.value))}
-                className="w-full px-4 py-2 rounded-lg bg-input text-primary border border-accent"
+                className="w-full px-3 py-2 rounded-lg bg-input text-primary border border-accent"
                 disabled={completed}
               >
                 {[2, 3, 4].map((num) => (
@@ -188,49 +173,62 @@ function CustomQuizActivity() {
                 ))}
               </select>
             </div>
-
             <button
               onClick={() => setHelpActive(true)}
-              className="w-full px-8 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
+              className="w-full px-6 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-accent"
               disabled={completed}
             >
               Help
             </button>
           </div>
 
-          {/* Progress / Submit */}
-          <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
-            <h2 className="text-2xl font-semibold mb-6 text-center text-gradient-primary">
+          {/* Progress + Submit */}
+          <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
+            <h2 className="text-2xl font-semibold mb-4 text-center text-gradient-primary">
               Quiz Progress
             </h2>
-            <p className="text-lg text-secondary mb-4">
+            <p className="text-base text-secondary mb-2">
               Questions answered:{' '}
               <span className="font-medium text-accent">
                 {answeredCount} / {questions.length}
               </span>
             </p>
-            <p className="text-lg text-secondary mb-6">
+            <p className="text-base text-secondary mb-4">
               Correct answers:{' '}
               <span className="font-medium text-accent">{correctCount}</span>
             </p>
-
-            {!loading && (
-              <button
-                onClick={handleSubmit}
-                className={`w-full px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 ${
-                  completed
-                    ? 'bg-neutral-400 border-neutral-400 text-white cursor-not-allowed'
-                    : 'bg-accent hover:bg-accent-hover text-btn-primary border-accent'
-                }`}
-                disabled={completed}
-              >
-                {completed ? 'Quiz Completed!' : 'Submit Quiz'}
-              </button>
-            )}
+            <button
+              onClick={handleSubmit}
+              className={`w-full px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border ${
+                completed
+                  ? 'bg-neutral-400 border-neutral-400 text-white cursor-not-allowed'
+                  : 'bg-accent hover:bg-accent-hover text-btn-primary border-accent'
+              }`}
+              disabled={completed}
+            >
+              {completed ? 'Quiz Completed!' : 'Submit Quiz'}
+            </button>
           </div>
         </div>
 
-        {/* Questions Section */}
+        {/* Timer + Progress row */}
+        <div className="flex justify-center gap-6 mb-6">
+          <div className="bg-card rounded-2xl p-4 shadow-xl border border-accent flex-1 max-w-xs">
+            <Timer
+              duration={5} // 5 minutes
+              showPause={true}
+              onFinish={() => setTimerFinished(true)}
+            />
+          </div>
+          <div className="bg-card rounded-2xl p-4 shadow-xl border border-accent flex-1 max-w-xs flex items-center justify-center">
+            <ProgressBar
+              answeredCount={answeredCount}
+              totalQuestions={questions.length}
+            />
+          </div>
+        </div>
+
+        {/* Questions */}
         <div className="space-y-8">
           {questions.map((q, i) => (
             <div
