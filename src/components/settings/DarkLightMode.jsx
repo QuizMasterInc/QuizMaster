@@ -3,47 +3,64 @@
 import React, { useState, useEffect } from 'react';
 
 const DarkLightMode = () => {
-    const [darkMode, setIsDarkMode] = useState(() => {
+    const [isDarkMode, setIsDarkMode] = useState(() => {
         return localStorage.getItem('darkMode') === 'true';
     });
+
     const toggleDarkMode = () => {
         setIsDarkMode(prevState => !prevState);
-    }
+    };
 
     useEffect(() => {
-        if (darkMode) {
-            document.body.classList.add('dark-mode');
-            document.body.classList.remove('light-mode');
-            localStorage.setItem('darkMode', 'true');
+        const savedMode = localStorage.getItem("darkMode");
+        if (savedMode === "true") {
+            setIsDarkMode(true);
+            document.documentElement.classList.add("dark");
         }
-        else {
-            document.body.classList.remove('dark-mode');
-            document.body.classList.add('light-mode');
+    }, []);
+
+    useEffect(() => {
+        if (isDarkMode) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('darkMode', 'true');
+        } else {
+            document.documentElement.classList.remove('dark');
             localStorage.setItem('darkMode', 'false');
         }
-    }, [darkMode]);
+    }, [isDarkMode]);
 
     return (
         <div className="mb-4 flex justify-center items-center">
             <label className="flex items-center cursor-pointer">
-                <span className="mr-4 text-gray-700">Dark Mode</span>
+                <span className="mr-4" style={{ color: 'var(--text-primary)' }}>Dark Mode</span>
                 <div className="relative">
                     <input
                         type="checkbox"
-                        checked={darkMode}
+                        checked={isDarkMode}
                         onChange={toggleDarkMode}
                         className="sr-only"
                     />
                     <div
-                        className={`w-12 h-6 rounded-full transition-colors duration-200 ${darkMode ? 'bg-blue-500' : 'bg-white'}`}
+                        className="w-12 h-6 rounded-full transition-colors duration-200"
+                        style={{ 
+                            backgroundColor: isDarkMode ? 'var(--primary-500)' : 'var(--neutral-300)' 
+                        }}
                     ></div>
                     <div
-                        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transform transition-transform duration-200 ${darkMode ? 'translate-x-6' : ''}`}
+                        className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full transform transition-transform duration-200 ${
+                            isDarkMode ? 'translate-x-6' : ''
+                        }`}
+                        style={{ backgroundColor: 'white' }}
                     ></div>
                 </div>
-                <span className={`ml-4 text-sm font-semibold ${darkMode ? 'text-blue-500' : 'text-gray-400'}`}>
-          {darkMode ? 'On' : 'Off'}
-        </span>
+                <span 
+                    className="ml-4 text-sm font-semibold"
+                    style={{ 
+                        color: isDarkMode ? 'var(--primary-400)' : 'var(--neutral-500)' 
+                    }}
+                >
+                    {isDarkMode ? 'On' : 'Off'}
+                </span>
             </label>
         </div>
     );

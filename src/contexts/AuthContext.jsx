@@ -18,8 +18,6 @@ export const AuthProvider = ({ children }) => {
         
         const initializeAuth = async () => {
             try {
-                console.log('Initializing auth...');
-                
                 // Initialize auth service
                 const unsubscribe = authService.init();
                 
@@ -92,7 +90,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const signIn = useCallback(async (email, password) => {
-        setLoading(true);
+        // Don't set global loading - let components handle their own loading states
         setError(null);
 
         try {
@@ -101,8 +99,6 @@ export const AuthProvider = ({ children }) => {
         } catch (err) {
             setError(err.message || 'Sign in failed');
             throw err;
-        } finally {
-            setLoading(false);
         }
     }, []);
 
@@ -117,7 +113,7 @@ export const AuthProvider = ({ children }) => {
             }
             
         } catch (err) {
-            console.error('Failed to sign in with Google:', err);
+            // Remove console.error to keep console clean
             const errorMessage = err.message || 'Failed to sign in with Google';
             setError(errorMessage);
             throw new Error(errorMessage);
@@ -125,7 +121,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const signUp = useCallback(async (userData) => {
-        setLoading(true);
+        // Don't set global loading - let components handle their own loading states
         setError(null);
 
         try {
@@ -134,8 +130,6 @@ export const AuthProvider = ({ children }) => {
         } catch (err) {
             setError(err.message || 'Registration failed');
             throw err;
-        } finally {
-            setLoading(false);
         }
     }, []);
 

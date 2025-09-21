@@ -17,8 +17,8 @@ class PrivacyList extends Component {
 	render() {
     	return (
 			<div onChange={this.onChangeValue}> 
-				<label className="text-white mx-2">Display:
-					<select name="listSortMethod" defaultValue="All" className="text-black mx-2">
+				<label>Display:
+					<select name="listSortMethod" defaultValue="All" className="text-black ml-1 p-1">
 						<option value="All">All Quizzes</option>
 						<option value="Public">Public Quizzes</option>
 						<option value="Private">Private Quizzes</option>

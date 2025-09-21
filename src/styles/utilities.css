@@ -1,0 +1,69 @@
+/* Custom Tailwind Utilities */
+@layer utilities {
+  /* Background utilities using CSS variables */
+  .bg-primary { background-color: var(--bg-primary); }
+  .bg-secondary { background-color: var(--bg-secondary); }
+  .bg-card { background-color: var(--card-bg); }
+  .bg-accent { background-color: var(--accent); }
+  .bg-btn-primary { background-color: var(--btn-primary-bg); }
+  .bg-input { background-color: var(--input-bg); }
+
+  /* Text color utilities using CSS variables */
+  .text-primary { color: var(--text-primary); }
+  .text-secondary { color: var(--text-secondary); }
+  .text-muted { color: var(--text-muted); }
+  .text-accent { color: var(--accent); }
+  .text-btn-primary { color: var(--btn-primary-text); }
+  .text-error { color: var(--error-text); }
+
+  /* Border utilities using CSS variables */
+  .border-primary { border-color: var(--border); }
+  .border-secondary { border-color: var(--border-secondary); }
+  .border-accent { border-color: var(--accent); }
+  .border-input { border-color: var(--input-border); }
+
+  /* Hover utilities using CSS variables */
+  .hover\:bg-accent-hover:hover { background-color: var(--accent-hover); }
+  .hover\:bg-btn-primary-hover:hover { background-color: var(--accent-hover); }
+
+  /* Gradient text utilities */
+  .text-gradient-primary {
+    background: linear-gradient(to right, var(--primary-400), var(--info));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* Hide Scrollbars Utility */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Input focus styles */
+  .input-focus:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+    outline: none;
+  }
+
+  /* Error input styles */
+  .input-error {
+    background-color: var(--error-bg);
+    color: var(--error-text);
+    border-color: var(--error-border);
+  }
+
+  /* Button hover effects */
+  .btn-hover:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn-hover:disabled:hover {
+    transform: none;
+  }
+}

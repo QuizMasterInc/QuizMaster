@@ -27,9 +27,7 @@ export const functions = getFunctions(app);
 export const storage = getStorage(app);
 
 // Error handling utility
-export const handleFirebaseError = (error) => {
-    console.error('Firebase Error:', error);
-  
+export const handleFirebaseError = (error) => {    
     // Map Firebase error codes to user-friendly messages
     const errorMessages = {
         'auth/user-not-found': 'No account found with this email address.',
@@ -44,11 +42,14 @@ export const handleFirebaseError = (error) => {
         'not-found': 'The requested resource was not found.',
     };
 
-    return {
-        code: error.code || 'unknown-error',
-        message: errorMessages[error.code] || error.message || 'An unexpected error occurred.',
-        originalError: error
-    };
+    const userFriendlyMessage = errorMessages[error.code] || error.message || 'An unexpected error occurred.';
+    
+    // Create a proper Error object with the user-friendly message
+    const friendlyError = new Error(userFriendlyMessage);
+    friendlyError.code = error.code || 'unknown-error';
+    friendlyError.originalError = error;
+    
+    return friendlyError;
 };
 
 // Retry mechanism for Firebase operations

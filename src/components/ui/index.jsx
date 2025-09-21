@@ -43,57 +43,16 @@ export const Button = ({
   );
 };
 
-// Reusable Link Button Component
-export const LinkButton = ({ 
-  to, 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
-  className = '', 
-  state,
-  ...props 
-}) => {
-  const baseClasses = 'inline-block font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 text-center';
-  
-  const variants = {
-    primary: 'bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:scale-105 shadow-lg hover:shadow-pink-500/40 focus:ring-pink-500',
-    secondary: 'bg-gray-800 text-gray-300 hover:bg-gray-600 hover:text-white focus:ring-gray-500',
-    back: 'bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:scale-105 shadow-lg focus:ring-pink-500'
-  };
-  
-  const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2',
-    lg: 'px-6 py-3 text-lg'
-  };
-  
-  const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`;
-  
-  return (
-    <Link to={to} state={state} className={classes} {...props}>
-      {children}
-    </Link>
-  );
-};
-
 // Reusable Back Button Component
 export const BackButton = ({ 
   to, 
   children = 'Back', 
-  className = '', 
-  position = 'top-right' 
 }) => {
-  const positions = {
-    'top-right': 'absolute top-6 right-6 z-50',
-    'top-left': 'absolute top-6 left-6 z-50',
-    'fixed-top-right': 'fixed top-10 right-10 z-50'
-  };
-  
   return (
-    <div className={`${positions[position]} ${className}`}>
-      <LinkButton to={to} variant="back">
+    <div>
+      <Link to={to} className='inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent'>
         {children}
-      </LinkButton>
+      </Link>
     </div>
   );
 };
@@ -115,27 +74,6 @@ export const Card = ({
   );
 };
 
-// Reusable Container Component
-export const Container = ({ 
-  children, 
-  size = 'xl', 
-  className = '',
-  ...props 
-}) => {
-  const sizes = {
-    sm: 'max-w-2xl',
-    md: 'max-w-4xl', 
-    lg: 'max-w-6xl',
-    xl: 'max-w-7xl'
-  };
-  
-  return (
-    <div className={`mx-auto px-4 ${sizes[size]} ${className}`} {...props}>
-      {children}
-    </div>
-  );
-};
-
 // Reusable Footer Component
 export const Footer = () => {
   return (
@@ -145,4 +83,5 @@ export const Footer = () => {
       </p>
     </footer>
   );
+  
 };

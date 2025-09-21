@@ -17,18 +17,26 @@ export default function CustomQuiz () {
   const { currentUser } = useAuth()
   const navigate = useNavigate()
 
-    // Fetch user's existing quizzes on component mount
+  // Fetch user's existing quizzes on component mount
   useEffect(() => {
     async function fetchUserQuizzes() {
-      if (!currentUser?.uid) return;
-      
       try {
-        const quizzes = await quizService.getCustomQuizzesByUser(currentUser.uid);
-        setCustomQuizzes(quizzes);
-        console.log('Custom Quizzes:', quizzes);
+        const response = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuizzesByUser?creator=' + currentUser.uid, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+        })
+        if (response.ok) {
+          const data = await response.json()
+          setCustomQuizzes(data)
+          console.log('Custom Quizzes:', data)
+        } else {
+          console.error('Response Error:', response.statusText);
+        }
       } catch (error) {
-        console.error('Error fetching user quizzes:', error);
-        setCustomQuizzes([]);
+        console.error('Fetch error:', error);
       }
     }
     fetchUserQuizzes();

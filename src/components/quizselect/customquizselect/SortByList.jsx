@@ -17,8 +17,8 @@ class SortByList extends Component {
 	render() {
     	return (
 			<div onChange={this.onChangeValue}> 
-				<label className="text-white mx-2">Sort by:
-					<select name="listSortMethod" defaultValue="newest" className="text-black mx-2">
+				<label>Sort by:
+					<select name="listSortMethod" defaultValue="newest" className="text-black ml-1 p-1">
 						<option value="newest">Newest</option>
 						<option value="oldest">Oldest</option>
 						<option value="title">Title, A-{">"}Z</option>

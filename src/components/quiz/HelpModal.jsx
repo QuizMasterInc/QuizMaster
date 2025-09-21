@@ -9,47 +9,86 @@ const HelpModal = ({ isActive, active, amount, duration }) => (
         ariaHideApp={false}
         style={{
             overlay: {
-                backgroundColor: 'transparent',
-                height: '1px',
-                width: '1px',
-                background: '#fff',
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                backdropFilter: "blur(5px)",
+                zIndex: 1000,
             },
             content: {
-                background: 'transparent',
-                outline: 'none',
-                border: 'none',
-            }
+                background: "transparent",
+                outline: "none",
+                border: "none",
+                padding: 0,
+            },
         }}
     >
-        <div className="flex fixed z-50 align-middle justify-center w-full p-4 overflow-x-hidden overflow-y-auto h-modal">
-            <div className="flex relative align-middle justify-center w-full h-full max-w-2xl right-16 -md:ml-20 -md:mr-2 -md:mt-6">
-                <div className="relative bg-gray-900 rounded-xl shadow">
-                    <div className="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-600">
-                        <h3 className="text-xl font-semibold text-gray-300 justify-center">
-                            Welcome to the Quiz Activity!
-                        </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-2xl">
+                <div className="bg-card rounded-3xl shadow-xl border border-accent">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-8 border-b border-primary">
+                        <h2 className="text-3xl font-semibold text-gradient-primary">
+                            Welcome to the Quiz!
+                        </h2>
                         <button
                             type="button"
-                            className="text-gray-300 bg-transparent hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center hover:bg-gray-600"
+                            className="text-secondary hover:text-accent transition-colors duration-200 p-2 rounded-lg hover:bg-[var(--neutral-200)]"
                             onClick={() => isActive(false)}
                         >
-                            <SquareX className={"w-10 h-10 fill-gray-300"} />
+                            <SquareX className="w-8 h-8" />
                         </button>
                     </div>
-                    <div className="p-6 space-y-6">
-                        <p className="text-base leading-relaxed text-gray-300 dark:text-gray-400">
-                            This is the quiz-taking activity. You have {amount} questions on this quiz. Each question is multiple choice.
-                            You will have {duration} minutes to answer all {amount} questions.
-                            Select the best answer for each question. When you're done, click submit to view your results!
+                    
+                    {/* Content */}
+                    <div className="p-8 space-y-6">
+                        <p className="text-lg leading-7 text-secondary">
+                            Welcome to your quiz activity! Here's what you need to know:
                         </p>
+                        
+                        <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-accent rounded-full mt-3 flex-shrink-0"></div>
+                                <p className="text-base text-secondary">
+                                    <span className="font-semibold text-accent">Questions:</span> You have {amount} questions to complete
+                                </p>
+                            </div>
+                            
+                            <div className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-accent rounded-full mt-3 flex-shrink-0"></div>
+                                <p className="text-base text-secondary">
+                                    <span className="font-semibold text-accent">Time Limit:</span> You have {duration} minutes to finish all questions
+                                </p>
+                            </div>
+                            
+                            <div className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-accent rounded-full mt-3 flex-shrink-0"></div>
+                                <p className="text-base text-secondary">
+                                    <span className="font-semibold text-accent">Answer Types:</span> Questions may be multiple choice, fill-in-the-blank, or drag-and-drop
+                                </p>
+                            </div>
+                            
+                            <div className="flex items-start gap-3">
+                                <div className="w-2 h-2 bg-accent rounded-full mt-3 flex-shrink-0"></div>
+                                <p className="text-base text-secondary">
+                                    <span className="font-semibold text-accent">Progress:</span> Track your progress with the progress bar at the top
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-[var(--neutral-200)] rounded-lg p-4 border border-primary">
+                            <p className="text-base text-black">
+                                <span className="font-semibold">💡 Tip:</span> Read each question carefully and select the best answer. You can change your answers before submitting!
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex items-center justify-center p-6 border-t rounded-b border-gray-600">
+                    
+                    {/* Action Button */}
+                    <div className="flex items-center justify-center p-8 border-t border-primary">
                         <button
                             type="button"
-                            className="text-gray-300 bg-gray-700 hover:bg-gray-600 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                            className="px-8 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
                             onClick={() => isActive(false)}
                         >
-                            Let's Go!
+                            Let's Get Started!
                         </button>
                     </div>
                 </div>

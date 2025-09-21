@@ -14,21 +14,21 @@ export const QuizResult = ({ category, icon }) => {
 
   return (
     <div className="p-2">
-      <div className="flex flex-col items-center px-6 py-6 rounded-xl bg-gradient-to-br from-[#35106a] to-[#210d42] border border-violet-700 text-white shadow-md hover:shadow-xl hover:scale-[1.03] transition-transform duration-200">
-        <div className="text-xs font-bold uppercase tracking-wide text-violet-300 mb-2">
+      <div className="flex flex-col items-center px-6 py-6 rounded-xl card shadow-md hover:scale-105 transition-transform duration-200 border border-accent">
+        <div className="text-2xl font-extrabold uppercase tracking-wide text-gradient-primary mb-2">
           {category}
         </div>
-        <div className="mb-4">{icon}</div>
+        <div className="mb-4 fill-current text-[var(--primary-300)]">{icon}</div>
         {loading ? (
-          <ClipLoader color="#ffffff" size={22} />
+          <ClipLoader color="#bf8bff" size={22} />
         ) : (
-          <div className="space-y-1 text-sm text-gray-200 text-center">
+          <div className="space-y-1 text-sm text-center">
             <p>
-              <span className="text-white font-medium">Best:</span>{' '}
+              <span className="font-bold">Best:</span>{' '}
               {Math.round(score * 100)}%
             </p>
             <p>
-              <span className="text-white font-medium">Avg:</span>{' '}
+              <span className="font-bold">Avg:</span>{' '}
               {Math.round(avgScore * 100)}%
             </p>
           </div>

@@ -16,8 +16,11 @@ class SearchBar extends Component {
 
 	render() {
     	return (
-			<div onChange={this.onChangeValue}> 
-				<input id="inputSearchBar" type="text" placeholder="Search" className="w-1/4" />
+			<div onChange={this.onChangeValue}>
+				<label>Search: 
+					<input id="inputSearchBar" type="text" placeholder="Search" className="w-[150px] p-1 ml-1 text-black" />
+				</label>
+				
 			</div>
     	);
   	}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const StarRating = ({ difficulty, selectDifficulty }) => {
   const [difficultyState, setDifficulty] = useState(0);
@@ -6,8 +6,6 @@ const StarRating = ({ difficulty, selectDifficulty }) => {
   const handleStarClick = (starIndex) => {
     let newDifficulty = starIndex + 1;
     if (newDifficulty === difficultyState) {
-
-      // Toggle off all starts if clicking on the currently selected star
       newDifficulty = 0;
     }
     setDifficulty(newDifficulty);
@@ -15,26 +13,20 @@ const StarRating = ({ difficulty, selectDifficulty }) => {
   };
 
   return (
-    <div style={{ fontSize: '45px' }}>
+    <div className='flex justify-center text-5xl'>
       {[...Array(5)].map((_, index) => (
         <span
           key={index}
-          style={{
-            cursor: 'pointer',
-            width: '55px',
-            display: 'inline-block',
-            textAlign: 'center',
-            color: index < difficulty ? '#CCCCCC' : '#CCCCCC',
-          }}
+          className={`cursor-pointer ${
+            index < difficultyState ? 'text-gradient-primary' : 'var(--neutral-300)'
+          }`}
           onClick={() => handleStarClick(index)}
         >
-          {index < difficultyState ? '⭐' : '☆'}
+          ★
         </span>
       ))}
-      {/* <p>Current rating: {difficultyState}</p> */}
-      </div>
+    </div>
   );
 };
 
 export default StarRating;
-

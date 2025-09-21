@@ -50,12 +50,12 @@ export const QUIZ_SUBCATEGORIES = {
  * Order must match QUIZ_CATEGORIES array
  */
 export const CATEGORY_ICONS = [
-    <World className="w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8" />,
-    <FlaskVial className="w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8" />,
-    <Basketball className="w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8" />,
-    <Ticket className="w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8" />,
-    <Calculator className="w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8" />,
-    <Book className="w-10 h-10 fill-gray-300 -sm:w-8 -sm:h-8" />
+    <World className="w-10 h-10 -sm:w-8 -sm:h-8" />,
+    <FlaskVial className="w-10 h-10 -sm:w-8 -sm:h-8" />,
+    <Basketball className="w-10 h-10 -sm:w-8 -sm:h-8" />,
+    <Ticket className="w-10 h-10 -sm:w-8 -sm:h-8" />,
+    <Calculator className="w-10 h-10 -sm:w-8 -sm:h-8" />,
+    <Book className="w-10 h-10 -sm:w-8 -sm:h-8" />
 ];
 
 /**
