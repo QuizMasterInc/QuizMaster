@@ -6,17 +6,7 @@ import DoneModal from './DoneModal';
 import HelpModal from './HelpModal';
 import Timer from './Timer';
 import ProgressBar from './ProgressBar';
-import BackToTop from './BackToTopButton';
-import BackGroundMusic from '../sounds/BackGroundMusic';
 
-const shuffle = (array) => {
-  const a = [...array];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-};
 
 function QuizActivity() {
   const {
@@ -360,8 +350,7 @@ function QuizActivity() {
         />
       )}
 
-      <BackToTop />
-      {!completed && <BackGroundMusic />}
+
     </div>
   );
 
