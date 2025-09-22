@@ -1,37 +1,34 @@
 import React, { useState, useRef, useEffect } from "react";
-import { FaChevronDown } from "react-icons/fa";
-import { House, School, Computer, Profile, Info, SignIn, Email, Gear, Q } from "../icons/index.jsx";
+import { FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
+import { School, Computer, Profile, Info, SignIn, Email, Gear, Q } from "../icons/index.jsx";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import '../../styles/nav.css';
 
 export default function NavBar() {
     const { currentUser, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
-    const [homeOpen, setHomeOpen] = useState(false);
-    const [infoOpen, setInfoOpen] = useState(false);
     const [dashboardOpen, setDashboardOpen] = useState(false);
-    const homeRef = useRef(null);
-    const infoRef = useRef(null);
+    const [homeOpen, setHomeOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const dashboardRef = useRef(null);
+    const homeRef = useRef(null);
 
     useEffect(() => {
         function handleClickOutside(event) {
-            if (homeOpen && homeRef.current && !homeRef.current.contains(event.target)) {
-                setHomeOpen(false);
-            }
-            if (infoOpen && infoRef.current && !infoRef.current.contains(event.target)) {
-                setInfoOpen(false);
-            }
             if (dashboardOpen && dashboardRef.current && !dashboardRef.current.contains(event.target)) {
                 setDashboardOpen(false);
+            }
+            if (homeOpen && homeRef.current && !homeRef.current.contains(event.target)) {
+                setHomeOpen(false);
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [homeOpen, infoOpen, dashboardOpen]);
+    }, [dashboardOpen, homeOpen]);
 
     const handleClick = (e) => {
         if (location.pathname === "/quizstarted") {
@@ -44,6 +41,7 @@ export default function NavBar() {
             }
         }
         window.scrollTo(0, 0);
+        setMobileMenuOpen(false);
     };
 
     const handleLogout = async () => {
@@ -51,6 +49,7 @@ export default function NavBar() {
             await logout();
             navigate('/signin');
             setDashboardOpen(false);
+            setMobileMenuOpen(false);
         } catch (error) {
             console.error("Failed to logout:", error);
         }
@@ -58,126 +57,20 @@ export default function NavBar() {
 
     return (
         <nav className="w-full shadow-lg flex items-center px-6 py-4 relative navbar-bg">
-            {/* Logo */}
+            <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="hamburger-menu mr-4"
+                aria-label="Toggle Mobile Menu"
+            >
+                {mobileMenuOpen ? <FaTimes className="w-6 h-6" /> : <FaBars className="w-6 h-6" />}
+            </button>
+
             <NavLink to="/" className="w-10 h-10 flex items-center mr-4">
                 <Q className="w-8 h-8 drop-shadow-lg navbar-logo" />
             </NavLink>
 
-            {/* Home Dropdown */}
-            <div className="relative group" ref={homeRef}>
-                <div className="flex">
-                    <NavLink
-                        to="/"
-                        onClick={handleClick}
-                        className="flex items-center gap-2 font-semibold px-4 py-2 rounded-l navbar-link"
-                    >
-                        <House className="w-5 h-5 navbar-icon" />
-                        Home
-                    </NavLink>
-                    <button
-                        onClick={() => setHomeOpen((open) => !open)}
-                        type="button"
-                        className="px-2 py-2 rounded-r navbar-button"
-                        aria-label="Toggle Home Dropdown"
-                    >
-                        <FaChevronDown className="navbar-arrow" />
-                    </button>
-                </div>
-                {homeOpen && (
-                    <ul className="absolute left-0 mt-2 w-48 rounded shadow-lg z-50 navbar-dropdown">
-                        <li>
-                            <NavLink
-                                to="/typeofquiz"
-                                onClick={e => {
-                                    handleClick(e);
-                                    setHomeOpen(false);
-                                }}
-                                className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                            >
-                                <School className="w-5 h-5 navbar-icon" />
-                                Take a Quiz!
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/flashcards"
-                                onClick={e => {
-                                    handleClick(e);
-                                    setHomeOpen(false);
-                                }}
-                                className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                            >
-                                <Computer className="w-5 h-5 navbar-icon" />
-                                Make Flashcards
-                            </NavLink>
-                        </li>
-                    </ul>
-                )}
-            </div>
-
-            {/* Information Dropdown */}
-            <div className="relative group ml-4" ref={infoRef}>
-                <div className="flex">
-                    <NavLink
-                        to="/about"
-                        onClick={handleClick}
-                        className="flex items-center gap-2 font-semibold px-4 py-2 rounded-l navbar-link"
-                    >
-                        <Info className="w-5 h-5 navbar-icon" />
-                        About
-                    </NavLink>
-                    <button
-                        onClick={() => setInfoOpen((open) => !open)}
-                        type="button"
-                        className="px-2 py-2 rounded-r navbar-button"
-                        aria-label="Toggle Information Dropdown"
-                    >
-                        <FaChevronDown className="navbar-arrow" />
-                    </button>
-                </div>
-                {infoOpen && (
-                    <ul className="absolute left-0 mt-2 w-48 rounded shadow-lg z-50 navbar-dropdown">
-                        <li>
-                            <NavLink
-                                to="/contact"
-                                onClick={e => {
-                                    handleClick(e);
-                                    setInfoOpen(false);
-                                }}
-                                className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                            >
-                                <Email className="w-5 h-5 navbar-icon" />
-                                Contact Us
-                            </NavLink>
-                        </li>
-                        <li>
-                            <NavLink
-                                to="/settings"
-                                onClick={e => {
-                                    handleClick(e);
-                                    setInfoOpen(false);
-                                }}
-                                className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                            >
-                                <Gear className="w-5 h-5 navbar-icon" />
-                                Settings
-                            </NavLink>
-                        </li>
-                    </ul>
-                )}
-            </div>
-
-            {/* Spacer */}
-            <div className="flex-1" />
-
-            {/* Centered Brand Name */}
-            <h1 className="absolute left-1/2 transform -translate-x-1/2 sm:text-2xl font-extrabold">
-                <span className="text-3xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">QuizMaster</span>
-            </h1>
-
-            {/* Sign In / Dashboard */}
-            <div className="pr-4">
-                {currentUser ? (
+            <div className="nav-links">
+                {currentUser && (
                     <div className="relative group" ref={dashboardRef}>
                         <div className="flex">
                             <NavLink
@@ -198,43 +91,233 @@ export default function NavBar() {
                             </button>
                         </div>
                         {dashboardOpen && (
-                            <ul className="absolute right-0 mt-2 w-48 rounded shadow-lg z-50 navbar-dropdown">
+                            <ul className="absolute left-0 mt-2 w-48 rounded shadow-lg z-50 navbar-dropdown">
                                 <li>
                                     <NavLink
-                                        to="/dashboard"
+                                        to="/typeofquiz"
                                         onClick={e => {
                                             handleClick(e);
                                             setDashboardOpen(false);
                                         }}
                                         className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
                                     >
-                                        <Profile className="w-5 h-5 navbar-icon" />
-                                        Dashboard
+                                        <School className="w-5 h-5 navbar-icon" />
+                                        Take a Quiz!
                                     </NavLink>
                                 </li>
                                 <li>
-                                    <button
-                                        onClick={handleLogout}
-                                        className="w-full text-left flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    <NavLink
+                                        to="/flashcards"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
                                     >
-                                        <SignIn className="w-5 h-5 navbar-icon" />
-                                        Logout
-                                    </button>
+                                        <Computer className="w-5 h-5 navbar-icon" />
+                                        Make Flashcards
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
+                                        to="/about"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <Info className="w-5 h-5 navbar-icon" />
+                                        About
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
+                                        to="/contact"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <Email className="w-5 h-5 navbar-icon" />
+                                        Contact Us
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
+                                        to="/settings"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <Gear className="w-5 h-5 navbar-icon" />
+                                        Settings
+                                    </NavLink>
                                 </li>
                             </ul>
                         )}
                     </div>
-                ) : (
-                    <NavLink
-                        to="/signin"
-                        onClick={handleClick}
-                        className="flex items-center gap-2 font-semibold px-4 py-2 rounded navbar-link"
-                    >
-                        <SignIn className="w-5 h-5 navbar-icon" />
-                        Sign In
-                    </NavLink>
                 )}
+
+                {!currentUser && (
+                    <div className="relative group ml-4" ref={homeRef}>
+                        <div className="flex">
+                            <NavLink
+                                to="/"
+                                onClick={handleClick}
+                                className="flex items-center gap-2 font-semibold px-4 py-2 rounded-l navbar-link"
+                            >
+                                <Profile className="w-5 h-5 navbar-icon" />
+                                Home
+                            </NavLink>
+                            <button
+                                onClick={() => setHomeOpen((open) => !open)}
+                                type="button"
+                                className="px-2 py-2 rounded-r navbar-button"
+                                aria-label="Toggle Home Dropdown"
+                            >
+                                <FaChevronDown className="navbar-arrow" />
+                            </button>
+                        </div>
+                        {homeOpen && (
+                            <ul className="absolute left-0 mt-2 w-48 rounded shadow-lg z-50 navbar-dropdown">
+                                <li>
+                                    <NavLink
+                                        to="/about"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setHomeOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <Info className="w-5 h-5 navbar-icon" />
+                                        About
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
+                                        to="/contact"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setHomeOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <Email className="w-5 h-5 navbar-icon" />
+                                        Contact Us
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
+                                        to="/settings"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setHomeOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <Gear className="w-5 h-5 navbar-icon" />
+                                        Settings
+                                    </NavLink>
+                                </li>
+                            </ul>
+                        )}
+                    </div>
+                )}
+
+
+                <div className="flex-1" />
+
+                <div className="pr-4">
+                    {currentUser ? (
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 font-semibold px-4 py-2 rounded navbar-link"
+                        >
+                            <SignIn className="w-5 h-5 navbar-icon" />
+                            Logout
+                        </button>
+                    ) : (
+                        <NavLink
+                            to="/signin"
+                            onClick={handleClick}
+                            className="flex items-center gap-2 font-semibold px-4 py-2 rounded navbar-link"
+                        >
+                            <SignIn className="w-5 h-5 navbar-icon" />
+                            Sign In
+                        </NavLink>
+                    )}
+                </div>
             </div>
+
+            <h1 className="brand-title absolute left-1/2 transform -translate-x-1/2 sm:text-2xl font-extrabold">
+                <span className="text-3xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">QuizMaster</span>
+            </h1>
+
+            {mobileMenuOpen && (
+                <div className="mobile-nav absolute top-full left-0 w-full navbar-bg shadow-lg z-50">
+                    <div className="flex flex-col p-4">
+                        {currentUser ? (
+                            <>
+                                <NavLink to="/dashboard" onClick={handleClick} className="mobile-nav-item">
+                                    <Profile className="w-5 h-5" />
+                                    Dashboard
+                                </NavLink>
+                                <NavLink to="/typeofquiz" onClick={handleClick} className="mobile-nav-item">
+                                    <School className="w-5 h-5" />
+                                    Take a Quiz!
+                                </NavLink>
+                                <NavLink to="/flashcards" onClick={handleClick} className="mobile-nav-item">
+                                    <Computer className="w-5 h-5" />
+                                    Make Flashcards
+                                </NavLink>
+                                <NavLink to="/about" onClick={handleClick} className="mobile-nav-item">
+                                    <Info className="w-5 h-5" />
+                                    About
+                                </NavLink>
+                                <NavLink to="/contact" onClick={handleClick} className="mobile-nav-item">
+                                    <Email className="w-5 h-5" />
+                                    Contact Us
+                                </NavLink>
+                                <NavLink to="/settings" onClick={handleClick} className="mobile-nav-item">
+                                    <Gear className="w-5 h-5" />
+                                    Settings
+                                </NavLink>
+                                <button onClick={handleLogout} className="mobile-nav-item text-left">
+                                    <SignIn className="w-5 h-5" />
+                                    Logout
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <NavLink to="/" onClick={handleClick} className="mobile-nav-item">
+                                    <Profile className="w-5 h-5" />
+                                    Home
+                                </NavLink>
+                                <NavLink to="/about" onClick={handleClick} className="mobile-nav-item">
+                                    <Info className="w-5 h-5" />
+                                    About
+                                </NavLink>
+                                <NavLink to="/contact" onClick={handleClick} className="mobile-nav-item">
+                                    <Email className="w-5 h-5" />
+                                    Contact Us
+                                </NavLink>
+                                <NavLink to="/settings" onClick={handleClick} className="mobile-nav-item">
+                                    <Gear className="w-5 h-5" />
+                                    Settings
+                                </NavLink>
+                                <NavLink to="/signin" onClick={handleClick} className="mobile-nav-item">
+                                    <SignIn className="w-5 h-5" />
+                                    Sign In
+                                </NavLink>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </nav>
     );
 }
