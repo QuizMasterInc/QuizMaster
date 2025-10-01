@@ -21,26 +21,21 @@ export default function CustomQuiz () {
   useEffect(() => {
     async function fetchUserQuizzes() {
       try {
-        const response = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuizzesByUser?creator=' + currentUser.uid, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-        })
-        if (response.ok) {
-          const data = await response.json()
-          setCustomQuizzes(data)
-          console.log('Custom Quizzes:', data)
-        } else {
-          console.error('Response Error:', response.statusText);
-        }
+        // Use the service layer instead of direct fetch
+        const data = await quizService.getCustomQuizzesByUser(currentUser.uid);
+        setCustomQuizzes(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error('Fetch error:', error);
+        console.error('Error fetching user quizzes:', error);
+        // Set empty array on error to prevent crashes
+        setCustomQuizzes([]);
+        // Don't show alert here as it's not critical for quiz creation
       }
     }
-    fetchUserQuizzes();
-  }, [currentUser.uid]);
+    
+    if (currentUser?.uid) {
+      fetchUserQuizzes();
+    }
+  }, [currentUser?.uid]);
 
   // Create and submit quiz using service layer
   async function sendQuiz() {
@@ -51,15 +46,18 @@ export default function CustomQuiz () {
         return;
       }
 
-      // Create validated quiz object using service
+      // Create validated quiz object using service (let quizService.js handle the transformation)
       const quizInput = {
         quizName,
-        quizData,
+        quizData: quizData, // Send original array format - let service handle transformation
         quizTags,
         privateQuiz,
         privateQuizPassword,
         currentUserId: currentUser.uid,
-        userQuizzes: customQuizzes
+        userQuizzes: customQuizzes,
+        // NEW FIELDS for new schema
+        description: "", // Add a description input field if desired
+        category: "" // Add a category selector if desired
       };
 
       const validationResult = quizService.createValidatedQuizObject(quizInput);
@@ -71,15 +69,25 @@ export default function CustomQuiz () {
 
       // Submit quiz to database
       const response = await quizService.submitCustomQuiz(validationResult.quizObject);
-      console.log("Quiz created successfully:", response);
 
       if (response.quizID) {
-        // Reset form and navigate to quiz
+        // Reset form
         setQuizData([]);
         setQuizName("");
         setPrivateQuizPassword("");
         setQuizTags([]);
-        navigate(`/customquiz/${response.quizID}`);
+        
+        // Refresh the custom quizzes list to include the new quiz
+        try {
+          const updatedQuizzes = await quizService.getCustomQuizzesByUser(currentUser.uid);
+          setCustomQuizzes(Array.isArray(updatedQuizzes) ? updatedQuizzes : []);
+        } catch (error) {
+          console.error('Error refreshing quiz list:', error);
+        }
+        
+        // Show success message and navigate to quiz selection
+        alert(`Quiz "${quizName}" created successfully!`);
+        navigate('/typeofquiz');
       }
 
     } catch (error) {
@@ -95,39 +103,43 @@ export default function CustomQuiz () {
   };
 
   return (
-    <>
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 relative">
-      <div className="h-screen flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-4xl space-y-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+    <div className="min-h-screen py-20 px-6 bg-primary text-primary">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
+            <h1 className="text-4xl font-bold text-center mb-2 text-gradient-primary">
               Create Your Custom Quiz
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-center text-secondary">
               Build engaging quizzes with your own questions and share them with others
             </p>
           </div>
-          
-          <div className="bg-white rounded-xl shadow-xl p-8 space-y-6">
-            <QuizCreation 
-              setQuizData={setQuizData}
-              sendQuiz={sendQuiz}
-              quizName={quizName}
-              setQuizName={setQuizName}
-              privateQuiz={privateQuiz}
-              setPrivateQuiz={setPrivateQuiz}
-              privateQuizPassword={privateQuizPassword}
-              setPrivateQuizPassword={setPrivateQuizPassword}
-              quizTags={quizTags}
-              setQuizTags={setQuizTags}
-              teacherQuiz={teacherQuiz}
-              setTeacherQuiz={setTeacherQuiz}
-            />
-            <QuizQuestionsList quizData={quizData} setQuizData={setQuizData} handleDeleteQuestion={handleDeleteQuestion}/>  
-          </div>
+        </div>
+        
+        {/* Main content container */}
+        <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent space-y-6">
+          <QuizCreation 
+            setQuizData={setQuizData}
+            sendQuiz={sendQuiz}
+            quizName={quizName}
+            setQuizName={setQuizName}
+            privateQuiz={privateQuiz}
+            setPrivateQuiz={setPrivateQuiz}
+            privateQuizPassword={privateQuizPassword}
+            setPrivateQuizPassword={setPrivateQuizPassword}
+            quizTags={quizTags}
+            setQuizTags={setQuizTags}
+            teacherQuiz={teacherQuiz}
+            setTeacherQuiz={setTeacherQuiz}
+          />
+          <QuizQuestionsList 
+            quizData={quizData} 
+            setQuizData={setQuizData} 
+            handleDeleteQuestion={handleDeleteQuestion}
+          />  
         </div>
       </div>
     </div>
-    </>
   )
 }

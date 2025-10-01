@@ -20,14 +20,15 @@ const AllCustomQuizzes = () => {
 
   useEffect(() => {
     fetchQuizzes();
-  }, [browseOptions, currentUser]);
+  }, [currentUser]); // Remove browseOptions dependency to prevent infinite loops
 
-  // Optimized fetch function using server-side operations
+  // Optimized fetch function using server-side operations and Firestore indexes
   const fetchQuizzes = async () => {
     try {
       setLoading(true);
       setError(null);
 
+      // Get filter values from sessionStorage or use defaults
       const searchTerm = sessionStorage.getItem("searchQuery") || '';
       const sortBy = sessionStorage.getItem("sortingQuery") || 'newest';  
       const privacy = sessionStorage.getItem("privacy") || 'all';
@@ -37,8 +38,27 @@ const AllCustomQuizzes = () => {
         sortBy,
         privacy: privacy.toLowerCase(),
         limit: 50,
-        currentUserId: currentUser?.uid || null
+        currentUserId: currentUser?.uid || null,
+        // Leverage indexes for optimized queries
+        useIndexes: true,
+        // Specify which fields we need based on ACTUAL database schema
+        fields: [
+          'metadata.title',
+          'metadata.tags', 
+          'metadata.difficulty',
+          'metadata.category',
+          'metadata.questionCount',
+          'metadata.isPublic',
+          'metadata.hasPassword',
+          'creator.uid',
+          'creator.displayName',
+          'creator.username',
+          'timestamps.createdAt',
+          'timestamps.updatedAt'
+        ]
       };
+
+      console.log('Fetching quizzes with indexed options:', options);
 
       const result = await quizService.browseCustomQuizzes(options);
       setQuizzes(result.quizzes || []);
@@ -46,6 +66,20 @@ const AllCustomQuizzes = () => {
     } catch (error) {
       console.error('Error fetching quizzes:', error);
       setError(error.message || 'Failed to load quizzes');
+      
+      // Fallback: try to get user's own quizzes if browse fails
+      if (currentUser?.uid) {
+        try {
+          const userQuizzes = await quizService.getCustomQuizzesByUser(currentUser.uid);
+          setQuizzes(userQuizzes || []);
+          setError('Showing your quizzes only (server temporarily unavailable)'); // Inform user
+        } catch (fallbackError) {
+          console.error('Fallback also failed:', fallbackError);
+          setQuizzes([]); // Set empty array as final fallback
+        }
+      } else {
+        setQuizzes([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -54,6 +88,28 @@ const AllCustomQuizzes = () => {
   // Trigger refetch when user changes filters
   const handleSearchAndFilter = () => {
     fetchQuizzes();
+  };
+
+  // Handle filter updates from child components
+  const updateFilters = (newFilters) => {
+    setBrowseOptions(prev => ({
+      ...prev,
+      ...newFilters
+    }));
+    
+    // Update sessionStorage
+    if (newFilters.searchTerm !== undefined) {
+      sessionStorage.setItem("searchQuery", newFilters.searchTerm);
+    }
+    if (newFilters.sortBy !== undefined) {
+      sessionStorage.setItem("sortingQuery", newFilters.sortBy);
+    }
+    if (newFilters.privacy !== undefined) {
+      sessionStorage.setItem("privacy", newFilters.privacy);
+    }
+    
+    // Fetch with new filters
+    setTimeout(fetchQuizzes, 100); // Small delay to ensure sessionStorage is updated
   };
 
   return (
@@ -65,8 +121,8 @@ const AllCustomQuizzes = () => {
         </h1>
 
         <div className="flex justify-center items-center gap-4 mt-4">
-          <SearchBar />
-          <PrivacyList />
+          <SearchBar onSearch={(term) => updateFilters({ searchTerm: term })} />
+          <PrivacyList onPrivacyChange={(privacy) => updateFilters({ privacy })} />
           <SortByList onSortChange={handleSearchAndFilter} />
           <button
             className="inline-block px-4 py-1 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
@@ -95,17 +151,44 @@ const AllCustomQuizzes = () => {
           </div>
         ) : (
           <div id="customQuizDiv" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
-            {quizzes.map((q) => (
-              <CustomQuizSelectButton
-                key={q.title + q.uid}
-                title={q.title}
-                numQuestions={q.numQuestions}
-                tags={q.tags}
-                uid={q.uid}
-                quizPassword={q.quizPassword}
-                creator={q.creator}
-              />
-            ))}
+            {quizzes.map((q) => {
+              // Use the normalized data from the service layer or fallback
+              const quizData = quizService.normalizeQuizData ? quizService.normalizeQuizData(q) : {
+                // Fallback normalization using corrected schema mapping
+                id: q.id || q.uid,
+                title: q.metadata?.title || q.title || 'Untitled Quiz',
+                numQuestions: q.metadata?.questionCount || q.numQuestions || q.questionCount || 0,
+                tags: Array.isArray(q.metadata?.tags) ? q.metadata.tags.join(', ') : (q.tags || ''),
+                // FIXED: Check for password fields that backend actually returns
+                quizPassword: q.hasPassword || q.metadata?.hasPassword || q.password || q.metadata?.password ? 'protected' : null,
+                creator: q.creator?.displayName || q.creator?.username || q.creator || 'Anonymous User', // Use display name!
+                difficulty: q.metadata?.difficulty || q.difficulty || 'Medium',
+                category: q.metadata?.category || q.category || 'General',
+                isPrivate: !q.metadata?.isPublic || q.isPrivate || false,
+                createdAt: q.timestamps?.createdAt || q.createdAt,
+                updatedAt: q.timestamps?.updatedAt || q.updatedAt
+              };
+              
+
+
+              return (
+                <CustomQuizSelectButton
+                  key={quizData.id + quizData.title}
+                  title={quizData.title}
+                  numQuestions={quizData.numQuestions}
+                  tags={Array.isArray(quizData.tags) ? quizData.tags.join(', ') : quizData.tags}
+                  uid={quizData.id}
+                  quizPassword={quizData.password}
+                  creator={quizData.creator}
+                  difficulty={quizData.difficulty}
+                  category={quizData.category}
+                  attempts={quizData.attempts}
+                  averageScore={quizData.averageScore}
+                  createdAt={quizData.createdAt}
+                  isPrivate={quizData.isPrivate}
+                />
+              );
+            })}
           </div>
         )}
 

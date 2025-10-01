@@ -1,10 +1,9 @@
 /**
  * This component hosts a button to click for each custom quiz
  */
-import React, {useState, useEffect} from "react"
+import React, {useState} from "react"
 import { useAuth } from "../../../contexts/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
-import { getDatabase, ref, get } from "firebase/database"; 
+import { Link, useNavigate } from "react-router-dom"; 
 
 const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, creator}) => {
 
@@ -12,37 +11,13 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
   const navigate = useNavigate()
   const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("")
   // const [quizPasswordAttemptCheck, setQuizPasswordAttemptCheck] = useState()
-  const [creatorInfo, setCreatorInfo] = useState(null);
-
-  useEffect(() => {
-    const fetchCreatorInfo = async () => {
-      try {
-        const db = getDatabase();
-        const creatorRef = ref(db, 'users/' + creator);  // 'creator' is the user ID
-
-        // Fetch user info from the database using the creator ID
-        const creatorSnapshot = await get(creatorRef);
-
-        if (creatorSnapshot.exists()) {
-          const data = creatorSnapshot.val();
-          setCreatorInfo(data);  // Set the creator info to state
-        } else {
-          setCreatorInfo(null);  // Set to null if no data exists
-        }
-      } catch (error) {
-        console.error("Error fetching creator info:", error);
-      }
-    };
-
-    if (creator) {
-      fetchCreatorInfo();  // Only fetch if creator ID exists
-    }
-  }, [creator]);  // Dependency on 'creator' to refetch if creator changes
+  // Removed unnecessary creator info fetching since we already get the display name from the backend
 
 
 
   function displayCreatorName() {
-    return "Created By: " + creator;
+    // Use the creator prop directly (it's already the display name from the backend)
+    return "Created By: " + (creator || 'Anonymous User');
   }
 
 
@@ -53,11 +28,42 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
       return;
   }
 
-  const quizPasswordCheck = (quizPasswordAttempt, quizPassword)=> {
-      if (quizPasswordAttempt == quizPassword) {
-          navigate('/quizstarted/' + uid)
-      } else {
-          alert("Quiz Password is Incorrect!")
+  const quizPasswordCheck = async (quizPasswordAttempt, quizPassword) => {
+      if (!quizPasswordAttempt.trim()) {
+          alert("Please enter a password!");
+          return;
+      }
+      
+      try {
+          // Test password by attempting to fetch the quiz with the password
+          const response = await fetch(
+              `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz?quizid=${uid}&password=${encodeURIComponent(quizPasswordAttempt)}`
+          );
+          
+          if (!response.ok) {
+              if (response.status === 401) {
+                  alert("Incorrect password! Please try again.");
+              } else {
+                  alert("Server error. Please try again later.");
+              }
+              return;
+          }
+          
+          const result = await response.json();
+          
+          if (result.result && result.status === 200) {
+              // Password correct, navigate to quiz
+              navigate('/quizstarted/' + uid, { 
+                state: { password: quizPasswordAttempt } 
+              });
+          } else if (result.requiresPassword) {
+              alert("Incorrect password! Please try again.");
+          } else {
+              alert("Error accessing quiz: " + (result.message || "Unknown error"));
+          }
+      } catch (error) {
+          console.error('Password verification failed:', error);
+          alert("Network error. Please check your connection and try again.");
       }
   }
 

@@ -25,8 +25,8 @@ firebase deploy --only functions:functionName1,functionName2
 
 ## 📊 Function Architecture Overview
 
-**Total Functions**: 18 functions (11 v1 + 7 optimized v2)  
-- **HTTP Triggers**: 17 functions  
+**Total Functions**: 22 functions (11 v1 + 7 optimized v2 + 4 flashcard functions)  
+- **HTTP Triggers**: 21 functions  
 - **Auth Triggers**: 2 functions (v1 legacy, Node.js 18)
 - **Runtime**: Node.js 20 (2nd Gen) for all critical functions
 - **Caching**: Intelligent 5-30 minute caching on all V2 functions
@@ -104,6 +104,38 @@ These are heavily optimized 2nd Gen functions with **Node.js 20**, server-side f
 - **Caching**: 5 minutes
 - **Security**: Server-side privacy filtering prevents data exposure
 - **Returns**: Filtered, sorted, and searched quiz results with metadata
+
+### **🎴 Flashcard Deck Management**
+
+#### `addCustomFlashcardDeck` 🚀 **NEW**
+- **Purpose**: Create a new flashcard deck with user stats tracking
+- **Method**: POST with JSON body containing deck metadata and cards
+- **Optimization**: Atomic deck creation with user statistics update
+- **Performance**: Single transaction for deck creation and user stats
+- **User Stats**: Updates `flashcardDecksCreated` counter
+- **Returns**: Created deck object with assigned ID
+
+#### `getUserFlashcardDecks` 🚀 **NEW**
+- **Purpose**: Get flashcard decks created by a specific user
+- **Method**: POST with JSON body `{ "userId": "user_id" }`
+- **Optimization**: Server-side filtering by creator and active status
+- **Performance**: Filtered queries instead of client-side processing
+- **Returns**: Array of user's flashcard deck objects with metadata
+
+#### `getFlashcardDeck` 🚀 **NEW**
+- **Purpose**: Get a specific flashcard deck by ID
+- **Method**: POST with JSON body `{ "deckId": "deck_id" }`
+- **Optimization**: Direct document retrieval by ID
+- **Performance**: O(1) lookup time
+- **Returns**: Complete deck object with cards and metadata
+
+#### `deleteFlashcardDeck` 🚀 **NEW**
+- **Purpose**: Soft delete a flashcard deck and update user stats
+- **Method**: POST with JSON body `{ "deckId": "deck_id", "userId": "user_id" }`
+- **Optimization**: Soft delete with user verification and stats update
+- **Performance**: Single transaction for deletion and stats update
+- **Security**: Verifies user ownership before deletion
+- **Returns**: Success confirmation with updated user stats
 
 ---
 

@@ -27,58 +27,95 @@ This component is what allows the editing capability of each individual question
 import { useState, useEffect } from 'react'
 import { useQuiz } from '../../contexts/QuizContext'
 
-function EditQuestion({ num, q }) {
-  const type = q.type || q.questionType || "Multiple";
+function EditQuestion({ num, q, index }) {
+  // Normalize question data to work with both formats
+  const normalizeQuestion = (questionData) => {
+    // If it's already in new format (has 'type' field)
+    if (questionData.type || questionData.questionType) {
+      return {
+        type: questionData.type || questionData.questionType || "multiple-choice",
+        question: questionData.question,
+        options: questionData.options || [],
+        correctAnswer: questionData.correctAnswer || questionData.correct_answer,
+        explanation: questionData.explanation || "",
+        points: questionData.points || 1,
+        difficulty: questionData.difficulty || "3"
+      };
+    }
+    
+    // OLD format - array like ["question", "opt1", "opt2", "opt3", "opt4", "answer", "type"]
+    if (Array.isArray(questionData)) {
+      return {
+        type: questionData[6] === "TrueFalse" ? "true-false" : 
+              questionData[6] === "FillInTheBlank" ? "fill-blank" : "multiple-choice",
+        question: questionData[0],
+        options: questionData[6] === "FillInTheBlank" ? [questionData[1]] : 
+                 [questionData[1], questionData[2], questionData[3], questionData[4]].filter(Boolean),
+        correctAnswer: questionData[5],
+        explanation: "",
+        points: 1,
+        difficulty: "3"
+      };
+    }
+    
+    // OLD format - object like {question, option_1, option_2, ...}
+    return {
+      type: questionData.questionType || "multiple-choice",
+      question: questionData.question,
+      options: [questionData.option_1, questionData.option_2, 
+                questionData.option_3, questionData.option_4].filter(Boolean),
+      correctAnswer: questionData.correct_answer,
+      explanation: questionData.explanation || "",
+      points: questionData.points || 1,
+      difficulty: questionData.difficulty || "3"
+    };
+  };
+
+  const normalized = normalizeQuestion(q);
+  const type = normalized.type;
+  
   const [editingQuestion, toggleEditing] = useState(false);
-  const [question, editQuestion] = useState(q.question);
+  const [question, editQuestion] = useState(normalized.question);
   const [questionNum, changeQuestionNum] = useState(num.split(" ")[1]);
-  const [answer_A, editAnswer_A] = useState(q.option_1);
-  const [answer_B, editAnswer_B] = useState(q.option_2);
-  const [answer_C, editAnswer_C] = useState(q.option_3);
-  const [answer_D, editAnswer_D] = useState(q.option_4);
+  const [answers, setAnswers] = useState(normalized.options);
   const [selectedCorrectAnswers, setSelectedCorrectAnswers] = useState([]);
-  const [correctAnswer, changeCorrectAnswer] = useState(q.correct_answer);
+  const [correctAnswer, changeCorrectAnswer] = useState(normalized.correctAnswer);
 
+  const isMultipleAnswer = type === "multiple-answer";
   const customQuizData = useQuiz();
-
-  const isMultipleAnswer = type === "MultipleAnswer";
 
   const handleFinishClick = () => {
     toggleEditing(false);
 
-    const sameQuestion = customQuizData.quiz.questions[num].question === question;
+    // Get current normalized question for comparison
+    const currentNormalized = normalizeQuestion(customQuizData.quiz.questions[num]);
+    
+    const sameQuestion = currentNormalized.question === question;
     const sameOrder = num.split(" ")[1] === questionNum;
-    const sameAnswers = (
-      customQuizData.quiz.questions[num].option_1 === answer_A &&
-      customQuizData.quiz.questions[num].option_2 === answer_B &&
-      customQuizData.quiz.questions[num].option_3 === answer_C &&
-      customQuizData.quiz.questions[num].option_4 === answer_D &&
-      customQuizData.quiz.questions[num].correct_answer === correctAnswer
-    );
-    const sameFillInBlank = customQuizData.quiz.questions[num].option_1 === answer_A;
+    const sameAnswers = JSON.stringify(currentNormalized.options) === JSON.stringify(answers);
+    const sameCorrectAnswer = currentNormalized.correctAnswer === correctAnswer;
 
-    if (sameQuestion && sameOrder && (type === "FillInTheBlank" ? sameFillInBlank : sameAnswers)) return;
+    if (sameQuestion && sameOrder && sameAnswers && sameCorrectAnswer) return;
 
     const newMap = { ...customQuizData.quiz.questions };
 
     const updateFields = (mapKey) => {
-      newMap[mapKey].question = question;
-
-      if (type === "FillInTheBlank") {
-        newMap[mapKey].option_1 = answer_A;
-        newMap[mapKey].option_2 = "";
-        newMap[mapKey].option_3 = "";
-        newMap[mapKey].option_4 = "";
-        newMap[mapKey].correct_answer = answer_A;
-      } else {
-        newMap[mapKey].option_1 = answer_A;
-        newMap[mapKey].option_2 = answer_B;
-        newMap[mapKey].option_3 = answer_C;
-        newMap[mapKey].option_4 = answer_D;
-        newMap[mapKey].correct_answer = isMultipleAnswer
+      // Create new format question object
+      const updatedQuestion = {
+        id: `q${questionNum}`,
+        type: type,
+        question: question,
+        options: type === "fill-blank" ? [answers[0]] : answers.filter(a => a.trim() !== ''),
+        correctAnswer: isMultipleAnswer
           ? selectedCorrectAnswers.join("||")
-          : correctAnswer;
-      }
+          : correctAnswer,
+        explanation: normalized.explanation,
+        points: normalized.points,
+        category: "",
+        difficulty: normalized.difficulty
+      };
+      
+      newMap[mapKey] = updatedQuestion;
     };
 
     if (!sameOrder) {
@@ -111,120 +148,179 @@ function EditQuestion({ num, q }) {
   };
 
   useEffect(() => {
-    editQuestion(q.question);
-    editAnswer_A(q.option_1);
-    editAnswer_B(q.option_2);
-    editAnswer_C(q.option_3);
-    editAnswer_D(q.option_4);
-    changeCorrectAnswer(q.correct_answer);
+    const currentNormalized = normalizeQuestion(customQuizData.quiz.questions[num]);
+    editQuestion(currentNormalized.question);
+    
+    // Ensure we have 4 slots for answers
+    const paddedAnswers = [...currentNormalized.options];
+    while (paddedAnswers.length < 4) {
+      paddedAnswers.push('');
+    }
+    setAnswers(paddedAnswers);
+    
+    changeCorrectAnswer(currentNormalized.correctAnswer);
     changeQuestionNum(num.split(" ")[1]);
 
-    if (type === "MultipleAnswer") {
-      const splitAnswers = q.correct_answer?.split("||").map(s => s.trim()) || [];
+    if (type === "multiple-answer") {
+      const splitAnswers = currentNormalized.correctAnswer?.split("||").map(s => s.trim()) || [];
       setSelectedCorrectAnswers(splitAnswers);
     }
-  }, [customQuizData.quiz]);
+  }, [customQuizData.quiz, num]);
 
-  const allAnswers = [answer_A, answer_B, answer_C, answer_D];
-  const answerSetters = [editAnswer_A, editAnswer_B, editAnswer_C, editAnswer_D];
+  const updateAnswer = (index, value) => {
+    setAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[index] = value;
+      return newAnswers;
+    });
+  };
 
   return (
-    <div className="flex flex-col bg-gray-900 rounded-3xl shadow-lg m-5 p-4 items-center">
+    <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
       {editingQuestion ? (
         <>
-          <form className="flex w-10/12">
-            <input
-              type="number"
-              min="1"
-              max={customQuizData.quiz.numQuestions}
-              onChange={(e) => changeQuestionNum(e.target.value)}
-              value={questionNum}
-              className="bg-inherit text-black w-9 p-0 bg-slate-500 focus:bg-slate-300 mr-1 rounded"
-            />
-            <textarea
-              value={question}
-              onChange={(e) => editQuestion(e.target.value)}
-              className="bg-slate-400 focus:bg-slate-300 text-black w-full p-2 rounded"
-            />
-          </form>
+          {/* Editing Mode */}
+          <div className="space-y-6">
+            {/* Question Number and Text */}
+            <div className="flex gap-4 items-start">
+              <input
+                type="number"
+                min="1"
+                max={customQuizData.quiz.numQuestions}
+                onChange={(e) => changeQuestionNum(e.target.value)}
+                value={questionNum}
+                className="w-20 px-3 py-2 rounded-lg bg-input text-primary border border-accent focus:border-accent-hover"
+              />
+              <textarea
+                value={question}
+                onChange={(e) => editQuestion(e.target.value)}
+                className="flex-1 px-3 py-2 rounded-lg bg-input text-primary border border-accent focus:border-accent-hover resize-none"
+                rows={3}
+                placeholder="Enter your question"
+              />
+            </div>
 
-          <div className="mt-3 p-2 flex flex-col items-start w-10/12">
-            {type === "FillInTheBlank" ? (
-              <form className="flex justify-center w-full mb-4">
-                <label className="mr-3">Answer:</label>
-                <textarea
-                  value={answer_A}
-                  onChange={(e) => editAnswer_A(e.target.value)}
-                  className="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black"
-                />
-              </form>
-            ) : (
-              <>
-                {allAnswers.map((val, idx) => (
-                  <form key={idx} className="flex justify-center w-full mb-4 items-center">
-                    <label className="mr-3">{String.fromCharCode(65 + idx)} :</label>
-                    <textarea
-                      value={val}
-                      onChange={(e) => answerSetters[idx](e.target.value)}
-                      className="bg-slate-400 focus:bg-slate-300 w-full rounded p-1 text-black mr-2"
-                    />
-                    {type === "MultipleAnswer" && (
-                      <input
-                        type="checkbox"
-                        checked={selectedCorrectAnswers.includes(val)}
-                        onChange={() => handleCheckboxChange(val)}
+            {/* Answer Options */}
+            <div className="space-y-4">
+              {type === "fill-blank" ? (
+                <div className="space-y-2">
+                  <label className="block text-base font-medium text-secondary">Answer:</label>
+                  <textarea
+                    value={answers[0] || ''}
+                    onChange={(e) => updateAnswer(0, e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-input text-primary border border-accent focus:border-accent-hover resize-none"
+                    rows={2}
+                    placeholder="Enter the correct answer"
+                  />
+                </div>
+              ) : (
+                <>
+                  {answers.map((val, idx) => (
+                    <div key={idx} className="flex items-center gap-4">
+                      <label className="text-base font-medium text-secondary min-w-[2rem]">
+                        {String.fromCharCode(65 + idx)}:
+                      </label>
+                      <textarea
+                        value={val || ''}
+                        onChange={(e) => updateAnswer(idx, e.target.value)}
+                        className="flex-1 px-3 py-2 rounded-lg bg-input text-primary border border-accent focus:border-accent-hover resize-none"
+                        rows={2}
+                        placeholder={`Enter option ${String.fromCharCode(65 + idx)}`}
                       />
-                    )}
-                  </form>
-                ))}
+                      {type === "multiple-answer" && (
+                        <input
+                          type="checkbox"
+                          checked={selectedCorrectAnswers.includes(val)}
+                          onChange={() => handleCheckboxChange(val)}
+                          className="w-5 h-5 text-accent bg-input border-accent rounded focus:ring-accent"
+                        />
+                      )}
+                    </div>
+                  ))}
 
-                {type === "Multiple" && (
-                  <form className="w-full mb-4 mt-1">
-                    <label className="mr-2">Correct Answer:</label>
-                    <select
-                      onChange={(e) => changeCorrectAnswer(e.target.value)}
-                      value={correctAnswer}
-                      className="text-black w-full"
-                    >
-                      <option value="">--Select the correct answer--</option>
-                      {allAnswers.map((opt, idx) => (
-                        <option key={idx} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  </form>
-                )}
-              </>
-            )}
+                  {type === "multiple-choice" && (
+                    <div className="space-y-2">
+                      <label className="block text-base font-medium text-secondary">Correct Answer:</label>
+                      <select
+                        onChange={(e) => changeCorrectAnswer(e.target.value)}
+                        value={correctAnswer}
+                        className="w-full px-3 py-2 rounded-lg bg-input text-primary border border-accent focus:border-accent-hover"
+                      >
+                        <option value="">--Select the correct answer--</option>
+                        {answers.map((opt, idx) => (
+                          <option key={idx} value={opt}>{opt || `Option ${String.fromCharCode(65 + idx)}`}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
 
-            <div className="w-full">
-              <button onClick={handleFinishClick} className="border rounded p-2 mr-4">Finish</button>
-              <button className="border rounded p-2 bg-red-600">Delete Question</button>
+            {/* Action Buttons */}
+            <div className="flex gap-4 pt-4">
+              <button 
+                onClick={handleFinishClick} 
+                className="px-6 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-accent"
+              >
+                Finish
+              </button>
+              <button 
+                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-red-600"
+              >
+                Delete Question
+              </button>
             </div>
           </div>
         </>
       ) : (
         <>
-          <div className="flex">
-            <h1>{questionNum}.&nbsp;&nbsp;</h1>
-            <h1>{q.question}</h1>
-          </div>
-          <div className="mt-3 p-2 flex flex-col items-start w-10/12">
-            {(type === "FillInTheBlank"
-              ? [q.option_1]
-              : [q.option_1, q.option_2, q.option_3, q.option_4]
-            )
-              .filter(Boolean)
-              .map((opt, idx) => (
-                <div key={idx} className="flex w-full mb-3">
-                  <h2 className="bg-slate-400 w-full flex items-start ml-2 pl-2 rounded">{opt}</h2>
-                </div>
-              ))}
-            <span className="bg-slate-400 w-full h-0.5" />
-            <h1 className="mt-2">
-              Correct Answer{type === "MultipleAnswer" ? "s" : ""}:{" "}
-              {type === "MultipleAnswer" ? correctAnswer?.split("||").join(", ") : correctAnswer}
-            </h1>
-            <button onClick={() => toggleEditing(!editingQuestion)} className="mt-3 border rounded p-2">Edit Question</button>
+          {/* Display Mode */}
+          <div className="space-y-6">
+            {/* Question Header */}
+            <div className="flex items-start gap-4">
+              <h1 className="text-2xl font-semibold text-gradient-primary">{questionNum}.</h1>
+              <h1 className="text-xl text-primary flex-1">{normalized.question}</h1>
+            </div>
+
+            {/* Answer Options Display */}
+            <div className="space-y-3 pl-8">
+              {normalized.options
+                .filter(opt => opt && opt.trim() !== '')
+                .map((opt, idx) => (
+                  <div key={idx} className="bg-input rounded-lg p-3 border border-accent">
+                    <span className="font-medium text-secondary mr-2">
+                      {type === "fill-blank" ? "Answer:" : `${String.fromCharCode(65 + idx)}:`}
+                    </span>
+                    <span className="text-primary">{opt}</span>
+                  </div>
+                ))}
+            </div>
+
+            {/* Correct Answer Section */}
+            <div className="border-t border-accent pt-4">
+              <div className="bg-accent bg-opacity-10 rounded-lg p-4 border border-accent">
+                <h2 className="text-lg font-semibold text-accent mb-2">
+                  Correct Answer{type === "multiple-answer" ? "s" : ""}:
+                </h2>
+                <p className="text-primary">
+                  {type === "multiple-answer" 
+                    ? normalized.correctAnswer?.split("||").join(", ") 
+                    : normalized.correctAnswer
+                  }
+                </p>
+              </div>
+            </div>
+
+            {/* Edit Button */}
+            <div className="pt-4">
+              <button 
+                onClick={() => toggleEditing(!editingQuestion)} 
+                className="px-6 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-accent"
+              >
+                Edit Question
+              </button>
+            </div>
           </div>
         </>
       )}

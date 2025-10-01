@@ -1,7 +1,8 @@
 import React from "react";
 
 const ProgressBar = ({ answeredCount, totalQuestions }) => {
-  const progress = (answeredCount / totalQuestions) * 100;
+  // Handle division by zero to prevent NaN
+  const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
   const radius = 50; // Match timer radius
   const circumference = 2 * Math.PI * radius;
   const strokeOffset = circumference - (progress / 100) * circumference;

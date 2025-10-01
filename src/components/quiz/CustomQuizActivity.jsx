@@ -1,6 +1,6 @@
 // CustomQuizActivity.jsx
 import React, { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import Question from './Question';
 import DoneModal from './DoneModal';
@@ -9,11 +9,20 @@ import Timer from './Timer';
 import ProgressBar from './ProgressBar';
 import BackToTop from './BackToTopButton';
 
-
-
+// Utility function for shuffling arrays
+function shuffle(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
 function CustomQuizActivity() {
   const { quizID } = useParams();
+  const location = useLocation();
+  const password = location.state?.password;
 
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,9 +48,8 @@ function CustomQuizActivity() {
     async function fetchCustomQuiz() {
       setLoading(true);
       try {
-        const res = await fetch(
-          `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz?quizid=${quizID}`
-        );
+        const url = `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz?quizid=${quizID}${password ? `&password=${password}` : ''}`;
+        const res = await fetch(url);
         const data = await res.json();
         const quiz = data.data;
 

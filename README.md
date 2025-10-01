@@ -30,7 +30,7 @@ Team Fun | Software Systems Capstone Project
 </div>
 
 <h4 align="center">
-Our capstone project that allows users to take quizzes on a variety of different topics. 
+Our capstone project that allows users to take quizzes on a variety of different topics and create custom flashcard decks for enhanced learning.
 </h4>
 
 ## Development Team (Titanic Swim Team)
@@ -191,6 +191,8 @@ QuizMaster features a modernized React component architecture optimized for main
 - [`/src/components/ui/UI_LIBRARY.md`](src/components/ui/UI_LIBRARY.md) - Shared UI component library
 - [`/src/components/icons/ICON_SYSTEM.md`](src/components/icons/ICON_SYSTEM.md) - Unified icon system
 - [`/src/pages/PAGES_DIRECTORY.md`](src/pages/PAGES_DIRECTORY.md) - Page component organization
+- [`/src/components/flashcards/README.md`](src/components/flashcards/README.md) - Flashcard system documentation
+- [`DATABASE_SCHEMA.md`](DATABASE_SCHEMA.md) - Complete database schema including flashcard collections
 
 ## Installation and Setup
 1. Install Firebase CLI 

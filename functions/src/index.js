@@ -1,6 +1,13 @@
 /**
- * This file are the various firebase functions we are using
+ * QuizMaster Firebase Cloud Functions
  * Updated to use 2nd Gen functions for better performance
+ * 
+ * File Structure:
+ * 1. ADMIN & DEVELOPER FUNCTIONS
+ * 2. CUSTOM QUIZ MANAGEMENT  
+ * 3. STUDY MATERIALS
+ * 4. USER MANAGEMENT
+ * 5. OPTIMIZED V2 FUNCTIONS
  */
 const functions = require('firebase-functions')
 const {onRequest} = require('firebase-functions/v2/https')
@@ -8,18 +15,9 @@ const admin = require('firebase-admin')
 const cors = require("cors")({origin: true})
 admin.initializeApp()
 
-/**
- * This will grab the quiz from the database
- * It takes the category and will take that specific quiz from the DB
- */
-exports.grabQuiz = onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        const quiz = req.query.quiz
-        const grabQuiz = await admin.firestore().collection('quizzes').doc(quiz).get()
-        res.json(grabQuiz.data())
-    })
-})
-
+// =============================================================================
+// 1. ADMIN & DEVELOPER FUNCTIONS
+// =============================================================================
 
 /**
  * This will add a question to the default-questions collection. It is mostly used for developers to add questions for quizzes. 
@@ -41,120 +39,11 @@ exports.addDefaultQuestion = onRequest(async (req, res) => {
       }
     })
   })
-  
-/**
- * This will save the quiz results to the database. It is called when a user completes a quiz.
- */
 
-/**
- * This function will set a new score for a recently taken quiz
- * The attempts are set to 1 and the score and avgScore are set to 
- * the same value as this is the first time a user has taken a quiz.
- * @param {*} newScore the new score from a recently taken quiz
- * @param {*} uid userID
- * @param {*} category quiz category
- * @param {*} attempts how many times the user has taken that quiz
- * @param {*} avgScore the average score for that quiz
- */
-async function setNewScore(newScore, uid, category, attempts, avgScore){
-    await admin.firestore().collection('users').doc(uid).collection('quizzes').doc(category).set({
-        score: newScore,
-        attempts: attempts,
-        avgScore: avgScore
-    })
-}
+// =============================================================================
+// 2. CUSTOM QUIZ MANAGEMENT
+// =============================================================================
 
-/**
- * This function will update the score in the database, if there is one
- * @param {*} savedScore score from database
- * @param {*} newScore score from recently taken quiz
- * @param {*} uid userID
- * @param {*} category quiz category
- */
-async function updateScore(savedScore, newScore, uid, category){
-    if (savedScore < newScore){
-        await admin.firestore().collection('users').doc(uid).collection('quizzes').doc(category).update({
-            score: newScore
-        })
-    }
-}
-
-/**
- * This function will update the average score in the database, if there is one
- * and if it is higher than the previously stored best score
- * @param {*} newAvg new calculated average score
- * @param {*} newScore score from recently taken quiz
- * @param {*} uid userID
- * @param {*} category quiz category
- */
-async function updateAvgScore(newScore, uid, category, newAvg) {
-    if (newAvg != newScore) {
-        await admin.firestore().collection('users').doc(uid).collection('quizzes').doc(category).update({
-            avgScore: newAvg,
-        })
-    }
-  }
-
-  /**
- * This function will update the score in the database, if there is one
- * @param {*} newAttempts attempt counter incremented
- * @param {*} uid userID
- * @param {*} category quiz category
- */
-async function updateAttempts(uid, category, newAttempts){
-        await admin.firestore().collection('users').doc(uid).collection('quizzes').doc(category).update({
-            attempts: newAttempts
-        })
-}
-  
-
-/**
- * This function will update or set a new score depending on if the user has already taken a quiz or not
- * This only updates the score if the score was greater than the saved score
- */
-exports.saveResults = onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        const dataType = req.get('content-type')
-        if(dataType === 'application/json'){
-            const data = JSON.parse(JSON.stringify(req.body))
-            try{
-                const resultsRef = await admin.firestore().collection('users').doc(data.uid).collection('quizzes').doc(data.category).get()
-                if(!resultsRef.exists){
-                    //doc doesnt exist, so we create a new one
-                    const newScore = data.score
-                    const uid = data.uid
-                    const category = data.category
-                    const attempts = data.attempts
-                    const avgScore = data.avgScore
-                    setNewScore(newScore, uid, category, attempts, avgScore)
-                }else{
-                    //doc exists, so we grab the current values and update them accordingly
-                    const savedScore = resultsRef.data().score
-                    const savedAvgScore = resultsRef.data().avgScore
-                    const savedAttempts = resultsRef.data().attempts
-                    const newScore = data.score
-                    const uid = data.uid
-                    const category = data.category
-                    const newAttempts = data.attempts + 1
-                    const newAvg = (((savedAvgScore * savedAttempts) + newScore) / newAttempts)
-                    
-                    updateScore(savedScore, newScore, uid, category)
-                    updateAvgScore(newScore, uid, category, newAvg)
-                    updateAttempts(uid, category, newAttempts)
-                }
-                res.json({result: true})
-            }catch(error){
-                res.json({result: false})
-            }
-        }
-    })
-})
-
-/**
- * This function grabs the scores for the user from the DB
- * if they dont exist we return 0 for all values
- * This is used for the dashboard and for updating quiz scores
- */
 /**
  * This will grab a custom quiz by id
  */
@@ -180,12 +69,29 @@ exports.grabCustomQuiz = onRequest(async (req, res) => {
                 });
             }
             const quizData = quiz.data();
-            console.log(quizData);
+            
+            // Check if quiz requires password verification
+            const requiresPassword = quizData.metadata?.hasPassword || quizData.password;
+            const providedPassword = req.query.password || req.body?.password;
+            
+            if (requiresPassword) {
+                const correctPassword = quizData.password || quizData.metadata?.password;
+                if (!providedPassword || providedPassword !== correctPassword) {
+                    return res.status(401).json({
+                        result: false,
+                        message: "Password required",
+                        requiresPassword: true
+                    });
+                }
+            }
+            
             if (download === 'true') {
-                const studyGuide = Object.values(quizData.questions).map((q) => ({
+                // Handle OLD format (questions as map with option_1, option_2, etc.)
+                const questions = quizData.content?.questions || quizData.questions || {};
+                const studyGuide = Object.values(questions).map((q) => ({
                     question: q.question,
                     correctAnswer: q.correct_answer,
-                    choices: [q.option_1, q.option_2, q.option_3, q.option_4]
+                    choices: [q.option_1, q.option_2, q.option_3, q.option_4].filter(Boolean)
                 }));
 
                 res.setHeader("Content-Disposition", "attachment; filename=study-guide.json");
@@ -196,7 +102,10 @@ exports.grabCustomQuiz = onRequest(async (req, res) => {
                 result: true,
                 status: 200,
                 message: "Quiz found.",
-                data: quizData
+                data: {
+                    ...quizData,
+                    questions: quizData.content?.questions || quizData.questions || {}
+                }
             });
 
         } catch(error) {
@@ -205,27 +114,166 @@ exports.grabCustomQuiz = onRequest(async (req, res) => {
                 message: error.message
             });
         }
-    }) ;
+    });
 });
 
+/**
+ * Track quiz attempt - increment analytics when someone starts taking a quiz
+ */
+exports.trackQuizAttempt = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const quizId = req.query.quizId || req.body?.quizId
+        
+        if (!quizId) {
+            return res.status(400).json({
+                success: false,
+                message: "Quiz ID is required"
+            })
+        }
+
+        try {
+            const quizRef = admin.firestore().collection('custom_quizzes').doc(quizId)
+            const quizDoc = await quizRef.get()
+            
+            if (!quizDoc.exists) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Quiz not found"
+                })
+            }
+
+            // Increment attempt count and update last played time
+            await quizRef.update({
+                'analytics.stats.attempts': admin.firestore.FieldValue.increment(1),
+                'timestamps.lastAttemptAt': admin.firestore.Timestamp.now(),
+                'timestamps.updatedAt': admin.firestore.Timestamp.now()
+            })
+
+            res.json({
+                success: true,
+                message: "Quiz attempt tracked"
+            })
+
+        } catch (error) {
+            console.error('Error tracking quiz attempt:', error)
+            res.status(500).json({
+                success: false,
+                message: "Error tracking quiz attempt"
+            })
+        }
+    })
+})
+
 // grabs all custom quizzes for the Take A Quiz -> User-Made Quizzes page
+// OPTIMIZED VERSION using Firestore indexes for better performance
 exports.grabAllCustomQuizzes = onRequest(async (req, res) => {
     cors(req, res, async () => {
         try {
-            const quizSnapshot = await admin.firestore().collection('custom_quizzes').orderBy('createdAt', 'desc').get()
-            allQuizzes = []
+            // Parse query parameters for optimized filtering
+            const {
+                limit = 100,
+                privacy = 'all',
+                sortBy = 'newest',
+                useIndexes = true,
+                fields = []
+            } = req.method === 'POST' ? req.body : req.query;
+
+            let query = admin.firestore().collection('custom_quizzes');
+            
+            // Leverage Firestore indexes for efficient queries
+            if (useIndexes && privacy !== 'all') {
+                // Use access.privacy index
+                query = query.where('access.privacy', '==', privacy);
+            }
+            
+            // Apply sorting using indexed fields
+            if (sortBy === 'newest') {
+                query = query.orderBy('timestamps.updatedAt', 'desc');
+            } else if (sortBy === 'oldest') {
+                query = query.orderBy('timestamps.createdAt', 'asc');
+            } else if (sortBy === 'title') {
+                query = query.orderBy('metadata.title', 'asc');
+            } else if (sortBy === 'attempts') {
+                query = query.orderBy('analytics.stats.attempts', 'desc');
+            } else if (sortBy === 'score') {
+                query = query.orderBy('analytics.stats.averageScore', 'desc');
+            } else {
+                // Default to newest
+                query = query.orderBy('timestamps.updatedAt', 'desc');
+            }
+            
+            // Apply limit for pagination
+            query = query.limit(parseInt(limit));
+
+            const quizSnapshot = await query.get();
+            const allQuizzes = [];
+            
             quizSnapshot.forEach(doc => {
-                const data = {
-                    ...doc.data(),
+                const quizData = doc.data();
+                
+                // Only flatten fields that are actually needed (for efficiency)
+                const flattenedQuiz = {
                     uid: doc.id,
-                }
-                allQuizzes.push(data)
-            })
+                    
+                    // Core metadata using indexed fields
+                    title: quizData.metadata?.title || 'Untitled Quiz',
+                    description: quizData.metadata?.description || '',
+                    category: quizData.metadata?.category || 'General',
+                    tags: quizData.metadata?.tags || [],
+                    difficulty: quizData.metadata?.difficulty || '3',
+                    
+                    // Content info - check new location first
+                    numQuestions: quizData.metadata?.questionCount || quizData.content?.totalQuestions || 0,
+                    questionCount: quizData.metadata?.questionCount || quizData.content?.totalQuestions || 0,
+                    
+                    // Creator info from nested structure
+                    creator: quizData.creator?.userId || 'Unknown',
+                    creatorName: quizData.creator?.username || '',
+                    creatorVerified: quizData.creator?.verified || false,
+                    
+                    // Access control using indexed privacy field
+                    privacy: quizData.access?.visibility || 'public',
+                    isPublic: quizData.access?.visibility === 'public',
+                    quizPassword: quizData.access?.password || null,
+                    
+                    // Analytics using indexed stats
+                    attempts: quizData.analytics?.stats?.attempts || 0,
+                    averageScore: quizData.analytics?.stats?.averageScore || 0,
+                    completions: quizData.analytics?.stats?.completions || 0,
+                    
+                    // Timestamps using indexed date fields
+                    createdAt: quizData.timestamps?.createdAt,
+                    updatedAt: quizData.timestamps?.updatedAt,
+                    lastAttemptAt: quizData.timestamps?.lastAttemptAt,
+                    
+                    // Moderation status
+                    status: quizData.moderation?.status || 'active',
+                    isActive: quizData.moderation?.status === 'active'
+                };
+                
+                allQuizzes.push(flattenedQuiz);
+            });
+            
+            // Additional sorting is no longer needed since we use indexed orderBy
+            // The results are already sorted by the database using indexes
+            
             return res.json({
                 result: true,
                 status: 200,
-                message: "custom quizzes retrieved",
-                data: allQuizzes
+                message: "Custom quizzes retrieved using optimized indexes",
+                data: allQuizzes,
+                meta: {
+                    count: allQuizzes.length,
+                    sortBy: sortBy,
+                    privacy: privacy,
+                    useIndexes: useIndexes,
+                    timestamp: new Date().toISOString(),
+                    indexesUsed: {
+                        privacy: privacy !== 'all',
+                        sorting: true,
+                        timestamps: true
+                    }
+                }
             })
             
             
@@ -239,6 +287,165 @@ exports.grabAllCustomQuizzes = onRequest(async (req, res) => {
     })
 })
 
+// FOCUSED BROWSE FUNCTION - Handles UI filter options with proper privacy filtering
+exports.browseCustomQuizzesOptimized = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        try {
+            const {
+                searchTerm = '',
+                sortBy = 'newest',
+                privacy = 'all',
+                limit = 50
+            } = req.method === 'POST' ? req.body : req.query;
+
+            console.log('Query params:', { searchTerm, sortBy, privacy, limit });
+
+            let query = admin.firestore().collection('custom_quizzes');
+            const indexesUsed = {};
+
+            // Handle privacy filtering using your actual schema field: metadata.isPublic
+            if (privacy === 'public') {
+                query = query.where('metadata.isPublic', '==', true);
+                indexesUsed.privacyFilter = 'public';
+                console.log('Filtering for public quizzes only (metadata.isPublic == true)');
+            } else if (privacy === 'private') {
+                query = query.where('metadata.isPublic', '==', false);
+                indexesUsed.privacyFilter = 'private';
+                console.log('Filtering for private quizzes only (metadata.isPublic == false)');
+            } else {
+                console.log('Showing all quizzes (no privacy filter)');
+            }
+
+            // Handle sorting - using your ACTUAL schema fields
+            if (sortBy === 'newest') {
+                query = query.orderBy('timestamps.updatedAt', 'desc');
+                indexesUsed.sortNewest = true;
+            } else if (sortBy === 'oldest') {
+                query = query.orderBy('timestamps.createdAt', 'asc');
+                indexesUsed.sortOldest = true;
+            } else if (sortBy === 'title') {
+                query = query.orderBy('metadata.title', 'asc');
+                indexesUsed.sortTitleAZ = true;
+            } else if (sortBy === 'titleReverse') {
+                query = query.orderBy('metadata.title', 'desc');
+                indexesUsed.sortTitleZA = true;
+            } else if (sortBy === 'shortest') {
+                query = query.orderBy('metadata.questionCount', 'asc');
+                indexesUsed.sortShortest = true;
+            } else if (sortBy === 'longest') {
+                query = query.orderBy('metadata.questionCount', 'desc');
+                indexesUsed.sortLongest = true;
+            } else {
+                // Default to newest
+                query = query.orderBy('timestamps.updatedAt', 'desc');
+                indexesUsed.sortDefault = true;
+            }
+
+            // Apply limit
+            query = query.limit(parseInt(limit));
+
+            console.log('Executing query with indexes:', indexesUsed);
+            const querySnapshot = await query.get();
+            console.log('Query successful, got', querySnapshot.size, 'documents');
+            
+            const results = [];
+
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+                
+                // Filter by search term if provided (client-side filtering)
+                if (searchTerm && searchTerm.trim()) {
+                    const title = (data.metadata?.title || '').toLowerCase();
+                    const tags = (data.metadata?.tags || '').toLowerCase();
+                    const searchLower = searchTerm.toLowerCase();
+                    
+                    if (!title.includes(searchLower) && !tags.includes(searchLower)) {
+                        return; // Skip this quiz
+                    }
+                }
+                
+                // Map your actual schema to what the UI expects
+                const quiz = {
+                    id: doc.id,
+                    
+                    // Core quiz info using actual schema
+                    title: data.metadata?.title || 'Untitled Quiz',
+                    numQuestions: data.metadata?.questionCount || 0,
+                    tags: data.metadata?.tags || '',
+                    creator: data.creator?.displayName || data.creator?.username || 'Anonymous User', // Use display name, not UID!
+                    quizPassword: data.metadata?.hasPassword ? 'protected' : null,
+                    
+                    // Password information for frontend
+                    hasPassword: data.metadata?.hasPassword || false,
+                    password: data.password || null, // PASSWORD IS AT ROOT LEVEL, NOT IN METADATA
+                    
+                    // Additional fields for AllCustomQuizzes mapping with correct schema
+                    metadata: {
+                        title: data.metadata?.title || 'Untitled Quiz',
+                        tags: data.metadata?.tags ? [data.metadata.tags] : [],
+                        isPublic: data.metadata?.isPublic || false,
+                        questionCount: data.metadata?.questionCount || 0,
+                        hasPassword: data.metadata?.hasPassword || false,
+                        password: data.password || null // PASSWORD IS AT ROOT LEVEL, NOT IN METADATA
+                    },
+                    content: {
+                        totalQuestions: data.metadata?.questionCount || 0
+                    },
+                    creator: {
+                        userId: data.creator?.uid || 'Unknown',
+                        displayName: data.creator?.displayName || data.creator?.username || 'Anonymous User'
+                    },
+                    access: {
+                        password: data.metadata?.hasPassword ? 'protected' : null
+                    },
+                    timestamps: {
+                        createdAt: data.timestamps?.createdAt,
+                        updatedAt: data.timestamps?.updatedAt
+                    },
+                    
+                    // Legacy fields for backward compatibility
+                    uid: doc.id,
+                    creatorID: data.creator?.uid || 'Unknown',
+                    questionCount: data.metadata?.questionCount || 0,
+                    isPrivate: !data.metadata?.isPublic,
+                    
+                    // Password information for frontend
+                    hasPassword: data.metadata?.hasPassword || false,
+                    password: data.password ? 'protected' : null
+                };
+                
+                results.push(quiz);
+            });
+
+            console.log('Processed', results.length, 'documents successfully');
+
+            return res.json({
+                success: true,
+                quizzes: results, // Use 'quizzes' key to match AllCustomQuizzes expectation
+                data: results,
+                meta: {
+                    count: results.length,
+                    searchTerm,
+                    sortBy,
+                    privacy,
+                    limit: parseInt(limit),
+                    indexesUsed,
+                    queryTime: new Date().toISOString(),
+                    message: 'Query with proper privacy filtering and display names'
+                }
+            });
+
+        } catch (error) {
+            console.error('Browse error:', error);
+            return res.status(500).json({
+                success: false,
+                error: error.message,
+                message: 'Failed to browse quizzes'
+            });
+        }
+    });
+});
+
 // function adds new quiz to the DB and updates in the users collection
 exports.addCustomQuiz = onRequest(async (req, res) => {
     cors(req, res, async () => {
@@ -246,70 +453,130 @@ exports.addCustomQuiz = onRequest(async (req, res) => {
         if(dataType === 'application/json'){
             const data = JSON.parse(JSON.stringify(req.body))
 
+            // Handle both OLD and NEW schema formats from frontend
+            const creatorID = data.creator?.userId || data.creatorID;
+            const title = data.metadata?.title || data.title;
+            const numQuestions = data.content?.totalQuestions || data.numQuestions || 0;
+            const quizData = data.content?.questions || data.quizData;
+            const quizPassword = data.access?.password || data.quizPassword;
+            const quizTags = data.metadata?.tags || data.quizTags || "";
+            
             // checks incoming data before attempting to store in DB
-            if (!data.creatorID || data.title == "" || data.numQuestions == 0) {
+            if (!creatorID || title == "" || numQuestions == 0) {
                 return res.json({
                     status: 404, 
                     message: "Missing Parameters"
                 })
             }
 
-            try{
-                const user = await admin.firestore().collection('users').doc(data.creatorID)
-                if (data.quizPassword) {
-                    await admin.firestore().collection('custom_quizzes').add({
-                        quizPassword: data.quizPassword,
-                        creator: data.creatorID,
-                        title: data.title, 
-                        numQuestions: data.questionCount,
-                        questions: data.quizData, 
-                        createdAt: admin.firestore.Timestamp.now(),
-                        lastEdit: admin.firestore.Timestamp.now(),
-                        tags: data.quizTags
-                    })
-                    .then((docRef) => {
-                        console.log("docRef-ID", docRef.id)
-                        try {
-                            user.update({
-                                customQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
-                            })
-                        } catch(error) {
-                            console.log("Error adding to user doc", error.message)
-                        }
-                        return res.json({
-                            status: 200,
-                            quizID: docRef.id,
-                            message: "Added to DB successfully"
-                        })
-                    })
-                } else {
-                   await admin.firestore().collection('custom_quizzes').add({
-                        creator: data.creatorID,
-                        title: data.title, 
-                        numQuestions: data.questionCount,
-                        questions: data.quizData, 
-                        createdAt: admin.firestore.Timestamp.now().toDate().toString(),
-                        lastEdit: admin.firestore.Timestamp.now().toDate().toString(),
-                        quizTaken: 0,
-                        tags: data.quizTags
-                    }) 
-                    .then((docRef) => {
-                        console.log("docRef-ID", docRef.id)
-                        try {
-                            user.update({
-                                customQuizzes: admin.firestore.FieldValue.arrayUnion(docRef.id)
-                            })
-                        } catch(error) {
-                            console.log("Error adding to user doc", error.message)
-                        }
-                        return res.json({
-                            status: 200,
-                            quizID: docRef.id,
-                            message: "Added to DB successfully"
-                        })
-                    })
+            try {
+                const user = await admin.firestore().collection('users').doc(creatorID)
+                const userDoc = await user.get()
+                
+                // Get creator information for denormalization
+                let creatorInfo = {
+                    uid: creatorID,  // Use the extracted creatorID, not data.creatorID
+                    displayName: 'Anonymous User',
+                    role: 'user'
                 }
-            }catch(error){
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data()
+                    creatorInfo = {
+                        uid: creatorID,  // Use the extracted creatorID
+                        displayName: userData.profile?.displayName || userData.displayName || `${userData.profile?.firstName || 'Anonymous'} ${userData.profile?.lastName || 'User'}`.trim(),
+                        role: userData.role || 'user'
+                    }
+                }
+
+                // Create schema structure matching your ACTUAL database schema
+                const currentDate = new Date().toISOString();
+                
+                const newQuizData = {
+                    // Metadata section - matches your actual schema
+                    metadata: {
+                        title: title,
+                        description: data.metadata?.description || data.description || "",
+                        tags: Array.isArray(quizTags) ? quizTags.join(', ') : (quizTags || ""),  // Convert array to string
+                        category: data.metadata?.category || data.category || "",
+                        questionCount: numQuestions,  // In metadata, not content
+                        isPublic: !quizPassword,  // Boolean privacy field in metadata
+                        hasPassword: !!quizPassword,
+                        difficulty: "3",
+                        version: 1
+                    },
+
+                    // Creator Information - matches your schema
+                    creator: {
+                        uid: creatorID,
+                        displayName: creatorInfo.displayName,
+                        username: creatorInfo.displayName
+                    },
+
+                    // Quiz Content - Store in OLD format that actually works
+                    content: {
+                        questions: (() => {
+                            if (!Array.isArray(quizData) || quizData.length === 0) {
+                                return {};
+                            }
+                            
+                            const questionsMap = {};
+                            quizData.forEach((q, index) => {
+                                const questionKey = `Question ${index + 1}`;
+                                const mappedQuestion = {
+                                    question: q.question || '',
+                                    correct_answer: q.correctAnswer || '',
+                                    option_1: q.options?.[0] || '',
+                                    option_2: q.options?.[1] || '',
+                                    option_3: q.options?.[2] || '',
+                                    option_4: q.options?.[3] || '',
+                                    type: q.type || 'Multiple'
+                                };
+                                questionsMap[questionKey] = mappedQuestion;
+                            });
+                            return questionsMap;
+                        })()
+                    },
+
+                    // Timestamps as strings - consistently use ISO strings
+                    timestamps: {
+                        createdAt: currentDate,
+                        updatedAt: currentDate
+                    }
+                }
+
+                // Add password at root level if provided (matches your actual database structure)
+                if (quizPassword) {
+                    newQuizData.password = quizPassword;
+                }
+
+                // Add quiz to database (same logic for both password and public quizzes)
+                const docRef = await admin.firestore().collection('custom_quizzes').add(newQuizData);
+                
+                try {
+                    // Check if user document exists first
+                    const userDoc = await user.get()
+                    if (userDoc.exists) {
+                        // Update user stats with consistent timestamp format (strings)
+                        await user.update({
+                            'stats.quizzesCreated': admin.firestore.FieldValue.increment(1),
+                            'cache.recentQuizIds': admin.firestore.FieldValue.arrayUnion(docRef.id),
+                            'timestamps.updatedAt': currentDate,  // Use string format consistently
+                            'timestamps.lastActiveAt': currentDate
+                        })
+                    }
+                } catch(error) {
+                    // Error updating user stats - silent fail
+                    console.error('Error updating user stats:', error);
+                }
+                
+                return res.json({
+                    status: 200,
+                    quizID: docRef.id,
+                    message: "Added to DB successfully"
+                })
+                
+            } catch(error) {
                 return res.json({
                     result: false,
                     message: error.message
@@ -333,9 +600,15 @@ exports.deleteCustomQuiz = onRequest(async (req, res) => {
         try {
             const quiz = (await admin.firestore().collection("custom_quizzes").doc(uid).get()).data()
 
+            // Get creator ID from nested schema (handle both old and new formats)
+            const creatorId = quiz.creator?.uid || quiz.creator
 
-            await admin.firestore().collection("users").doc(quiz.creator).update({
-                customQuizzes: admin.firestore.FieldValue.arrayRemove(uid)
+            // Update new nested schema: decrement quiz count and remove from recent cache
+            await admin.firestore().collection("users").doc(creatorId).update({
+                'stats.quizzesCreated': admin.firestore.FieldValue.increment(-1),
+                'cache.recentQuizIds': admin.firestore.FieldValue.arrayRemove(uid),
+                'timestamps.updatedAt': admin.firestore.Timestamp.now(),
+                'timestamps.lastActiveAt': admin.firestore.Timestamp.now()
             })
 
             await admin.firestore().collection("custom_quizzes").doc(uid).delete()
@@ -354,6 +627,10 @@ exports.deleteCustomQuiz = onRequest(async (req, res) => {
         }
     }) 
 })
+
+// =============================================================================
+// 4. USER MANAGEMENT
+// =============================================================================
 
 exports.editUserInfo = onRequest(async (req, res) => {
     cors(req, res, async () => {
@@ -380,24 +657,40 @@ exports.editUserInfo = onRequest(async (req, res) => {
                 })
             }
 
-            // update the user 
+            // update the user with new nested schema
             try {
                 if (data.nRole) {
-                    // updating the users role
+                    // updating the users role (root level is correct for role)
                     await admin.firestore().collection('users').doc(data.uid).update({
-                        role: data.nRole
+                        role: data.nRole,
+                        'timestamps.updatedAt': admin.firestore.Timestamp.now(),
+                        'timestamps.lastActiveAt': admin.firestore.Timestamp.now()
                     })
                 }
                 else if (data.nEmail) {
-                    // update email 
+                    // update email (root level is correct for email)
                     await admin.firestore().collection('users').doc(data.uid).update({
-                        email: data.nEmail
+                        email: data.nEmail,
+                        'timestamps.updatedAt': admin.firestore.Timestamp.now(),
+                        'timestamps.lastActiveAt': admin.firestore.Timestamp.now()
                     })
 
                     // update auth 
                     await admin.auth().updateUser(data.uid, {
                         email: data.nEmail
                     })
+                }
+                else if (data.firstName || data.lastName || data.displayName) {
+                    // update profile information in nested structure
+                    const profileUpdates = {
+                        'timestamps.updatedAt': admin.firestore.Timestamp.now(),
+                        'timestamps.lastActiveAt': admin.firestore.Timestamp.now()
+                    }
+                    if (data.firstName) profileUpdates['profile.firstName'] = data.firstName
+                    if (data.lastName) profileUpdates['profile.lastName'] = data.lastName  
+                    if (data.displayName) profileUpdates['profile.displayName'] = data.displayName
+                    
+                    await admin.firestore().collection('users').doc(data.uid).update(profileUpdates)
                 }
             } catch(err) {
                 // return error response
@@ -441,20 +734,43 @@ exports.editQuizInfo = onRequest(async (req, res) => {
                 })
             }
 
-            // update the quiz 
+            // update the quiz with new nested schema
             try {
-                if (data.sendData.title != "") {
-                    // update the title
-                    await admin.firestore().collection("custom_quizzes").doc(data.uid).update({
-                        title: data.sendData.title
-                    })
+                const updates = {
+                    'timestamps.updatedAt': admin.firestore.Timestamp.now()
+                }
+
+                if (data.sendData.title && data.sendData.title !== "") {
+                    updates['metadata.title'] = data.sendData.title
+                }
+
+                if (data.sendData.description) {
+                    updates['metadata.description'] = data.sendData.description
                 }
 
                 if (data.sendData.questions != null) {
-                    await admin.firestore().collection("custom_quizzes").doc(data.uid).update({
-                        questions: data.sendData.questions
-                    })
+                    // Transform questions to new format
+                    const transformedQuestions = data.sendData.questions.map((q, index) => ({
+                        id: q.id || `q${index + 1}`,
+                        type: q.type || "multiple-choice",
+                        question: q.question || q[0],
+                        options: Array.isArray(q.options) ? q.options : [q[1], q[2], q[3], q[4]].filter(Boolean),
+                        correctAnswer: q.correctAnswer || q[5],
+                        explanation: q.explanation || "",
+                        points: q.points || 1,
+                        category: q.category || "",
+                        difficulty: q.difficulty || "3"
+                    }))
+                    
+                    updates['content.questions'] = transformedQuestions
+                    updates['content.questionCount'] = transformedQuestions.length
                 }
+
+                if (data.sendData.tags) {
+                    updates['metadata.tags'] = data.sendData.tags
+                }
+
+                await admin.firestore().collection("custom_quizzes").doc(data.uid).update(updates)
             } catch(err) {
                 // return error response
                 return res.status(404).json({
@@ -472,6 +788,10 @@ exports.editQuizInfo = onRequest(async (req, res) => {
         }
     })
 })
+
+// =============================================================================
+// 3. STUDY MATERIALS
+// =============================================================================
 
 exports.getStudyMaterial = onRequest(async (req, res) => {
     cors(req, res, async () => {
@@ -554,66 +874,9 @@ exports.grabAllResultsV2 = onRequest(async (req, res) => {
     })
 })
 
-/**
- * V2: Optimized function to get custom quizzes with server-side filtering and caching
- * Replaces client-side filtering with proper Firestore queries
- * Expected improvement: 60-80% reduction in data transfer, built-in caching
- */
-exports.grabCustomQuizzesByUserV2 = onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        const dataType = req.get('content-type')
-        if (dataType === 'application/json') {
-            const data = JSON.parse(JSON.stringify(req.body))
-            const { creator } = data
-            
-            if (!creator) {
-                return res.status(400).json({ error: 'Missing creator parameter' })
-            }
-
-            try {
-                // Server-side filtering with proper Firestore query instead of client-side filtering
-                const quizzes = await admin.firestore()
-                    .collection('custom_quizzes')
-                    .where('creator', '==', creator)
-                    .orderBy('createdAt', 'desc') // Add ordering for better UX
-                    .limit(50) // Reasonable limit to prevent excessive data transfer
-                    .get()
-
-                const quizData = []
-                quizzes.forEach(doc => {
-                    const data = doc.data()
-                    quizData.push({
-                        uid: doc.id,
-                        title: data.title || 'Untitled Quiz',
-                        description: data.description || '',
-                        questions: Array.isArray(data.questions) ? data.questions.length : 0,
-                        createdAt: data.createdAt,
-                        category: data.category || 'general',
-                        isPublic: data.isPublic || false
-                    })
-                })
-
-                res.set('Cache-Control', 'public, max-age=600') // 10 minute cache
-                res.json({ 
-                    success: true,
-                    data: quizData,
-                    count: quizData.length,
-                    timestamp: new Date().toISOString()
-                })
-                
-            } catch (error) {
-                console.error('Error fetching custom quizzes V2:', error)
-                res.status(500).json({ 
-                    success: false,
-                    error: 'Error fetching custom quizzes',
-                    timestamp: new Date().toISOString()
-                })
-            }
-        } else {
-            res.status(400).json({ error: 'Invalid content type. Expected application/json' })
-        }
-    })
-})
+// ===== REDUNDANT FUNCTION REMOVED =====
+// grabCustomQuizzesByUserV2 removed - same functionality as grabUserCustomQuizzesV2
+// Use grabUserCustomQuizzesV2 instead which has better schema compatibility
 
 /**
  * V2: Optimized function with proper server-side filtering instead of client-side
@@ -632,26 +895,15 @@ exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
             }
 
             try {
-                // Server-side filtering with compound query instead of fetching all data
-                const userQuizzes = await admin.firestore()
-                    .collection('users')
-                    .doc(uid)
+                // EFFICIENT: Query new schema only - creator.uid with nested timestamps
+                const customQuizzesQuery = await admin.firestore()
+                    .collection('custom_quizzes')
+                    .where('creator.uid', '==', uid)
+                    .orderBy('timestamps.createdAt', 'desc')
                     .get()
 
-                if (!userQuizzes.exists) {
+                if (customQuizzesQuery.empty) {
                     res.set('Cache-Control', 'public, max-age=300') // 5 minute cache
-                    return res.json({ 
-                        success: true,
-                        data: [],
-                        message: 'User not found'
-                    })
-                }
-
-                const userData = userQuizzes.data()
-                const customQuizIds = userData.customQuizzes || []
-                
-                if (customQuizIds.length === 0) {
-                    res.set('Cache-Control', 'public, max-age=300')
                     return res.json({ 
                         success: true,
                         data: [],
@@ -659,34 +911,55 @@ exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
                     })
                 }
 
-                // Batch get for user's specific quizzes instead of filtering all quizzes
-                const batch = admin.firestore().batch()
-                const quizPromises = customQuizIds.slice(0, 20).map(quizId => 
-                    admin.firestore().collection('custom_quizzes').doc(quizId).get()
-                )
+                if (customQuizzesQuery.empty) {
+                    res.set('Cache-Control', 'public, max-age=300') // 5 minute cache
+                    return res.json({ 
+                        success: true,
+                        data: [],
+                        message: 'No custom quizzes found'
+                    })
+                }
 
-                const quizDocs = await Promise.all(quizPromises)
-                const quizData = []
-                
-                quizDocs.forEach(doc => {
-                    if (doc.exists) {
-                        const data = doc.data()
-                        quizData.push({
-                            uid: doc.id,
-                            title: data.title || 'Untitled Quiz',
-                            description: data.description || '',
-                            questions: Array.isArray(data.questions) ? data.questions.length : 0,
-                            createdAt: data.createdAt,
-                            category: data.category || 'general'
-                        })
+                // Convert to array format expected by frontend - NEW SCHEMA ONLY
+                const customQuizzes = []
+                customQuizzesQuery.forEach(doc => {
+                    const quizData = doc.data()
+                    
+                    // New nested schema structure only
+                    const flattenedQuiz = {
+                        uid: doc.id,
+                        title: quizData.metadata.title,
+                        numQuestions: quizData.metadata.questionCount,
+                        questionCount: quizData.metadata.questionCount,
+                        tags: quizData.metadata.tags,
+                        isPublic: quizData.metadata.isPublic,
+                        hasPassword: quizData.metadata.hasPassword,
+                        
+                        // Creator info from nested structure
+                        creator: quizData.creator.uid,
+                        creatorName: quizData.creator.displayName,
+                        creatorRole: quizData.creator.role,
+                        
+                        // Questions and password from nested structure
+                        questions: quizData.content.questions,
+                        quizPassword: quizData.content.password,
+                        
+                        // Analytics from nested structure
+                        totalAttempts: quizData.analytics.totalAttempts,
+                        averageScore: quizData.analytics.averageScore,
+                        
+                        // Timestamps from nested structure
+                        createdAt: quizData.timestamps.createdAt,
+                        updatedAt: quizData.timestamps.updatedAt
                     }
+                    
+                    customQuizzes.push(flattenedQuiz)
                 })
-
                 res.set('Cache-Control', 'public, max-age=600') // 10 minute cache
                 res.json({ 
                     success: true,
-                    data: quizData,
-                    count: quizData.length,
+                    data: customQuizzes,
+                    count: customQuizzes.length,
                     timestamp: new Date().toISOString()
                 })
                 
@@ -800,62 +1073,9 @@ exports.grabRandomV2 = onRequest(async (req, res) => {
     })
 })
 
-/**
- * V2: Optimized custom quiz fetching with server-side filtering and batching
- * Replaces N+1 query pattern with efficient batch operations
- * Expected improvement: 80-95% fewer database reads
- */
-exports.grabCustomQuizzesV2 = onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        const creator = req.query.creator
-        
-        if (!creator) {
-            return res.status(400).json({ 
-                result: false, 
-                message: "Missing creator parameter" 
-            })
-        }
-
-        try {
-            // OPTIMIZATION 1: Server-side filtering instead of client-side
-            // Direct query to custom_quizzes collection with creator filter
-            const customQuizzesRef = admin.firestore().collection('custom_quizzes')
-            const userQuizzesQuery = customQuizzesRef.where('creator', '==', creator)
-            const querySnapshot = await userQuizzesQuery.get()
-
-            if (querySnapshot.empty) {
-                return res.json({
-                    result: true,
-                    data: [],
-                    count: 0,
-                    message: "No custom quizzes found for this user"
-                })
-            }
-
-            // OPTIMIZATION 2: Single batch read instead of N individual reads
-            const senderData = []
-            querySnapshot.forEach(doc => {
-                senderData.push({
-                    uid: doc.id,
-                    data: doc.data()
-                })
-            })
-
-            res.json({
-                result: true,
-                data: senderData,
-                count: senderData.length
-            })
-
-        } catch (error) {
-            console.error('Error fetching custom quizzes V2:', error)
-            res.status(500).json({ 
-                result: false, 
-                message: "Error fetching custom quizzes" 
-            })
-        }
-    })
-})
+// ===== REDUNDANT FUNCTION REMOVED =====
+// grabCustomQuizzesV2 removed - same functionality as grabUserCustomQuizzesV2
+// Use grabUserCustomQuizzesV2 instead which has better schema compatibility and data flattening
 
 /**
  * V2: Optimized single quiz result fetching with caching headers
@@ -1007,3 +1227,348 @@ exports.browseCustomQuizzesV2 = onRequest(async (req, res) => {
       }
     });
 });
+
+// =============================================================================
+// FLASHCARD DECK FUNCTIONS
+// =============================================================================
+
+/**
+ * Create a new flashcard deck
+ */
+exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const dataType = req.get('content-type');
+        if (dataType === 'application/json') {
+            const data = JSON.parse(JSON.stringify(req.body));
+
+            // Extract data from request
+            const creatorID = data.creator?.uid || data.creatorID;
+            const title = data.metadata?.title || data.name || data.title;
+            const cards = data.content?.cards || data.cards || [];
+            const tags = data.metadata?.tags || data.tags || "";
+
+            // Validation
+            if (!creatorID || !title.trim() || !Array.isArray(cards) || cards.length === 0) {
+                return res.json({
+                    status: 400,
+                    success: false,
+                    message: "Missing required parameters: creatorID, title, and cards array"
+                });
+            }
+
+            try {
+                const user = await admin.firestore().collection('users').doc(creatorID);
+                const userDoc = await user.get();
+                
+                // Get creator information
+                let creatorInfo = {
+                    uid: creatorID,
+                    displayName: 'Anonymous User',
+                    username: 'Anonymous User'
+                };
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    creatorInfo = {
+                        uid: creatorID,
+                        displayName: userData.profile?.displayName || userData.displayName || 
+                                   `${userData.profile?.firstName || 'Anonymous'} ${userData.profile?.lastName || 'User'}`.trim(),
+                        username: userData.profile?.displayName || userData.displayName || 'Anonymous User'
+                    };
+                }
+
+                const currentDate = new Date().toISOString();
+                
+                // Convert cards array to map format like custom_quizzes
+                const cardsMap = {};
+                cards.forEach((card, index) => {
+                    const cardKey = `Card ${index + 1}`;
+                    cardsMap[cardKey] = {
+                        front: card.front || '',
+                        back: card.back || '',
+                        type: card.type || 'basic'
+                    };
+                });
+
+                const newFlashcardDeck = {
+                    // Metadata section
+                    metadata: {
+                        title: title,
+                        description: data.metadata?.description || data.description || "",
+                        category: data.metadata?.category || data.category || "General",
+                        tags: Array.isArray(tags) ? tags.join(', ') : (tags || ""),
+                        cardCount: cards.length,
+                        isPublic: data.metadata?.isPublic || data.isPublic || false,
+                        difficulty: data.metadata?.difficulty || data.difficulty || "2",
+                        version: 1
+                    },
+
+                    // Creator information
+                    creator: creatorInfo,
+
+                    // Content - cards stored as map
+                    content: {
+                        cards: cardsMap
+                    },
+
+                    // Analytics - initialize empty
+                    analytics: {
+                        stats: {
+                            timesStudied: 0,
+                            averageScore: 0,
+                            lastStudied: null,
+                            totalReviews: 0
+                        },
+                        performance: {
+                            cardStats: {}
+                        }
+                    },
+
+                    // Access control
+                    access: {
+                        visibility: data.metadata?.isPublic || data.isPublic ? "public" : "private",
+                        allowCopying: data.access?.allowCopying || true,
+                        studyMode: data.access?.studyMode || "flashcards"
+                    },
+
+                    // Timestamps
+                    timestamps: {
+                        createdAt: currentDate,
+                        updatedAt: currentDate,
+                        lastStudiedAt: null
+                    },
+
+                    // Moderation
+                    moderation: {
+                        status: "active",
+                        reports: [],
+                        flags: []
+                    }
+                };
+
+                // Save to Firestore
+                const result = await admin.firestore().collection('flashcard_decks').add(newFlashcardDeck);
+                
+                // Update user stats and cache (similar to quiz creation)
+                try {
+                    if (userDoc.exists) {
+                        await user.update({
+                            'stats.flashcardDecksCreated': admin.firestore.FieldValue.increment(1),
+                            'cache.recentFlashcardIds': admin.firestore.FieldValue.arrayUnion(result.id),
+                            'timestamps.updatedAt': currentDate,
+                            'timestamps.lastActiveAt': currentDate
+                        });
+                    }
+                } catch (error) {
+                    // Error updating user stats - silent fail
+                    console.error('Error updating user stats for flashcard deck:', error);
+                }
+                
+                return res.json({
+                    status: 200,
+                    success: true,
+                    message: "Flashcard deck created successfully",
+                    deckID: result.id,
+                    data: newFlashcardDeck
+                });
+
+            } catch (error) {
+                console.error('Error creating flashcard deck:', error);
+                return res.json({
+                    status: 500,
+                    success: false,
+                    message: error.message
+                });
+            }
+        } else {
+            return res.json({
+                status: 400,
+                success: false,
+                message: "Content-Type must be application/json"
+            });
+        }
+    });
+});
+
+/**
+ * Get flashcard decks by user
+ */
+exports.getUserFlashcardDecks = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const userId = req.query.userId || req.body?.userId;
+        
+        if (!userId) {
+            return res.json({
+                status: 400,
+                success: false,
+                message: "User ID is required"
+            });
+        }
+
+        try {
+            const query = admin.firestore()
+                .collection('flashcard_decks')
+                .where('creator.uid', '==', userId)
+                .where('moderation.status', '==', 'active')
+                .orderBy('timestamps.updatedAt', 'desc');
+
+            const querySnapshot = await query.get();
+            const decks = [];
+
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+                decks.push({
+                    id: doc.id,
+                    ...data
+                });
+            });
+
+            return res.json({
+                status: 200,
+                success: true,
+                message: "Flashcard decks retrieved successfully",
+                data: decks,
+                count: decks.length
+            });
+
+        } catch (error) {
+            console.error('Error fetching user flashcard decks:', error);
+            return res.json({
+                status: 500,
+                success: false,
+                message: error.message
+            });
+        }
+    });
+});
+
+/**
+ * Get a specific flashcard deck by ID
+ */
+exports.getFlashcardDeck = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const deckId = req.query.deckId || req.body?.deckId;
+        
+        if (!deckId) {
+            return res.json({
+                status: 400,
+                success: false,
+                message: "Deck ID is required"
+            });
+        }
+
+        try {
+            const deckDoc = await admin.firestore().collection('flashcard_decks').doc(deckId).get();
+            
+            if (!deckDoc.exists) {
+                return res.json({
+                    status: 404,
+                    success: false,
+                    message: "Flashcard deck not found"
+                });
+            }
+
+            const deckData = deckDoc.data();
+            
+            return res.json({
+                status: 200,
+                success: true,
+                message: "Flashcard deck retrieved successfully",
+                data: {
+                    id: deckDoc.id,
+                    ...deckData
+                }
+            });
+
+        } catch (error) {
+            console.error('Error fetching flashcard deck:', error);
+            return res.json({
+                status: 500,
+                success: false,
+                message: error.message
+            });
+        }
+    });
+});
+
+/**
+ * Delete a flashcard deck
+ */
+exports.deleteFlashcardDeck = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const deckId = req.query.deckId || req.body?.deckId;
+        const userId = req.query.userId || req.body?.userId;
+        
+        if (!deckId || !userId) {
+            return res.json({
+                status: 400,
+                success: false,
+                message: "Deck ID and User ID are required"
+            });
+        }
+
+        try {
+            const deckDoc = await admin.firestore().collection('flashcard_decks').doc(deckId).get();
+            
+            if (!deckDoc.exists) {
+                return res.json({
+                    status: 404,
+                    success: false,
+                    message: "Flashcard deck not found"
+                });
+            }
+
+            const deckData = deckDoc.data();
+            
+            // Verify ownership
+            if (deckData.creator.uid !== userId) {
+                return res.json({
+                    status: 403,
+                    success: false,
+                    message: "Unauthorized: You can only delete your own decks"
+                });
+            }
+
+            // Soft delete by updating moderation status
+            await admin.firestore().collection('flashcard_decks').doc(deckId).update({
+                'moderation.status': 'deleted',
+                'timestamps.updatedAt': new Date().toISOString(),
+                'timestamps.deletedAt': new Date().toISOString()
+            });
+
+            // Update user stats: decrement deck count and remove from recent cache
+            try {
+                const user = admin.firestore().collection('users').doc(userId);
+                await user.update({
+                    'stats.flashcardDecksCreated': admin.firestore.FieldValue.increment(-1),
+                    'cache.recentFlashcardIds': admin.firestore.FieldValue.arrayRemove(deckId),
+                    'timestamps.updatedAt': new Date().toISOString()
+                });
+            } catch (error) {
+                // Error updating user stats - silent fail
+                console.error('Error updating user stats for flashcard deck deletion:', error);
+            }
+
+            return res.json({
+                status: 200,
+                success: true,
+                message: "Flashcard deck deleted successfully"
+            });
+
+        } catch (error) {
+            console.error('Error deleting flashcard deck:', error);
+            return res.json({
+                status: 500,
+                success: false,
+                message: error.message
+            });
+        }
+    });
+});
+
+// =============================================================================
+// END OF FUNCTIONS - File cleaned and reorganized October 2025
+// Removed old functions: grabQuiz, saveResults + helpers, redundant V2 functions
+// Fixed schema inconsistencies, added proper section organization
+// Added flashcard deck functions: October 2025
+// =============================================================================
