@@ -1,23 +1,8 @@
-/**
- * QuizMaster Firebase Cloud Functions
- * Updated to use 2nd Gen functions for better performance
- * 
- * File Structure:
- * 1. ADMIN & DEVELOPER FUNCTIONS
- * 2. CUSTOM QUIZ MANAGEMENT  
- * 3. STUDY MATERIALS
- * 4. USER MANAGEMENT
- * 5. OPTIMIZED V2 FUNCTIONS
- */
 const functions = require('firebase-functions')
-const {onRequest} = require('firebase-functions/v2/https')
+const {onRequest, onCall} = require('firebase-functions/v2/https')
 const admin = require('firebase-admin')
 const cors = require("cors")({origin: true})
 admin.initializeApp()
-
-// =============================================================================
-// 1. ADMIN & DEVELOPER FUNCTIONS
-// =============================================================================
 
 /**
  * This will add a question to the default-questions collection. It is mostly used for developers to add questions for quizzes. 
@@ -39,10 +24,6 @@ exports.addDefaultQuestion = onRequest(async (req, res) => {
       }
     })
   })
-
-// =============================================================================
-// 2. CUSTOM QUIZ MANAGEMENT
-// =============================================================================
 
 /**
  * This will grab a custom quiz by id
@@ -119,49 +100,56 @@ exports.grabCustomQuiz = onRequest(async (req, res) => {
 
 /**
  * Track quiz attempt - increment analytics when someone starts taking a quiz
+ * CONVERTED TO CALLABLE FUNCTION to fix CORS issues and maintain architectural consistency
  */
-exports.trackQuizAttempt = onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        const quizId = req.query.quizId || req.body?.quizId
+exports.trackQuizAttempt = onCall(async (request) => {
+    // Extract data from callable function request
+    const { quizId } = request.data;
+    
+    if (!quizId) {
+        throw new functions.https.HttpsError(
+            'invalid-argument', 
+            'Quiz ID is required'
+        );
+    }
+
+    try {
+        const quizRef = admin.firestore().collection('custom_quizzes').doc(quizId);
+        const quizDoc = await quizRef.get();
         
-        if (!quizId) {
-            return res.status(400).json({
-                success: false,
-                message: "Quiz ID is required"
-            })
+        if (!quizDoc.exists) {
+            throw new functions.https.HttpsError(
+                'not-found',
+                'Quiz not found'
+            );
         }
 
-        try {
-            const quizRef = admin.firestore().collection('custom_quizzes').doc(quizId)
-            const quizDoc = await quizRef.get()
-            
-            if (!quizDoc.exists) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Quiz not found"
-                })
-            }
+        // Increment attempt count and update last played time
+        await quizRef.update({
+            'analytics.stats.attempts': admin.firestore.FieldValue.increment(1),
+            'timestamps.lastAttemptAt': admin.firestore.Timestamp.now(),
+            'timestamps.updatedAt': admin.firestore.Timestamp.now()
+        });
 
-            // Increment attempt count and update last played time
-            await quizRef.update({
-                'analytics.stats.attempts': admin.firestore.FieldValue.increment(1),
-                'timestamps.lastAttemptAt': admin.firestore.Timestamp.now(),
-                'timestamps.updatedAt': admin.firestore.Timestamp.now()
-            })
+        return {
+            success: true,
+            message: "Quiz attempt tracked"
+        };
 
-            res.json({
-                success: true,
-                message: "Quiz attempt tracked"
-            })
-
-        } catch (error) {
-            console.error('Error tracking quiz attempt:', error)
-            res.status(500).json({
-                success: false,
-                message: "Error tracking quiz attempt"
-            })
+    } catch (error) {
+        console.error('Error tracking quiz attempt:', error);
+        
+        // Re-throw HttpsError if it's already an HttpsError
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
         }
-    })
+        
+        // Otherwise, wrap in internal error
+        throw new functions.https.HttpsError(
+            'internal',
+            'Error tracking quiz attempt'
+        );
+    }
 })
 
 // grabs all custom quizzes for the Take A Quiz -> User-Made Quizzes page
@@ -586,213 +574,6 @@ exports.addCustomQuiz = onRequest(async (req, res) => {
     })
 })
 
-exports.deleteCustomQuiz = onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        const  uid  = req.query.quizid
-
-        if (!uid || uid == "" || uid == " ") {
-            return res.status(401).json({
-                result: false,
-                message: "No UID field."
-            })
-        }
-
-        try {
-            const quiz = (await admin.firestore().collection("custom_quizzes").doc(uid).get()).data()
-
-            // Get creator ID from nested schema (handle both old and new formats)
-            const creatorId = quiz.creator?.uid || quiz.creator
-
-            // Update new nested schema: decrement quiz count and remove from recent cache
-            await admin.firestore().collection("users").doc(creatorId).update({
-                'stats.quizzesCreated': admin.firestore.FieldValue.increment(-1),
-                'cache.recentQuizIds': admin.firestore.FieldValue.arrayRemove(uid),
-                'timestamps.updatedAt': admin.firestore.Timestamp.now(),
-                'timestamps.lastActiveAt': admin.firestore.Timestamp.now()
-            })
-
-            await admin.firestore().collection("custom_quizzes").doc(uid).delete()
-
-            return res.json({
-                result: true,
-                status: 200,
-                message: "Successful Deletion"
-            })
-        } catch(error) {
-            return res.json({
-                result: false,
-                error: true,
-                message: error.message
-            })
-        }
-    }) 
-})
-
-// =============================================================================
-// 4. USER MANAGEMENT
-// =============================================================================
-
-exports.editUserInfo = onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        const dataType = req.get('content-type')
-
-        if(dataType === 'application/json'){
-            const data = JSON.parse(JSON.stringify(req.body))
-            
-            // check for empty object 
-            if (!data) {
-                return res.status(404).json({
-                    result: false,
-                    message: "No data to update"
-                })
-            }
-
-            // check if user exists
-            const user = await admin.firestore().collection('users').doc(data.uid).get()
-
-            if (!user.exists) {
-                return res.status(404).json({
-                    result: false,
-                    error: "User not found."
-                })
-            }
-
-            // update the user with new nested schema
-            try {
-                if (data.nRole) {
-                    // updating the users role (root level is correct for role)
-                    await admin.firestore().collection('users').doc(data.uid).update({
-                        role: data.nRole,
-                        'timestamps.updatedAt': admin.firestore.Timestamp.now(),
-                        'timestamps.lastActiveAt': admin.firestore.Timestamp.now()
-                    })
-                }
-                else if (data.nEmail) {
-                    // update email (root level is correct for email)
-                    await admin.firestore().collection('users').doc(data.uid).update({
-                        email: data.nEmail,
-                        'timestamps.updatedAt': admin.firestore.Timestamp.now(),
-                        'timestamps.lastActiveAt': admin.firestore.Timestamp.now()
-                    })
-
-                    // update auth 
-                    await admin.auth().updateUser(data.uid, {
-                        email: data.nEmail
-                    })
-                }
-                else if (data.firstName || data.lastName || data.displayName) {
-                    // update profile information in nested structure
-                    const profileUpdates = {
-                        'timestamps.updatedAt': admin.firestore.Timestamp.now(),
-                        'timestamps.lastActiveAt': admin.firestore.Timestamp.now()
-                    }
-                    if (data.firstName) profileUpdates['profile.firstName'] = data.firstName
-                    if (data.lastName) profileUpdates['profile.lastName'] = data.lastName  
-                    if (data.displayName) profileUpdates['profile.displayName'] = data.displayName
-                    
-                    await admin.firestore().collection('users').doc(data.uid).update(profileUpdates)
-                }
-            } catch(err) {
-                // return error response
-                return res.status(404).json({
-                    result: false,
-                    error: err.message
-                })
-            }
-            
-            // return statement
-            return res.status(200).json({
-                result: true,
-                status: 200,
-                message: "User info successfully updated."
-            })
-        }
-    })
-})
-
-exports.editQuizInfo = onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        const dataType = req.get('content-type')
-
-        if(dataType === 'application/json'){
-            const data = JSON.parse(JSON.stringify(req.body))
-            
-            // check for empty object 
-            if (!data) {
-                return res.status(404).json({
-                    result: false,
-                    message: "No data to update"
-                })
-            }
-
-            // check for quiz existnace
-            const quiz = await admin.firestore().collection("custom_quizzes").doc(data.uid).get()
-            if (!quiz.exists) {
-                return res.status(404).json({
-                    result: false, 
-                    message: "Quiz does not exist"
-                })
-            }
-
-            // update the quiz with new nested schema
-            try {
-                const updates = {
-                    'timestamps.updatedAt': admin.firestore.Timestamp.now()
-                }
-
-                if (data.sendData.title && data.sendData.title !== "") {
-                    updates['metadata.title'] = data.sendData.title
-                }
-
-                if (data.sendData.description) {
-                    updates['metadata.description'] = data.sendData.description
-                }
-
-                if (data.sendData.questions != null) {
-                    // Transform questions to new format
-                    const transformedQuestions = data.sendData.questions.map((q, index) => ({
-                        id: q.id || `q${index + 1}`,
-                        type: q.type || "multiple-choice",
-                        question: q.question || q[0],
-                        options: Array.isArray(q.options) ? q.options : [q[1], q[2], q[3], q[4]].filter(Boolean),
-                        correctAnswer: q.correctAnswer || q[5],
-                        explanation: q.explanation || "",
-                        points: q.points || 1,
-                        category: q.category || "",
-                        difficulty: q.difficulty || "3"
-                    }))
-                    
-                    updates['content.questions'] = transformedQuestions
-                    updates['content.questionCount'] = transformedQuestions.length
-                }
-
-                if (data.sendData.tags) {
-                    updates['metadata.tags'] = data.sendData.tags
-                }
-
-                await admin.firestore().collection("custom_quizzes").doc(data.uid).update(updates)
-            } catch(err) {
-                // return error response
-                return res.status(404).json({
-                    result: false,
-                    error: err.message
-                })
-            }
-            
-            // return statement
-            return res.status(200).json({
-                result: true,
-                status: 200,
-                message: "Quiz info successfully updated."
-            })
-        }
-    })
-})
-
-// =============================================================================
-// 3. STUDY MATERIALS
-// =============================================================================
-
 exports.getStudyMaterial = onRequest(async (req, res) => {
     cors(req, res, async () => {
       try {
@@ -816,14 +597,8 @@ exports.getStudyMaterial = onRequest(async (req, res) => {
     })
   })
 
-// =============================================================================
-// OPTIMIZED V2 FUNCTIONS (2nd Gen, Node.js 20)
-// =============================================================================
-
 /**
- * V2: Optimized batch function to get ALL quiz results for a user in a single call
- * Replaces 6 separate grabResults calls with 1 batched query
- * Expected improvement: 83% fewer HTTP calls, 6x faster dashboard loading
+ * Get ALL quiz results for a user in a single call
  */
 exports.grabAllResultsV2 = onRequest(async (req, res) => {
     cors(req, res, async () => {
@@ -837,29 +612,36 @@ exports.grabAllResultsV2 = onRequest(async (req, res) => {
             }
 
             try {
-                // Single batch query for all categories instead of 6 separate calls
-                const categories = ['history', 'science', 'geography', 'math', 'literature', 'technology']
-                const batch = admin.firestore().batch()
-                const promises = categories.map(category => 
-                    admin.firestore()
-                        .collection('users')
-                        .doc(uid)
-                        .collection('quizzes')
-                        .doc(category)
-                        .get()
-                )
-
-                const results = await Promise.all(promises)
-                const allResults = {}
+                // Get user document with categoryStats
+                const userDoc = await admin.firestore().collection('users').doc(uid).get();
                 
-                results.forEach((doc, index) => {
-                    const category = categories[index]
-                    if (doc.exists) {
-                        allResults[category] = doc.data()
-                    } else {
-                        allResults[category] = { score: 0, avgScore: 0, attempts: 0 }
-                    }
-                })
+                if (!userDoc.exists) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
+                
+                const userData = userDoc.data();
+                const categoryStats = userData.stats?.categoryStats || {};
+                
+                // Map the actual categories from our constants
+                const categories = ['geography', 'science', 'sports', 'mathematics', 'history', 'entertainment'];
+                const allResults = {};
+                
+                categories.forEach(category => {
+                    const categoryKey = category.toLowerCase();
+                    const stats = categoryStats[categoryKey] || {
+                        best: 0,
+                        avg: 0,
+                        attempts: 0,
+                        totalScore: 0
+                    };
+                    
+                    // Convert to the format expected by frontend (score = best, avgScore = avg)
+                    allResults[category] = {
+                        score: (stats.best || 0) / 100, // Convert percentage to decimal
+                        avgScore: (stats.avg || 0) / 100, // Convert percentage to decimal  
+                        attempts: stats.attempts || 0
+                    };
+                });
 
                 res.set('Cache-Control', 'public, max-age=300') // 5 minute cache
                 res.json(allResults)
@@ -874,14 +656,8 @@ exports.grabAllResultsV2 = onRequest(async (req, res) => {
     })
 })
 
-// ===== REDUNDANT FUNCTION REMOVED =====
-// grabCustomQuizzesByUserV2 removed - same functionality as grabUserCustomQuizzesV2
-// Use grabUserCustomQuizzesV2 instead which has better schema compatibility
-
 /**
  * V2: Optimized function with proper server-side filtering instead of client-side
- * Fixes the inefficient pattern of fetching all data then filtering in JavaScript
- * Expected improvement: 80-95% fewer database reads, much faster response times
  */
 exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
     cors(req, res, async () => {
@@ -979,8 +755,6 @@ exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
 
 /**
  * V2: Optimized subcategory function with server-side aggregation
- * Replaces client-side grouping with proper Firestore queries and caching
- * Expected improvement: 70% fewer database reads, faster subcategory loading
  */
 exports.grabSubV2 = onRequest(async (req, res) => {
     cors(req, res, async () => {
@@ -1026,101 +800,7 @@ exports.grabSubV2 = onRequest(async (req, res) => {
 })
 
 /**
- * V2: Optimized random questions function with proper server-side filtering
- * MAJOR FIX: Original function fetches ALL documents then filters - extremely inefficient!
- * Expected improvement: 90-95% fewer database reads, dramatically faster response
- */
-exports.grabRandomV2 = onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        const category = req.query.category
-        
-        if (!category) {
-            return res.status(400).json({ error: 'Missing category parameter' })
-        }
-
-        try {
-            // Server-side filtering with category instead of fetching ALL documents
-            const quizzes = await admin.firestore()
-                .collection('default-questions')
-                .where('category', '==', category)
-                .limit(100) // Reasonable limit for random selection
-                .get()
-
-            if (quizzes.empty) {
-                res.set('Cache-Control', 'public, max-age=900') // 15 minute cache
-                return res.json({})
-            }
-
-            // Group by subcategory (efficient since we filtered by category first)
-            const subcategories = {}
-            quizzes.forEach((doc) => {
-                const data = doc.data()
-                const subcategory = data['sub-category']
-                
-                if (!subcategories[subcategory]) {
-                    subcategories[subcategory] = []
-                }
-                subcategories[subcategory].push(data)
-            })
-
-            res.set('Cache-Control', 'public, max-age=900') // 15 minute cache
-            res.json(subcategories)
-            
-        } catch (error) {
-            console.error('Error fetching random questions V2:', error)
-            res.status(500).json({ error: 'Error fetching random questions' })
-        }
-    })
-})
-
-// ===== REDUNDANT FUNCTION REMOVED =====
-// grabCustomQuizzesV2 removed - same functionality as grabUserCustomQuizzesV2
-// Use grabUserCustomQuizzesV2 instead which has better schema compatibility and data flattening
-
-/**
- * V2: Optimized single quiz result fetching with caching headers
- * Backwards compatible with grabResults but with better performance
- */
-exports.grabResultsV2 = onRequest(async (req, res) => {
-    cors(req, res, async () => {
-        const dataType = req.get('content-type')
-        if (dataType === 'application/json') {
-            const data = JSON.parse(JSON.stringify(req.body))
-            const { uid, category } = data
-            
-            if (!uid || !category) {
-                return res.status(400).json({ error: 'Missing uid or category parameter' })
-            }
-
-            try {
-                const resultsRef = await admin.firestore()
-                    .collection('users')
-                    .doc(uid)
-                    .collection('quizzes')
-                    .doc(category.toLowerCase())
-                    .get()
-
-                if (!resultsRef.exists) {
-                    res.set('Cache-Control', 'public, max-age=300') // 5 minute cache
-                    res.json({ score: 0, avgScore: 0, attempts: 0 })
-                } else {
-                    res.set('Cache-Control', 'public, max-age=300') // 5 minute cache  
-                    res.json(resultsRef.data())
-                }
-            } catch (error) {
-                console.error('Error fetching results V2:', error)
-                res.status(500).json({ error: 'Error fetching quiz results' })
-            }
-        } else {
-            res.status(400).json({ error: 'Invalid content type. Expected application/json' })
-        }
-    })
-})
-
-/**
  * V2: Optimized quiz browsing with server-side filtering, sorting, and searching
- * Replaces inefficient client-side operations with proper Firestore queries
- * Expected improvement: 70-90% reduction in data transfer, better security
  */
 exports.browseCustomQuizzesV2 = onRequest(async (req, res) => {
     cors(req, res, async () => {
@@ -1227,10 +907,6 @@ exports.browseCustomQuizzesV2 = onRequest(async (req, res) => {
       }
     });
 });
-
-// =============================================================================
-// FLASHCARD DECK FUNCTIONS
-// =============================================================================
 
 /**
  * Create a new flashcard deck
@@ -1566,9 +1242,175 @@ exports.deleteFlashcardDeck = onRequest(async (req, res) => {
     });
 });
 
-// =============================================================================
-// END OF FUNCTIONS - File cleaned and reorganized October 2025
-// Removed old functions: grabQuiz, saveResults + helpers, redundant V2 functions
-// Fixed schema inconsistencies, added proper section organization
-// Added flashcard deck functions: October 2025
-// =============================================================================
+/**
+ * Submit quiz results and update user category statistics
+ * Handles both quiz_results collection storage and user stats updates
+ */
+exports.submitQuizResults = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        try {
+            const { 
+                userId, 
+                category, 
+                score, 
+                totalQuestions, 
+                timeSpent,
+                difficulty = "3",
+                sessionId,
+                quizType = "default",
+                quizId = null
+            } = req.body;
+
+            // Validate required fields
+            if (!userId || !category || score === undefined || !totalQuestions) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Missing required fields: userId, category, score, totalQuestions'
+                });
+            }
+
+            // Validate category for default quizzes only
+            const validCategories = ['geography', 'science', 'sports', 'mathematics', 'history', 'entertainment'];
+            const isDefaultQuiz = quizType === "default";
+            
+            if (isDefaultQuiz && !validCategories.includes(category.toLowerCase())) {
+                return res.status(400).json({
+                    success: false,
+                    error: `Invalid category for default quiz. Must be one of: ${validCategories.join(', ')}`
+                });
+            }
+
+            // Calculate percentage
+            const percentage = Math.round((score / totalQuestions) * 100);
+
+            // Create quiz result document
+            const quizResult = {
+                userId,
+                category: category.toLowerCase(),
+                quizType,
+                score,
+                totalQuestions,
+                percentage,
+                timeSpent: timeSpent || 0,
+                submittedAt: admin.firestore.Timestamp.now(),
+                difficulty,
+                sessionId: sessionId || admin.firestore.FieldValue.serverTimestamp()
+            };
+
+            // Add quizId for custom quizzes
+            if (quizId) {
+                quizResult.quizId = quizId;
+            }
+
+            // Store result in quiz_results collection
+            await admin.firestore().collection('quiz_results').add(quizResult);
+
+            // Get user's current category stats
+            const userRef = admin.firestore().collection('users').doc(userId);
+            const userDoc = await userRef.get();
+
+            if (!userDoc.exists) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'User not found'
+                });
+            }
+
+            const userData = userDoc.data();
+            
+            // Update user stats in atomic transaction
+            const batch = admin.firestore().batch();
+            
+            // Base stats update - always update activity timestamps
+            const baseUpdate = {
+                'stats.lastActivity': admin.firestore.Timestamp.now(),
+                'timestamps.lastActiveAt': admin.firestore.Timestamp.now()
+            };
+
+            // Update stats based on quiz type
+            if (isDefaultQuiz) {
+                // Default quiz: Update QuizMaster stats and category stats
+                baseUpdate['stats.quizmasterQuizzesTaken'] = admin.firestore.FieldValue.increment(1);
+                baseUpdate['stats.quizmasterTotalScore'] = admin.firestore.FieldValue.increment(percentage);
+
+                const currentCategoryStats = userData.stats?.categoryStats?.[category.toLowerCase()] || {
+                    best: 0,
+                    avg: 0,
+                    attempts: 0,
+                    totalScore: 0
+                };
+
+                // Calculate new category stats
+                const newAttempts = currentCategoryStats.attempts + 1;
+                const newTotalScore = currentCategoryStats.totalScore + percentage;
+                const newAvg = Math.round(newTotalScore / newAttempts);
+                const newBest = Math.max(currentCategoryStats.best, percentage);
+
+                // Add category-specific updates
+                baseUpdate[`stats.categoryStats.${category.toLowerCase()}.best`] = newBest;
+                baseUpdate[`stats.categoryStats.${category.toLowerCase()}.avg`] = newAvg;
+                baseUpdate[`stats.categoryStats.${category.toLowerCase()}.attempts`] = newAttempts;
+                baseUpdate[`stats.categoryStats.${category.toLowerCase()}.totalScore`] = newTotalScore;
+
+                // Calculate overall QuizMaster average
+                const currentQuizmasterTotal = userData.stats?.quizmasterTotalScore || 0;
+                const currentQuizmasterTaken = userData.stats?.quizmasterQuizzesTaken || 0;
+                const newQuizmasterTotal = currentQuizmasterTotal + percentage;
+                const newQuizmasterTaken = currentQuizmasterTaken + 1;
+                const newQuizmasterAverage = Math.round(newQuizmasterTotal / newQuizmasterTaken);
+                
+                baseUpdate['stats.quizmasterAverageScore'] = newQuizmasterAverage;
+            } else {
+                // Custom quiz: Update custom quiz activity only
+                const currentCustomTotal = userData.stats?.customQuizActivity?.totalScore || 0;
+                const currentCustomTaken = userData.stats?.customQuizActivity?.totalTaken || 0;
+                const newCustomTotal = currentCustomTotal + percentage;
+                const newCustomTaken = currentCustomTaken + 1;
+                const newCustomAverage = Math.round(newCustomTotal / newCustomTaken);
+
+                baseUpdate['stats.customQuizActivity.totalTaken'] = admin.firestore.FieldValue.increment(1);
+                baseUpdate['stats.customQuizActivity.totalScore'] = admin.firestore.FieldValue.increment(percentage);
+                baseUpdate['stats.customQuizActivity.averageScore'] = newCustomAverage;
+                baseUpdate['stats.customQuizActivity.lastTaken'] = admin.firestore.Timestamp.now();
+            }
+
+            // Apply all updates
+            batch.update(userRef, baseUpdate);
+
+            await batch.commit();
+
+            res.json({
+                success: true,
+                message: `${isDefaultQuiz ? 'Default' : 'Custom'} quiz results submitted successfully`,
+                data: {
+                    resultId: "stored",
+                    percentage,
+                    quizType,
+                    isDefaultQuiz,
+                    categoryStats: isDefaultQuiz ? {
+                        [category.toLowerCase()]: {
+                            best: baseUpdate[`stats.categoryStats.${category.toLowerCase()}.best`],
+                            avg: baseUpdate[`stats.categoryStats.${category.toLowerCase()}.avg`],
+                            attempts: baseUpdate[`stats.categoryStats.${category.toLowerCase()}.attempts`]
+                        }
+                    } : null,
+                    quizmasterStats: isDefaultQuiz ? {
+                        averageScore: baseUpdate['stats.quizmasterAverageScore'],
+                        totalTaken: (userData.stats?.quizmasterQuizzesTaken || 0) + 1
+                    } : null,
+                    customQuizStats: !isDefaultQuiz ? {
+                        averageScore: baseUpdate['stats.customQuizActivity.averageScore'],
+                        totalTaken: (userData.stats?.customQuizActivity?.totalTaken || 0) + 1
+                    } : null
+                }
+            });
+
+        } catch (error) {
+            console.error('Error submitting quiz results:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Failed to submit quiz results'
+            });
+        }
+    });
+});
