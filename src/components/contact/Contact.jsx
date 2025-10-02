@@ -1,33 +1,33 @@
 import React, { useState } from "react";
 
-import max from "../../assets/max.jpg"
-import anthony from "../../assets/anthony.jpg"
-import matt from "../../assets/matt.jpg"
-import jose from "../../assets/jose.jpg"
-import matthew from "../../assets/matthew.jpg"
-import tyler from "../../assets/tyler.jpg"
-import julie from "../../assets/julie.jpg"
-import james from "../../assets/james.jpg"
-import joey from "../../assets/joey.jpg"
-import alexk from "../../assets/alexk.jpg"
-import hamzeh from "../../assets/hamzeh.jpg"
-import alex from "../../assets/alex.jpg"
-import jeff from "../../assets/jeff.jpg"
-import evan from "../../assets/evanh.jpg"
+import max from "../../assets/max.webp"
+import anthony from "../../assets/anthony.webp"
+import matt from "../../assets/matt.webp"
+import jose from "../../assets/jose.webp"
+import matthew from "../../assets/matthew.webp"
+import tyler from "../../assets/tyler.webp"
+import julie from "../../assets/julie.webp"
+import james from "../../assets/james.webp"
+import joey from "../../assets/joey.webp"
+import alexk from "../../assets/alexk.webp"
+import hamzeh from "../../assets/hamzeh.webp"
+import alex from "../../assets/alex.webp"
+import jeff from "../../assets/jeff.webp"
+import evan from "../../assets/evanh.webp"
 import logo from "../../assets/logo.jpg"
-import danielj from "../../assets/daniel.jpg"
-import jayrell from "../../assets/jayrell.jpg"
-import hima from "../../assets/hima.jpg"
-import brian from "../../assets/brian.jpg"
-import ahmad from "../../assets/ahmad.jpg"
-import sami from "../../assets/sami.jpg"
+import danielj from "../../assets/daniel.webp"
+import jayrell from "../../assets/jayrell.webp"
+import hima from "../../assets/hima.webp"
+import brian from "../../assets/brian.webp"
+import ahmad from "../../assets/ahmad.webp"
+import sami from "../../assets/sami.webp"
 import erick from "../../assets/erick.jpg"
-import demetrius from "../../assets/demetrius.jpg"
-import nuvia from "../../assets/nuvia.jpg"
-import kolade from "../../assets/kolade.jpg"
-import rudra from "../../assets/rudra.jpg"
-import ben from "../../assets/ben.jpg"
-import ethan from "../../assets/ethan.jpg"
+import demetrius from "../../assets/demetrius.webp"
+import nuvia from "../../assets/nuvia.webp"
+import kolade from "../../assets/kolade.webp"
+import rudra from "../../assets/rudra.webp"
+import ben from "../../assets/ben.webp"
+import ethan from "../../assets/ethan.webp"
 
 const TeamSection = ({ title, isOpen = false, children }) => {
     const [expanded, setExpanded] = useState(isOpen);
@@ -64,7 +64,14 @@ const TeamSection = ({ title, isOpen = false, children }) => {
 const TeamMember = ({ image, name, group, email, githubLink }) => (
     <div className="flex flex-col items-center bg-card border border-primary rounded-xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
         <a href={githubLink} target="_blank" rel="noopener noreferrer">
-            <img src={image} alt={name} className="object-cover w-48 h-48 rounded-full border-2 border-accent transition-all duration-300 hover:border-accent-hover" />
+            <img 
+                src={image} 
+                alt={name} 
+                className="object-cover w-48 h-48 rounded-full border-2 border-accent transition-all duration-300 hover:border-accent-hover" 
+                loading="lazy"
+                width="192"
+                height="192"
+            />
         </a>
         <h3 className="mt-4 text-lg font-medium text-primary">{name}</h3>
         <div className="mt-1 text-accent font-medium">{group}</div>

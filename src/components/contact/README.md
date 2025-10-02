@@ -1,42 +1,12 @@
 # Contact Component
 
 ## Purpose
-The contact component showcases all development teams (past and current) who have contributed to the QuizMaster project across multiple semesters. This page serves as a tribute to the collaborative efforts of various student teams.
+This component displays all team members who have contributed to the QuizMaster project, showcasing the collaborative development history across multiple semesters.
 
-## Architecture
+## Adding Yourself to the Team
+To add yourself as a new team member:
 
-### Component Structure
-```
-contact/
-├── Contact.jsx                    # Main contact page component
-├── Old Contact Format Reference   # Legacy reference materials
-└── README.md                     # This documentation
-```
-
-### Key Features
-- **Multi-Team Display**: Organized sections for each semester's development team
-- **Interactive Profiles**: Team member photos linked to personal websites
-- **Contact Integration**: Direct email links for easy communication
-- **Responsive Design**: Optimized display across all device sizes
-- **Team History**: Chronological organization of project contributors
-
-## Team Organization
-The component displays teams in reverse chronological order:
-- **Current Development Teams**: Active contributors
-- **Previous Semester Teams**: Historical contributors organized by semester
-- **Special Recognition**: Key contributors and project leadership
-
-## Implementation Details
-- **Profile Integration**: Each team member profile includes:
-  - Professional photo display
-  - Name and role information
-  - Direct email contact links
-  - Personal website/portfolio links (where available)
-- **Responsive Grid Layout**: Adapts to different screen sizes
-- **Accessibility Features**: Proper alt text and keyboard navigation support
-
-## Data Management
-- Team member information stored in structured format
-- Profile images optimized for web display
-- Contact information validated and maintained
-- Regular updates to reflect current team composition
+1. **Prepare Your Assets**: Add your `firstname.webp` photo (400x400px) to `src/assets/`
+2. **Import Your Photo**: In `Contact.jsx`, add your import statement at the top with other team member imports  
+3. **Add Your Profile**: Add your team member object to the appropriate team array with your name, email, photo, and optional website
+4. **Test Display**: Verify your profile appears correctly in the contact page layout

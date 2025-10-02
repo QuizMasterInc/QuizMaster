@@ -187,17 +187,54 @@ class QuizService {
     }
   
     /**
-     * Submit quiz attempt
+     * Submit quiz attempt for default quizmaster quizzes
+     * @param {Object} attemptData - Quiz attempt data
+     * @returns {Promise<Object>} Attempt result
+     */
+    async submitQuizResults(attemptData) {
+        try {
+            // Use HTTP request like all other functions
+            const response = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/submitQuizResults', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...attemptData,
+                    submittedAt: timestamp.now()
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
+    
+        } catch (error) {
+            console.error('submitQuizResults error details:', error);
+            throw handleFirebaseError(error);
+        }
+    }
+
+    /**
+     * Submit quiz attempt (legacy method - kept for compatibility)
      * @param {string} quizId - Quiz ID
      * @param {Object} attemptData - Quiz attempt data
      * @returns {Promise<Object>} Attempt result
      */
     async submitQuizAttempt(quizId, attemptData) {
         try {
-            // Use cloud function for processing quiz submission
-            const submitQuizFunction = httpsCallable(functions, 'submitQuiz');
+            // For default quizzes, use the new submitQuizResults method
+            if (attemptData.quizType === 'default' || attemptData.category) {
+                return await this.submitQuizResults(attemptData);
+            }
             
-            const result = await submitQuizFunction({
+            // For custom quizzes, use existing custom quiz tracking
+            const trackQuizFunction = httpsCallable(functions, 'trackQuizAttempt');
+            
+            const result = await trackQuizFunction({
                 quizId,
                 ...attemptData,
                 submittedAt: timestamp.now()

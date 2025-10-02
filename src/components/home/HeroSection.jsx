@@ -1,14 +1,9 @@
-import React from "react";
 import { motion } from "framer-motion";
-import Bckg5 from "../../assets/background5.png";
 
 const HeroSection = ({ isAuthenticated }) => (
   <section
     className="relative flex items-center justify-center py-32 min-h-[80vh]"
-    style={{ 
-      backgroundImage: `url(${Bckg5})`,
-      backgroundColor: 'var(--bg-primary)'
-    }}
+    
   >
     {/* Dark overlay for excellent text contrast */}
     <div 

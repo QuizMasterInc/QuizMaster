@@ -55,14 +55,13 @@ function App() {
     <div className="App">
       <AppProvider>
         <QuizProvider>
-          <NavBar />
-          <Routes>
+          <ResultsProvider>
+            <NavBar />
+            <Routes>
         {isAuthenticated ? (
           <Route path="/" element={
             <PrivateRoute>
-              <ResultsProvider>
-                <Dashboard />
-              </ResultsProvider>
+              <Dashboard />
             </PrivateRoute>
           } />
         ) : (
@@ -177,16 +176,15 @@ function App() {
 
           <Route path="/dashboard" element={
             <PrivateRoute>
-              <ResultsProvider>
-                <Dashboard />
-              </ResultsProvider>
+              <Dashboard />
             </PrivateRoute>
           }/>
 
           <Route path="*" element={<NotFound />} />
-        </Routes>
+            </Routes>
 
-        <Footer />
+            <Footer />
+          </ResultsProvider>
         </QuizProvider>
       </AppProvider>
     </div>

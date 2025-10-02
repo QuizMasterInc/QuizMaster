@@ -140,11 +140,32 @@ class AuthService {
             // Analytics & Tracking
             stats: {
                 quizzesCreated: 0,
-                quizzesTaken: 0,
-                totalScore: 0,
-                averageScore: 0,
+                
+                // QuizMaster (default) quiz performance tracking
+                quizmasterQuizzesTaken: 0,
+                quizmasterTotalScore: 0,
+                quizmasterAverageScore: 0,
+                
+                // Custom quiz activity tracking (separate from dashboard averages)
+                customQuizActivity: {
+                    totalTaken: 0,
+                    totalScore: 0,
+                    averageScore: 0,
+                    lastTaken: null
+                },
+                
                 lastActivity: timestamp.now(),
                 flashcardDecksCreated: 0,
+                
+                // Pre-calculated category statistics for instant dashboard loading
+                categoryStats: {
+                    geography: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
+                    science: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
+                    sports: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
+                    mathematics: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
+                    history: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
+                    entertainment: { best: 0, avg: 0, attempts: 0, totalScore: 0 }
+                }
             },
             
             // Preferences
@@ -178,13 +199,6 @@ class AuthService {
     async register(userData) {
         const { email, password } = userData;
         
-        console.log('Register called with userData:', { 
-            email, 
-            passwordLength: password?.length,
-            hasPassword: !!password,
-            userData: Object.keys(userData)
-        });
-        
         // Validate input
         if (!email || !password) {
             throw new Error('Email and password are required');
@@ -197,11 +211,9 @@ class AuthService {
         try {
             // Check if user is already signed in
             if (auth.currentUser) {
-                console.log('User already signed in, signing out first...');
                 await signOut(auth);
             }
             
-            console.log('Attempting Firebase createUserWithEmailAndPassword...');
             const userCredential = await withRetry(() => 
                 createUserWithEmailAndPassword(auth, email, password)
             );
@@ -367,8 +379,6 @@ class AuthService {
      */
     async registerWithGoogle(additionalData = {}) {
         try {
-            console.log('Starting Google registration...');
-            
             const provider = new GoogleAuthProvider();
             provider.addScope('email');
             provider.addScope('profile');
@@ -381,7 +391,6 @@ class AuthService {
             }
             
             const user = result.user;
-            console.log('Google auth successful for:', user.email);
             
             // Step 2: Check if profile already exists
             const userDocRef = doc(db, 'users', user.uid);
@@ -394,8 +403,6 @@ class AuthService {
             }
             
             // Step 3: Create profile IMMEDIATELY (before any auth state changes propagate)
-            console.log('Creating new user profile with proper nested schema...');
-            
             // Extract name data properly
             const { firstName, lastName } = this.extractNameData(user.displayName || '', user.email);
             
@@ -410,20 +417,14 @@ class AuthService {
             // Create the CORRECT nested schema document
             const userDocument = this.createCompleteUserDocument(user, userData);
             
-            console.log('User document to be created:', JSON.stringify(userDocument, null, 2));
-            
             // Use setDoc with merge: false to ensure we're creating, not updating
             await setDoc(userDocRef, userDocument);
-            
-            console.log('Profile created successfully');
             
             // Step 4: Verify the profile was created
             const verifyDoc = await getDoc(userDocRef);
             if (!verifyDoc.exists()) {
                 throw new Error('Failed to create user profile');
             }
-            
-            console.log('Profile verified');
             
             // Step 5: Return success
             return {
@@ -454,8 +455,6 @@ class AuthService {
      */
     async handleGoogleUserProfile(user, additionalData = {}) {
         try {
-            console.log('Creating new profile for Google user registration');
-            
             // Extract name data from Google profile
             const { firstName, lastName } = this.extractNameData(user.displayName || '', user.email);
             
@@ -472,7 +471,6 @@ class AuthService {
             const userDocument = this.createCompleteUserDocument(user, userData);
             
             await setDoc(doc(db, 'users', user.uid), userDocument);
-            console.log('Schema-compliant profile created successfully for Google user');
             
         } catch (error) {
             console.error('Error handling Google user profile:', error);

@@ -9,6 +9,7 @@ const AllTeacherQuizzes = () => {
 	
   	let [quizzes, setQuizzes] = useState([
 		{
+			"uid": "loading",
 			"numQuestions": 0,
 			"createdAt": "",
 			"creator": "",
@@ -39,9 +40,16 @@ const AllTeacherQuizzes = () => {
 		  const quizData = json.data;
 
         // Filter to include only quizzes with the 'teachermade' tag
-        const filtered = quizData.filter((quiz) =>
-          quiz.tags?.some((tag) => tag.toLowerCase() === "teachermade (no other tags can be added)")
-        );
+        // Handle both string and array formats for tags
+        const filtered = quizData.filter((quiz) => {
+          const tags = quiz.tags;
+          if (Array.isArray(tags)) {
+            return tags.some((tag) => tag.toLowerCase() === "teachermade (no other tags can be added)");
+          } else if (typeof tags === 'string') {
+            return tags.toLowerCase().includes("teachermade (no other tags can be added)");
+          }
+          return false;
+        });
 
         // Force the tag to only be 'teachermade'
         const cleaned = filtered.map((quiz) => ({
@@ -105,9 +113,15 @@ const AllTeacherQuizzes = () => {
 	}
 
 	function checkTags(quiz, searchTerm) {
-		if (quiz.tags && quiz.tags.length > 0) {
-			for (let tag of quiz.tags) {
-				if (tag.toLowerCase().includes(searchTerm)) return true;
+		if (quiz.tags) {
+			if (Array.isArray(quiz.tags) && quiz.tags.length > 0) {
+				// Handle tags as array
+				for (let tag of quiz.tags) {
+					if (tag.toLowerCase().includes(searchTerm)) return true;
+				}
+			} else if (typeof quiz.tags === 'string' && quiz.tags.length > 0) {
+				// Handle tags as string
+				return quiz.tags.toLowerCase().includes(searchTerm);
 			}
 		}
 		return false;
@@ -161,6 +175,7 @@ const AllTeacherQuizzes = () => {
 					<div id="customQuizDiv" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
 						{quizzesToDisplay.map((q) => (
 							<CustomQuizSelectButton
+								key={q.uid}
 								title={q.title}
 								numQuestions={q.numQuestions}
 								tags={q.tags}

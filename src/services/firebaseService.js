@@ -23,7 +23,7 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase services
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const functions = getFunctions(app);
+export const functions = getFunctions(app); // Simple initialization, not using callable functions
 export const storage = getStorage(app);
 
 // Error handling utility

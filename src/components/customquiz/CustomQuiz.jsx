@@ -14,6 +14,7 @@ export default function CustomQuiz () {
   const [quizTags, setQuizTags] = useState([])
   const [customQuizzes, setCustomQuizzes] = useState([])
   const [teacherQuiz, setTeacherQuiz] = useState(false)
+  const [isCreatingQuiz, setIsCreatingQuiz] = useState(false)
   const { currentUser } = useAuth()
   const navigate = useNavigate()
 
@@ -45,6 +46,8 @@ export default function CustomQuiz () {
         alert("You need to have at least one question in the quiz.");
         return;
       }
+
+      setIsCreatingQuiz(true);
 
       // Create validated quiz object using service (let quizService.js handle the transformation)
       const quizInput = {
@@ -93,6 +96,8 @@ export default function CustomQuiz () {
     } catch (error) {
       console.error("Error creating quiz:", error);
       alert("Failed to create quiz. Please try again.");
+    } finally {
+      setIsCreatingQuiz(false);
     }
   }
 
@@ -132,6 +137,7 @@ export default function CustomQuiz () {
             setQuizTags={setQuizTags}
             teacherQuiz={teacherQuiz}
             setTeacherQuiz={setTeacherQuiz}
+            isCreatingQuiz={isCreatingQuiz}
           />
           <QuizQuestionsList 
             quizData={quizData} 
