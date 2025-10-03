@@ -50,7 +50,7 @@ const AddDefaultQuestion = () => {
       placeholder={placeholder}
       value={question[key]}
       onChange={(e) => updateQuestion(key, e.target.value)}
-      className={`${className} bg-[#0e0d22] text-white border border-gray-600 text-lg mb-4 rounded-md h-11 p-4 focus:scale-105 focus:ring-2 focus:ring-blue-500 transition duration-300`}
+      className={`${className} bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200`}
     />
   );
 
@@ -64,115 +64,132 @@ const AddDefaultQuestion = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#141432] via-[#0f0f1f] to-[#1f1f5c] px-6 py-12 flex justify-center items-center text-white">
-      <div className="w-full max-w-3xl space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4">Add to Default Quizzes!</h1>
-          <p className="text-sm text-gray-400">Fill in the details below to add a question.</p>
+    <div className="min-h-screen bg-primary text-primary px-6 py-16">
+      <div className="max-w-4xl mx-auto space-y-8">
+
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <h1 className="text-gradient-primary text-5xl font-bold tracking-wide">Add to Default Quizzes</h1>
+          <p className="text-secondary text-lg">Fill in the details below to add a question to the database.</p>
         </div>
 
-        {/* Question Input */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Type Your Question</h2>
+        {/* Question Input Card */}
+        <div className="bg-card border border-primary rounded-xl p-8 shadow-lg">
+          <h2 className="text-2xl font-semibold text-primary mb-6">Question</h2>
           {inputField({ key: 'question', placeholder: 'Enter your question', className: 'w-full' })}
         </div>
 
-        {/* Quiz Attributes */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Add Quiz Attributes</h2>
+        {/* Quiz Attributes Card */}
+        <div className="bg-card border border-primary rounded-xl p-8 shadow-lg">
+          <h2 className="text-2xl font-semibold text-primary mb-6">Answer Options</h2>
           <div className="space-y-4">
             {quizAttributes.map((key, index) => (
-              <div key={key} className="grid grid-cols-3 gap-4 items-center">
-                <label className="text-right text-sm text-gray-300">
-                  {key} (value):
+              <div key={key} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <label className="text-secondary font-medium md:text-right">
+                  {key}:
                 </label>
-                {inputField({ key: key, placeholder: placeholders[index], className: 'col-span-2' })}
+                <div className="md:col-span-3">
+                  {inputField({ key: key, placeholder: placeholders[index], className: 'w-full' })}
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        <hr className="border-gray-600 my-6" />
+        {/* Correct Answer Card */}
+        <div className="bg-card border border-primary rounded-xl p-8 shadow-lg">
+          <h2 className="text-2xl font-semibold text-primary mb-6">Correct Answer</h2>
+          <div className="space-y-6">
 
-        {/* Correct Answer Input (Text + Datalist) */}
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-4 items-start">
-            <label className="text-right text-sm text-gray-300">
-              correct [option] val:
-              <br />
-              <span className="text-gray-400 text-xs">(will autopopulate with a-d)</span>
-            </label>
-            <input
-              id="correct"
-              value={question['correct']}
-              onChange={(e) => updateQuestion('correct', e.target.value)}
-              className="col-span-2 bg-[#0e0d22] text-white border border-gray-600 rounded-md p-3 focus:scale-105 focus:ring-2 focus:ring-blue-500 transition duration-300"
-              list="option-list"
-            />
-            <datalist id="option-list">
-              <option value={question['a']}>{'a. ' + question['a']}</option>
-              <option value={question['b']}>{'b. ' + question['b']}</option>
-              <option value={question['c']}>{'c. ' + question['c']}</option>
-              <option value={question['d']}>{'d. ' + question['d']}</option>
-            </datalist>
-          </div>
+            {/* Text Input with Datalist */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+              <label className="text-secondary font-medium md:text-right">
+                Select correct option:
+                <br />
+                <span className="text-sm text-muted">(text input)</span>
+              </label>
+              <div className="md:col-span-3">
+                <input
+                  id="correct"
+                  value={question['correct']}
+                  onChange={(e) => updateQuestion('correct', e.target.value)}
+                  className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
+                  list="option-list"
+                />
+                <datalist id="option-list">
+                  <option value={question['a']}>{'a. ' + question['a']}</option>
+                  <option value={question['b']}>{'b. ' + question['b']}</option>
+                  <option value={question['c']}>{'c. ' + question['c']}</option>
+                  <option value={question['d']}>{'d. ' + question['d']}</option>
+                </datalist>
+              </div>
+            </div>
 
-          {/* Correct Dropdown */}
-          <div className="grid grid-cols-3 gap-4 items-start">
-            <label className="text-right text-sm text-gray-300">
-              correct [dropdown] val:
-              <br />
-              <span className="text-gray-400 text-xs">(will autopopulate with a-d)</span>
-            </label>
-            <select
-              onChange={(e) => updateQuestion('correct', e.target.value)}
-              className="col-span-2 bg-[#0e0d22] text-white border border-gray-600 rounded-md p-3 focus:scale-105 focus:ring-2 focus:ring-blue-500 transition duration-300"
-            >
-              <option value={question['a']}>{'a. ' + question['a']}</option>
-              <option value={question['b']}>{'b. ' + question['b']}</option>
-              <option value={question['c']}>{'c. ' + question['c']}</option>
-              <option value={question['d']}>{'d. ' + question['d']}</option>
-            </select>
+            {/* Dropdown */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+              <label className="text-secondary font-medium md:text-right">
+                Select correct option:
+                <br />
+                <span className="text-sm text-muted">(dropdown)</span>
+              </label>
+              <div className="md:col-span-3">
+                <select
+                  onChange={(e) => updateQuestion('correct', e.target.value)}
+                  className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
+                >
+                  <option value={question['a']}>{'a. ' + question['a']}</option>
+                  <option value={question['b']}>{'b. ' + question['b']}</option>
+                  <option value={question['c']}>{'c. ' + question['c']}</option>
+                  <option value={question['d']}>{'d. ' + question['d']}</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
 
-        <hr className="border-gray-600 my-6" />
-
-        {/* Difficulty Input */}
-        <div className="grid grid-cols-3 gap-4 items-start">
-          <label className="text-right text-sm text-gray-300">
-            difficulty value:
-            <br />
-            <span className="text-gray-400 text-xs">(0 is easiest, 5 is hardest)</span>
-          </label>
-          <input
-            id="difficulty"
-            type="number"
-            value={question['difficulty']}
-            onChange={(e) => updateQuestion('difficulty', e.target.value)}
-            className="col-span-2 bg-[#0e0d22] text-white border border-gray-600 rounded-md p-3 focus:scale-105 focus:ring-2 focus:ring-blue-500 transition duration-300"
-            min={0}
-            max={5}
-          />
+        {/* Difficulty Card */}
+        <div className="bg-card border border-primary rounded-xl p-8 shadow-lg">
+          <h2 className="text-2xl font-semibold text-primary mb-6">Difficulty Level</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            <label className="text-secondary font-medium md:text-right">
+              Difficulty:
+              <br />
+              <span className="text-sm text-muted">(0 = easiest, 5 = hardest)</span>
+            </label>
+            <div className="md:col-span-3">
+              <input
+                id="difficulty"
+                type="number"
+                value={question['difficulty']}
+                onChange={(e) => updateQuestion('difficulty', e.target.value)}
+                className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
+                min={0}
+                max={5}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Action Buttons */}
         <div className="flex justify-center gap-6 mt-8 flex-wrap">
           <button
             onClick={addDefaultQuestion}
-            className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-full shadow-md transition duration-200"
+            className="bg-accent hover:bg-accent-hover text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
           >
             Add Question
           </button>
           <Link to="/quizzes">
-            <div className="bg-gray-800 hover:bg-gray-700 text-white py-3 px-6 rounded-full shadow-md transition duration-200">
-              Take a premade quiz!
-            </div>
+            <button className="bg-secondary text-primary font-semibold py-3 px-8 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg border border-primary">
+              Take a Premade Quiz
+            </button>
           </Link>
         </div>
 
+        {/* Success Message */}
         {isQuizAdded && (
-          <p className="text-center text-green-400 mt-4">Question has been added!</p>
+          <div className="text-center mt-6">
+            <p className="text-green-500 dark:text-green-400 text-lg font-semibold">✓ Question has been added successfully!</p>
+          </div>
         )}
       </div>
     </div>
