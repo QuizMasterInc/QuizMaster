@@ -61,7 +61,29 @@ const AddDefaultQuestion = () => {
   );
 
   async function addDefaultQuestion() {
-    const encodedQuestion = encodeURIComponent(JSON.stringify(question));
+    // Create question with BOTH field name formats for compatibility
+    const questionToUpload = {
+      question: question.question,
+      // New format (short names)
+      a: question.a,
+      b: question.b,
+      c: question.c,
+      d: question.d,
+      correct: question.correct,
+      // Old format (option_X and correct_answer) for backward compatibility
+      option_1: question.a,
+      option_2: question.b,
+      option_3: question.c,
+      option_4: question.d,
+      correct_answer: question.correct,
+      // Other fields
+      category: question.category.toLowerCase(), // Store as lowercase for consistency
+      'sub-category': question['sub-category'],
+      difficulty: question.difficulty,
+      type: 'Multiple' // Default type
+    };
+
+    const encodedQuestion = encodeURIComponent(JSON.stringify(questionToUpload));
     await fetch(`https://us-central1-quizmaster-c66a2.cloudfunctions.net/addDefaultQuestion?question=${encodedQuestion}`);
     console.log('Added Question!');
     setIsQuizAdded(true);
@@ -239,9 +261,9 @@ const AddDefaultQuestion = () => {
               question,a,b,c,d,correct,category,sub-category,difficulty
             </code>
             <ul className="text-secondary text-sm mt-2 space-y-1 list-disc list-inside">
-              <li><strong>difficulty</strong>: 0-5 (0 = easiest, 5 = hardest)</li>
-              <li><strong>correct</strong>: Must match one of the answer options (a, b, c, or d)</li>
-              <li><strong>sub-category</strong>: Sports/baseball or Entertainment/movies.</li>
+              <li><strong>difficulty</strong>: 1-5 (1 = easiest, 5 = hardest)</li>
+              <li><strong>correct</strong>: Must match one of the answers exactly.</li>
+              <li><strong>sub-category</strong>: EXAMPLES: baseball or movies.</li>
             </ul>
           </div>
         </div>

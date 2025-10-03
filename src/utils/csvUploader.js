@@ -25,16 +25,26 @@ export const parseCSV = (file) => {
               throw new Error(`Row ${index + 1}: Missing required fields`);
             }
 
+            // Create question with BOTH field name formats for compatibility
             return {
               question: row.question.trim(),
+              // New format (short names)
               a: row.a.trim(),
               b: row.b.trim(),
               c: row.c.trim(),
               d: row.d.trim(),
               correct: row.correct.trim(),
-              category: row.category.trim(),
+              // Old format (option_X and correct_answer) for backward compatibility
+              option_1: row.a.trim(),
+              option_2: row.b.trim(),
+              option_3: row.c.trim(),
+              option_4: row.d.trim(),
+              correct_answer: row.correct.trim(),
+              // Other fields
+              category: row.category.trim().toLowerCase(), // Store as lowercase for consistency
               'sub-category': row['sub-category']?.trim() || '',
-              difficulty: parseInt(row.difficulty) || 0
+              difficulty: parseInt(row.difficulty) || 0,
+              type: row.type?.trim() || 'Multiple' // Default to Multiple choice
             };
           });
 

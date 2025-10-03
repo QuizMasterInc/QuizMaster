@@ -2,7 +2,7 @@
  * Main application context that combines category selection with global app state
  */
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { QUIZ_CATEGORIES, QUIZ_SUBCATEGORIES, CATEGORY_ICONS, CATEGORY_DESTINATIONS } from '../constants/quizConstants';
+import { QUIZ_CATEGORIES, CATEGORY_ICONS, CATEGORY_DESTINATIONS } from '../constants/quizConstants';
 
 // Create context
 const AppContext = createContext(null);
@@ -13,7 +13,8 @@ const AppContext = createContext(null);
 export const AppProvider = ({ children }) => {
     // Quiz categories and configuration - imported from constants
     const [quizCategories] = useState(QUIZ_CATEGORIES);
-    const [quizSubcategories] = useState(QUIZ_SUBCATEGORIES);
+    const [quizSubcategories, setQuizSubcategories] = useState({}); // Now state to allow updates
+    const [availableSubcategories, setAvailableSubcategories] = useState([]); // Dynamic subcategories from DB
 
     // User quiz selections - persist to sessionStorage
     const [category, setCategory] = useState(
@@ -73,6 +74,49 @@ export const AppProvider = ({ children }) => {
         sessionStorage.setItem('quizmaster_showPauseButton', JSON.stringify(showPauseButton));
     }, [showPauseButton]);
 
+    // Fetch subcategories dynamically when category changes
+    useEffect(() => {
+        const fetchSubcategories = async () => {
+            if (!category) {
+                setAvailableSubcategories([]);
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `https://us-central1-quizmaster-c66a2.cloudfunctions.net/getSubcategories?category=${encodeURIComponent(category)}`
+                );
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.subcategories && Array.isArray(data.subcategories)) {
+                    console.log(`[AppContext] Loaded ${data.subcategories.length} subcategories for ${category}:`, data.subcategories);
+                    setAvailableSubcategories(data.subcategories);
+
+                    // Update the quizSubcategories state with dynamic data
+                    setQuizSubcategories(prev => ({
+                        ...prev,
+                        [category.toLowerCase()]: data.subcategories
+                    }));
+                } else {
+                    console.warn(`[AppContext] No subcategories found for ${category}`);
+                    setAvailableSubcategories([]);
+                }
+            } catch (error) {
+                console.error(`[AppContext] Error fetching subcategories for ${category}:`, error);
+                // Fallback to hardcoded subcategories on error
+                const fallback = QUIZ_SUBCATEGORIES[category.toLowerCase()] || [];
+                setAvailableSubcategories(fallback);
+            }
+        };
+
+        fetchSubcategories();
+    }, [category]);
+
     const selectCategory = (selectedCategory) => {
         setCategory(selectedCategory);
         setSubcategories([]);
@@ -90,7 +134,10 @@ export const AppProvider = ({ children }) => {
 
     const selectAllSubcategories = (selectedCategory) => {
         const categoryKey = selectedCategory.toLowerCase();
-        const allSubs = quizSubcategories[categoryKey] || [];
+        // Use availableSubcategories if present, otherwise fall back to quizSubcategories
+        const allSubs = availableSubcategories.length > 0
+            ? availableSubcategories
+            : (quizSubcategories[categoryKey] || []);
         setSubcategories(allSubs);
     };
 
@@ -137,6 +184,10 @@ export const AppProvider = ({ children }) => {
 
     const getSelectedSubcategoriesForCategory = (selectedCategory) => {
         const categoryKey = selectedCategory.toLowerCase();
+        // Use availableSubcategories if present and matches the category
+        if (selectedCategory === category && availableSubcategories.length > 0) {
+            return availableSubcategories;
+        }
         return quizSubcategories[categoryKey] || [];
     };
 
@@ -144,6 +195,7 @@ export const AppProvider = ({ children }) => {
     const value = {
         quizCategories,
         quizSubcategories,
+        availableSubcategories, // Add to context
         icons: CATEGORY_ICONS,
         destinations: CATEGORY_DESTINATIONS,
         category,

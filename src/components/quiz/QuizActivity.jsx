@@ -52,22 +52,50 @@ function QuizActivity() {
     async function fetchQuiz() {
       setLoading(true);
       try {
-        const url = `https://grabsubv2-ukhjsvkoca-uc.a.run.app?category=${encodeURIComponent(
+        const url = `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabSubV2?category=${encodeURIComponent(
           category.toLowerCase()
         )}`;
+        console.log('Fetching questions from:', url);
+
         const res = await fetch(url);
+
+        if (!res.ok) {
+          console.error('API response error:', res.status, res.statusText);
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
         const data = await res.json();
+        console.log('Received data:', data);
+        console.log('Data keys (subcategories):', Object.keys(data));
 
         let pool = [];
         (subcategories.length ? subcategories : Object.keys(data)).forEach(
-          (sub) => data[sub] && (pool = [...pool, ...data[sub]])
+          (sub) => {
+            if (data[sub]) {
+              console.log(`Adding ${data[sub].length} questions from subcategory: ${sub}`);
+              pool = [...pool, ...data[sub]];
+            }
+          }
         );
 
+        console.log('Total questions in pool before filtering:', pool.length);
+
         if (difficulty && difficulty > 0) {
+          const beforeFilter = pool.length;
           pool = pool.filter((q) => Number(q.difficulty) === Number(difficulty));
+          console.log(`Filtered by difficulty ${difficulty}: ${beforeFilter} -> ${pool.length} questions`);
         }
 
         pool = shuffle(pool).slice(0, amount);
+        console.log('Final pool after shuffle and slice:', pool.length);
+
+        if (pool.length === 0) {
+          console.warn('No questions available! Check if questions exist in database for:', {
+            category: category.toLowerCase(),
+            subcategories,
+            difficulty
+          });
+        }
 
         const mapped = pool.map((row) => {
           const raw = (row.type || 'Multiple').replace(/\s+/g, '').toLowerCase();
@@ -77,39 +105,43 @@ function QuizActivity() {
           else if (raw === 'draganddrop' || raw === 'drag') tag = 'drag';
           else tag = 'single';
 
-          const correctAnswerKey = row.correct_answer ?? row.correct; // This is "a", "b", "c", or "d"
-
-          // Map the letter to the actual option content
-          const optionMap = {
-            a: row.a,
-            b: row.b,
-            c: row.c,
-            d: row.d
-          };
-
-          const correctChoice = optionMap[correctAnswerKey.toLowerCase()];
+          const correctAnswer = row.correct_answer ?? row.correct;
+          const correctLower = String(correctAnswer).trim().toLowerCase();
 
           const allChoices = [
-            row.a,
-            row.b,
-            row.c,
-            row.d,
+            row.option_1 ?? row.a,
+            row.option_2 ?? row.b,
+            row.option_3 ?? row.c,
+            row.option_4 ?? row.d,
           ].filter(Boolean);
 
-          const wrongChoices = allChoices.filter(
-            (c) => c !== correctChoice
+          const correctChoice = allChoices.find(
+            (c) => c?.trim().toLowerCase() === correctLower
           );
 
+          const wrongChoices = allChoices.filter(
+            (c) => c?.trim().toLowerCase() !== correctLower
+          );
+
+          // Ensure we have the correct answer in the choices
+          // If correctChoice is undefined, add the correctAnswer text directly
+          const correctToUse = correctChoice || correctAnswer;
+
+          // Calculate how many wrong choices we need
+          const wrongChoicesNeeded = Math.max(0, answerCount - 1);
+          const wrongChoicesToUse = shuffle(wrongChoices).slice(0, wrongChoicesNeeded);
+
+          // Build final choices array
           const finalChoices = shuffle([
-            correctChoice,
-            ...shuffle(wrongChoices).slice(0, Math.max(0, answerCount - 1)),
+            correctToUse,
+            ...wrongChoicesToUse
           ]).filter(Boolean);
 
           return {
             questionText: row.question,
             text: row.question,
             choices: finalChoices,
-            correctAnswer: correctChoice, // Store the actual text, not the letter
+            correctAnswer: correctAnswer,
             type: tag,
           };
         });
@@ -496,3 +528,4 @@ function QuizActivity() {
 }
 
 export default QuizActivity;
+

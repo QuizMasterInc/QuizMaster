@@ -1456,3 +1456,66 @@ exports.submitQuizResults = onRequest(async (req, res) => {
         }
     });
 });
+
+/**
+ * Get available subcategories for a specific category
+ * This dynamically fetches subcategories from the database instead of using hardcoded values
+ */
+exports.getSubcategories = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const category = req.query.category
+
+        console.log('[getSubcategories] Received request for category:', category);
+
+        if (!category) {
+            return res.status(400).json({ error: 'Missing category parameter' })
+        }
+
+        try {
+            // Try lowercase first
+            const lowercaseCategory = category.toLowerCase();
+
+            let quizzes = await admin.firestore()
+                .collection('default-questions')
+                .where('category', '==', lowercaseCategory)
+                .get()
+
+            // If no results, try with first letter capitalized
+            if (quizzes.empty) {
+                const capitalizedCategory = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
+
+                quizzes = await admin.firestore()
+                    .collection('default-questions')
+                    .where('category', '==', capitalizedCategory)
+                    .get()
+            }
+
+            if (quizzes.empty) {
+                console.log('[getSubcategories] No questions found for category:', category);
+                res.set('Cache-Control', 'public, max-age=1800')
+                return res.json({ subcategories: [] })
+            }
+
+            // Extract unique subcategories
+            const subcategoriesSet = new Set();
+            quizzes.forEach((doc) => {
+                const data = doc.data()
+                const subcategory = data['sub-category']
+                if (subcategory && subcategory.trim() !== '') {
+                    subcategoriesSet.add(subcategory)
+                }
+            })
+
+            const subcategories = Array.from(subcategoriesSet).sort();
+
+            console.log('[getSubcategories] Found subcategories:', subcategories);
+
+            res.set('Cache-Control', 'public, max-age=1800') // 30 minute cache
+            res.json({ subcategories })
+
+        } catch (error) {
+            console.error('[getSubcategories] Error fetching subcategories:', error)
+            res.status(500).json({ error: 'Error fetching subcategories' })
+        }
+    })
+})
