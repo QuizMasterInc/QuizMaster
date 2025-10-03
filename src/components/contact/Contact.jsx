@@ -98,7 +98,7 @@ const Contact = () => (
 
             <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 mt-12">
                 <h2 className="text-gradient-primary text-4xl font-bold text-center mb-12">
-                    Fall 2025 Team
+                    Fall 2025 Dream Team
                 </h2>
                 <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
                     <TeamMember

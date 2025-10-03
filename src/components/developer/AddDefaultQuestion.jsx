@@ -180,7 +180,7 @@ const AddDefaultQuestion = () => {
             {/* Upload Results */}
             {uploadResults && (
               <div className={`p-4 rounded-lg border ${
-                uploadResults.failed === 0 
+                uploadResults.failed === 0 && uploadResults.duplicates === 0
                   ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400' 
                   : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500 text-yellow-700 dark:text-yellow-400'
               }`}>
@@ -188,6 +188,27 @@ const AddDefaultQuestion = () => {
                 <ul className="space-y-1 text-sm">
                   <li>✓ Total questions: {uploadResults.total}</li>
                   <li>✓ Successfully added: {uploadResults.successful}</li>
+                  {uploadResults.duplicates > 0 && (
+                    <>
+                      <li className="text-orange-600 dark:text-orange-400">⚠ Duplicates skipped: {uploadResults.duplicates}</li>
+                      {uploadResults.duplicateQuestions.length > 0 && (
+                        <li className="mt-2">
+                          <details>
+                            <summary className="cursor-pointer font-medium">View duplicate questions</summary>
+                            <ul className="mt-2 pl-4 space-y-2 max-h-40 overflow-y-auto">
+                              {uploadResults.duplicateQuestions.map((dup, index) => (
+                                <li key={index} className="text-xs">
+                                  • Row {dup.index}: "{dup.question}"
+                                  <br />
+                                  <span className="ml-2 text-secondary">Category: {dup.category} / {dup.subCategory}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </details>
+                        </li>
+                      )}
+                    </>
+                  )}
                   {uploadResults.failed > 0 && (
                     <>
                       <li>✗ Failed: {uploadResults.failed}</li>

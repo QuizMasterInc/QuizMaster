@@ -1,4 +1,8 @@
 import Papa from 'papaparse';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import app from '../config/firebase';
+
+const db = getFirestore(app);
 
 /**
  * Parses a CSV file and returns an array of question objects
@@ -57,20 +61,64 @@ export const parseCSV = (file) => {
 };
 
 /**
- * Uploads multiple questions to the database
+ * Checks if a question already exists in the database
+ * Uses composite index on category, sub-category, and question
+ * @param {Object} question - Question object to check
+ * @returns {Promise<boolean>} True if duplicate exists
+ */
+const checkDuplicateQuestion = async (question) => {
+  try {
+    const questionsRef = collection(db, 'default-questions');
+
+    // Query using indexed fields: category, sub-category, and question
+    const q = query(
+      questionsRef,
+      where('category', '==', question.category),
+      where('sub-category', '==', question['sub-category']),
+      where('question', '==', question.question)
+    );
+
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  } catch (error) {
+    console.error('Error checking for duplicate:', error);
+    // If there's an error checking, assume it's not a duplicate to avoid blocking uploads
+    return false;
+  }
+};
+
+/**
+ * Uploads multiple questions to the database with duplicate checking
  * @param {Array} questions - Array of question objects
- * @returns {Promise<Object>} Upload results with success/failure counts
+ * @returns {Promise<Object>} Upload results with success/failure/duplicate counts
  */
 export const bulkUploadQuestions = async (questions) => {
   const results = {
     total: questions.length,
     successful: 0,
     failed: 0,
-    errors: []
+    duplicates: 0,
+    errors: [],
+    duplicateQuestions: []
   };
 
   for (let i = 0; i < questions.length; i++) {
     try {
+      // Check for duplicate before uploading
+      const isDuplicate = await checkDuplicateQuestion(questions[i]);
+
+      if (isDuplicate) {
+        results.duplicates++;
+        results.duplicateQuestions.push({
+          index: i + 1,
+          question: questions[i].question.substring(0, 50) + '...',
+          category: questions[i].category,
+          subCategory: questions[i]['sub-category']
+        });
+        continue; // Skip this question
+      }
+
+      // Upload if not duplicate
       const encodedQuestion = encodeURIComponent(JSON.stringify(questions[i]));
       const response = await fetch(
         `https://us-central1-quizmaster-c66a2.cloudfunctions.net/addDefaultQuestion?question=${encodedQuestion}`
@@ -110,4 +158,3 @@ export const downloadCSVTemplate = () => {
   document.body.removeChild(a);
   window.URL.revokeObjectURL(url);
 };
-
