@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import { parseCSV, bulkUploadQuestions, downloadCSVTemplate } from '../../utils/csvUploader';
 
 // TODO: add two check marks to retain both category and subcategory on submit
 
@@ -21,6 +22,11 @@ const AddDefaultQuestion = () => {
   const quizAttributes = ['a', 'b', 'c', 'd', 'category', 'sub-category'];
   const placeholders = ['a', 'b', 'c', 'd', 'Category: e.g. history', 'Sub-category: e.g. ancient'];
   const [isQuizAdded, setIsQuizAdded] = useState(false);
+
+  // CSV Upload States
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadResults, setUploadResults] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const updateQuestion = (key, value) => {
     setQuestion((prev) => ({
@@ -63,6 +69,56 @@ const AddDefaultQuestion = () => {
     resetQuestion();
   }
 
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type === 'text/csv') {
+      setSelectedFile(file);
+      setUploadResults(null);
+    } else {
+      alert('Please select a valid CSV file');
+      event.target.value = '';
+    }
+  };
+
+  const handleCSVUpload = async () => {
+    if (!selectedFile) {
+      alert('Please select a CSV file first');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadResults(null);
+
+    try {
+      // Parse CSV
+      const parseResult = await parseCSV(selectedFile);
+
+      if (!parseResult.success) {
+        alert(`Error parsing CSV: ${parseResult.error}`);
+        setIsUploading(false);
+        return;
+      }
+
+      console.log(`Parsed ${parseResult.count} questions from CSV`);
+
+      // Upload questions
+      const uploadResult = await bulkUploadQuestions(parseResult.questions);
+
+      setUploadResults(uploadResult);
+      setSelectedFile(null);
+
+      // Clear file input
+      const fileInput = document.getElementById('csv-file-input');
+      if (fileInput) fileInput.value = '';
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert(`Error: ${error.error || error.message}`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-primary text-primary px-6 py-16">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -71,6 +127,109 @@ const AddDefaultQuestion = () => {
         <div className="text-center space-y-4">
           <h1 className="text-gradient-primary text-5xl font-bold tracking-wide">Add to Default Quizzes</h1>
           <p className="text-secondary text-lg">Fill in the details below to add a question to the database.</p>
+        </div>
+
+        {/* CSV Bulk Upload Card */}
+        <div className="bg-card border border-primary rounded-xl p-8 shadow-lg">
+          <h2 className="text-2xl font-semibold text-primary mb-6">📤 Bulk Upload from CSV</h2>
+          <p className="text-secondary mb-6">
+            Upload a CSV file with multiple questions to add them all at once.
+            <button
+              onClick={downloadCSVTemplate}
+              className="text-accent hover:text-accent-hover underline ml-2"
+            >
+              Download template
+            </button>
+          </p>
+
+          <div className="space-y-4">
+            {/* File Input */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              <input
+                id="csv-file-input"
+                type="file"
+                accept=".csv"
+                onChange={handleFileSelect}
+                disabled={isUploading}
+                className="flex-1 bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-accent file:text-white file:cursor-pointer hover:file:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              <button
+                onClick={handleCSVUpload}
+                disabled={!selectedFile || isUploading}
+                className="bg-accent hover:bg-accent-hover text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {isUploading ? 'Uploading...' : 'Upload CSV'}
+              </button>
+            </div>
+
+            {/* Selected File Display */}
+            {selectedFile && (
+              <div className="text-secondary text-sm">
+                Selected file: <span className="font-semibold">{selectedFile.name}</span>
+              </div>
+            )}
+
+            {/* Upload Progress */}
+            {isUploading && (
+              <div className="flex items-center gap-3 text-accent">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-accent"></div>
+                <span className="font-medium">Processing questions...</span>
+              </div>
+            )}
+
+            {/* Upload Results */}
+            {uploadResults && (
+              <div className={`p-4 rounded-lg border ${
+                uploadResults.failed === 0 
+                  ? 'bg-green-50 dark:bg-green-900/20 border-green-500 text-green-700 dark:text-green-400' 
+                  : 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500 text-yellow-700 dark:text-yellow-400'
+              }`}>
+                <h3 className="font-semibold mb-2">Upload Results:</h3>
+                <ul className="space-y-1 text-sm">
+                  <li>✓ Total questions: {uploadResults.total}</li>
+                  <li>✓ Successfully added: {uploadResults.successful}</li>
+                  {uploadResults.failed > 0 && (
+                    <>
+                      <li>✗ Failed: {uploadResults.failed}</li>
+                      {uploadResults.errors.length > 0 && (
+                        <li className="mt-2">
+                          <details>
+                            <summary className="cursor-pointer">View errors</summary>
+                            <ul className="mt-2 pl-4 space-y-1">
+                              {uploadResults.errors.map((error, index) => (
+                                <li key={index}>• {error}</li>
+                              ))}
+                            </ul>
+                          </details>
+                        </li>
+                      )}
+                    </>
+                  )}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          {/* CSV Format Info */}
+          <div className="mt-6 p-4 bg-secondary rounded-lg border border-primary">
+            <h4 className="font-semibold text-primary mb-2">CSV Format Requirements:</h4>
+            <p className="text-secondary text-sm mb-2">Your CSV must have these columns:</p>
+            <code className="text-xs bg-primary text-secondary px-2 py-1 rounded block overflow-x-auto">
+              question,a,b,c,d,correct,category,sub-category,difficulty
+            </code>
+            <ul className="text-secondary text-sm mt-2 space-y-1 list-disc list-inside">
+              <li><strong>difficulty</strong>: 0-5 (0 = easiest, 5 = hardest)</li>
+              <li><strong>correct</strong>: Must match one of the answer options (a, b, c, or d)</li>
+              <li><strong>sub-category</strong>: Sports/baseball or Entertainment/movies.</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4">
+          <div className="flex-1 border-t border-primary"></div>
+          <span className="text-secondary font-medium">OR</span>
+          <div className="flex-1 border-t border-primary"></div>
         </div>
 
         {/* Question Input Card */}

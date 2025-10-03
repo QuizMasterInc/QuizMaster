@@ -87,7 +87,7 @@ function CustomQuizActivity() {
               : shuffle([
                   correctChoice,
                   ...shuffle(wrongChoices).slice(0, Math.max(0, answerCount - 1)),
-                ]);
+                ]).filter(Boolean); // Filter out undefined/null values
 
           return {
             questionText: q.question,

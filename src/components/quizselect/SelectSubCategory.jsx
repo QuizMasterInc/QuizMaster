@@ -66,6 +66,16 @@ function SelectSub() {
         <section className="text-center space-y-4">
           <h2 className="text-2xl font-semibold text-gradient-primary">Select Difficulty</h2>
           <StarRating difficulty={difficulty} selectDifficulty={selectDifficulty} />
+          {difficulty === 0 && (
+            <p className="text-sm text-muted italic">
+              ℹ️ No difficulty selected - questions of all difficulty levels will be included
+            </p>
+          )}
+          {difficulty > 0 && (
+            <p className="text-sm text-secondary font-medium">
+              Selected: {difficulty} star{difficulty > 1 ? 's' : ''} difficulty
+            </p>
+          )}
         </section>
 
         <section className="text-center space-y-4">

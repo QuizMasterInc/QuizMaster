@@ -381,7 +381,7 @@ exports.browseCustomQuizzesOptimized = onRequest(async (req, res) => {
                     },
                     creator: {
                         userId: data.creator?.uid || 'Unknown',
-                        displayName: data.creator?.displayName || data.creator?.username || 'Anonymous User'
+                        displayName: data.creator?.displayName || 'Anonymous User'
                     },
                     access: {
                         password: data.metadata?.hasPassword ? 'protected' : null
@@ -760,19 +760,59 @@ exports.grabSubV2 = onRequest(async (req, res) => {
     cors(req, res, async () => {
         const category = req.query.category
         
+        console.log('[grabSubV2] Received request for category:', category);
+
         if (!category) {
             return res.status(400).json({ error: 'Missing category parameter' })
         }
 
         try {
-            // Server-side filtering instead of fetching all documents
-            const quizzes = await admin.firestore()
+            // Try lowercase first
+            const lowercaseCategory = category.toLowerCase();
+            console.log('[grabSubV2] Trying lowercase:', lowercaseCategory);
+
+            let quizzes = await admin.firestore()
                 .collection('default-questions')
-                .where('category', '==', category)
+                .where('category', '==', lowercaseCategory)
                 .orderBy('sub-category')
                 .get()
 
+            console.log('[grabSubV2] Lowercase query returned:', quizzes.size, 'documents');
+
+            // If no results, try with first letter capitalized
             if (quizzes.empty) {
+                const capitalizedCategory = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
+                console.log('[grabSubV2] Trying capitalized:', capitalizedCategory);
+
+                quizzes = await admin.firestore()
+                    .collection('default-questions')
+                    .where('category', '==', capitalizedCategory)
+                    .orderBy('sub-category')
+                    .get()
+
+                console.log('[grabSubV2] Capitalized query returned:', quizzes.size, 'documents');
+            }
+
+            if (quizzes.empty) {
+                console.log('[grabSubV2] No questions found! Checking total collection size...');
+
+                // Check if collection has ANY documents
+                const allDocs = await admin.firestore()
+                    .collection('default-questions')
+                    .limit(5)
+                    .get();
+
+                console.log('[grabSubV2] Total documents in collection (sample):', allDocs.size);
+
+                if (!allDocs.empty) {
+                    const categories = new Set();
+                    allDocs.forEach(doc => {
+                        const data = doc.data();
+                        categories.add(data.category);
+                    });
+                    console.log('[grabSubV2] Available categories in database:', Array.from(categories));
+                }
+
                 res.set('Cache-Control', 'public, max-age=1800') // 30 minute cache for empty results
                 return res.json({})
             }
@@ -789,11 +829,13 @@ exports.grabSubV2 = onRequest(async (req, res) => {
                 subcategories[subcategory].push(data)
             })
 
+            console.log('[grabSubV2] Returning subcategories:', Object.keys(subcategories), 'with total questions:', quizzes.size);
+
             res.set('Cache-Control', 'public, max-age=1800') // 30 minute cache
             res.json(subcategories)
             
         } catch (error) {
-            console.error('Error fetching subcategories V2:', error)
+            console.error('[grabSubV2] Error fetching subcategories:', error)
             res.status(500).json({ error: 'Error fetching subcategories' })
         }
     })
