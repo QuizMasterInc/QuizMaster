@@ -9,5 +9,5 @@ import { useAuth } from "../contexts/AuthContext";
 export default function PrivateRoute({ children }) {
   const { currentUser } = useAuth();
   //console.log("Is dev?: ",currentUser.role, currentUser && currentUser.role)
-  return (currentUser && currentUser.role == 'developer') ? children : <Navigate to="/" />;
+  return (currentUser && currentUser.role === 'developer') ? children : <Navigate to="/" />;
 }
