@@ -77,34 +77,39 @@ function QuizActivity() {
           else if (raw === 'draganddrop' || raw === 'drag') tag = 'drag';
           else tag = 'single';
 
-          const correctAnswer = row.correct_answer ?? row.correct;
-          const correctLower = String(correctAnswer).trim().toLowerCase();
+          const correctAnswerKey = row.correct_answer ?? row.correct; // This is "a", "b", "c", or "d"
+
+          // Map the letter to the actual option content
+          const optionMap = {
+            a: row.a,
+            b: row.b,
+            c: row.c,
+            d: row.d
+          };
+
+          const correctChoice = optionMap[correctAnswerKey.toLowerCase()];
 
           const allChoices = [
-            row.option_1 ?? row.a,
-            row.option_2 ?? row.b,
-            row.option_3 ?? row.c,
-            row.option_4 ?? row.d,
+            row.a,
+            row.b,
+            row.c,
+            row.d,
           ].filter(Boolean);
 
-          const correctChoice = allChoices.find(
-            (c) => c?.trim().toLowerCase() === correctLower
-          );
-
           const wrongChoices = allChoices.filter(
-            (c) => c?.trim().toLowerCase() !== correctLower
+            (c) => c !== correctChoice
           );
 
           const finalChoices = shuffle([
             correctChoice,
             ...shuffle(wrongChoices).slice(0, Math.max(0, answerCount - 1)),
-          ]);
+          ]).filter(Boolean);
 
           return {
             questionText: row.question,
             text: row.question,
             choices: finalChoices,
-            correctAnswer: correctAnswer,
+            correctAnswer: correctChoice, // Store the actual text, not the letter
             type: tag,
           };
         });
