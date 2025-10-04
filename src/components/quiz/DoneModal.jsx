@@ -3,14 +3,10 @@ import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { SquareX } from "../icons";
 import { Link } from "react-router-dom";
-import { useVolumeSettings } from "../../contexts/VolumeContext.jsx";
-
 
 const DoneModal = ({ isActive, amountCorrect, totalAmount, active, loading, quizId, isCustomQuiz=false }) => {
 
-    const { passThreshold } = useVolumeSettings();
     console.log('Modal open')
-
 
     const handleDownload = async () => {
         setIsDownloading(true);

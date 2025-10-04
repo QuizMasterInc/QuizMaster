@@ -85,6 +85,8 @@ export const QuizProvider = ({ children }) => {
      * Load quizzes with filtering and pagination
      */
     const loadQuizzes = useCallback(async (options = {}, append = false) => {
+        // Clear any existing errors
+        dispatch({ type: 'CLEAR_ERROR' });
         dispatch({ type: 'SET_LOADING', payload: true });
         
         try {
@@ -93,16 +95,32 @@ export const QuizProvider = ({ children }) => {
                 startAfterDoc: append ? state.lastDoc : null
             });
             
+            // Ensure result has expected structure
+            const normalizedResult = {
+                quizzes: Array.isArray(result?.quizzes) ? result.quizzes : [],
+                hasMore: Boolean(result?.hasMore),
+                lastDoc: result?.lastDoc || null
+            };
+            
             dispatch({ 
                 type: append ? 'APPEND_QUIZZES' : 'SET_QUIZZES', 
-                payload: result 
+                payload: normalizedResult 
             });
             
-            return result;
+            return normalizedResult;
         
         } catch (error) {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
-            throw error;
+            const errorMessage = error.message || 'Failed to load quizzes';
+            dispatch({ type: 'SET_ERROR', payload: errorMessage });
+            
+            // Return empty result on error to prevent crashes
+            const emptyResult = { quizzes: [], hasMore: false, lastDoc: null };
+            dispatch({ 
+                type: append ? 'APPEND_QUIZZES' : 'SET_QUIZZES', 
+                payload: emptyResult 
+            });
+            
+            return emptyResult;
         }
     }, [state.lastDoc]);
 
@@ -119,6 +137,8 @@ export const QuizProvider = ({ children }) => {
      * Get quiz by ID
      */
     const getQuizById = useCallback(async (quizId) => {
+        // Clear any existing errors
+        dispatch({ type: 'CLEAR_ERROR' });
         dispatch({ type: 'SET_LOADING', payload: true });
         
         try {
@@ -127,7 +147,15 @@ export const QuizProvider = ({ children }) => {
             return quiz;
         
         } catch (error) {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
+            const errorMessage = error.message || 'Failed to load quiz';
+            dispatch({ type: 'SET_ERROR', payload: errorMessage });
+            
+            // Don't throw for "quiz not found" errors to prevent uncaught promise rejections
+            if (error.code === 'quiz-not-found') {
+                console.warn('Quiz not found:', quizId);
+                return null;
+            }
+            
             throw error;
         }
     }, []);

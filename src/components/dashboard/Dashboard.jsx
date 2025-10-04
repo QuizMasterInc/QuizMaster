@@ -4,8 +4,7 @@
  */
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { QuizResult } from './QuizResult';
-import CustomQuizzesTable from './CustomQuizzesTable';
+import { CategoryStatsCard } from './CategoryStatsCard';
 import { Link } from 'react-router-dom';
 import StudyMaterial from './StudyMaterial';
 import { QUIZ_CATEGORIES, CATEGORY_ICONS } from '../../constants/quizConstants.jsx';
@@ -35,7 +34,7 @@ export default function Dashboard() {
           <h2 className="text-3xl font-bold text-center text-gradient-primary mb-10">Your Quiz Scores</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {QUIZ_CATEGORIES.map((category, index) => (
-              <QuizResult key={index} category={category} icon={CATEGORY_ICONS[index]} />
+              <CategoryStatsCard key={index} category={category} icon={CATEGORY_ICONS[index]} />
             ))}
           </div>
           {error && (
@@ -63,11 +62,6 @@ export default function Dashboard() {
               <StudyMaterial category={selectedCategory} />
             </div>
           )}
-        </section>
-
-        <section className="dashboard-section">
-          <h2 className="text-3xl font-bold text-center text-gradient-primary mb-10">Your Custom Quizzes</h2>
-          <CustomQuizzesTable />
         </section>
 
         <section className="flex flex-col sm:flex-row justify-center gap-6 pt-10">

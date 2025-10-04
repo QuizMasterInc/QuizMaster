@@ -26,6 +26,7 @@ import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import DeveloperRoute from './routes/DeveloperRoute';
 import CustomQuiz from './components/customquiz/CustomQuiz.jsx';
 import DeckManager from './components/flashcards/DeckManager';
+import MyFlashcards from './components/flashcards/MyFlashcards';
 import EditCustomQuiz from "./components/customquiz/EditCustomQuiz"
 import SelectSubCategory from './components/quizselect/SelectSubCategory';
 import TypeOfQuiz from './pages/TypeOfQuiz';
@@ -35,7 +36,6 @@ import AllTeacherQuizzes from './components/quizselect/customquizselect/AllTeach
 import CustomQuizActivity from './components/quiz/CustomQuizActivity'
 import { Footer } from './components/ui/index.jsx';
 import Settings from './components/settings/Settings'
-import { VolumeSettingsProvider } from './contexts/VolumeContext';
 import { CATEGORY_DESTINATIONS } from './constants/quizConstants.jsx';
 import { useAuth } from './contexts/AuthContext';
 
@@ -55,14 +55,13 @@ function App() {
     <div className="App">
       <AppProvider>
         <QuizProvider>
-          <NavBar />
-          <Routes>
+          <ResultsProvider>
+            <NavBar />
+            <Routes>
         {isAuthenticated ? (
           <Route path="/" element={
             <PrivateRoute>
-              <ResultsProvider>
-                <Dashboard />
-              </ResultsProvider>
+              <Dashboard />
             </PrivateRoute>
           } />
         ) : (
@@ -76,15 +75,18 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/settings" element={
-            <VolumeSettingsProvider>
               <Settings />
-            </VolumeSettingsProvider>
           }/>
 
           <Route path="/quizzes">
             <Route index element={
               <PrivateRoute>
                 <SelectQuiz />
+              </PrivateRoute>
+            }/>
+            <Route path="random" element={
+              <PrivateRoute>
+                <SelectSubCategory />
               </PrivateRoute>
             }/>
             {CATEGORY_DESTINATIONS.map((destination, index) => (
@@ -101,18 +103,18 @@ function App() {
             ))}
             <Route path="quizstarted" element={
               <PrivateRoute>
-                <VolumeSettingsProvider>
+                
                   <QuizActivity />
-                </VolumeSettingsProvider>
+                
               </PrivateRoute>
             }/>
           </Route>
 
           <Route index path="/quizstarted/:quizID" element={
             <PrivateRoute>
-              <VolumeSettingsProvider>
+              
                 <CustomQuizActivity />
-              </VolumeSettingsProvider>
+             
             </PrivateRoute>
           }/>
 
@@ -130,6 +132,12 @@ function App() {
           <Route path="/flashcards" element={
             <PrivateRoute>
               <DeckManager />
+            </PrivateRoute>
+          }/>
+
+          <Route path="/myflashcards" element={
+            <PrivateRoute>
+              <MyFlashcards />
             </PrivateRoute>
           }/>
 
@@ -173,16 +181,15 @@ function App() {
 
           <Route path="/dashboard" element={
             <PrivateRoute>
-              <ResultsProvider>
-                <Dashboard />
-              </ResultsProvider>
+              <Dashboard />
             </PrivateRoute>
           }/>
 
           <Route path="*" element={<NotFound />} />
-        </Routes>
+            </Routes>
 
-        <Footer />
+            <Footer />
+          </ResultsProvider>
         </QuizProvider>
       </AppProvider>
     </div>

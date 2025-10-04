@@ -3,7 +3,7 @@
  */
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updatePassword, updateProfile, onAuthStateChanged,
     EmailAuthProvider, reauthenticateWithCredential, signInWithPopup, GoogleAuthProvider, updateEmail } from 'firebase/auth';
-import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db, handleFirebaseError, withRetry, timestamp } from './firebaseService';
   
 class AuthService {
@@ -37,14 +37,182 @@ class AuthService {
     }
   
     /**
+     * Extract and clean name data from various sources
+     */
+    extractNameData(authUser, additionalData = {}) {
+        let firstName = '';
+        let lastName = '';
+        let displayName = '';
+
+        // 1. Check if names provided directly
+        if (additionalData.firstName && additionalData.lastName) {
+            firstName = additionalData.firstName.trim();
+            lastName = additionalData.lastName.trim();
+            displayName = `${firstName} ${lastName}`;
+        }
+        // 2. Extract from displayName
+        else if (authUser.displayName || additionalData.displayName) {
+            displayName = (additionalData.displayName || authUser.displayName).trim();
+            const nameParts = displayName.split(' ');
+            firstName = nameParts[0] || '';
+            lastName = nameParts.slice(1).join(' ') || '';
+        }
+        // 3. Extract from email as last resort
+        else if (authUser.email) {
+            const emailName = authUser.email.split('@')[0];
+            displayName = emailName
+                .replace(/[._-]/g, ' ')
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+            
+            const nameParts = displayName.split(' ');
+            firstName = nameParts[0] || 'User';
+            lastName = nameParts.slice(1).join(' ') || '';
+        }
+        // 4. Ultimate fallback
+        else {
+            firstName = 'Anonymous';
+            lastName = 'User';
+            displayName = 'Anonymous User';
+        }
+
+        return {
+            firstName: firstName || 'User',
+            lastName: lastName || '',
+            displayName: displayName || `${firstName} ${lastName}`.trim()
+        };
+    }
+
+    /**
+     * Create user document with complete schema based on DATABASE_SCHEMA.md
+     */
+    createCompleteUserDocument(authUser, additionalData = {}) {
+        const { firstName, lastName, displayName } = this.extractNameData(authUser, additionalData);
+        
+        // Determine auth provider
+        let authProvider = 'email';
+        if (authUser.providerData?.length > 0) {
+            const provider = authUser.providerData[0].providerId;
+            authProvider = provider === 'google.com' ? 'google' : 
+                          provider === 'apple.com' ? 'apple' : 
+                          provider === 'microsoft.com' ? 'microsoft' : 'email';
+        }
+
+        // Create complete user document following your schema
+        return {
+            // Document ID matches Firebase Auth UID
+            uid: authUser.uid,
+            
+            // Authentication & Identity
+            email: authUser.email || '',
+            emailVerified: authUser.emailVerified || false,
+            authProvider: authProvider,
+            
+            // Profile Information
+            profile: {
+                firstName: firstName,
+                lastName: lastName,
+                displayName: displayName,
+                title: additionalData.title || '',
+                isPublicProfile: additionalData.isPublicProfile || false,
+                showEmail: additionalData.showEmail || false,
+            },
+            
+            // Authorization & Roles
+            role: additionalData.role || 'user',
+            permissions: {
+                canCreateQuizzes: true,
+                canCreatePublicQuizzes: true,
+                canModerateContent: additionalData.role === 'developer' || additionalData.role === 'instructor',
+                maxQuizzesAllowed: 50,
+            },
+            
+            // Account Status
+            status: {
+                isActive: true,
+                isVerified: authUser.emailVerified || false,
+                isSuspended: false,
+                suspensionReason: '',
+                profileComplete: !!(firstName && lastName && authUser.email),
+            },
+            
+            // Analytics & Tracking
+            stats: {
+                quizzesCreated: 0,
+                
+                // QuizMaster (default) quiz performance tracking
+                quizmasterQuizzesTaken: 0,
+                quizmasterTotalScore: 0,
+                quizmasterAverageScore: 0,
+                
+                // Custom quiz activity tracking (separate from dashboard averages)
+                customQuizActivity: {
+                    totalTaken: 0,
+                    totalScore: 0,
+                    averageScore: 0,
+                    lastTaken: null
+                },
+                
+                lastActivity: timestamp.now(),
+                flashcardDecksCreated: 0,
+                
+                // Pre-calculated category statistics for instant dashboard loading
+                categoryStats: {
+                    geography: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
+                    science: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
+                    sports: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
+                    mathematics: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
+                    history: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
+                    entertainment: { best: 0, avg: 0, attempts: 0, totalScore: 0 }
+                }
+            },
+            
+            // Preferences
+            preferences: {
+                theme: additionalData.theme || 'light',
+            },
+            
+            // Timestamps
+            timestamps: {
+                createdAt: timestamp.now(),
+                updatedAt: timestamp.now(),
+                lastLoginAt: timestamp.now(),
+                lastActiveAt: timestamp.now(),
+            },
+            
+            // Cache (empty initially)
+            cache: {
+                recentQuizIds: [],
+                favoriteCategories: [],
+                achievementBadges: [],
+                recentFlashcardIds: [],
+            }
+        };
+    }
+
+    /**
      * Register a new user
      * @param {Object} userData - User registration data
      * @returns {Promise<Object>} User data
      */
     async register(userData) {
-        const { email, password, firstName, lastName, role = 'student' } = userData;
+        const { email, password } = userData;
+        
+        // Validate input
+        if (!email || !password) {
+            throw new Error('Email and password are required');
+        }
+        
+        if (password.length < 6) {
+            throw new Error('Password must be at least 6 characters long');
+        }
         
         try {
+            // Check if user is already signed in
+            if (auth.currentUser) {
+                await signOut(auth);
+            }
             
             const userCredential = await withRetry(() => 
                 createUserWithEmailAndPassword(auth, email, password)
@@ -52,22 +220,82 @@ class AuthService {
             
             const user = userCredential.user;
             
-            await updateProfile(user, { displayName: `${firstName} ${lastName}`});
+            // Update Firebase Auth profile
+            const displayName = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
+            if (displayName) {
+                await updateProfile(user, { displayName });
+            }
             
-            const userDoc = { uid: user.uid, email: user.email, firstName, lastName, displayName: `${firstName} ${lastName}`, role,
-                createdAt: timestamp.now(), updatedAt: timestamp.now(), isActive: true, profileComplete: true
-            };
-            
+            // Create complete user document
+            const userDoc = this.createCompleteUserDocument(user, userData);
             await setDoc(doc(db, 'users', user.uid), userDoc);
             
             return {
+                success: true,
                 user: user,
                 profile: userDoc
             };
             
         } catch (error) {
-            throw handleFirebaseError(error);
+            const customError = this.handleAuthError(error);
+            throw customError;
         }
+    }
+
+    /**
+     * Custom error handling with user-friendly messages
+     */
+    handleAuthError(error) {
+        const errorCode = error.code;
+        let message = error.message;
+
+        // Custom error messages
+        switch (errorCode) {
+            case 'auth/email-already-in-use':
+                message = 'An account with this email already exists. Please sign in instead.';
+                break;
+            case 'auth/invalid-email':
+                message = 'Please enter a valid email address.';
+                break;
+            case 'auth/operation-not-allowed':
+                message = 'Email registration is currently disabled. Please contact support.';
+                break;
+            case 'auth/weak-password':
+                message = 'Password is too weak. Please choose a stronger password (at least 6 characters).';
+                break;
+            case 'auth/user-disabled':
+                message = 'This account has been disabled. Please contact support.';
+                break;
+            case 'auth/user-not-found':
+                message = 'No account found with this email address. Please check your email or sign up.';
+                break;
+            case 'auth/wrong-password':
+                message = 'Incorrect password. Please try again or reset your password.';
+                break;
+            case 'auth/invalid-credential':
+                message = 'Invalid email or password. Please check your credentials and try again.';
+                break;
+            case 'auth/too-many-requests':
+                message = 'Too many failed attempts. Please wait a moment before trying again.';
+                break;
+            case 'auth/network-request-failed':
+                message = 'Network error. Please check your internet connection and try again.';
+                break;
+            case 'auth/popup-closed-by-user':
+                message = 'Sign-in was cancelled. Please try again.';
+                break;
+            case 'auth/popup-blocked':
+                message = 'Popup was blocked by your browser. Please allow popups and try again.';
+                break;
+            case 'auth/cancelled-popup-request':
+                message = 'Sign-in was cancelled. Please try again.';
+                break;
+            default:
+                // Keep original message for unknown errors
+                message = error.message || 'An unexpected error occurred. Please try again.';
+        }
+
+        return new Error(message);
     }
   
     /**
@@ -98,13 +326,13 @@ class AuthService {
             };
             
         } catch (error) {
-            throw handleFirebaseError(error);
+            const customError = this.handleAuthError(error);
+            throw customError;
         }
     }
 
     /**
-     * Sign in with Google using popup
-     * @returns {Promise<Object>} User data and profile
+     * FIXED: Sign in with Google (existing users only)
      */
     async signInWithGoogle() {
         try {
@@ -114,54 +342,136 @@ class AuthService {
             
             const result = await signInWithPopup(auth, provider);
             
-            if (result && result.user) {
-                // Handle profile creation/update for Google user
-                await this.handleGoogleUserProfile(result.user);
-                
-                return {
-                    user: result.user,
-                    profile: await this.getUserProfile(result.user.uid)
-                };
+            if (!result || !result.user) {
+                throw new Error('No user returned from Google sign-in');
             }
             
-            throw new Error('No user returned from Google sign-in');
+            // Check if user profile exists
+            const userDocRef = doc(db, 'users', result.user.uid);
+            const profileDoc = await getDoc(userDocRef);
+            
+            if (!profileDoc.exists()) {
+                // No profile = not registered
+                await result.user.delete(); // Clean up
+                throw new Error('Account not found. Please register first before signing in with Google.');
+            }
+            
+            // Update last login
+            await updateDoc(userDocRef, {
+                'timestamps.lastLoginAt': timestamp.now(),
+                'timestamps.updatedAt': timestamp.now()
+            });
+            
+            return {
+                user: result.user,
+                profile: profileDoc.data()
+            };
             
         } catch (error) {
-            console.error('Error with Google sign-in:', error);
-            throw handleFirebaseError(error);
+            console.error('Google sign-in error:', error);
+            throw this.handleAuthError(error);
         }
     }
 
     /**
-     * Handle Google user profile creation/update
-     * @param {Object} user - Firebase user object
+     * FIXED: Register with Google (creates new account)
+     * This creates the profile SYNCHRONOUSLY to prevent race conditions
      */
-    async handleGoogleUserProfile(user) {
+    async registerWithGoogle(additionalData = {}) {
         try {
-            let profile = await this.getUserProfile(user.uid);
+            const provider = new GoogleAuthProvider();
+            provider.addScope('email');
+            provider.addScope('profile');
             
-            if (!profile) {
-                console.log('Creating new profile for Google user');
-                const userData = {
-                    firstName: user.displayName?.split(' ')[0] || '',
-                    lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
-                    email: user.email,
-                    role: 'student',
-                    isGoogleAuth: true,
-                    createdAt: timestamp.now(),
-                    updatedAt: timestamp.now(),
-                    lastLoginAt: timestamp.now()
-                };
-                
-                await setDoc(doc(db, 'users', user.uid), userData);
-                console.log('Profile created successfully');
-            } else {
-                console.log('Updating existing user login time');
-                await updateDoc(doc(db, 'users', user.uid), {
-                    lastLoginAt: timestamp.now(),
-                    updatedAt: timestamp.now()
-                });
+            // Step 1: Authenticate with Google
+            const result = await signInWithPopup(auth, provider);
+            
+            if (!result || !result.user) {
+                throw new Error('No user returned from Google sign-in');
             }
+            
+            const user = result.user;
+            
+            // Step 2: Check if profile already exists
+            const userDocRef = doc(db, 'users', user.uid);
+            const existingDoc = await getDoc(userDocRef);
+            
+            if (existingDoc.exists()) {
+                // User already registered - this is actually a login
+                await user.delete(); // Clean up the duplicate auth
+                throw new Error('An account with this Google account already exists. Please sign in instead.');
+            }
+            
+            // Step 3: Create profile IMMEDIATELY (before any auth state changes propagate)
+            // Extract name data properly
+            const { firstName, lastName } = this.extractNameData(user.displayName || '', user.email);
+            
+            // Merge with additional data
+            const userData = {
+                firstName: additionalData.firstName || firstName,
+                lastName: additionalData.lastName || lastName,
+                title: additionalData.title || '',
+                theme: additionalData.theme || 'dark'
+            };
+            
+            // Create the CORRECT nested schema document
+            const userDocument = this.createCompleteUserDocument(user, userData);
+            
+            // Use setDoc with merge: false to ensure we're creating, not updating
+            await setDoc(userDocRef, userDocument);
+            
+            // Step 4: Verify the profile was created
+            const verifyDoc = await getDoc(userDocRef);
+            if (!verifyDoc.exists()) {
+                throw new Error('Failed to create user profile');
+            }
+            
+            // Step 5: Return success
+            return {
+                user: user,
+                profile: verifyDoc.data()
+            };
+            
+        } catch (error) {
+            console.error('Google registration error:', error);
+            
+            // Clean up auth if profile creation failed
+            if (auth.currentUser) {
+                try {
+                    await auth.currentUser.delete();
+                } catch (cleanupError) {
+                    console.error('Failed to clean up auth user:', cleanupError);
+                }
+            }
+            
+            throw this.handleAuthError(error);
+        }
+    }
+
+    /**
+     * Handle Google user profile creation for registration
+     * @param {Object} user - Firebase user object
+     * @param {Object} additionalData - Additional user data for registration
+     */
+    async handleGoogleUserProfile(user, additionalData = {}) {
+        try {
+            // Extract name data from Google profile
+            const { firstName, lastName } = this.extractNameData(user.displayName || '', user.email);
+            
+            // Merge with any additional data provided during registration
+            const userData = {
+                firstName: additionalData.firstName || firstName,
+                lastName: additionalData.lastName || lastName,
+                title: additionalData.title || '',
+                theme: additionalData.theme || 'light',
+                isGoogleAuth: true
+            };
+            
+            // Create schema-compliant user document
+            const userDocument = this.createCompleteUserDocument(user, userData);
+            
+            await setDoc(doc(db, 'users', user.uid), userDocument);
+            
         } catch (error) {
             console.error('Error handling Google user profile:', error);
             throw error;
@@ -176,7 +486,8 @@ class AuthService {
         try {
             await signOut(auth);
         } catch (error) {
-            throw handleFirebaseError(error);
+            const customError = this.handleAuthError(error);
+            throw customError;
         }
     }
   
@@ -245,7 +556,8 @@ class AuthService {
         try {
             await sendPasswordResetEmail(auth, email);
         } catch (error) {
-            throw handleFirebaseError(error);
+            const customError = this.handleAuthError(error);
+            throw customError;
         }
     }
   
@@ -272,7 +584,8 @@ class AuthService {
             });
             
         } catch (error) {
-            throw handleFirebaseError(error);
+            const customError = this.handleAuthError(error);
+            throw customError;
         }
     }
   
@@ -415,7 +728,8 @@ class AuthService {
             return updateResults;
 
         } catch (error) {
-            throw handleFirebaseError(error);
+            const customError = this.handleAuthError(error);
+            throw customError;
         }
     }
   }

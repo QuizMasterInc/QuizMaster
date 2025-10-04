@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
-import { School, Computer, Profile, Info, SignIn, Email, Gear, Q } from "../icons/index.jsx";
+import { School, Computer, Profile, Info, SignIn, Email, Gear, Q, Scroll } from "../icons/index.jsx";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import '../../styles/nav.css';
@@ -116,6 +116,32 @@ export default function NavBar() {
                                     >
                                         <Computer className="w-5 h-5 navbar-icon" />
                                         Make Flashcards
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
+                                        to="/myflashcards"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <Scroll className="w-5 h-5 navbar-icon" />
+                                        My Flashcards
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
+                                        to="/customquiz"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <Q className="w-5 h-5 navbar-icon" />
+                                        Make Quiz
                                     </NavLink>
                                 </li>
                                 <li>
@@ -273,6 +299,14 @@ export default function NavBar() {
                                 <NavLink to="/flashcards" onClick={handleClick} className="mobile-nav-item">
                                     <Computer className="w-5 h-5" />
                                     Make Flashcards
+                                </NavLink>
+                                <NavLink to="/myflashcards" onClick={handleClick} className="mobile-nav-item">
+                                    <Scroll className="w-5 h-5" />
+                                    My Flashcards
+                                </NavLink>
+                                <NavLink to="/customquiz" onClick={handleClick} className="mobile-nav-item">
+                                    <Q className="w-5 h-5" />
+                                    Make Quiz
                                 </NavLink>
                                 <NavLink to="/about" onClick={handleClick} className="mobile-nav-item">
                                     <Info className="w-5 h-5" />

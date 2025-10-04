@@ -28,26 +28,39 @@ export default function EditCustomQuiz() {
   const [quizDeletionText, updateDeletionText] = useState("")
 
   const customQuiz = useQuiz() // quiz context to access quiz state
-  const { quizID } = useParams()  // retrieves quiz ID from URL params 
+  const { quizID } = useParams()  // retrieves quiz ID from URL params
+
+  // Helper functions to access new nested structure
+  const getQuizTitle = (quiz) => quiz?.metadata?.title || quiz?.title || "";
+  const getQuizQuestionCount = (quiz) => quiz?.metadata?.questionCount || quiz?.content?.questionCount || quiz?.numQuestions || 0;
+  const getQuizAttempts = (quiz) => quiz?.analytics?.stats?.attempts || quiz?.quizTaken || 0;
+  const getQuizCreatedAt = (quiz) => quiz?.timestamps?.createdAt || quiz?.createdAt || "";
+  const getQuizUpdatedAt = (quiz) => quiz?.timestamps?.updatedAt || quiz?.lastEdit || ""; 
 
   const handleTitleClick = (e) => {
     toggleEditingTitle(!editingTitle)
-    changeQuizTitle(customQuiz.quiz?.title)
+    changeQuizTitle(getQuizTitle(customQuiz.quiz))
   }
 
   const handleTitleBlur = (e) => {
     // checks for empty string for title
     if (quizTitle == "") {
-      changeQuizTitle(customQuiz.quiz.title)
+      changeQuizTitle(getQuizTitle(customQuiz.quiz))
       toggleEditingTitle(!editingTitle)
       return
     }
 
-    // updates quiz info in context
-    if (quizTitle != customQuiz.quiz.title) {
+    // updates quiz info in context - update both old and new structure
+    if (quizTitle != getQuizTitle(customQuiz.quiz)) {
       customQuiz.updateQuiz(prev => {
         return {
           ...prev,
+          // Update new nested structure
+          metadata: {
+            ...prev.metadata,
+            title: e.target.value
+          },
+          // Keep old structure for backward compatibility during transition
           title: e.target.value
         }
       })
@@ -85,31 +98,42 @@ export default function EditCustomQuiz() {
   }
 
   const postQuestions = () => {
-    // checks for quiz.. otherwise shows loading
     if (!customQuiz.quiz) {
       return (
-        <h1>Loading Questions...</h1>
-      )
+        <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
+          <h1 className="text-xl text-center text-secondary">Loading Questions...</h1>
+        </div>
+      );
     }
 
-    // map over Object keys for questions
-    // - sorts in ascending order
-    // - maps with the index as the key for each component
-    return Object.keys(customQuiz.quiz.questions).sort((a, b) => {
-      // splits object key for each question to get just the question number and casts the string to and int
-      const firstNum = Number(a.split(" ")[1])
-      const secondNum = Number(b.split(" ")[1])
-      
-      // returns to sort in ascending order
-      if (firstNum < secondNum) return -1
-      if (firstNum > secondNum) return 1
-      
-      return 0
-    }).map((key, index) => {
+    // Get questions from new or old structure
+    const questions = customQuiz.quiz.content?.questions || customQuiz.quiz.questions;
+    
+    if (!questions) {
       return (
-        <EditQuestion key={index} num={key} q={customQuiz.quiz.questions[key]}/>
-      )
-    })
+        <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
+          <h1 className="text-xl text-center text-secondary">No questions found</h1>
+        </div>
+      );
+    }
+
+    // Handle both array format (new) and object format (old)
+    const questionArray = Array.isArray(questions) 
+      ? questions 
+      : Object.keys(questions).sort((a, b) => {
+          const firstNum = Number(a.split(" ")[1]);
+          const secondNum = Number(b.split(" ")[1]);
+          return firstNum - secondNum;
+        }).map(key => questions[key]);
+
+    return questionArray.map((question, index) => (
+      <EditQuestion 
+        key={question.id || index} 
+        num={`Question ${index + 1}`} 
+        q={question}
+        index={index}
+      />
+    ));
   }
 
   // useEffect function runs on first render to get the quiz data from the DB and set the state in custom quiz context
@@ -119,62 +143,105 @@ export default function EditCustomQuiz() {
   }, [])
 
   return (
-    <div>
+    <div className="min-h-screen py-20 px-6 bg-primary text-primary">
       {
-        deleteBtn
-        ?
-        <div class="fixed flex z-50 w-full h-full top-0 left-0 items-center justify-center backdrop-blur-lg backdrop-brightness-50">
-          <form class="flex flex-col" onSubmit={handleQuizDeletion}>
-            <label>CONFIRM DELETION: TYPE IN "{customQuiz.quiz?.title}"" TO CONFIRM  DELETION.</label>
-            <input type="text" placeholder={customQuiz.quiz?.title} class="text-black" onChange={handleConfirmationChange} />
-            <button class="text-white bg-red-500 p-2 rounded" type="submit">Confirm Delete</button>
-            <button class="text-white bg-slate-500 p-2 rounded mt-2" onClick={handleCancelQuizDeletion}>Cancel</button>
-          </form>
+        deleteBtn && (
+          <div className="fixed flex z-50 w-full h-full top-0 left-0 items-center justify-center backdrop-blur-lg backdrop-brightness-50">
+            <form className="bg-card rounded-3xl p-8 shadow-xl border border-accent max-w-md w-full mx-4" onSubmit={handleQuizDeletion}>
+              <h2 className="text-2xl font-semibold mb-4 text-center text-gradient-primary">
+                Confirm Deletion
+              </h2>
+              <label className="block text-base mb-4 text-secondary">
+                Type "{customQuiz.quiz?.title}" to confirm deletion:
+              </label>
+              <input 
+                type="text" 
+                placeholder={customQuiz.quiz?.title} 
+                className="w-full px-3 py-2 mb-6 rounded-lg bg-input text-primary border border-accent" 
+                onChange={handleConfirmationChange} 
+              />
+              <div className="flex gap-4">
+                <button 
+                  className="flex-1 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-red-600" 
+                  type="submit"
+                >
+                  Confirm Delete
+                </button>
+                <button 
+                  className="flex-1 px-6 py-2 bg-neutral-500 hover:bg-neutral-600 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-neutral-500" 
+                  type="button"
+                  onClick={handleCancelQuizDeletion}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        )
+      }
+      
+      <div className="max-w-6xl mx-auto">
+        {/* Header with dates */}
+        <div className="mb-6">
+          <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
+          <div className="flex justify-between mb-4 text-sm text-secondary">
+            <h2>Created: {getQuizCreatedAt(customQuiz.quiz)}</h2>
+            <h2>Last Edit: {getQuizUpdatedAt(customQuiz.quiz)}</h2>
+          </div>            {/* Title editing section */}
+            {
+              editingTitle ? (
+                <form className="text-center">
+                  <input 
+                    type="text" 
+                    className="text-4xl font-bold bg-transparent text-center w-full text-gradient-primary border-b-2 border-accent focus:outline-none" 
+                    value={quizTitle} 
+                    autoFocus 
+                    onBlur={handleTitleBlur} 
+                    onChange={handleTitleChange} 
+                  />
+                </form>
+              ) : (
+                <h1 className="text-4xl font-bold text-center hover:cursor-pointer p-3 text-gradient-primary transition-colors duration-200 hover:opacity-80" onClick={handleTitleClick}>
+                  {getQuizTitle(customQuiz.quiz)}
+                </h1>
+              )
+            }
+
+            {/* Quiz stats */}
+            <div className="flex justify-center gap-8 mt-4 text-secondary">
+              <h2 className="text-lg">Questions: <span className="text-accent font-medium">{getQuizQuestionCount(customQuiz.quiz)}</span></h2>
+              <h2 className="text-lg">Attempts: <span className="text-accent font-medium">{getQuizAttempts(customQuiz.quiz)}</span></h2>
+            </div>
+          </div>
         </div>
-        :
-        <></>
-      }
-      <main class="relative text-xl text-white mt-20 p-6 z-1">
-      <div class="flex justify-between mb-12">
-        <h1 class="text-s">Created: {customQuiz.quiz?.createdAt || ""}</h1>
-        <h1 class="text-s">Last Edit: {customQuiz.quiz?.lastEdit || ""}</h1>
-      </div>
 
-      {
-        editingTitle
-        ?
-        <form>
-          <input type="text" class="text-white text-4xl bg-inherit h-12 p-3 text-center" value={quizTitle} autoFocus onBlur={handleTitleBlur} onChange={handleTitleChange} />
-        </form>
-        :
-        <h1 class="text-4xl hover:cursor-pointer p-3" onClick={handleTitleClick}>{customQuiz.quiz?.title || ""}</h1>
-      }
+        {/* Questions section */}
+        <div className="space-y-6 mb-8">
+          {postQuestions()}
+        </div>
 
-      <div class="flex justify-around">
-        <h2>Number of Questions: {customQuiz.quiz?.numQuestions || "Loading..."}</h2>
-        <h2>Number of attempts: {customQuiz.quiz?.quizTaken && "Loading..."}</h2>
-      </div>
-
-      <div>
+        {/* Action buttons */}
         {
-          // returns mapping of all questions associated to quiz
-          postQuestions()
+          customQuiz.quiz && (
+            <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
+              <div className="flex gap-4 justify-center">
+                <button 
+                  className="px-8 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-accent" 
+                  onClick={() => customQuiz.updateQuizDB(quizID)}
+                >
+                  Save Changes
+                </button>
+                <button 
+                  className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-red-600" 
+                  onClick={() => toggleDeleteBtn(!deleteBtn)}
+                >
+                  Delete Quiz
+                </button>
+              </div>
+            </div>
+          )
         }
       </div>
-
-      <div>
-        {
-          customQuiz.quiz 
-          ? 
-          <div>
-            <button class="border-2 rounded-sm p-2 mr-3" onClick={(() => customQuiz.updateQuizDB(quizID))}>Save Changes</button>
-             <button class="border-2 rounded-sm bg-red-500 p-2" onClick={() => toggleDeleteBtn(!deleteBtn)}>Delete Quiz</button>
-          </div> 
-          :
-          <></>
-        }
-      </div>
-    </main>
-  </div> 
+    </div>
   )
 }

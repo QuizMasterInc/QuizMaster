@@ -1,10 +1,64 @@
-# Routes
+# Route Components
 
 ## Purpose
-This folder contains all the components used for routing. The routing components uses the authContext to determine if
-the current user is authenticated and will redirect the user. You call these routes in the App.jsx file.
-See App.jsx for how to use the routes.
+The route components provide authentication-based navigation control throughout the QuizMaster application. These components ensure proper access control and user flow based on authentication status and user roles.
 
-* PrivateRoute - Used so only authenticated users can access certain pages, like the quizzes page. Redirects to signin page.
+## Architecture
 
-* PrivateSigninRoute - Used to prevent authenticated users from accessing login pages. Redirects to dashboard.
+### Component Structure
+```
+routes/
+├── PrivateRoute.jsx        # Protected routes for authenticated users
+├── PrivateSigninRoute.jsx  # Login flow protection for authenticated users
+├── DeveloperRoute.jsx      # Role-based access for developer features
+├── PublicRoute.jsx         # Public access routes
+└── README.md              # This documentation
+```
+
+### Key Features
+- **Authentication Control**: Route access based on user login status
+- **Role-Based Access**: Different access levels for users, developers, and admins
+- **Automatic Redirects**: Seamless navigation based on authentication state
+- **Context Integration**: Real-time authentication state monitoring
+
+## Route Components
+
+### PrivateRoute.jsx
+**Purpose**: Protects routes that require authentication
+**Usage**: Wraps components that need user login
+
+### PrivateSigninRoute.jsx
+**Purpose**: Prevents authenticated users from accessing login pages
+**Usage**: Wraps authentication-related components
+
+### DeveloperRoute.jsx
+**Purpose**: Restricts access to developer and admin features
+**Usage**: Wraps administrative and developer tools
+
+### PublicRoute.jsx
+**Purpose**: Manages public access routes
+**Usage**: Routes accessible to all users regardless of authentication
+
+## Usage Example
+```jsx
+// In App.jsx
+<Routes>
+  <Route path="/dashboard" element={
+    <PrivateRoute>
+      <Dashboard />
+    </PrivateRoute>
+  } />
+  
+  <Route path="/login" element={
+    <PrivateSigninRoute>
+      <Login />
+    </PrivateSigninRoute>
+  } />
+  
+  <Route path="/developer" element={
+    <DeveloperRoute>
+      <DeveloperTools />
+    </DeveloperRoute>
+  } />
+</Routes>
+```

@@ -1,6 +1,15 @@
-# NavBar
+# NavBar Components
 
 ## Purpose
-NavBar is a component that is displayed on every page of the website that contains a link to various pages of the website. Depending on the role of the user, or whether the user is logged in or not, the navbar will adjust the icons available to reflect that state.
+Contains the main navigation bar that appears at the top of every page, showing different menu options based on whether the user is logged in or not.
 
-NavBarUser is a slightly different version of the navbar that shows up in the top right corner instead of the left side of the page. NavBarUser will simply display the user's email and a button to logout when the user is logged in.
+## Components
+
+### NavBar.jsx
+The main navigation menu that shows different links based on user login status:
+- **Logged in users**: Dashboard, Quiz Selection, My Flashcards, Create Quiz, Create Flashcards
+- **Guest users**: Home, Login/Register links
+- **Developer users**: Additional developer tools access
+
+### NavBarUser.jsx
+The user menu in the top-right corner showing the user's email and logout option. Only visible when someone is logged in.

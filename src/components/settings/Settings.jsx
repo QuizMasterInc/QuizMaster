@@ -1,7 +1,5 @@
 import React from 'react';
 import DarkLightMode from './DarkLightMode';
-// import HighContrastToggle from './HighContrastToggle'; // Commented out - file doesn't exist
-// Removed ThresholdInput import - useless component that doesn't connect to actual app state
 
 export default function Settings() {
   return (

@@ -22,33 +22,28 @@ const StudyMaterial = ({ category }) => {
   }, [category]);
 
   return (
-    <div className="bg-white/5 border border-fuchsia-500 rounded-2xl p-8 text-white shadow-lg backdrop-blur-md transition-all hover:shadow-xl">
+    <div className="bg-card rounded-2xl p-8 shadow-xl border border-accent transition-all hover:shadow-2xl">
       {studyMaterial ? (
         <div className="space-y-6">
           {/* Title */}
-          <h2 className="text-2xl font-extrabold bg-gradient-to-r from-purple-400 to-blue-400 text-transparent bg-clip-text uppercase tracking-wide">
+          <h2 className="text-2xl font-extrabold text-gradient-primary uppercase tracking-wide">
             {category} Study Material
           </h2>
-
-          {/* Content */}
-          <p className="text-sm leading-relaxed text-gray-200">
-            {studyMaterial.content}
-          </p>
 
           {/* Resources */}
           {studyMaterial.resources && studyMaterial.resources.length > 0 ? (
             <div className="space-y-3">
-              <h3 className="text-md font-semibold text-pink-300 uppercase">
+              <h3 className="text-md font-semibold text-secondary uppercase">
                 Resources to Check Out
               </h3>
-              <ul className="space-y-2 text-sm text-blue-300">
+              <ul className="space-y-2 text-sm text-secondary">
                 {studyMaterial.resources.map((url, idx) => (
                   <li key={idx}>
                     <a
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="underline hover:text-fuchsia-400 transition-colors"
+                      className="underline hover:text-accent transition-colors"
                     >
                       {url}
                     </a>
@@ -57,11 +52,11 @@ const StudyMaterial = ({ category }) => {
               </ul>
             </div>
           ) : (
-            <p className="italic text-gray-400 text-sm">No resources available.</p>
+            <p className="italic text-secondary text-sm">No resources available.</p>
           )}
         </div>
       ) : (
-        <p className="text-gray-400 text-sm">Loading study material...</p>
+        <p className="text-secondary text-sm">Loading study material...</p>
       )}
     </div>
   );

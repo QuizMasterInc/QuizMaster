@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const [isGoogleAuth, setIsGoogleAuth] = useState(false);
     const [authInitialized, setAuthInitialized] = useState(false);
+    const [isRegistering, setIsRegistering] = useState(false);
 
     // Single useEffect to handle all auth initialization
     useEffect(() => {
@@ -21,41 +22,45 @@ export const AuthProvider = ({ children }) => {
                 // Initialize auth service
                 const unsubscribe = authService.init();
                 
-                                // Subscribe to auth state changes
-                const authUnsubscribe = authService.onAuthStateChange(async (firebaseUser) => {
-                    if (!isMounted) return;
-                    
-                    if (firebaseUser) {
-                        try {
-                            setLoading(true);
-                            setIsGoogleAuth(firebaseUser.providerData[0]?.providerId === 'google.com');
+                            // Subscribe to auth state changes
+            const authUnsubscribe = authService.onAuthStateChange(async (firebaseUser) => {
+                if (!isMounted) return;
+                
+                if (firebaseUser) {
+                    try {
+                        setLoading(true);
                         
-                            // Fetch or create user profile
-                            let userProfile = null;
-                            try {
-                                userProfile = await authService.getUserProfile(firebaseUser.uid);
-                                
-                                // Create profile for new Google users
-                                if (!userProfile && firebaseUser.providerData[0]?.providerId === 'google.com') {
-                                    await authService.handleGoogleUserProfile(firebaseUser);
-                                    userProfile = await authService.getUserProfile(firebaseUser.uid);
-                                }
-                            } catch (profileError) {
-                                console.error('Error with user profile:', profileError);
-                            }
+                        // Check if Google auth
+                        const isGoogle = firebaseUser.providerData[0]?.providerId === 'google.com';
+                        setIsGoogleAuth(isGoogle);
                         
-                            setUser(firebaseUser);
-                            setProfile(userProfile);
-                            setError(null);
+                        // Fetch user profile
+                        const userProfile = await authService.getUserProfile(firebaseUser.uid);
                         
-                        } catch (err) {
-                            console.error('Error in auth state change:', err);
-                            setError(err.message || 'Authentication error');
-                            setUser(firebaseUser);
+                        if (!userProfile) {
+                            // This shouldn't happen with our new flow, but safety check
+                            console.error('User authenticated but no profile found');
+                            await authService.signOut();
+                            setError('Account data not found. Please try signing in again.');
+                            setUser(null);
                             setProfile(null);
-                        } finally {
-                            setLoading(false);
+                            return;
                         }
+                        
+                        // Success - set user and profile
+                        setUser(firebaseUser);
+                        setProfile(userProfile);
+                        setError(null);
+                        
+                    } catch (err) {
+                        console.error('Error fetching user profile:', err);
+                        setError(err.message || 'Failed to load user profile');
+                        // Keep user set so they can retry
+                        setUser(firebaseUser);
+                        setProfile(null);
+                    } finally {
+                        setLoading(false);
+                    }
                     } else {
                         setUser(null);
                         setProfile(null);
@@ -120,16 +125,54 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const signUp = useCallback(async (userData) => {
-        // Don't set global loading - let components handle their own loading states
+    const googleRegister = useCallback(async (additionalData = {}) => {
         setError(null);
 
         try {
+            // The service now handles everything synchronously
+            const result = await authService.registerWithGoogle(additionalData);
+            
+            if (result && result.user && result.profile) {
+                // Set state immediately - no need to wait for auth state listener
+                setUser(result.user);
+                setProfile(result.profile);
+                setIsGoogleAuth(true);
+                setLoading(false);
+                return result;
+            }
+            
+            throw new Error('Registration completed but data not returned');
+            
+        } catch (err) {
+            const errorMessage = err.message || 'Failed to register with Google';
+            setError(errorMessage);
+            setLoading(false);
+            throw new Error(errorMessage);
+        }
+    }, []);
+
+    const signUp = useCallback(async (userData) => {
+        // Don't set global loading - let components handle their own loading states
+        setError(null);
+        setIsRegistering(true);
+
+        try {
             const result = await authService.register(userData);
+            
+            if (result && result.user) {
+                // Set the user and profile immediately after successful registration
+                setUser(result.user);
+                setProfile(result.profile);
+                setError(null);
+                setLoading(false);
+            }
+            
             return result;
         } catch (err) {
             setError(err.message || 'Registration failed');
             throw err;
+        } finally {
+            setIsRegistering(false);
         }
     }, []);
 
@@ -210,6 +253,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: !!user,
         login: signIn,
         googleLogin,
+        googleRegister,
         signup: signUp,
         signIn,
         signUp,

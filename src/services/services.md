@@ -1,356 +1,99 @@
-# QuizMaster Service Layer Documentation
-
-## 🚀 **Current Architecture (September 2025)**
-
-### **Performance Optimizations:**
-- ✅ **Optimized Dashboard Performance**: 3-5 second loading times
-- ✅ **Server-Side Processing**: Filtering and sorting handled by Firebase Functions
-- ✅ **Batch Operations**: Single API calls replace multiple requests
-- ✅ **Intelligent Caching**: Context-aware caching strategies (5-30 minutes)
-
-### **Technical Infrastructure:**
-- ✅ **Node.js 20**: All Firebase Functions running on latest supported runtime
-- ✅ **2nd Gen Functions**: Enhanced performance and capabilities
-- ✅ **Firebase Functions v6.4.0**: Latest SDK with full 2nd Gen support
-
----
+# Services Documentation
 
 ## Overview
+The services directory contains JavaScript modules that handle all Firebase operations and data management for the QuizMaster application. Each service focuses on a specific area of functionality and provides clean APIs for React components to use.
 
-The service layer is the backbone of our refactored QuizMaster application architecture. These services abstract all Firebase operations and provide clean, consistent APIs for our React components to interact with. This approach separates business logic from UI components, making the codebase more maintainable, testable, and scalable.
+## Service Files
 
-## Architecture Benefits
+### firebaseService.js
+Initializes Firebase and provides shared utilities used by all other services.
 
-- **Separation of Concerns**: UI components focus solely on rendering, while services handle data operations
-- **Consistent Error Handling**: All Firebase operations use standardized error handling and user-friendly messages
-- **Code Reusability**: Services eliminate code duplication across components
-- **Testability**: Components can be easily unit tested by mocking service calls
-- **Maintainability**: Firebase logic is centralized, making updates and debugging easier
-- **Performance**: Services implement retry mechanisms and optimized querying patterns
-- **Batch Operations**: Context providers eliminate redundant API calls
-- **Server-Side Processing**: Complex operations handled by Firebase Functions
-- **Intelligent Caching**: Context-aware caching based on data update frequency
-
-## Service Files Overview
-
-### 1. firebaseService.js
-**Purpose**: Core Firebase initialization and shared utilities
-
-**Key Features**:
-- Initializes all Firebase services (Auth, Firestore, Functions, Storage)
-- Provides centralized error handling with user-friendly messages
-- Implements retry mechanism for failed operations
-- Includes timestamp utilities for consistent date handling
-- Manages Firebase configuration from environment variables
-
-**Main Exports**:
-```javascript
-// Firebase service instances
-export const auth, db, functions, storage
-
-// Utility functions
-export const handleFirebaseError(error)
-export const withRetry(operation, maxRetries, delay)
-export const timestamp = { now(), fromFirestore(), toFirestore() }
-```
-
-**Usage Example**:
-```javascript
-import { handleFirebaseError, withRetry } from '../services/firebaseService';
-
-try {
-  const result = await withRetry(() => someFirebaseOperation());
-} catch (error) {
-  const friendlyError = handleFirebaseError(error);
-  console.error(friendlyError.message);
-}
-```
+**Functions:**
+- `handleFirebaseError(error)` - Converts Firebase errors into user-friendly messages
+- `withRetry(operation, maxRetries, delay)` - Retries failed Firebase operations automatically
+- `timestamp.now()` - Creates current timestamp in Firestore format
+- `timestamp.fromFirestore()` - Converts Firestore timestamps to JavaScript dates
+- `timestamp.toFirestore()` - Converts JavaScript dates to Firestore timestamps
 
 ---
 
-### 2. authService.js
-**Purpose**: Handles all user authentication and profile management
+### authService.js
+Manages user authentication, registration, and profile data.
 
-**Key Features**:
-- User registration with profile creation in Firestore
-- Email/password authentication
-- Password reset functionality
-- User profile management and updates
-- Role-based access control
-- Authentication state monitoring
-- Automatic token management
-
-**Main Methods**:
-- `register(userData)` - Create new user account with profile
-- `signIn(email, password)` - Authenticate user
-- `signOut()` - Sign out current user
-- `getUserProfile(uid)` - Get user profile from Firestore
-- `updateUserProfile(uid, updates)` - Update user profile
-- `sendPasswordResetEmail(email)` - Send password reset
-- `changePassword(currentPassword, newPassword)` - Change password
-- `hasRole(uid, roles)` - Check user permissions
-- `onAuthStateChange(callback)` - Listen to auth state changes
-
-**Usage Example**:
-```javascript
-import authService from '../services/authService';
-
-// Sign in user
-try {
-  const { user, profile } = await authService.signIn(email, password);
-  console.log('User signed in:', profile.displayName);
-} catch (error) {
-  console.error('Sign in failed:', error.message);
-}
-
-// Listen to auth state changes
-const unsubscribe = authService.onAuthStateChange((user) => {
-  if (user) {
-    console.log('User is signed in');
-  } else {
-    console.log('User is signed out');
-  }
-});
-```
+**Functions:**
+- `register(userData)` - Creates new user account and profile in Firestore
+- `signIn(email, password)` - Signs in user and loads their profile data
+- `signOut()` - Signs out the current user
+- `getUserProfile(uid)` - Gets user profile data from Firestore
+- `updateUserProfile(uid, updates)` - Updates user profile information
+- `sendPasswordResetEmail(email)` - Sends password reset email to user
+- `changePassword(currentPassword, newPassword)` - Changes user's password
+- `hasRole(uid, roles)` - Checks if user has specific role permissions
+- `onAuthStateChange(callback)` - Listens for authentication state changes
+- `createCompleteUserDocument(authUser, additionalData)` - Creates full user document with all required fields
 
 ---
 
-### 3. quizService.js
-**Purpose**: Manages all quiz-related operations and data
+### quizService.js
+Manages all quiz-related operations including creating, retrieving, and submitting quizzes.
 
-**Key Features**:
-- CRUD operations for quizzes
-- Advanced querying with filtering and pagination
-- Quiz attempt submission via Cloud Functions
-- Quiz statistics and analytics
-- Quiz duplication functionality
-- Soft delete implementation
-- Integration with Firebase Functions for complex operations
-
-**Main Methods**:
-- `createQuiz(quizData)` - Create new quiz
-- `getQuizById(quizId)` - Get specific quiz
-- `getQuizzes(options)` - Get quizzes with filtering/pagination
-- `browseCustomQuizzes(filters)` - Server-side filtered quiz browsing with optimization
-- `updateQuiz(quizId, updates)` - Update existing quiz
-- `deleteQuiz(quizId)` - Soft delete quiz
-- `submitQuizAttempt(quizId, attemptData)` - Submit quiz attempt
-- `getUserAttempts(userId, quizId)` - Get user's quiz attempts
-- `getQuizStatistics(quizId)` - Get quiz analytics
-- `duplicateQuiz(quizId, overrides)` - Duplicate existing quiz
-
-### Advanced Filtering: `browseCustomQuizzes(filters = {})`
-**Server-side processing for optimal performance**  
-**Parameters:**
-- `difficulty` (string): Filter by difficulty level ('easy', 'medium', 'hard')
-- `category` (string): Filter by subject category
-- `searchTerm` (string): Search in quiz titles and descriptions
-- `sortBy` (string): Sort order ('newest', 'oldest', 'difficulty', 'popularity')
-- `limit` (number): Maximum results (default: 50)
-
-```javascript
-// Server-side filtered quiz browsing
-const filteredQuizzes = await quizService.browseCustomQuizzes({
-  difficulty: 'medium',
-  category: 'Mathematics', 
-  searchTerm: 'algebra',
-  sortBy: 'popularity',
-  limit: 20
-});
-```
-
-**Usage Example**:
-```javascript
-import quizService from '../services/quizService';
-
-// Get paginated quizzes for a teacher
-const { quizzes, hasMore, lastDoc } = await quizService.getQuizzes({
-  creatorId: teacherId,
-  isActive: true,
-  limitCount: 10,
-  orderByField: 'createdAt'
-});
-
-// Submit a quiz attempt
-const result = await quizService.submitQuizAttempt(quizId, {
-  answers: userAnswers,
-  timeSpent: 1800, // 30 minutes
-  userId: currentUserId
-});
-```
+**Functions:**
+- `createQuiz(quizData)` - Creates a new quiz in the database
+- `getQuizById(quizId)` - Gets a specific quiz by its ID
+- `getQuizzes(options)` - Gets quizzes with filtering and pagination
+- `browseCustomQuizzes(filters)` - Searches and filters custom quizzes with server-side processing
+- `updateQuiz(quizId, updates)` - Updates an existing quiz
+- `deleteQuiz(quizId)` - Soft deletes a quiz (marks as inactive)
+- `submitQuizAttempt(quizId, attemptData)` - Submits a completed quiz attempt
+- `getUserAttempts(userId, quizId)` - Gets all quiz attempts by a specific user
+- `getQuizStatistics(quizId)` - Gets analytics and statistics for a quiz
+- `duplicateQuiz(quizId, overrides)` - Creates a copy of an existing quiz
+- `createValidatedQuizObject(quizInput)` - Validates and formats quiz data for submission
+- `submitCustomQuiz(quizObject)` - Creates a custom quiz via Firebase Functions
+- `getCustomQuizzesByUser(userId)` - Gets all quizzes created by a specific user
+- `normalizeQuizData(quiz)` - Converts quiz data to a consistent format
 
 ---
 
-### 4. questionService.js
-**Purpose**: Handles question management and validation
+### questionService.js
+Manages individual questions in the default question bank used for system-generated quizzes.
 
-**Key Features**:
-- CRUD operations for individual questions
-- Question type validation (multiple choice, true/false, short answer, essay)
-- Advanced filtering by subject, difficulty, type
-- Bulk question import functionality
-- Question usage tracking
-- Comprehensive validation system
-
-**Main Methods**:
-- `createQuestion(questionData)` - Create new question
-- `getQuestionById(questionId)` - Get specific question
-- `getQuestions(options)` - Get filtered questions
-- `updateQuestion(questionId, updates)` - Update question
-- `deleteQuestion(questionId)` - Soft delete question
-- `validateQuestion(questionData)` - Validate question data
-- `bulkImportQuestions(questionsData)` - Import multiple questions
-
-**Question Types Supported**:
-- **Multiple Choice**: Questions with 2+ options and one correct answer
-- **True/False**: Simple boolean questions
-- **Short Answer**: Text-based questions with sample answers
-- **Essay**: Long-form questions with rubrics
-
-**Usage Example**:
-```javascript
-import questionService from '../services/questionService';
-
-// Create a multiple choice question
-const question = await questionService.createQuestion({
-  question: "What is the capital of France?",
-  type: "multiple-choice",
-  options: ["London", "Berlin", "Paris", "Madrid"],
-  correctAnswer: 2,
-  difficulty: "easy",
-  subject: "Geography",
-  creatorId: teacherId
-});
-
-// Validate question before creation
-const validation = questionService.validateQuestion(questionData);
-if (!validation.isValid) {
-  console.error('Validation errors:', validation.errors);
-}
-```
+**Functions:**
+- `createQuestion(questionData)` - Creates a new question in the question bank
+- `getQuestionById(questionId)` - Gets a specific question by ID
+- `getQuestions(options)` - Gets questions with filtering by category, difficulty, or type
+- `updateQuestion(questionId, updates)` - Updates an existing question
+- `deleteQuestion(questionId)` - Soft deletes a question (marks as inactive)
+- `validateQuestion(questionData)` - Validates question format and required fields
+- `bulkImportQuestions(questionsData)` - Imports multiple questions at once
 
 ---
 
-### 5. resultService.js
-**Purpose**: Manages quiz results, analytics, and performance data
+### resultService.js
+Manages quiz results, user performance data, and analytics.
 
-**Key Features**:
-- Quiz attempt retrieval and management
-- Advanced analytics via Cloud Functions
-- Performance summaries and statistics
-- Grade distribution calculations
-- Data export functionality (CSV)
-- User performance tracking
-- Batch operations with intelligent caching
-
-**Main Methods**:
-- `getAllResults()` - Batch fetch all result types with caching
-- `getAttemptById(attemptId)` - Get specific quiz attempt
-- `getUserAttempts(userId, options)` - Get user's attempts with pagination
-- `getQuizAttempts(quizId, options)` - Get all attempts for a quiz
-- `getQuizAnalytics(quizId)` - Get detailed quiz analytics
-- `getUserPerformanceSummary(userId)` - Get user performance data
-- `exportQuizResults(quizId, options)` - Export results to CSV
-- `calculateGradeStatistics(attempts)` - Calculate grade distributions
-
-**Analytics Features**:
-- Average scores and completion rates
-- Question-level performance analysis
-- Time-based performance trends
-- Grade distribution breakdowns
-- Passing/failing rate calculations
-
-**Usage Example**:
-```javascript
-import resultService from '../services/resultService';
-
-// Get analytics for a quiz
-const analytics = await resultService.getQuizAnalytics(quizId);
-console.log(`Average score: ${analytics.averageScore}%`);
-console.log(`Completion rate: ${analytics.completionRate}%`);
-
-// Calculate grade statistics
-const stats = resultService.calculateGradeStatistics(attempts);
-console.log('Grade Distribution:', stats.gradeDistribution);
-```
+**Functions:**
+- `getAllResults(userId)` - Gets all quiz results for a user across all categories (uses caching for better performance)
+- `getAttemptById(attemptId)` - Gets a specific quiz attempt by its ID
+- `getUserAttempts(userId, options)` - Gets all quiz attempts by a user with pagination
+- `getQuizAttempts(quizId, options)` - Gets all attempts for a specific quiz
+- `getQuizAnalytics(quizId)` - Gets detailed analytics and statistics for a quiz
+- `getUserPerformanceSummary(userId)` - Gets comprehensive performance data for a user
+- `exportQuizResults(quizId, options)` - Exports quiz results to CSV format
+- `calculateGradeStatistics(attempts)` - Calculates grade distributions and performance metrics
 
 ---
 
-## Common Patterns and Best Practices
+### flashcardService.js
+Manages flashcard deck creation, retrieval, and management.
 
-### Error Handling
-All services use the centralized error handling system:
-```javascript
-try {
-  const result = await someServiceMethod();
-} catch (error) {
-  // error.message contains user-friendly message
-  // error.code contains the original error code
-  // error.originalError contains the full Firebase error
-}
-```
+**Functions:**
+- `createValidatedDeckObject(deckData)` - Validates and formats flashcard deck data before submission
+- `submitFlashcardDeck(deckData)` - Creates a new flashcard deck in the database
+- `getUserFlashcardDecks(userId)` - Gets all flashcard decks created by a specific user
+- `getFlashcardDeck(deckId)` - Gets a specific flashcard deck by its ID
+- `deleteFlashcardDeck(deckId, userId)` - Deletes a flashcard deck (with user permission verification)
+- `normalizeDeckData(rawData)` - Converts flashcard deck data to a consistent format
 
-### Timestamp Handling
-All services use consistent timestamp utilities:
-```javascript
-import { timestamp } from '../services/firebaseService';
-
-// Creating timestamps
-const now = timestamp.now();
-const firestoreDate = timestamp.toFirestore(new Date());
-
-// Reading timestamps
-const jsDate = timestamp.fromFirestore(firestoreTimestamp);
-```
-
-### Pagination Pattern
-Services that return lists support consistent pagination:
-```javascript
-const { items, hasMore, lastDoc } = await service.getItems({
-  limitCount: 20,
-  startAfterDoc: lastDoc // from previous page
-});
-```
-
-### Retry Mechanism
-All Firebase operations automatically retry on failure:
-```javascript
-// Operations are wrapped with withRetry()
-const result = await withRetry(() => 
-  firestoreOperation(), 
-  maxRetries = 3, 
-  delay = 1000
-);
-
-```
-
----
-
-## 🎯 **Current Architecture Patterns & Best Practices**
-
-### **Server-Side Processing**
-- **Principle**: Complex operations handled by Firebase Functions for optimal performance
-- **Implementation**: `browseCustomQuizzes` handles filtering/sorting server-side
-- **Benefits**: Reduced client-side processing and data transfer
-
-### **Context-Based State Management**
-- **ResultsContext**: Centralized results data with intelligent caching
-- **Single Source of Truth**: Eliminates redundant API calls across components
-- **Cache Strategy**: Smart refresh based on data volatility
-
-### **Batch Operations**
-- **API Consolidation**: Single calls replace multiple requests
-- **Example**: `getAllResults` fetches multiple data types in one function call
-- **Performance**: Significant reduction in API overhead
-
-### **Caching Strategy**
-- **Static Data** (30min): Categories, question banks, system settings
-- **User Data** (5min): Quiz results, performance metrics, attempt history
-- **Dynamic Data** (1min): Live quiz sessions, real-time updates
-- **Cache Keys**: User ID and data type isolation
-
-### **Error Handling Standards**
-- **User-Friendly Messages**: Technical errors translated to actionable feedback
-- **Retry Logic**: Automatic retry for transient failures
-- **Graceful Degradation**: Fallback functionality when services unavailable
-- **Comprehensive Logging**: Error tracking for debugging and monitoring
+## How Services Work Together
+All services use the same patterns for error handling, data validation, and Firebase operations. Components import these services to perform database operations without handling Firebase directly. The services automatically handle things like user authentication, data formatting, and error messages.

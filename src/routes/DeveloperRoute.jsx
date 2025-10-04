@@ -7,7 +7,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function PrivateRoute({ children }) {
-  const { currentUser } = useAuth();
-  //console.log("Is dev?: ",currentUser.role, currentUser && currentUser.role)
-  return (currentUser && currentUser.role == 'developer') ? children : <Navigate to="/*" />;
+  const {profile} = useAuth(); // or const { currentUser, profile } = useAuth();
+  return (profile && profile.role === 'developer') ? children : <Navigate to="/"/>;
 }
+

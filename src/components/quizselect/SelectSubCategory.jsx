@@ -13,6 +13,7 @@ import QuestionAmount from './QuestionAmount';
 function SelectSub() {
   const {
     quizSubcategories,
+    availableSubcategories, // Use dynamic subcategories
     category,
     toggleSubcategory,
     subcategories,
@@ -28,7 +29,10 @@ function SelectSub() {
     togglePauseButtonVisibility,
   } = useCategory();
 
-  const availableSubcategories = quizSubcategories[category.toLowerCase()] || [];
+  // Use availableSubcategories if available, otherwise fall back to hardcoded
+  const subcategoriesToDisplay = availableSubcategories.length > 0
+    ? availableSubcategories
+    : (quizSubcategories[category.toLowerCase()] || []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-primary relative overflow-hidden m-5">
@@ -46,26 +50,40 @@ function SelectSub() {
 
         <section className="text-center space-y-4">
           <h2 className="text-2xl font-semibold text-gradient-primary">Choose Sub-Categories</h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            {availableSubcategories.map((subcategory) => (
-              <button
-                key={subcategory}
-                onClick={() => toggleSubcategory(subcategory)}
-                className={`px-5 py-2 font-semibold rounded-full shadow-md transition duration-300 ${
-                  subcategories.includes(subcategory)
-                    ? 'btn-primary btn-hover'
-                    : 'bg-[var(--neutral-500)] hover:bg-[var(--neutral-400)]'
-                }`}
-              >
-                {subcategory}
-              </button>
-            ))}
-          </div>
+          {subcategoriesToDisplay.length === 0 ? (
+            <p className="text-secondary italic">Loading subcategories...</p>
+          ) : (
+            <div className="flex flex-wrap justify-center gap-4">
+              {subcategoriesToDisplay.map((subcategory) => (
+                <button
+                  key={subcategory}
+                  onClick={() => toggleSubcategory(subcategory)}
+                  className={`px-5 py-2 font-semibold rounded-full shadow-md transition duration-300 ${
+                    subcategories.includes(subcategory)
+                      ? 'btn-primary btn-hover'
+                      : 'bg-[var(--neutral-500)] hover:bg-[var(--neutral-400)]'
+                  }`}
+                >
+                  {subcategory}
+                </button>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="text-center space-y-4">
           <h2 className="text-2xl font-semibold text-gradient-primary">Select Difficulty</h2>
           <StarRating difficulty={difficulty} selectDifficulty={selectDifficulty} />
+          {difficulty === 0 && (
+            <p className="text-sm text-muted italic">
+              ℹ️ No difficulty selected - questions of all difficulty levels will be included
+            </p>
+          )}
+          {difficulty > 0 && (
+            <p className="text-sm text-secondary font-medium">
+              Selected: {difficulty} star{difficulty > 1 ? 's' : ''} difficulty
+            </p>
+          )}
         </section>
 
         <section className="text-center space-y-4">

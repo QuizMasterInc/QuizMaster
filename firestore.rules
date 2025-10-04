@@ -1,6 +1,89 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Default-questions collection
+    match /default-questions/{questionId} {
+      // Anyone can read default questions (needed for quizzes)
+      allow read: if true;
+
+      // Only authenticated users with developer role can write
+      // You may want to add a custom claim check here
+      allow write: if request.auth != null &&
+        (request.auth.token.developer == true || request.auth.token.admin == true);
+    }
+
+    // Custom quizzes collection
+    match /custom_quizzes/{quizId} {
+      // Anyone can read public quizzes
+      allow read: if resource.data.metadata.isPublic == true ||
+        (request.auth != null && resource.data.creator.uid == request.auth.uid);
+
+      // Only authenticated users can create their own quizzes
+      allow create: if request.auth != null &&
+        request.resource.data.creator.uid == request.auth.uid;
+
+      // Only the creator can update/delete their own quiz
+      allow update, delete: if request.auth != null &&
+        resource.data.creator.uid == request.auth.uid;
+    }
+
+    // Flashcard decks collection
+    match /flashcard_decks/{deckId} {
+      // Anyone can read public decks
+      allow read: if resource.data.metadata.isPublic == true ||
+        (request.auth != null && resource.data.creator.uid == request.auth.uid);
+
+      // Only authenticated users can create their own decks
+      allow create: if request.auth != null &&
+        request.resource.data.creator.uid == request.auth.uid;
+
+      // Only the creator can update/delete their own deck
+      allow update, delete: if request.auth != null &&
+        resource.data.creator.uid == request.auth.uid;
+    }
+
+    // Quiz results collection
+    match /quiz_results/{resultId} {
+      // Users can only read their own results
+      allow read: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+
+      // Users can only create their own results
+      allow create: if request.auth != null &&
+        request.resource.data.userId == request.auth.uid;
+
+      // No updates or deletes allowed
+      allow update, delete: if false;
+    }
+
+    // Study materials collection
+    match /studyMaterials/{materialId} {
+      // Anyone can read public materials
+      allow read: if resource.data.isPublic == true ||
+        (request.auth != null && resource.data.createdBy == request.auth.uid);
+
+      // Authenticated users can create materials
+      allow create: if request.auth != null;
+
+      // Only the creator can update/delete
+      allow update, delete: if request.auth != null &&
+        resource.data.createdBy == request.auth.uid;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // Users can read their own data
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // Users can create/update their own data
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+
+      // No deletes allowed
+      allow delete: if false;
+    }
+
+    // Block everything else by default
     match /{document=**} {
       allow read, write: if false;
     }
