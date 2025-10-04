@@ -84,6 +84,11 @@ function App() {
                 <SelectQuiz />
               </PrivateRoute>
             }/>
+            <Route path="random" element={
+              <PrivateRoute>
+                <SelectSubCategory />
+              </PrivateRoute>
+            }/>
             {CATEGORY_DESTINATIONS.map((destination, index) => (
               <Route 
                 key={index} 

@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import app from '../config/firebase';
 
 const db = getFirestore(app);
@@ -71,30 +71,46 @@ export const parseCSV = (file) => {
 };
 
 /**
- * Checks if a question already exists in the database
- * Uses composite index on category, sub-category, and question
- * @param {Object} question - Question object to check
- * @returns {Promise<boolean>} True if duplicate exists
+ * Fetches all questions from the database and organizes them by category for quick lookup
+ * @returns {Promise<Map>} A map where each key is a category and the value is a set of questions in that category
  */
-const checkDuplicateQuestion = async (question) => {
+const fetchAllQuestions = async () => {
   try {
     const questionsRef = collection(db, 'default-questions');
+    const querySnapshot = await getDocs(questionsRef);
 
-    // Query using indexed fields: category, sub-category, and question
-    const q = query(
-      questionsRef,
-      where('category', '==', question.category),
-      where('sub-category', '==', question['sub-category']),
-      where('question', '==', question.question)
-    );
+    const questionMap = new Map();
 
-    const querySnapshot = await getDocs(q);
-    return !querySnapshot.empty;
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const category = data.category?.toLowerCase() || '';
+      const question = data.question || '';
+
+      if (!questionMap.has(category)) {
+        questionMap.set(category, new Set());
+      }
+      questionMap.get(category).add(question);
+    });
+
+    return questionMap;
   } catch (error) {
-    console.error('Error checking for duplicate:', error);
-    // If there's an error checking, assume it's not a duplicate to avoid blocking uploads
-    return false;
+    console.error('Error fetching questions:', error);
+    throw error;
   }
+};
+
+/**
+ * Checks if a question is a duplicate by looking it up in the pre-fetched question map
+ * @param {Object} question - Question object to check
+ * @param {Map} questionMap - Map of existing questions organized by category
+ * @returns {boolean} True if the question is a duplicate
+ */
+const isDuplicateQuestion = (question, questionMap) => {
+  const category = question.category?.toLowerCase() || '';
+  const questionText = question.question || '';
+
+  const categoryQuestions = questionMap.get(category);
+  return categoryQuestions ? categoryQuestions.has(questionText) : false;
 };
 
 /**
@@ -112,38 +128,45 @@ export const bulkUploadQuestions = async (questions) => {
     duplicateQuestions: []
   };
 
-  for (let i = 0; i < questions.length; i++) {
-    try {
-      // Check for duplicate before uploading
-      const isDuplicate = await checkDuplicateQuestion(questions[i]);
+  try {
+    const questionMap = await fetchAllQuestions();
 
-      if (isDuplicate) {
-        results.duplicates++;
-        results.duplicateQuestions.push({
-          index: i + 1,
-          question: questions[i].question.substring(0, 50) + '...',
-          category: questions[i].category,
-          subCategory: questions[i]['sub-category']
-        });
-        continue; // Skip this question
-      }
+    for (let i = 0; i < questions.length; i++) {
+      try {
+        if (isDuplicateQuestion(questions[i], questionMap)) {
+          results.duplicates++;
+          results.duplicateQuestions.push({
+            index: i + 1,
+            question: questions[i].question.substring(0, 50) + '...',
+            category: questions[i].category,
+            subCategory: questions[i]['sub-category']
+          });
+          continue;
+        }
 
-      // Upload if not duplicate
-      const encodedQuestion = encodeURIComponent(JSON.stringify(questions[i]));
-      const response = await fetch(
-        `https://us-central1-quizmaster-c66a2.cloudfunctions.net/addDefaultQuestion?question=${encodedQuestion}`
-      );
+        const encodedQuestion = encodeURIComponent(JSON.stringify(questions[i]));
+        const response = await fetch(
+          `https://us-central1-quizmaster-c66a2.cloudfunctions.net/addDefaultQuestion?question=${encodedQuestion}`
+        );
 
-      if (response.ok) {
-        results.successful++;
-      } else {
+        if (response.ok) {
+          results.successful++;
+          const category = questions[i].category?.toLowerCase() || '';
+          if (!questionMap.has(category)) {
+            questionMap.set(category, new Set());
+          }
+          questionMap.get(category).add(questions[i].question);
+        } else {
+          results.failed++;
+          results.errors.push(`Question ${i + 1}: HTTP ${response.status}`);
+        }
+      } catch (error) {
         results.failed++;
-        results.errors.push(`Question ${i + 1}: HTTP ${response.status}`);
+        results.errors.push(`Question ${i + 1}: ${error.message}`);
       }
-    } catch (error) {
-      results.failed++;
-      results.errors.push(`Question ${i + 1}: ${error.message}`);
     }
+  } catch (error) {
+    results.errors.push(`Failed to fetch existing questions: ${error.message}`);
   }
 
   return results;
