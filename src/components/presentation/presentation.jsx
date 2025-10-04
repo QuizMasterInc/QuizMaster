@@ -1,20 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
-import slide1 from './slide1.png';
-import slide2 from './slide2.png';
-import slide3 from './slide3.png';
-import slide4 from './slide4.png';
-import slide5 from './slide5.png';
-import slide6 from './slide6.png';
-import slide7 from './slide7.png';
-import slide8 from './slide8.png';
-import slide9 from './slide9.png';
-import slide10 from './slide10.png';
-import slide11 from './slide11.png';
-import slide12 from './slide12.png';
-import slide13 from './slide13.png';
-import slide14 from './slide14.png';
-import slide15 from './slide15.png';
-import slide16 from './slide16.png';
+import slide1 from './slide1.webp';
+import slide2 from './slide2.webp';
+import slide3 from './slide3.webp';
+import slide4 from './slide4.webp';
+import slide5 from './slide5.webp';
+import slide6 from './slide6.webp';
+import slide7 from './slide7.webp';
+import slide8 from './slide8.webp';
+import slide9 from './slide9.webp';
+import slide10 from './slide10.webp';
+import slide11 from './slide11.webp';
+import slide12 from './slide12.webp';
+import slide13 from './slide13.webp';
+import slide14 from './slide14.webp';
+import slide15 from './slide15.webp';
+import slide16 from './slide16.webp';
 
 const slides = [
   { img: slide1, title: 'Welcome to QuizMaster', description: 'QuizMaster is your comprehensive learning platform for creating, taking, and managing quizzes and flashcards.' },
@@ -35,74 +35,96 @@ const slides = [
   { img: slide16, title: 'Back to Dashboard', description: 'Return to your dashboard to see updated statistics, start another quiz, or explore other learning features.' }
 ];
 
+// Lazy load image component with fade-in effect
+const LazyImage = ({ src, alt, index }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(index < 3); // Load first 3 immediately
+  const imgRef = useRef(null);
+
+  useEffect(() => {
+    if (index < 3) return; // Skip observer for first 3 slides
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsInView(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        rootMargin: '300px', // Start loading 300px before slide enters viewport
+      }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => {
+      if (observer && imgRef.current) {
+        observer.disconnect();
+      }
+    };
+  }, [index]);
+
+  return (
+    <div ref={imgRef} className="flex justify-center mb-6 bg-primary bg-opacity-30 rounded-2xl p-5">
+      {isInView ? (
+        <img
+          src={src}
+          alt={alt}
+          onLoad={() => setIsLoaded(true)}
+          className={`max-w-full h-auto rounded-xl shadow-lg transition-opacity duration-500 ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+      ) : (
+        <div className="w-full h-96 bg-primary bg-opacity-20 rounded-xl flex items-center justify-center">
+          <span className="text-secondary">Loading...</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Presentation = () => {
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #1a1a2e, #16213e)', color: 'white' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '60px 20px' }}>
-        <header style={{ textAlign: 'center', marginBottom: '60px' }}>
-          <h1 style={{ fontSize: '48px', fontWeight: 'bold', marginBottom: '16px' }}>QuizMaster Demo</h1>
-          <p style={{ fontSize: '20px', color: '#94a3b8' }}>A comprehensive guide to using QuizMaster</p>
+    <div className="min-h-screen py-20 px-6 font-main bg-primary text-primary">
+      <div className="max-w-6xl mx-auto">
+        <header className="text-center mb-16">
+          <h1 className="text-5xl font-bold mb-4 font-main text-gradient-primary">
+            QuizMaster Demo
+          </h1>
+          <p className="text-xl text-secondary">
+            A comprehensive guide to using QuizMaster
+          </p>
         </header>
 
-        {slides.map((slide, index) => (
-          <section
-            key={index}
-            style={{
-              marginBottom: '80px',
-              background: 'rgba(255,255,255,0.05)',
-              borderRadius: '16px',
-              padding: '40px',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-            }}
-          >
-            <div style={{ marginBottom: '24px' }}>
-              <span style={{
-                display: 'inline-block',
-                background: 'rgba(59,130,246,0.2)',
-                color: '#60a5fa',
-                padding: '4px 12px',
-                borderRadius: '20px',
-                fontSize: '14px',
-                fontWeight: '600',
-                marginBottom: '12px'
-              }}>
-                Step {index + 1} of {slides.length}
-              </span>
-              <h2 style={{ fontSize: '32px', fontWeight: 'bold', marginTop: '12px' }}>{slide.title}</h2>
-            </div>
+        <div className="space-y-20">
+          {slides.map((slide, index) => (
+            <section
+              key={index}
+              className="bg-card rounded-3xl p-8 shadow-xl border border-accent"
+            >
+              <div className="mb-6">
+                <span className="inline-block bg-accent bg-opacity-20 text-primary px-3 py-1 rounded-full text-sm font-semibold mb-3">
+                  Step {index + 1} of {slides.length}
+                </span>
+                <h2 className="text-3xl font-bold mt-3 font-main text-gradient-primary">
+                  {slide.title}
+                </h2>
+              </div>
 
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              marginBottom: '24px',
-              background: 'rgba(0,0,0,0.3)',
-              borderRadius: '12px',
-              padding: '20px'
-            }}>
-              <img
-                src={slide.img}
-                alt={slide.title}
-                style={{
-                  maxWidth: '100%',
-                  height: 'auto',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.4)'
-                }}
-              />
-            </div>
+              <LazyImage src={slide.img} alt={slide.title} index={index} />
 
-            <p style={{
-              fontSize: '18px',
-              lineHeight: '1.8',
-              color: '#cbd5e1',
-              textAlign: 'center',
-              maxWidth: '800px',
-              margin: '0 auto'
-            }}>
-              {slide.description}
-            </p>
-          </section>
-        ))}
+              <p className="text-lg leading-7 text-secondary text-center max-w-4xl mx-auto">
+                {slide.description}
+              </p>
+            </section>
+          ))}
+        </div>
       </div>
     </div>
   );
