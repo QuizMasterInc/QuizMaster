@@ -332,7 +332,7 @@ class AuthService {
     }
 
     /**
-     * FIXED: Sign in with Google (existing users only)
+     * Sign in with Google (creates account automatically if it doesn't exist)
      */
     async signInWithGoogle() {
         try {
@@ -346,25 +346,31 @@ class AuthService {
                 throw new Error('No user returned from Google sign-in');
             }
             
+            const user = result.user;
+            
             // Check if user profile exists
-            const userDocRef = doc(db, 'users', result.user.uid);
+            const userDocRef = doc(db, 'users', user.uid);
             const profileDoc = await getDoc(userDocRef);
             
+            let userProfile;
+            
             if (!profileDoc.exists()) {
-                // No profile = not registered
-                await result.user.delete(); // Clean up
-                throw new Error('Account not found. Please register first before signing in with Google.');
+                // Profile doesn't exist - create it automatically
+                const userDocument = this.createCompleteUserDocument(user, {});
+                await setDoc(userDocRef, userDocument);
+                userProfile = userDocument;
+            } else {
+                // Profile exists - update last login
+                userProfile = profileDoc.data();
+                await updateDoc(userDocRef, {
+                    'timestamps.lastLoginAt': timestamp.now(),
+                    'timestamps.updatedAt': timestamp.now()
+                });
             }
             
-            // Update last login
-            await updateDoc(userDocRef, {
-                'timestamps.lastLoginAt': timestamp.now(),
-                'timestamps.updatedAt': timestamp.now()
-            });
-            
             return {
-                user: result.user,
-                profile: profileDoc.data()
+                user: user,
+                profile: userProfile
             };
             
         } catch (error) {

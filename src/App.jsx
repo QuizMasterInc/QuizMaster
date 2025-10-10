@@ -15,6 +15,8 @@ import Register from './components/login/Register';
 import Home from './components/home/Home';
 import About from './components/about/About';
 import Contact from './components/contact/Contact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 import { AppProvider } from './contexts/AppContext';
 import { QuizProvider } from './contexts/QuizContext';
 import { ResultsProvider } from './contexts/ResultsContext';
@@ -75,6 +77,8 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/settings" element={
               <Settings />
           }/>
