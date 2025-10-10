@@ -41,6 +41,9 @@ export default function CustomQuiz () {
   // Create and submit quiz using service layer
   async function sendQuiz() {
     try {
+      console.log('sendQuiz called with quizData:', quizData);
+      console.log('Number of questions:', quizData.length);
+
       // Validate minimum quiz length
       if (quizData.length < 1) {
         alert("You need to have at least one question in the quiz.");
@@ -63,15 +66,23 @@ export default function CustomQuiz () {
         category: "" // Add a category selector if desired
       };
 
+      console.log('Quiz input object:', quizInput);
+
       const validationResult = quizService.createValidatedQuizObject(quizInput);
       
+      console.log('Validation result:', validationResult);
+
       if (!validationResult.success) {
         alert(validationResult.error);
         return;
       }
 
+      console.log('Quiz object to submit:', validationResult.quizObject);
+
       // Submit quiz to database
       const response = await quizService.submitCustomQuiz(validationResult.quizObject);
+
+      console.log('Server response:', response);
 
       if (response.quizID) {
         // Reset form

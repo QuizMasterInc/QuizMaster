@@ -2,21 +2,13 @@
  * This is the dashboard parent component
  * this will only get mounted if the user is logged in
  */
-import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { CategoryStatsCard } from './CategoryStatsCard';
 import { Link } from 'react-router-dom';
-import StudyMaterial from './StudyMaterial';
 import { QUIZ_CATEGORIES, CATEGORY_ICONS } from '../../constants/quizConstants.jsx';
 
 export default function Dashboard() {
-  const [error, setError] = useState('');
   const { isGoogleAuth } = useAuth();
-  const [selectedCategory, setSelectedCategory] = useState(null);
-
-  const handleStudy = (category) => {
-    setSelectedCategory((prev) => (prev === category ? null : category));
-  };
 
   return (
     <div className="dashboard-content">
@@ -37,31 +29,6 @@ export default function Dashboard() {
               <CategoryStatsCard key={index} category={category} icon={CATEGORY_ICONS[index]} />
             ))}
           </div>
-          {error && (
-            <div className="mt-6 text-center error-message">
-              {error}
-            </div>
-          )}
-        </section>
-
-        <section className="dashboard-section">
-          <h2 className="text-3xl font-bold text-center text-gradient-primary mb-10">Study by Category</h2>
-          <div className="flex flex-wrap justify-center gap-4">
-            {QUIZ_CATEGORIES.map((category, index) => (
-              <button
-                key={index}
-                onClick={() => handleStudy(category)}
-                className="inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
-              >
-                Study {category}
-              </button>
-            ))}
-          </div>
-          {selectedCategory && (
-            <div className="mt-10">
-              <StudyMaterial category={selectedCategory} />
-            </div>
-          )}
         </section>
 
         <section className="flex flex-col sm:flex-row justify-center gap-6 pt-10">

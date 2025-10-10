@@ -20,10 +20,12 @@ export default function QuizCreation({
 }) {
   const { logout } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [currentQuestion, setCurrentQuestion] = useState(['', '', '', '', '', '', '']);
+  const [currentQuestion, setCurrentQuestion] = useState(['', '', '', '', '', '', '', '', 3]); // difficulty at index 8 as number
   const [selectedCorrectAnswers, setSelectedCorrectAnswers] = useState([false, false, false, false]);
   const [droppedOption, setDroppedOption] = useState('');
   const [rawTagsInput, setRawTagsInput] = useState('');
+  const [numAnswers, setNumAnswers] = useState(4); // New state for answer count (2-4)
+  const [questionDifficulty, setQuestionDifficulty] = useState(3); // New state for difficulty (1-5) as number
 
   const handleLogout = async () => {
     try {
@@ -74,24 +76,70 @@ export default function QuizCreation({
     const type = currentQuestion[6];
 
     if (type === 'TrueFalse') {
-      question = [currentQuestion[0], 'True', 'False', '', '', currentQuestion[5], 'TrueFalse'];
+      question = [
+        currentQuestion[0],  // index 0: question text
+        'True',              // index 1: option_1
+        'False',             // index 2: option_2
+        '',                  // index 3: option_3
+        '',                  // index 4: option_4
+        currentQuestion[5],  // index 5: correct_answer
+        'TrueFalse',         // index 6: type
+        '',                  // index 7: explanation
+        currentQuestion[8] || questionDifficulty || 3  // index 8: difficulty
+      ];
     } else if (type === 'FillInTheBlank') {
-      question = [currentQuestion[0], currentQuestion[1], '', '', '', '', 'FillInTheBlank'];
+      question = [
+        currentQuestion[0],  // index 0: question text
+        currentQuestion[1],  // index 1: correct answer (option_1)
+        '',                  // index 2: option_2
+        '',                  // index 3: option_3
+        '',                  // index 4: option_4
+        currentQuestion[1],  // index 5: correct_answer (same as option_1)
+        'FillInTheBlank',    // index 6: type
+        '',                  // index 7: explanation
+        currentQuestion[8] || questionDifficulty || 3  // index 8: difficulty
+      ];
     } else if (type === 'MultipleAnswer') {
       const options = currentQuestion.slice(1, 5);
       const correctAnswers = selectedCorrectAnswers
         .map((selected, idx) => (selected ? options[idx] : null))
         .filter(Boolean);
-      question = [currentQuestion[0], ...options, correctAnswers.join('||'), 'MultipleAnswer'];
+      question = [
+        currentQuestion[0],                // index 0: question text
+        ...options,                        // index 1-4: options
+        correctAnswers.join('||'),         // index 5: correct_answer
+        'MultipleAnswer',                  // index 6: type
+        '',                                // index 7: explanation
+        currentQuestion[8] || questionDifficulty || 3  // index 8: difficulty
+      ];
       setSelectedCorrectAnswers([false, false, false, false]);
     } else if (type === 'DragAndDrop') {
-      question = [currentQuestion[0], ...currentQuestion.slice(1, 5), currentQuestion[5], 'DragAndDrop'];
+      question = [
+        currentQuestion[0],                // index 0: question text
+        ...currentQuestion.slice(1, 5),    // index 1-4: options
+        currentQuestion[5],                // index 5: correct_answer
+        'DragAndDrop',                     // index 6: type
+        '',                                // index 7: explanation
+        currentQuestion[8] || questionDifficulty || 3  // index 8: difficulty
+      ];
     } else {
-      question = currentQuestion;
+      // Multiple choice - make sure all indices are properly included
+      question = [
+        currentQuestion[0],                // index 0: question text
+        currentQuestion[1],                // index 1: option_1
+        currentQuestion[2],                // index 2: option_2
+        currentQuestion[3],                // index 3: option_3
+        currentQuestion[4],                // index 4: option_4
+        currentQuestion[5],                // index 5: correct_answer
+        currentQuestion[6],                // index 6: type
+        '',                                // index 7: explanation
+        currentQuestion[8] || questionDifficulty || 3  // index 8: difficulty
+      ];
     }
 
     setQuizData((prev) => [...prev, question]);
-    setCurrentQuestion(['', '', '', '', '', '', '']);
+    setCurrentQuestion(['', '', '', '', '', '', '', '', 3]); // Reset with default difficulty as number
+    setQuestionDifficulty(3); // Reset difficulty state
     setDroppedOption('');
   };
 
@@ -159,6 +207,41 @@ export default function QuizCreation({
       const processedTags = processTagsFromInput(inputValue);
       setQuizTags(processedTags);
     }
+  };
+
+  // Update number of answers in the current question
+  const updateNumAnswers = (newCount) => {
+    setNumAnswers(newCount);
+    setCurrentQuestion((prev) => {
+      const updated = [...prev];
+      // Adjust the options and correct answer fields based on the new count
+      if (newCount < 4) {
+        updated.splice(4, 4 - newCount); // Remove excess options
+        setSelectedCorrectAnswers((prevAnswers) => {
+          const newAnswers = [...prevAnswers];
+          newAnswers.splice(newCount); // Trim correct answers array
+          return newAnswers;
+        });
+      } else if (newCount > 4) {
+        for (let i = 4; i < newCount; i++) {
+          updated[i] = ''; // Add new empty options
+        }
+      }
+      return updated;
+    });
+  };
+
+  // Update question difficulty
+  const updateQuestionDifficulty = (e) => {
+    const value = parseInt(e.target.value, 10);
+    // Ensure value is a valid number between 1-5, default to empty string if NaN for better UX
+    const validValue = !isNaN(value) && value >= 1 && value <= 5 ? value : 3;
+    setQuestionDifficulty(validValue);
+    setCurrentQuestion((prev) => {
+      const updated = [...prev];
+      updated[8] = validValue; // Update the difficulty index with valid number
+      return updated;
+    });
   };
 
   return (
@@ -388,6 +471,35 @@ export default function QuizCreation({
               />
             </div>
           )}
+
+          {/* Difficulty and Answer Count Settings */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-lg mb-2 text-secondary">Number of Answers</label>
+              <select
+                value={numAnswers}
+                onChange={(e) => updateNumAnswers(parseInt(e.target.value, 10))}
+                className="w-full px-3 py-2 rounded-lg bg-input text-primary border border-accent focus:border-accent-hover"
+              >
+                <option value={2}>2 Answers</option>
+                <option value={3}>3 Answers</option>
+                <option value={4}>4 Answers</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-lg mb-2 text-secondary">Question Difficulty</label>
+              <input
+                type="number"
+                min="1"
+                max="5"
+                value={questionDifficulty}
+                onChange={updateQuestionDifficulty}
+                className="w-full px-3 py-2 rounded-lg bg-input text-primary border border-accent focus:border-accent-hover"
+                placeholder="1-5"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Action Buttons */}

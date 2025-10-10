@@ -28,11 +28,9 @@ exports.addDefaultQuestion = onRequest(async (req, res) => {
 /**
  * This will grab a custom quiz by id
  */
-// Retrives quiz data and includes the option to download quizzes
 exports.grabCustomQuiz = onRequest(async (req, res) => {
     cors(req, res, async () => {
         const  uid  = req.query.quizid
-        const download = req.query.download; // Checks if request is to download
 
         if (!uid) {
             return res.status(401).json({
@@ -64,19 +62,6 @@ exports.grabCustomQuiz = onRequest(async (req, res) => {
                         requiresPassword: true
                     });
                 }
-            }
-            
-            if (download === 'true') {
-                // Handle OLD format (questions as map with option_1, option_2, etc.)
-                const questions = quizData.content?.questions || quizData.questions || {};
-                const studyGuide = Object.values(questions).map((q) => ({
-                    question: q.question,
-                    correctAnswer: q.correct_answer,
-                    choices: [q.option_1, q.option_2, q.option_3, q.option_4].filter(Boolean)
-                }));
-
-                res.setHeader("Content-Disposition", "attachment; filename=study-guide.json");
-                return res.status(200).json(studyGuide);
             }
 
             return res.json({
@@ -504,25 +489,42 @@ exports.addCustomQuiz = onRequest(async (req, res) => {
                     // Quiz Content - Store in OLD format that actually works
                     content: {
                         questions: (() => {
-                            if (!Array.isArray(quizData) || quizData.length === 0) {
+                            if (!quizData) {
                                 return {};
                             }
                             
-                            const questionsMap = {};
-                            quizData.forEach((q, index) => {
-                                const questionKey = `Question ${index + 1}`;
-                                const mappedQuestion = {
-                                    question: q.question || '',
-                                    correct_answer: q.correctAnswer || '',
-                                    option_1: q.options?.[0] || '',
-                                    option_2: q.options?.[1] || '',
-                                    option_3: q.options?.[2] || '',
-                                    option_4: q.options?.[3] || '',
-                                    type: q.type || 'Multiple'
-                                };
-                                questionsMap[questionKey] = mappedQuestion;
-                            });
-                            return questionsMap;
+                            // Handle if quizData is already an object (from createQuizDataObject)
+                            if (typeof quizData === 'object' && !Array.isArray(quizData)) {
+                                return quizData; // Already in correct format
+                            }
+
+                            // Handle if quizData is an array (legacy format)
+                            if (Array.isArray(quizData)) {
+                                if (quizData.length === 0) {
+                                    return {};
+                                }
+
+                                const questionsMap = {};
+                                quizData.forEach((q, index) => {
+                                    const questionKey = `Question ${index + 1}`;
+                                    const mappedQuestion = {
+                                        question: q.question || '',
+                                        correct_answer: q.correct_answer || q.correctAnswer || '',
+                                        option_1: q.option_1 || q.options?.[0] || '',
+                                        option_2: q.option_2 || q.options?.[1] || '',
+                                        option_3: q.option_3 || q.options?.[2] || '',
+                                        option_4: q.option_4 || q.options?.[3] || '',
+                                        type: q.type || 'Multiple',
+                                        difficulty: q.difficulty || 3,
+                                        explanation: q.explanation || '',
+                                        points: q.points || 1
+                                    };
+                                    questionsMap[questionKey] = mappedQuestion;
+                                });
+                                return questionsMap;
+                            }
+
+                            return {};
                         })()
                     },
 

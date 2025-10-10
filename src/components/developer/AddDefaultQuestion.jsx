@@ -3,24 +3,23 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { parseCSV, bulkUploadQuestions, downloadCSVTemplate } from '../../utils/csvUploader';
 
-// TODO: add two check marks to retain both category and subcategory on submit
-
 const AddDefaultQuestion = () => {
   const { currentUser } = useAuth();
   const [question, setQuestion] = useState({
-    a: '',
-    b: '',
-    c: '',
-    d: '',
-    correct: '',
+    option_1: '',
+    option_2: '',
+    option_3: '',
+    option_4: '',
+    correct_answer: '',
     category: '',
-    difficulty: 0,
+    difficulty: 3, // Default to 3 (numeric 1-5)
     question: '',
     'sub-category': ''
   });
+  const [numAnswers, setNumAnswers] = useState(4); // Support 2-4 answers
 
-  const quizAttributes = ['a', 'b', 'c', 'd', 'category', 'sub-category'];
-  const placeholders = ['a', 'b', 'c', 'd', 'Category: e.g. history', 'Sub-category: e.g. ancient'];
+  const quizAttributes = ['option_1', 'option_2', 'option_3', 'option_4', 'category', 'sub-category'];
+  const placeholders = ['Option 1', 'Option 2', 'Option 3', 'Option 4', 'Category: e.g. history', 'Sub-category: e.g. ancient'];
   const [isQuizAdded, setIsQuizAdded] = useState(false);
 
   // CSV Upload States
@@ -37,13 +36,13 @@ const AddDefaultQuestion = () => {
 
   const resetQuestion = () => {
     setQuestion({
-      a: '',
-      b: '',
-      c: '',
-      d: '',
-      correct: '',
+      option_1: '',
+      option_2: '',
+      option_3: '',
+      option_4: '',
+      correct_answer: '',
       category: '',
-      difficulty: 0,
+      difficulty: 3,
       question: '',
       'sub-category': ''
     });
@@ -61,25 +60,26 @@ const AddDefaultQuestion = () => {
   );
 
   async function addDefaultQuestion() {
-    // Create question with BOTH field name formats for compatibility
+    // Validate difficulty is numeric
+    const difficultyNum = parseInt(question.difficulty, 10);
+    if (isNaN(difficultyNum) || difficultyNum < 1 || difficultyNum > 5) {
+      alert('Difficulty must be a number between 1 and 5');
+      return;
+    }
+
+    // Create question with UNIFIED structure - ONLY option_1, option_2, option_3, option_4
     const questionToUpload = {
       question: question.question,
-      // New format (short names)
-      a: question.a,
-      b: question.b,
-      c: question.c,
-      d: question.d,
-      correct: question.correct,
-      // Old format (option_X and correct_answer) for backward compatibility
-      option_1: question.a,
-      option_2: question.b,
-      option_3: question.c,
-      option_4: question.d,
-      correct_answer: question.correct,
-      // Other fields
+      // Number-based format ONLY (option_1, option_2, etc.)
+      option_1: question.option_1,
+      option_2: question.option_2,
+      option_3: question.option_3 || '', // Allow empty for 2-3 answer questions
+      option_4: question.option_4 || '', // Allow empty for 2-3 answer questions
+      correct_answer: question.correct_answer,
+      // Metadata
       category: question.category.toLowerCase(), // Store as lowercase for consistency
       'sub-category': question['sub-category'],
-      difficulty: question.difficulty,
+      difficulty: difficultyNum, // Store as NUMBER (1-5)
       type: 'Multiple' // Default type
     };
 
@@ -258,11 +258,11 @@ const AddDefaultQuestion = () => {
             <h4 className="font-semibold text-primary mb-2">CSV Format Requirements:</h4>
             <p className="text-secondary text-sm mb-2">Your CSV must have these columns:</p>
             <code className="text-xs bg-primary text-secondary px-2 py-1 rounded block overflow-x-auto">
-              question,a,b,c,d,correct,category,sub-category,difficulty
+              question,option_1,option_2,option_3,option_4,correct_answer,category,sub-category,difficulty
             </code>
             <ul className="text-secondary text-sm mt-2 space-y-1 list-disc list-inside">
               <li><strong>difficulty</strong>: 1-5 (1 = easiest, 5 = hardest)</li>
-              <li><strong>correct</strong>: Must match one of the answers exactly.</li>
+              <li><strong>correct_answer</strong>: Must match one of the options exactly.</li>
               <li><strong>sub-category</strong>: EXAMPLES: baseball or movies.</li>
             </ul>
           </div>
@@ -281,17 +281,44 @@ const AddDefaultQuestion = () => {
           {inputField({ key: 'question', placeholder: 'Enter your question', className: 'w-full' })}
         </div>
 
-        {/* Quiz Attributes Card */}
+        {/* Answer Options Card */}
         <div className="bg-card border border-primary rounded-xl p-8 shadow-lg">
           <h2 className="text-2xl font-semibold text-primary mb-6">Answer Options</h2>
+
+          {/* Number of Answers Selector */}
+          <div className="mb-6">
+            <label className="block text-secondary font-medium mb-2">Number of Answer Options</label>
+            <select
+              value={numAnswers}
+              onChange={(e) => setNumAnswers(parseInt(e.target.value, 10))}
+              className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
+            >
+              <option value={2}>2 Answers</option>
+              <option value={3}>3 Answers</option>
+              <option value={4}>4 Answers</option>
+            </select>
+          </div>
+
           <div className="space-y-4">
-            {quizAttributes.map((key, index) => (
+            {quizAttributes.slice(0, numAnswers).map((key, index) => (
               <div key={key} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                 <label className="text-secondary font-medium md:text-right">
                   {key}:
                 </label>
                 <div className="md:col-span-3">
                   {inputField({ key: key, placeholder: placeholders[index], className: 'w-full' })}
+                </div>
+              </div>
+            ))}
+
+            {/* Category and Subcategory */}
+            {quizAttributes.slice(4).map((key, index) => (
+              <div key={key} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                <label className="text-secondary font-medium md:text-right capitalize">
+                  {key.replace('-', ' ')}:
+                </label>
+                <div className="md:col-span-3">
+                  {inputField({ key: key, placeholder: placeholders[index + 4], className: 'w-full' })}
                 </div>
               </div>
             ))}
@@ -312,17 +339,16 @@ const AddDefaultQuestion = () => {
               </label>
               <div className="md:col-span-3">
                 <input
-                  id="correct"
-                  value={question['correct']}
-                  onChange={(e) => updateQuestion('correct', e.target.value)}
+                  id="correct_answer"
+                  value={question['correct_answer']}
+                  onChange={(e) => updateQuestion('correct_answer', e.target.value)}
                   className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
                   list="option-list"
                 />
                 <datalist id="option-list">
-                  <option value={question['a']}>{'a. ' + question['a']}</option>
-                  <option value={question['b']}>{'b. ' + question['b']}</option>
-                  <option value={question['c']}>{'c. ' + question['c']}</option>
-                  <option value={question['d']}>{'d. ' + question['d']}</option>
+                  {[question['option_1'], question['option_2'], question['option_3'], question['option_4']].slice(0, numAnswers).map((opt, idx) => (
+                    <option key={idx} value={opt}>{`${idx + 1}. ${opt}`}</option>
+                  ))}
                 </datalist>
               </div>
             </div>
@@ -336,13 +362,14 @@ const AddDefaultQuestion = () => {
               </label>
               <div className="md:col-span-3">
                 <select
-                  onChange={(e) => updateQuestion('correct', e.target.value)}
+                  value={question['correct_answer']}
+                  onChange={(e) => updateQuestion('correct_answer', e.target.value)}
                   className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
                 >
-                  <option value={question['a']}>{'a. ' + question['a']}</option>
-                  <option value={question['b']}>{'b. ' + question['b']}</option>
-                  <option value={question['c']}>{'c. ' + question['c']}</option>
-                  <option value={question['d']}>{'d. ' + question['d']}</option>
+                  <option value="">Select correct answer</option>
+                  {[question['option_1'], question['option_2'], question['option_3'], question['option_4']].slice(0, numAnswers).map((opt, idx) => (
+                    <option key={idx} value={opt}>{`${idx + 1}. ${opt}`}</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -356,18 +383,34 @@ const AddDefaultQuestion = () => {
             <label className="text-secondary font-medium md:text-right">
               Difficulty:
               <br />
-              <span className="text-sm text-muted">(0 = easiest, 5 = hardest)</span>
+              <span className="text-sm text-muted">(1 = easiest, 5 = hardest)</span>
             </label>
-            <div className="md:col-span-3">
+            <div className="md:col-span-3 space-y-3">
               <input
                 id="difficulty"
                 type="number"
                 value={question['difficulty']}
-                onChange={(e) => updateQuestion('difficulty', e.target.value)}
+                onChange={(e) => updateQuestion('difficulty', parseInt(e.target.value, 10) || 3)}
                 className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
-                min={0}
+                min={1}
                 max={5}
               />
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => updateQuestion('difficulty', level)}
+                    className={`flex-1 h-10 rounded-lg font-semibold transition-all duration-200 ${
+                      question.difficulty === level
+                        ? 'bg-accent text-white shadow-lg scale-105'
+                        : 'bg-card border border-primary text-secondary hover:bg-accent hover:text-white'
+                    }`}
+                  >
+                    {level}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

@@ -52,7 +52,11 @@ function CustomQuizActivity() {
         const data = await res.json();
         const quiz = data.data;
 
-        const selected = Object.values(quiz.questions).map((q) => {
+        // Handle both old flat structure and new nested structure
+        const questionsData = quiz.content?.questions || quiz.questions || {};
+        const metadata = quiz.metadata || {};
+
+        const selected = Object.values(questionsData).map((q) => {
           const type = q.type || 'Multiple';
           const tag =
             type === 'DragAndDrop'
@@ -100,11 +104,11 @@ function CustomQuizActivity() {
 
         setQuestions(selected);
         
-        // Store quiz metadata for result submission
+        // Store quiz metadata for result submission - handle both structures
         setQuizMetadata({
-          category: quiz.category || 'custom',
-          difficulty: quiz.difficulty || 3,
-          title: quiz.title || 'Custom Quiz'
+          category: metadata.category || quiz.category || 'custom',
+          difficulty: metadata.difficulty || quiz.difficulty || 3,
+          title: metadata.title || quiz.title || 'Custom Quiz'
         });
       } catch (error) {
         console.error('Failed to fetch custom quiz:', error);
@@ -114,7 +118,7 @@ function CustomQuizActivity() {
     }
 
     fetchCustomQuiz();
-  }, [quizID, answerCount]);
+  }, [quizID, answerCount, password]);
 
   // Scroll to top when quiz loads
   useEffect(() => {
