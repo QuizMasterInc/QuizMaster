@@ -7,7 +7,7 @@ const db = getFirestore(app);
 /**
  * Parses a CSV file and returns an array of question objects
  * Expected CSV format:
- * question,a,b,c,d,correct,category,sub-category,difficulty
+ * question,option_1,option_2,option_3,option_4,correct_answer,category,sub-category,difficulty,type
  *
  * @param {File} file - The CSV file to parse
  * @returns {Promise<Array>} Array of question objects
@@ -21,29 +21,29 @@ export const parseCSV = (file) => {
         try {
           const questions = results.data.map((row, index) => {
             // Validate required fields
-            if (!row.question || !row.a || !row.b || !row.c || !row.d || !row.correct || !row.category) {
-              throw new Error(`Row ${index + 1}: Missing required fields`);
+            if (!row.question || !row.option_1 || !row.option_2 || !row.correct_answer || !row.category) {
+              throw new Error(`Row ${index + 2}: Missing required fields (question, option_1, option_2, correct_answer, category)`);
             }
 
-            // Create question with BOTH field name formats for compatibility
+            // Validate difficulty is a number between 1-5
+            const difficulty = parseInt(row.difficulty);
+            if (isNaN(difficulty) || difficulty < 1 || difficulty > 5) {
+              throw new Error(`Row ${index + 2}: Difficulty must be a number between 1-5`);
+            }
+
+            // Create question with unified format - ONLY option_1, option_2, option_3, option_4
             return {
               question: row.question.trim(),
-              // New format (short names)
-              a: row.a.trim(),
-              b: row.b.trim(),
-              c: row.c.trim(),
-              d: row.d.trim(),
-              correct: row.correct.trim(),
-              // Old format (option_X and correct_answer) for backward compatibility
-              option_1: row.a.trim(),
-              option_2: row.b.trim(),
-              option_3: row.c.trim(),
-              option_4: row.d.trim(),
-              correct_answer: row.correct.trim(),
-              // Other fields
+              // Number-based format ONLY (option_1, option_2, etc.)
+              option_1: row.option_1.trim(),
+              option_2: row.option_2.trim(),
+              option_3: row.option_3?.trim() || '', // Optional for 2-3 answer questions
+              option_4: row.option_4?.trim() || '', // Optional for 2-3 answer questions
+              correct_answer: row.correct_answer.trim(),
+              // Metadata
               category: row.category.trim().toLowerCase(), // Store as lowercase for consistency
               'sub-category': row['sub-category']?.trim() || '',
-              difficulty: parseInt(row.difficulty) || 0,
+              difficulty: difficulty, // Store as NUMBER (1-5)
               type: row.type?.trim() || 'Multiple' // Default to Multiple choice
             };
           });
@@ -151,6 +151,7 @@ export const bulkUploadQuestions = async (questions) => {
 
         if (response.ok) {
           results.successful++;
+          // Add to map to prevent duplicates within the same batch
           const category = questions[i].category?.toLowerCase() || '';
           if (!questionMap.has(category)) {
             questionMap.set(category, new Set());
@@ -158,15 +159,15 @@ export const bulkUploadQuestions = async (questions) => {
           questionMap.get(category).add(questions[i].question);
         } else {
           results.failed++;
-          results.errors.push(`Question ${i + 1}: HTTP ${response.status}`);
+          results.errors.push(`Row ${i + 1}: Upload failed`);
         }
       } catch (error) {
         results.failed++;
-        results.errors.push(`Question ${i + 1}: ${error.message}`);
+        results.errors.push(`Row ${i + 1}: ${error.message}`);
       }
     }
   } catch (error) {
-    results.errors.push(`Failed to fetch existing questions: ${error.message}`);
+    throw new Error(`Failed to fetch existing questions: ${error.message}`);
   }
 
   return results;
@@ -176,10 +177,12 @@ export const bulkUploadQuestions = async (questions) => {
  * Downloads a CSV template for questions
  */
 export const downloadCSVTemplate = () => {
-  const template = `question,a,b,c,d,correct,category,sub-category,difficulty
-"What is the capital of France?",Paris,London,Berlin,Madrid,Paris,geography,europe,1
-"What is 2+2?",3,4,5,6,4,math,arithmetic,0
-"Who wrote Hamlet?","William Shakespeare","Charles Dickens","Jane Austen","Mark Twain","William Shakespeare",literature,shakespeare,2`;
+  const template = `question,option_1,option_2,option_3,option_4,correct_answer,category,sub-category,difficulty,type
+"Who wrote ""The Great Gatsby""?",Ernest Hemingway,F. Scott Fitzgerald,John Steinbeck,William Faulkner,F. Scott Fitzgerald,entertainment,Books,2,Multiple
+"What is the capital of France?",London,Paris,Berlin,Rome,Paris,geography,Europe,1,Multiple
+"Is the Earth round?",True,False,,,True,science,Geography,1,TrueFalse
+"What is 2 + 2?",3,4,5,,4,mathematics,Basic Math,1,Multiple
+"Which planet is known as the Red Planet?",Venus,Mars,Jupiter,Saturn,Mars,science,Astronomy,2,Multiple`;
 
   const blob = new Blob([template], { type: 'text/csv' });
   const url = window.URL.createObjectURL(blob);
@@ -191,3 +194,4 @@ export const downloadCSVTemplate = () => {
   document.body.removeChild(a);
   window.URL.revokeObjectURL(url);
 };
+

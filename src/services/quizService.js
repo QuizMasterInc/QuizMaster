@@ -446,43 +446,65 @@ class QuizService {
     }
 
     /**
-     * Transform quiz data array into new nested object format for comprehensive schema
-     * @param {Array} quizDataArray - Array of question data
-     * @returns {Array} - Array of question objects in new format
+     * Create quiz data object in UNIFIED format
+     * Uses option_1, option_2, option_3, option_4 ONLY (no a,b,c,d)
+     * @param {Array} quizDataArray - Array of question arrays
+     * @returns {Object} - Questions object in unified format
      */
     createQuizDataObject(quizDataArray) {
-        return quizDataArray.map((questionDetailsArray, index) => {
+        console.log('createQuizDataObject received:', quizDataArray);
+        const questionsObject = {};
+
+        quizDataArray.forEach((questionDetailsArray, index) => {
+            const questionKey = `Question ${index + 1}`;
+
+            console.log(`Processing question ${index + 1}:`, questionDetailsArray);
+
             // Handle different question types
             const questionType = questionDetailsArray[6] || "Multiple";
-            const type = questionType === "TrueFalse" ? "true-false" : 
-                        questionType === "FillInTheBlank" ? "fill-blank" : 
-                        questionType === "MultipleAnswer" ? "multiple-answer" : "multiple-choice";
-            
-            // Handle options based on question type
-            let options = [];
-            if (type === "fill-blank") {
-                options = [questionDetailsArray[1]]; // Only first option for fill-in-blank
+
+            // Normalize type to match default quiz format
+            let normalizedType;
+            if (questionType === "TrueFalse") {
+                normalizedType = "TrueFalse";
+            } else if (questionType === "FillInTheBlank") {
+                normalizedType = "FillInTheBlank";
+            } else if (questionType === "MultipleAnswer") {
+                normalizedType = "MultipleAnswer";
+            } else if (questionType === "DragAndDrop") {
+                normalizedType = "DragAndDrop";
             } else {
-                options = [
-                    questionDetailsArray[1], 
-                    questionDetailsArray[2], 
-                    questionDetailsArray[3], 
-                    questionDetailsArray[4]
-                ].filter(Boolean); // Remove empty options
+                normalizedType = "Multiple";
             }
             
-            return {
-                id: `q${index + 1}`,
-                type: type,
+            // Build unified question object with ONLY option_1, option_2, option_3, option_4
+            const questionObject = {
                 question: questionDetailsArray[0],
-                options: options,
-                correctAnswer: questionDetailsArray[5],
+                type: normalizedType,
+
+                // Number-based options ONLY (option_1, option_2, etc.)
+                option_1: questionDetailsArray[1] || "",
+                option_2: questionDetailsArray[2] || "",
+                option_3: questionDetailsArray[3] || "",
+                option_4: questionDetailsArray[4] || "",
+
+                // Correct answer - single format
+                correct_answer: questionDetailsArray[5],
+
+                // Additional metadata
+                difficulty: parseInt(questionDetailsArray[8]) || 3, // 1-5 scale as NUMBER
                 explanation: questionDetailsArray[7] || "",
-                points: 1,
-                category: "",
-                difficulty: questionDetailsArray[8] || "3"
+                points: 1
             };
+
+            console.log(`Created question object for ${questionKey}:`, questionObject);
+
+            questionsObject[questionKey] = questionObject;
         });
+
+        console.log('Final questionsObject:', questionsObject);
+
+        return questionsObject;
     }
 
     /**
@@ -886,3 +908,4 @@ class QuizService {
 }
 
 export default new QuizService();
+
