@@ -2,7 +2,9 @@
  * Quiz Context using the quizService
  */
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
-import quizService from '../services/quizService';
+import quizRetrievalService from '../services/quizRetrievalService';
+import quizSubmissionService from '../services/quizSubmissionService';
+import analyticsService from '../services/analyticsService';
 
 // Create context
 const QuizContext = createContext(null);
@@ -90,7 +92,7 @@ export const QuizProvider = ({ children }) => {
         dispatch({ type: 'SET_LOADING', payload: true });
         
         try {
-            const result = await quizService.getQuizzes({
+            const result = await quizRetrievalService.getQuizzes({
                 ...options,
                 startAfterDoc: append ? state.lastDoc : null
             });
@@ -142,7 +144,7 @@ export const QuizProvider = ({ children }) => {
         dispatch({ type: 'SET_LOADING', payload: true });
         
         try {
-            const quiz = await quizService.getQuizById(quizId);
+            const quiz = await quizRetrievalService.getQuizById(quizId);
             dispatch({ type: 'SET_CURRENT_QUIZ', payload: quiz });
             return quiz;
         
@@ -161,59 +163,27 @@ export const QuizProvider = ({ children }) => {
     }, []);
 
     /**
-     * Create a new quiz
+     * Create a new quiz - OBSOLETE: Old quiz collection no longer exists
+     * Custom quizzes are now created via quizCreationService.submitCustomQuiz()
      */
     const createQuiz = useCallback(async (quizData) => {
-        dispatch({ type: 'SET_LOADING', payload: true });
-        
-        try {
-        const newQuiz = await quizService.createQuiz(quizData);
-        
-        // Add to the beginning of the quizzes array
-        dispatch({
-            type: 'SET_QUIZZES',
-            payload: {
-            quizzes: [newQuiz, ...state.quizzes],
-            hasMore: state.hasMore,
-            lastDoc: state.lastDoc
-            }
-        });
-        
-        return newQuiz;
-        
-        } catch (error) {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
-            throw error;
-        }
-    }, [state.quizzes, state.hasMore, state.lastDoc]);
-
-    /**
-     * Update an existing quiz
-     */
-    const updateQuiz = useCallback(async (quizId, updates) => {
-        try {
-            const updatedQuiz = await quizService.updateQuiz(quizId, updates);
-            dispatch({ type: 'UPDATE_QUIZ', payload: updatedQuiz });
-            return updatedQuiz;
-        
-        } catch (error) {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
-            throw error;
-        }
+        throw new Error('Quiz creation is now handled via quizCreationService.submitCustomQuiz()');
     }, []);
 
     /**
-     * Delete a quiz
+     * Update an existing quiz - OBSOLETE: Old quiz collection no longer exists
+     * Custom quiz updates should be handled via cloud functions
+     */
+    const updateQuiz = useCallback(async (quizId, updates) => {
+        throw new Error('Quiz updates are now handled via cloud functions');
+    }, []);
+
+    /**
+     * Delete a quiz - OBSOLETE: Old quiz collection no longer exists
+     * Custom quiz deletion should be handled via cloud functions
      */
     const deleteQuiz = useCallback(async (quizId) => {
-        try {
-            await quizService.deleteQuiz(quizId);
-            dispatch({ type: 'REMOVE_QUIZ', payload: quizId });
-        
-        } catch (error) {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
-            throw error;
-        }
+        throw new Error('Quiz deletion is now handled via cloud functions');
     }, []);
 
     /**
@@ -221,7 +191,7 @@ export const QuizProvider = ({ children }) => {
      */
     const submitQuizAttempt = useCallback(async (quizId, attemptData) => {
         try {
-            const result = await quizService.submitQuizAttempt(quizId, attemptData);
+            const result = await quizSubmissionService.submitQuizAttempt(quizId, attemptData);
             return result;
         
         } catch (error) {
@@ -235,7 +205,7 @@ export const QuizProvider = ({ children }) => {
      */
     const getQuizStatistics = useCallback(async (quizId) => {
         try {
-            const stats = await quizService.getQuizStatistics(quizId);
+            const stats = await analyticsService.getQuizAnalytics(quizId);
             return stats;
         
         } catch (error) {
@@ -245,31 +215,12 @@ export const QuizProvider = ({ children }) => {
     }, []);
 
     /**
-     * Duplicate a quiz
+     * Duplicate a quiz - OBSOLETE: Old quiz collection no longer exists
+     * Custom quiz duplication should be handled via cloud functions
      */
     const duplicateQuiz = useCallback(async (quizId, overrides = {}) => {
-        dispatch({ type: 'SET_LOADING', payload: true });
-        
-        try {
-            const duplicatedQuiz = await quizService.duplicateQuiz(quizId, overrides);
-        
-            // Add to the beginning of the quizzes array
-            dispatch({
-                type: 'SET_QUIZZES',
-                payload: {
-                quizzes: [duplicatedQuiz, ...state.quizzes],
-                hasMore: state.hasMore,
-                lastDoc: state.lastDoc
-                }
-            });
-        
-            return duplicatedQuiz;
-        
-        } catch (error) {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
-            throw error;
-        }
-    }, [state.quizzes, state.hasMore, state.lastDoc]);
+        throw new Error('Quiz duplication is now handled via cloud functions');
+    }, []);
 
     // Context value
     const value = {

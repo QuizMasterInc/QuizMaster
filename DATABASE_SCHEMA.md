@@ -15,7 +15,7 @@
   role: "user" | "developer" | "instructor",
   stats: {
     quizmasterQuizzesTaken: "number",
-    quizmasterTotalScore: "number", 
+    quizmasterTotalScore: "number",
     quizmasterAverageScore: "number",
     customQuizActivity: {
       totalTaken: "number",
@@ -46,9 +46,12 @@
     title: "string",
     description: "string",
     tags: "string",
+    category: "string",
     questionCount: "number",
     isPublic: "boolean",
-    hasPassword: "boolean"
+    hasPassword: "boolean",
+    difficulty: "string",
+    version: "number"
   },
   creator: {
     uid: "string",
@@ -60,18 +63,36 @@
       "Question 1": {
         question: "string",
         option_1: "string",
-        option_2: "string", 
+        option_2: "string",
         option_3: "string",
         option_4: "string",
         correct_answer: "string",
-        type: "string"
+        type: "string",
+        difficulty: "number",
+        explanation: "string",
+        points: "number"
       }
     }
+  },
+  access: {
+    visibility: "string", // "public" | "private"
+    password: "string"
+  },
+  analytics: {
+    stats: {
+      attempts: "number",
+      completions: "number",
+      averageScore: "number"
+    }
+  },
+  moderation: {
+    status: "string" // "active" | "deleted"
   },
   password: "string", // root level
   timestamps: {
     createdAt: "string",
-    updatedAt: "string"
+    updatedAt: "string",
+    lastAttemptAt: "string"
   }
 }
 ```
@@ -82,12 +103,12 @@
   question: "string",
   option_1: "string",
   option_2: "string",
-  option_3: "string", 
+  option_3: "string",
   option_4: "string",
   correct_answer: "string",
   category: "string",
   "sub-category": "string",
-  difficulty: "string",
+  difficulty: "number",
   type: "string"
 }
 ```
@@ -132,13 +153,18 @@
 {
   userId: "string",
   category: "string",
-  quizType: "string",
+  quizType: "string", // "default" | "custom"
   score: "number",
-  totalQuestions: "number", 
+  totalQuestions: "number",
+  amount: "number", // Number of questions requested/available
   percentage: "number",
-  timeSpent: "number",
+  timeSpent: "number", // Time spent in seconds
   submittedAt: "timestamp",
-  sessionId: "string"
+  difficulty: "number", // Difficulty level as number
+  sessionId: "string", // Unique session identifier
+  quizId: "string", // Quiz identifier (generated for default, from DB for custom)
+  questionIds: "array", // Array of question identifiers
+  userAnswers: "object" // Object mapping question indices to user answers
 }
 ```
 
@@ -146,7 +172,7 @@
 ```javascript
 {
   title: "string",
-  description: "string", 
+  description: "string",
   type: "string",
   content: "string",
   category: "string",

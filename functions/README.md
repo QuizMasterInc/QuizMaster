@@ -2,12 +2,32 @@
 
 This directory contains all Firebase Cloud Functions for the QuizMaster application. These functions provide the backend API for quiz operations, user management, and data processing.
 
-## 🎯 **Performance Achievement Summary**
+## �️ **Modular Architecture (October 2025)**
 
-**✅ 6x Performance Improvement**: Dashboard loading reduced from 30+ seconds to 3-5 seconds  
-**✅ 95% Database Read Reduction**: Server-side filtering eliminates massive data transfer  
-**✅ Node.js 20 Migration**: 17 functions upgraded, protected from Oct 2025 decommissioning  
-**✅ O(1) Time Complexity**: All critical functions optimized to constant or linear time
+**✅ Complete Refactoring**: Monolithic 1500-line `index.js` split into clean, modular structure for better maintainability and developer experience.
+
+### **Directory Structure**
+```
+functions/src/
+├── index.js              # Main entry point - imports all modules
+├── questions/
+│   └── index.js          # Question management functions (3 functions)
+├── quizzes/
+│   └── index.js          # Quiz CRUD and browsing functions (7 functions)
+├── results/
+│   └── index.js          # Quiz results and statistics functions (2 functions)
+├── flashcards/
+│   └── index.js          # Flashcard deck management functions (4 functions)
+└── study/
+    └── index.js          # Study material functions (1 function)
+```
+
+### **Benefits of Modular Architecture**
+- **Better Developer Experience**: New developers can focus on specific feature areas
+- **Improved Maintainability**: Functions grouped by domain make code easier to find
+- **Faster Cold Starts**: Firebase can load only the modules needed for specific functions
+- **Clear Separation of Concerns**: Each module handles a specific business domain
+- **Easier Testing**: Individual modules can be tested in isolation
 
 ---
 
@@ -23,288 +43,195 @@ Deploy specific functions:
 firebase deploy --only functions:functionName1,functionName2
 ```
 
+Check deployed functions:
+```bash
+firebase functions:list
+```
+
 ## 📊 Function Architecture Overview
 
-**Total Functions**: 22 functions (11 v1 + 7 optimized v2 + 4 flashcard functions)  
-- **HTTP Triggers**: 21 functions  
-- **Auth Triggers**: 2 functions (v1 legacy, Node.js 18)
-- **Runtime**: Node.js 20 (2nd Gen) for all critical functions
-- **Caching**: Intelligent 5-30 minute caching on all V2 functions
+**Total Functions**: 17 functions (all modular, Node.js 20)
+- **HTTP Triggers**: 16 functions
+- **Callable Triggers**: 1 function (`trackQuizAttempt`)
+- **Runtime**: Node.js 20 (2nd Gen) for all functions
+- **Caching**: Intelligent 5-30 minute caching implemented
 - **Error Handling**: Comprehensive error handling with proper HTTP status codes
+- **Modular Structure**: Functions organized by business domain
 
 ---
 
-## 🔥 **V2 OPTIMIZED FUNCTIONS** (Production Ready)
+## 📋 **Functions by Module**
 
-These are heavily optimized 2nd Gen functions with **Node.js 20**, server-side filtering, batch operations, and intelligent caching.
-
-### **📈 Quiz Results & Analytics**
-
-#### `grabAllResultsV2` 🚀 **RECOMMENDED**
-- **Purpose**: Get ALL quiz category results for a user in a single call
-- **Method**: POST with JSON body `{ "uid": "user_id" }`
-- **Optimization**: Replaces 6 separate API calls with 1 batched query
-- **Performance**: 83% fewer HTTP requests, 6x faster dashboard loading
-- **Caching**: 5 minutes
-- **Returns**: Object with all category results (history, science, geography, math, literature, technology)
-
-### **🎯 Custom Quiz Management**
-
-#### `grabCustomQuizzesByUserV2` 🚀 **RECOMMENDED** 
-- **Purpose**: Get custom quizzes created by a specific user with server-side filtering
-- **Method**: POST with JSON body `{ "creator": "user_id" }`
-- **Optimization**: Server-side filtering, ordering, and pagination
-- **Performance**: 60-80% reduction in data transfer
-- **Caching**: 10 minutes
-- **Returns**: Array of quiz objects with metadata
-
-#### `grabUserCustomQuizzesV2` 🚀 **RECOMMENDED**
-- **Purpose**: Get quizzes associated with a specific user (batch operations)
-- **Method**: POST with JSON body `{ "uid": "user_id" }`
-- **Optimization**: Batch document fetching instead of client-side filtering
-- **Performance**: 80-95% fewer database reads
-- **Caching**: 10 minutes
-- **Returns**: Array of user's quiz objects
-
-### **📚 Question Data Management**
-
-#### `grabSubV2` 🚀 **RECOMMENDED**
-- **Purpose**: Get subcategories for a quiz category with server-side filtering
-- **Method**: GET with query parameter `?category=categoryName`
-- **Optimization**: Server-side filtering and ordering instead of client-side processing
-- **Performance**: 70% fewer database reads
-- **Caching**: 30 minutes
-- **Returns**: Object grouped by subcategory
-
-#### `grabRandomV2` 🚀 **RECOMMENDED**
-#### `grabRandomV2` 🚀 **RECOMMENDED**
-- **Purpose**: Get random questions for a category with optimized filtering
-- **Method**: GET with query parameter `?category=categoryName`
-- **Optimization**: **MAJOR FIX** - Server-side filtering vs fetching ALL documents
-- **Performance**: 90-95% fewer database reads (was extremely inefficient!)
-- **Caching**: 15 minutes
-- **Returns**: Object grouped by subcategory with limited results
-
-### **🔍 Quiz Browsing & Discovery**
-
-#### `browseCustomQuizzesV2` 🚀 **NEW & RECOMMENDED**
-- **Purpose**: Browse custom quizzes with server-side filtering, sorting, and searching
-- **Method**: POST with JSON body:
-  ```json
-  {
-    "searchTerm": "optional search text",
-    "sortBy": "newest|oldest|title|titleReverse|shortest|longest",
-    "privacy": "all|public|private", 
-    "limit": 50,
-    "currentUserId": "user_id_for_private_access"
-  }
-  ```
-- **Optimization**: Replaces O(n²) client-side operations with O(1) server-side queries
-- **Performance**: 70-90% reduction in data transfer, better security
-- **Caching**: 5 minutes
-- **Security**: Server-side privacy filtering prevents data exposure
-- **Returns**: Filtered, sorted, and searched quiz results with metadata
-
-### **🎴 Flashcard Deck Management**
-
-#### `addCustomFlashcardDeck` 🚀 **NEW**
-- **Purpose**: Create a new flashcard deck with user stats tracking
-- **Method**: POST with JSON body containing deck metadata and cards
-- **Optimization**: Atomic deck creation with user statistics update
-- **Performance**: Single transaction for deck creation and user stats
-- **User Stats**: Updates `flashcardDecksCreated` counter
-- **Returns**: Created deck object with assigned ID
-
-#### `getUserFlashcardDecks` 🚀 **NEW**
-- **Purpose**: Get flashcard decks created by a specific user
-- **Method**: POST with JSON body `{ "userId": "user_id" }`
-- **Optimization**: Server-side filtering by creator and active status
-- **Performance**: Filtered queries instead of client-side processing
-- **Returns**: Array of user's flashcard deck objects with metadata
-
-#### `getFlashcardDeck` 🚀 **NEW**
-- **Purpose**: Get a specific flashcard deck by ID
-- **Method**: POST with JSON body `{ "deckId": "deck_id" }`
-- **Optimization**: Direct document retrieval by ID
-- **Performance**: O(1) lookup time
-- **Returns**: Complete deck object with cards and metadata
-
-#### `deleteFlashcardDeck` 🚀 **NEW**
-- **Purpose**: Soft delete a flashcard deck and update user stats
-- **Method**: POST with JSON body `{ "deckId": "deck_id", "userId": "user_id" }`
-- **Optimization**: Soft delete with user verification and stats update
-- **Performance**: Single transaction for deletion and stats update
-- **Security**: Verifies user ownership before deletion
-- **Returns**: Success confirmation with updated user stats
-
----
-
-## ⚡ **PERFORMANCE COMPARISON**
-
-### Before Optimization (V1 Functions):
-```
-Dashboard Loading: 30+ seconds
-API Calls: 6 separate grabResults calls  
-Database Reads: ~10,000+ documents (grabRandom fetched ALL docs!)
-Client Processing: O(n²) sorting/filtering operations
-Data Transfer: Full datasets downloaded then filtered
-```
-
-### After Optimization (V2 Functions):
-```
-Dashboard Loading: 3-5 seconds (6x improvement)
-API Calls: 1 batch grabAllResultsV2 call (83% reduction)  
-Database Reads: ~50-100 documents (95% reduction)
-Server Processing: O(1) optimized queries with indexes
-Data Transfer: Pre-filtered results only
-```
-
----
-
-## 📋 **V1 LEGACY FUNCTIONS** (Node.js 20, but not optimized)
-
-### **🎯 Quiz Operations**
-
-#### `grabQuiz`
-- **Purpose**: Get a specific quiz by ID from the default questions collection
-- **Method**: GET with query parameter `?quiz=quizId`
-- **Returns**: Quiz object data
-
-#### `grabSub` ⚠️ *Use grabSubV2 instead*
-- **Purpose**: Get subcategories for a quiz category (inefficient client-side filtering)
-- **Method**: GET with query parameter `?category=categoryName` 
-- **Returns**: Object grouped by subcategory
-
-#### `grabRandom` ⚠️ *Use grabRandomV2 instead*
-- **Purpose**: Get random questions (EXTREMELY INEFFICIENT - fetches ALL docs!)
-- **Method**: GET with query parameter `?category=categoryName`
-- **Returns**: Object grouped by subcategory
-
-### **📊 Results & Analytics**
-
-#### `grabResults` ⚠️ *Use grabAllResultsV2 instead*
-- **Purpose**: Get quiz results for a user by category (requires 6 separate calls)
-- **Method**: POST with JSON body `{ "uid": "user_id", "category": "category_name" }`
-- **Returns**: Single category result object
-
-#### `saveResults`
-- **Purpose**: Save quiz results to user's profile
-- **Method**: POST with JSON body containing quiz results
-- **Returns**: Success/failure response
-
-### **👤 User Management**
-
-#### `grabUser`
-- **Purpose**: Get user profile information
-- **Method**: POST with JSON body `{ "uid": "user_id" }`
-- **Returns**: User object with profile data
-
-#### `editUserInfo`
-- **Purpose**: Update user profile information
-- **Method**: POST with JSON body containing updated user data
-- **Returns**: Updated user object
-
-#### `grabUserCustomQuzzies` ⚠️ *Use grabUserCustomQuizzesV2 instead*
-- **Purpose**: Get custom quizzes for a user (inefficient client-side filtering)
-- **Method**: POST with JSON body `{ "uid": "user_id" }`
-- **Returns**: Array of user's quiz objects
-
-### **🎯 Custom Quiz Management**
-
-#### `grabCustomQuiz`
-- **Purpose**: Get a specific custom quiz by ID (supports download feature)
-- **Method**: GET with query parameters `?quizid=quizId&download=true/false`
-- **Returns**: Custom quiz object or downloadable format
-
-#### `grabCustomQuizzesByUser` ⚠️ *Use grabCustomQuizzesByUserV2 instead*
-- **Purpose**: Get custom quizzes created by a user (no server-side filtering)
-- **Method**: GET with query parameter `?creator=userId`
-- **Returns**: Array of custom quiz objects
-
-#### `grabAllCustomQuizzes`
-- **Purpose**: Get all public custom quizzes (admin/browse feature)
-- **Method**: GET
-- **Returns**: Array of all public custom quiz objects
-
-#### `addCustomQuiz`
-- **Purpose**: Create a new custom quiz
-- **Method**: POST with JSON body containing quiz data
-- **Returns**: Created quiz object with assigned ID
-
-#### `deleteCustomQuiz`
-- **Purpose**: Delete a custom quiz by ID
-- **Method**: POST with JSON body `{ "uid": "quiz_id" }`
-- **Returns**: Success/failure response
-
-#### `editQuizInfo`
-- **Purpose**: Update custom quiz information
-- **Method**: POST with JSON body containing updated quiz data
-- **Returns**: Updated quiz object
-
-### **🛠️ Admin & Development**
+### 🔍 **Questions Module** (`src/questions/index.js`)
+Functions related to question bank management and retrieval.
 
 #### `addDefaultQuestion`
-- **Purpose**: Add a new default question to the question bank (admin only)
-- **Method**: GET with query parameter `?question=questionJsonString`
-- **Returns**: Success/failure response
+- **Purpose**: Add new questions to the default question bank
+- **Method**: GET with query parameter `?question=jsonString`
+- **Module**: `questions/index.js`
+
+#### `grabSubV2`
+- **Purpose**: Get subcategories for a quiz category with server-side filtering
+- **Method**: GET with query parameter `?category=categoryName`
+- **Optimization**: Server-side filtering and ordering
+- **Module**: `questions/index.js`
+
+#### `getSubcategories`
+- **Purpose**: Dynamically fetch available subcategories from database
+- **Method**: GET with query parameter `?category=categoryName`
+- **Module**: `questions/index.js`
+
+### 🎯 **Quizzes Module** (`src/quizzes/index.js`)
+Functions for custom quiz creation, retrieval, and browsing.
+
+#### `grabCustomQuiz`
+- **Purpose**: Get a specific custom quiz by ID with password protection
+- **Method**: GET with query parameters `?quizid=id&password=optional`
+- **Module**: `quizzes/index.js`
+
+#### `trackQuizAttempt`
+- **Purpose**: Track quiz attempts and update analytics (callable function)
+- **Method**: Callable with `{ quizId: "id" }`
+- **Module**: `quizzes/index.js`
+
+#### `grabAllCustomQuizzes`
+- **Purpose**: Get all custom quizzes with optimized filtering
+- **Method**: POST with filtering options
+- **Module**: `quizzes/index.js`
+
+#### `browseCustomQuizzesOptimized`
+- **Purpose**: Browse quizzes with server-side filtering and search
+- **Method**: POST with search and filter parameters
+- **Module**: `quizzes/index.js`
+
+#### `addCustomQuiz`
+- **Purpose**: Create a new custom quiz with validation
+- **Method**: POST with quiz data
+- **Module**: `quizzes/index.js`
+
+#### `grabUserCustomQuizzesV2`
+- **Purpose**: Get custom quizzes created by a specific user
+- **Method**: POST with `{ uid: "userId" }`
+- **Module**: `quizzes/index.js`
+
+#### `browseCustomQuizzesV2`
+- **Purpose**: Advanced quiz browsing with server-side processing
+- **Method**: POST with comprehensive filter options
+- **Module**: `quizzes/index.js`
+
+### 📊 **Results Module** (`src/results/index.js`)
+Functions for quiz result processing and user statistics.
+
+#### `grabAllResultsV2`
+- **Purpose**: Get ALL quiz category results for a user in one call
+- **Method**: POST with `{ uid: "userId" }`
+- **Optimization**: Batch operation replacing 6 separate API calls
+- **Performance**: 6x faster dashboard loading
+- **Module**: `results/index.js`
+
+#### `submitQuizResults`
+- **Purpose**: Submit quiz results and update user statistics
+- **Method**: POST with comprehensive quiz result data
+- **Optimization**: Atomic transaction for results + stats updates
+- **Module**: `results/index.js`
+
+### � **Flashcards Module** (`src/flashcards/index.js`)
+Functions for flashcard deck management and study sessions.
+
+#### `addCustomFlashcardDeck`
+- **Purpose**: Create a new flashcard deck with user tracking
+- **Method**: POST with deck data and cards
+- **Module**: `flashcards/index.js`
+
+#### `getUserFlashcardDecks`
+- **Purpose**: Get all flashcard decks created by a user
+- **Method**: POST with `{ userId: "id" }`
+- **Module**: `flashcards/index.js`
+
+#### `getFlashcardDeck`
+- **Purpose**: Get a specific flashcard deck by ID
+- **Method**: POST with `{ deckId: "id" }`
+- **Module**: `flashcards/index.js`
+
+#### `deleteFlashcardDeck`
+- **Purpose**: Soft delete a flashcard deck with ownership verification
+- **Method**: POST with `{ deckId: "id", userId: "id" }`
+- **Module**: `flashcards/index.js`
+
+### 📚 **Study Module** (`src/study/index.js`)
+Functions for educational content and study materials.
 
 #### `getStudyMaterial`
-- **Purpose**: Get study materials for a specific category
-- **Method**: GET with query parameter `?category=categoryName`
-- **Returns**: Study material content
+- **Purpose**: Retrieve study materials for a specific category
+- **Method**: GET with query parameter `?category=name`
+- **Module**: `study/index.js`
 
 ---
 
-## 🔒 **AUTH FUNCTIONS** (Currently Disabled)
+## ⚡ **Performance & Architecture Notes**
 
-#### `newUser` (Commented Out)
-- **Purpose**: Auto-create user document when new user registers
-- **Trigger**: Firebase Auth user creation
-- **Status**: Disabled due to firebase-functions v6 compatibility issues
+### **Modular Benefits**
+- **Cold Start Optimization**: Functions load only required modules
+- **Developer Productivity**: Clear domain separation for new team members
+- **Maintenance**: Easier to locate and modify specific functionality
+- **Testing**: Individual modules can be unit tested independently
+- **Scalability**: Easy to add new functions to appropriate modules
 
-#### `deletedUser` (Commented Out) 
-- **Purpose**: Clean up user data when user account is deleted
-- **Trigger**: Firebase Auth user deletion
-- **Status**: Disabled due to firebase-functions v6 compatibility issues
-
----
-
-## ⚡ **Performance Recommendations**
-
-### **High Priority (Use V2 Functions)**
-1. **Replace `grabResults` → `grabAllResultsV2`** - 6x performance improvement
-2. **Replace `grabRandom` → `grabRandomV2`** - 95% fewer database reads  
-3. **Replace `grabCustomQuizzesByUser` → `grabCustomQuizzesByUserV2`** - Server-side filtering
-4. **Replace `grabUserCustomQuzzies` → `grabUserCustomQuizzesV2`** - Batch operations
-5. **Replace `grabSub` → `grabSubV2`** - Optimized filtering
-
-### **Architecture Notes**
-- **V1 Functions**: 1st Gen, Node.js 18, client-side filtering
-- **V2 Functions**: 2nd Gen, Node.js 18, server-side filtering, caching
-- **Caching Strategy**: Appropriate TTL based on data volatility
-- **Error Handling**: Comprehensive error responses with timestamps
+### **Runtime & Dependencies**
+- **Node.js**: 20 (2nd Gen) - protected from Oct 2025 decommissioning
+- **Firebase Admin**: v11.11.0
+- **Firebase Functions**: v6.4.0
+- **CORS**: Enabled on all HTTP functions
 
 ---
 
-## 🔧 **Development Notes**
+## � **Development Guidelines**
 
-### **Runtime Warnings**
-- Node.js 18 is deprecated (decommissioned 2025-10-30)
-- Consider upgrading to Node.js 20 for new functions
+### **Adding New Functions**
+1. **Identify the domain**: Determine which module the function belongs to
+2. **Create in appropriate module**: Add function to `src/{module}/index.js`
+3. **Export from module**: Ensure function is exported from the module file
+4. **Import in main index**: Add import and export in `src/index.js`
+5. **Test locally**: Use Firebase emulator for testing
+6. **Deploy and validate**: Deploy to check functionality
 
-### **Common Issues**
-- Auth triggers disabled due to API changes in firebase-functions v6
-- Some functions have typos in names (e.g., "Quzzies" vs "Quizzes")
-- Legacy functions use inefficient query patterns
+### **Module Organization**
+- **Questions**: Question bank management and retrieval
+- **Quizzes**: Custom quiz CRUD operations and browsing
+- **Results**: Quiz result processing and user statistics
+- **Flashcards**: Flashcard deck management
+- **Study**: Educational content and study materials
 
-### **Next Steps**
-1. Migrate frontend to use V2 functions
-2. Test performance improvements
-3. Deprecate V1 functions after migration
-4. Fix auth triggers for v6 compatibility
+### **Best Practices**
+- All functions include comprehensive error handling
+- CORS enabled for cross-origin requests
+- Input validation and sanitization
+- Firebase Admin SDK for database operations
+- Optimized queries with proper indexing
+- Appropriate caching strategies
 
 ---
 
-**Last Updated**: September 12, 2025  
+## � **Migration from Monolithic Structure**
+
+### **Before (Monolithic)**
+- Single 1500-line `index.js` file
+- All functions defined inline
+- Difficult for new developers to navigate
+- Slower cold starts (all code loaded)
+- Hard to maintain and test
+
+### **After (Modular)**
+- Clean separation by business domain
+- Easy to locate specific functionality
+- Faster cold starts (module-based loading)
+- Better developer experience
+- Easier testing and maintenance
+
+---
+
+**Last Updated**: October 16, 2025  
+**Architecture**: Modular Functions  
 **Functions Version**: firebase-functions v6.4.0  
-**Total Database Optimization**: 80-95% fewer reads with V2 functions 
+**Node.js Runtime**: 20 (2nd Gen)  
+**Total Functions**: 17 (organized in 5 modules) 

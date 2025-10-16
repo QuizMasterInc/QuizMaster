@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 import QuizQuestionsList from './QuizQuestionsList'
 import QuizCreation from './QuizCreation'
 import {useAuth} from '../../contexts/AuthContext'
-import quizService from '../../services/quizService'
+import quizCreationService from '../../services/quizCreationService'
+import quizRetrievalService from '../../services/quizRetrievalService'
 
 export default function CustomQuiz () {
   const [quizData, setQuizData] = useState([])
@@ -15,6 +16,9 @@ export default function CustomQuiz () {
   const [customQuizzes, setCustomQuizzes] = useState([])
   const [teacherQuiz, setTeacherQuiz] = useState(false)
   const [isCreatingQuiz, setIsCreatingQuiz] = useState(false)
+  const [showTimer, setShowTimer] = useState(true)
+  const [showPauseButton, setShowPauseButton] = useState(true)
+  const [duration, setDuration] = useState(5)
   const { currentUser } = useAuth()
   const navigate = useNavigate()
 
@@ -23,7 +27,7 @@ export default function CustomQuiz () {
     async function fetchUserQuizzes() {
       try {
         // Use the service layer instead of direct fetch
-        const data = await quizService.getCustomQuizzesByUser(currentUser.uid);
+        const data = await quizRetrievalService.getCustomQuizzesByUser(currentUser.uid);
         setCustomQuizzes(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching user quizzes:', error);
@@ -61,6 +65,10 @@ export default function CustomQuiz () {
         privateQuizPassword,
         currentUserId: currentUser.uid,
         userQuizzes: customQuizzes,
+        // Timer settings
+        showTimer,
+        showPauseButton,
+        duration,
         // NEW FIELDS for new schema
         description: "", // Add a description input field if desired
         category: "" // Add a category selector if desired
@@ -68,7 +76,7 @@ export default function CustomQuiz () {
 
       console.log('Quiz input object:', quizInput);
 
-      const validationResult = quizService.createValidatedQuizObject(quizInput);
+      const validationResult = quizCreationService.createValidatedQuizObject(quizInput);
       
       console.log('Validation result:', validationResult);
 
@@ -80,7 +88,7 @@ export default function CustomQuiz () {
       console.log('Quiz object to submit:', validationResult.quizObject);
 
       // Submit quiz to database
-      const response = await quizService.submitCustomQuiz(validationResult.quizObject);
+      const response = await quizCreationService.submitCustomQuiz(validationResult.quizObject);
 
       console.log('Server response:', response);
 
@@ -93,7 +101,7 @@ export default function CustomQuiz () {
         
         // Refresh the custom quizzes list to include the new quiz
         try {
-          const updatedQuizzes = await quizService.getCustomQuizzesByUser(currentUser.uid);
+          const updatedQuizzes = await quizRetrievalService.getCustomQuizzesByUser(currentUser.uid);
           setCustomQuizzes(Array.isArray(updatedQuizzes) ? updatedQuizzes : []);
         } catch (error) {
           console.error('Error refreshing quiz list:', error);
@@ -149,6 +157,12 @@ export default function CustomQuiz () {
             teacherQuiz={teacherQuiz}
             setTeacherQuiz={setTeacherQuiz}
             isCreatingQuiz={isCreatingQuiz}
+            showTimer={showTimer}
+            setShowTimer={setShowTimer}
+            showPauseButton={showPauseButton}
+            setShowPauseButton={setShowPauseButton}
+            duration={duration}
+            setDuration={setDuration}
           />
           <QuizQuestionsList 
             quizData={quizData} 

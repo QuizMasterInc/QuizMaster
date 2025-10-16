@@ -12,7 +12,11 @@
         ".git",
         "firebase-debug.log",
         "firebase-debug.*.log"
-      ]
+      ],
+      "runtimeOptions": {
+        "cpu": 1,
+        "memory": "512MB"
+      }
     }
   ],
   "hosting": [
