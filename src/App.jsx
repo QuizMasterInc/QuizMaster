@@ -1,8 +1,8 @@
 /**
- * This is the main App component.
+ * This is the main App component
  * This is how our application is run.
  * Some routes are private routes. meaning the user has to be signed in
- * Notice that some components are enclosed in the contexts, this is how we share state between these components. 
+ * Notice that some components are enclosed in the contexts, this is how we share state between these components.
  * The routes are enclosed in the authprovider, this is how we ensure authenticaiton throughout the application
  */
 import NavBar from './components/navbar/NavBar'
@@ -36,6 +36,7 @@ import Developer from './components/developer/AddDefaultQuestion';
 import AllCustomQuizzes from './components/quizselect/customquizselect/AllCustomQuizzes';
 import AllTeacherQuizzes from './components/quizselect/customquizselect/AllTeacherQuizzes';
 import CustomQuizActivity from './components/quiz/CustomQuizActivity'
+import CustomQuizSettings from './components/customquiz/CustomQuizSettings';
 import { Footer } from './components/ui/index.jsx';
 import Settings from './components/settings/Settings'
 import { CATEGORY_DESTINATIONS } from './constants/quizConstants.jsx';
@@ -113,6 +114,12 @@ function App() {
               </PrivateRoute>
             }/>
           </Route>
+
+          <Route path="/customquiz/settings/:quizID" element={
+            <PrivateRoute>
+              <CustomQuizSettings />
+            </PrivateRoute>
+          }/>
 
           <Route index path="/quizstarted/:quizID" element={
             <PrivateRoute>

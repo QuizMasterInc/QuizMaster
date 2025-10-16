@@ -34,24 +34,64 @@ Manages user authentication, registration, and profile data.
 
 ---
 
-### quizService.js
-Manages all quiz-related operations including creating, retrieving, and submitting quizzes.
+### quizCreationService.js
+Handles quiz creation, validation, and normalization for custom quizzes.
 
 **Functions:**
-- `createQuiz(quizData)` - Creates a new quiz in the database
-- `getQuizById(quizId)` - Gets a specific quiz by its ID
-- `getQuizzes(options)` - Gets quizzes with filtering and pagination
-- `browseCustomQuizzes(filters)` - Searches and filters custom quizzes with server-side processing
-- `updateQuiz(quizId, updates)` - Updates an existing quiz
-- `deleteQuiz(quizId)` - Soft deletes a quiz (marks as inactive)
-- `submitQuizAttempt(quizId, attemptData)` - Submits a completed quiz attempt
-- `getUserAttempts(userId, quizId)` - Gets all quiz attempts by a specific user
-- `getQuizStatistics(quizId)` - Gets analytics and statistics for a quiz
-- `duplicateQuiz(quizId, overrides)` - Creates a copy of an existing quiz
-- `createValidatedQuizObject(quizInput)` - Validates and formats quiz data for submission
-- `submitCustomQuiz(quizObject)` - Creates a custom quiz via Firebase Functions
-- `getCustomQuizzesByUser(userId)` - Gets all quizzes created by a specific user
+- `validateQuizName(quizName)` - Validates quiz name input
+- `validateQuizPassword(password)` - Validates quiz password input
+- `normalizeTags(tags)` - Normalizes tags to consistent format
+- `validateQuizTags(tags)` - Validates quiz tags input
+- `isTitleDuplicate(userQuizzes, newTitle)` - Checks if quiz title already exists for user
+- `createQuizDataObject(quizDataArray)` - Creates unified question data object
+- `createValidatedQuizObject(quizInput)` - Creates and validates complete quiz object
+- `submitCustomQuiz(quizObject)` - Submits quiz to Firebase Cloud Function (modular: `quizzes/addCustomQuiz`)
+
+---
+
+### quizRetrievalService.js
+Handles quiz reading, browsing, and searching operations.
+
+**Functions:**
+- `getQuizById(quizId)` - Gets a specific quiz by its ID (calls modular: `quizzes/grabCustomQuiz`)
+- `getQuizzes(options)` - Gets quizzes with filtering and pagination (calls modular: `quizzes/browseCustomQuizzesOptimized`)
+- `getCustomQuizzesByUser(userId)` - Gets all quizzes created by a specific user (calls modular: `quizzes/grabUserCustomQuizzesV2`)
 - `normalizeQuizData(quiz)` - Converts quiz data to a consistent format
+- `ensureQuizzesSorted(quizzes)` - Sorts quizzes by creation date
+- `browseCustomQuizzes(options)` - Searches and filters custom quizzes with server-side processing (calls modular: `quizzes/browseCustomQuizzesV2`)
+
+---
+
+### quizSubmissionService.js
+Handles quiz submission and attempt tracking.
+
+**Functions:**
+- `submitQuizResults(attemptData)` - Submits quiz results for default quizzes (calls modular: `results/submitQuizResults`)
+- `submitQuizAttempt(quizId, attemptData)` - Submits quiz attempt (legacy compatibility, calls modular: `quizzes/trackQuizAttempt`)
+
+---
+
+### resultService.js
+Handles basic quiz result retrieval operations.
+
+**Functions:**
+- `getAttemptById(attemptId)` - Gets a specific quiz attempt by its ID
+- `getUserAttempts(userId, options)` - Gets all quiz attempts by a user with pagination
+- `getQuizAttempts(quizId, options)` - Gets all attempts for a specific quiz
+- `getAllResults(userId)` - Gets all quiz results for a user across all categories (cached)
+- `getResultsByCategory(userId, category)` - Gets quiz results for a specific category
+- `clearResultsCache()` - Clears the results cache
+
+---
+
+### analyticsService.js
+Handles analytics, statistics, performance calculations, and exports.
+
+**Functions:**
+- `getQuizAnalytics(quizId)` - Gets detailed analytics and statistics for a quiz
+- `getUserPerformanceSummary(userId)` - Gets comprehensive performance data for a user
+- `exportQuizResults(quizId, options)` - Exports quiz results to CSV format
+- `calculateGradeStatistics(attempts)` - Calculates grade distributions and performance metrics
 
 ---
 
@@ -69,21 +109,6 @@ Manages individual questions in the default question bank used for system-genera
 
 ---
 
-### resultService.js
-Manages quiz results, user performance data, and analytics.
-
-**Functions:**
-- `getAllResults(userId)` - Gets all quiz results for a user across all categories (uses caching for better performance)
-- `getAttemptById(attemptId)` - Gets a specific quiz attempt by its ID
-- `getUserAttempts(userId, options)` - Gets all quiz attempts by a user with pagination
-- `getQuizAttempts(quizId, options)` - Gets all attempts for a specific quiz
-- `getQuizAnalytics(quizId)` - Gets detailed analytics and statistics for a quiz
-- `getUserPerformanceSummary(userId)` - Gets comprehensive performance data for a user
-- `exportQuizResults(quizId, options)` - Exports quiz results to CSV format
-- `calculateGradeStatistics(attempts)` - Calculates grade distributions and performance metrics
-
----
-
 ### flashcardService.js
 Manages flashcard deck creation, retrieval, and management.
 
@@ -97,3 +122,9 @@ Manages flashcard deck creation, retrieval, and management.
 
 ## How Services Work Together
 All services use the same patterns for error handling, data validation, and Firebase operations. Components import these services to perform database operations without handling Firebase directly. The services automatically handle things like user authentication, data formatting, and error messages.
+
+## Service Organization Principles
+- **Single Responsibility**: Each service handles one specific domain
+- **Separation of Concerns**: Data access, business logic, and analytics are separated
+- **Consistent Patterns**: All services follow the same error handling and data formatting patterns
+- **Focused APIs**: Services provide clean, focused APIs that hide implementation details

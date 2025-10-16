@@ -52,8 +52,8 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
           const result = await response.json();
           
           if (result.result && result.status === 200) {
-              // Password correct, navigate to quiz
-              navigate('/quizstarted/' + uid, { 
+              // Password correct, navigate to settings screen
+              navigate('/customquiz/settings/' + uid, { 
                 state: { password: quizPasswordAttempt } 
               });
           } else if (result.requiresPassword) {
@@ -103,7 +103,7 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
               
           </div>
           :
-          <Link to={'/quizstarted/' + uid}>
+          <Link to={'/customquiz/settings/' + uid}>
             <div className="card rounded-lg shadow-lg hover:shadow-xl border border-accent">
               <div className="text-2xl text-[var(--primary-500)]">{title}</div>
               <div className="text-base">{displayCreatorName()}</div>

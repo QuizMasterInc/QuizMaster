@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Q } from '../icons/index.jsx';
-import QuizService from '../../services/quizService.js';
+import QuizRetrievalService from '../../services/quizRetrievalService.js';
 
 const CustomQuizzesTable = () => {
   const [customQuizzes, setCustomQuizzes] = useState(null);
@@ -12,7 +12,7 @@ const CustomQuizzesTable = () => {
   useEffect(() => {
     const fetchUserQuizzes = async () => {
       try {
-        const quizzes = await QuizService.getCustomQuizzesByUser(currentUser.uid);
+        const quizzes = await QuizRetrievalService.getCustomQuizzesByUser(currentUser.uid);
         setCustomQuizzes(quizzes);
       } catch (error) {
         console.error('Error fetching user quizzes:', error);

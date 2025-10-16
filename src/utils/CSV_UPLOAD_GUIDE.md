@@ -92,10 +92,11 @@ Uploads an array of questions to the database.
 Downloads a CSV template file with example questions.
 
 ### API Endpoint
-Questions are uploaded to:
+Questions are uploaded to the modular Firebase function:
 ```
 https://us-central1-quizmaster-c66a2.cloudfunctions.net/addDefaultQuestion
 ```
+*(Function location: `functions/src/questions/index.js`)*
 
 ### Dependencies
 - **papaparse**: CSV parsing library

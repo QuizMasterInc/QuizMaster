@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { useCategory } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -9,7 +10,7 @@ import HelpModal from './HelpModal';
 import Timer from './Timer';
 import ProgressBar from './ProgressBar';
 import { shuffle } from '../../utils/shuffle';
-import quizService from '../../services/quizService';
+import quizSubmissionService from '../../services/quizSubmissionService';
 
 
 function QuizActivity() {
@@ -24,6 +25,7 @@ function QuizActivity() {
   } = useCategory();
   const { currentUser } = useAuth();
   const { refreshResults } = useResults();
+  const navigate = useNavigate();
 
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,6 +39,8 @@ function QuizActivity() {
   const [answerCount, setAnswerCount] = useState(4);
   const [quizStartTime] = useState(Date.now());
   const [submittingResults, setSubmittingResults] = useState(false);
+  const [userAnswers, setUserAnswers] = useState({});
+  const [showResults, setShowResults] = useState(false);
 
   const recordCorrect = useCallback(
     (isCorrect) => isCorrect && setCorrectCount((c) => c + 1),
@@ -97,7 +101,7 @@ function QuizActivity() {
           });
         }
 
-        const mapped = pool.map((row) => {
+        const mapped = pool.map((row, index) => {
           const raw = (row.type || 'Multiple').replace(/\s+/g, '').toLowerCase();
           let tag;
           if (raw === 'multipleanswer') tag = 'multiple';
@@ -137,7 +141,11 @@ function QuizActivity() {
             ...wrongChoicesToUse
           ]).filter(Boolean);
 
+          // Create a unique question ID based on question text
+          const questionId = row.questionId || `default_${btoa(row.question).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16)}`;
+
           return {
+            questionId,
             questionText: row.question,
             text: row.question,
             choices: finalChoices,
@@ -177,9 +185,11 @@ function QuizActivity() {
     
     setSubmittingResults(true);
     
-    // CALCULATE SCORE DIRECTLY FROM QUESTION STATES
-    const calculateScore = () => {
+    // CALCULATE SCORE AND COLLECT ANSWERS
+    const calculateScoreAndAnswers = () => {
       let score = 0;
+      const questionIds = [];
+      const userAnswers = {};
       
       // Get all Question components from refs and calculate their correctness
       const questionElements = document.querySelectorAll('[data-question-index]');
@@ -191,66 +201,84 @@ function QuizActivity() {
         const isMultipleAnswer = type === 'multiple';
         const isDragAndDrop = type === 'drag';
         
+        // Store question ID
+        questionIds.push(question.questionId);
+        
         // Get the current answer from the DOM element
         const questionElement = document.querySelector(`[data-question-index="${index}"]`);
-        if (!questionElement) return;
+        if (!questionElement) {
+          userAnswers[index] = null;
+          return;
+        }
         
+        let userAnswer = null;
         let isCorrect = false;
         
         if (isFillBlank) {
           const input = questionElement.querySelector('input[type="text"]');
           if (input) {
-            const userAnswer = input.value.trim().toLowerCase();
+            userAnswer = input.value.trim();
             const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
-            isCorrect = userAnswer === correctAnswer;
+            isCorrect = userAnswer.toLowerCase() === correctAnswer;
           }
         } else if (isMultipleAnswer) {
           const checkboxes = questionElement.querySelectorAll('input[type="checkbox"]:checked');
           const selectedTexts = Array.from(checkboxes).map(cb => 
-            cb.parentElement.querySelector('span').textContent.trim().toLowerCase()
+            cb.parentElement.querySelector('span').textContent.trim()
           );
+          userAnswer = selectedTexts;
           
           const correctAnswers = String(question.correctAnswer)
             .split('||')
             .map(a => a.trim().toLowerCase());
           
           isCorrect = selectedTexts.length === correctAnswers.length &&
-                     selectedTexts.every(ans => correctAnswers.includes(ans));
+                     selectedTexts.every(ans => correctAnswers.includes(ans.toLowerCase()));
         } else if (isDragAndDrop) {
           // Handle drag and drop - this is more complex, skipping for now
-          // Can be implemented if needed
+          userAnswer = null;
         } else {
           // Regular multiple choice
           const selectedButton = questionElement.querySelector('button.bg-accent, button[class*="bg-accent"]');
           if (selectedButton) {
-            const selectedText = selectedButton.querySelector('span').textContent.trim().toLowerCase();
+            userAnswer = selectedButton.querySelector('span').textContent.trim();
             const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
-            isCorrect = selectedText === correctAnswer;
+            isCorrect = userAnswer.toLowerCase() === correctAnswer;
           }
         }
+        
+        userAnswers[index] = userAnswer;
         
         if (isCorrect) {
           score++;
         }
       });
       
-      return score;
+      return { score, questionIds, userAnswers };
     };
     
-    const calculatedScore = calculateScore();
+    const { score: calculatedScore, questionIds, userAnswers } = calculateScoreAndAnswers();
+    
+    // Store user answers for DoneModal access
+    setUserAnswers(userAnswers);
     
     try {
       // Calculate time spent in seconds
       const timeSpent = Math.round((Date.now() - quizStartTime) / 1000);
       
       // Submit quiz results to backend using calculated score
-      await quizService.submitQuizResults({
+      await quizSubmissionService.submitQuizResults({
         userId: currentUser.uid,
         category: category.toLowerCase(),
         score: calculatedScore,
         totalQuestions: questions.length,
+        amount: amount, // Number of questions requested
         timeSpent,
         difficulty: difficulty || 3,
+        quizType: 'default',
+        quizId: `${category.toLowerCase()}_${difficulty || 3}_${amount}`, // Generate deterministic quizId
+        questionIds,
+        userAnswers,
         sessionId: `quiz_${Date.now()}`
       });
       
@@ -279,7 +307,9 @@ function QuizActivity() {
   return (
     <div className="min-h-screen py-20 px-6 bg-primary text-primary">
       <div className="max-w-6xl mx-auto">
-        {showTimer ? (
+        {!showResults ? (
+          <>
+            {showTimer ? (
             <>
             {/* Header */}
             <div className="mb-6">
@@ -288,7 +318,7 @@ function QuizActivity() {
                   {category} Quiz!
                 </h1>
                 <p className="text-lg text-center text-secondary">
-                  Test your knowledge with {amount} questions
+                  Test your knowledge with {questions.length} questions
                 </p>
               </div>
             </div>
@@ -334,7 +364,7 @@ function QuizActivity() {
                 <p className="text-base text-secondary mb-2">
                   Questions answered:{' '}
                   <span className="font-medium text-accent">
-                    {answeredCount} / {amount}
+                    {answeredCount} / {questions.length}
                   </span>
                 </p>
                 <p className="text-base text-secondary mb-4">
@@ -382,7 +412,7 @@ function QuizActivity() {
               <div className="bg-card rounded-2xl p-4 shadow-xl border border-accent flex-1 max-w-xs flex items-center justify-center">
                 <ProgressBar
                   answeredCount={answeredCount}
-                  totalQuestions={amount}
+                  totalQuestions={questions.length}
                 />
               </div>
             </div>
@@ -396,14 +426,14 @@ function QuizActivity() {
                 {category} Quiz!
               </h1>
               <p className="text-lg text-center text-secondary">
-                Test your knowledge with {amount} questions
+                Test your knowledge with {questions.length} questions
               </p>
             </div>
             {/* Progress */}
             <div className="bg-card rounded-3xl p-6 shadow-xl border border-accent flex items-center justify-center">
               <ProgressBar
                 answeredCount={answeredCount}
-                totalQuestions={amount}
+                totalQuestions={questions.length}
               />
             </div>
             {/* Settings */}
@@ -444,7 +474,7 @@ function QuizActivity() {
               <p className="text-lg text-secondary mb-4">
                 Questions answered:{' '}
                 <span className="font-medium text-accent">
-                  {answeredCount} / {amount}
+                  {answeredCount} / {questions.length}
                 </span>
               </p>
               <p className="text-lg text-secondary mb-6">
@@ -499,6 +529,94 @@ function QuizActivity() {
             </div>
           ))}
         </div>
+        </>
+      ) : (
+        /* Detailed Results View */
+        <div className="space-y-8">
+          {/* Results Header */}
+          <div className="mb-6">
+            <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
+              <div className="flex items-center justify-between">
+                <h1 className="text-4xl font-bold text-gradient-primary">
+                  Quiz Results
+                </h1>
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="px-4 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200"
+                >
+                  Return to Dashboard
+                </button>
+              </div>
+              <p className="text-lg text-secondary mt-2">
+                Review your answers below
+              </p>
+            </div>
+          </div>
+
+          {/* Detailed Results */}
+          <div className="space-y-6">
+            {questions.map((question, index) => {
+              const userAnswer = userAnswers[index];
+              const isCorrect = (() => {
+                if (!userAnswer) return false;
+                const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
+                const userAns = Array.isArray(userAnswer) 
+                  ? userAnswer.map(a => a.toLowerCase().trim())
+                  : [String(userAnswer).toLowerCase().trim()];
+                
+                if (question.type === 'multiple') {
+                  const correctAnswers = correctAnswer.split('||').map(a => a.trim().toLowerCase());
+                  return userAns.length === correctAnswers.length && 
+                         userAns.every(ans => correctAnswers.includes(ans));
+                } else {
+                  return userAns[0] === correctAnswer;
+                }
+              })();
+
+              return (
+                <div key={index} className={`p-6 rounded-xl border-2 bg-card ${isCorrect ? 'border-green-400' : 'border-red-400'}`}>
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-primary flex-1">
+                      Question {index + 1}: {question.questionText}
+                    </h3>
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${isCorrect ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+                      {isCorrect ? 'Correct' : 'Incorrect'}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-medium text-secondary">Your Answer: </span>
+                      <span className={isCorrect ? 'text-green-700' : 'text-red-700'}>
+                        {Array.isArray(userAnswer) ? userAnswer.join(', ') : (userAnswer || 'No answer')}
+                      </span>
+                    </div>
+                    {!isCorrect && (
+                      <div>
+                        <span className="font-medium text-secondary">Correct Answer: </span>
+                        <span className="text-green-700">{question.correctAnswer}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {question.choices && question.choices.length > 0 && (
+                    <div className="mt-4">
+                      <span className="font-medium text-secondary">Options: </span>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {question.choices.map((choice, choiceIndex) => (
+                          <span key={choiceIndex} className="px-3 py-1 bg-[var(--bg-primary)] text-primary rounded border border-[var(--neutral-300)] text-sm">
+                            {choice}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       </div>
 
       {/* Modals */}
@@ -517,7 +635,14 @@ function QuizActivity() {
           active={doneActive}
           amountCorrect={correctCount}
           totalAmount={questions.length}
+          questions={questions}
+          userAnswers={userAnswers}
           quizId={quizId}
+          isCustomQuiz={false}
+          onViewDetails={() => {
+            setShowResults(true);
+            setDoneActive(false);
+          }}
         />
       )}
 

@@ -4,7 +4,7 @@ import SearchBar from "./SearchBar";
 import PrivacyList from "./PrivacyList";
 import SortByList from "./SortByList";
 import { useAuth } from "../../../contexts/AuthContext";
-import quizService from "../../../services/quizService";
+import quizRetrievalService from "../../../services/quizRetrievalService";
 
 const AllCustomQuizzes = () => {
   const { currentUser } = useAuth();
@@ -60,7 +60,7 @@ const AllCustomQuizzes = () => {
 
       console.log('Fetching quizzes with indexed options:', options);
 
-      const result = await quizService.browseCustomQuizzes(options);
+      const result = await quizRetrievalService.browseCustomQuizzes(options);
       setQuizzes(result.quizzes || []);
       
     } catch (error) {
@@ -70,7 +70,7 @@ const AllCustomQuizzes = () => {
       // Fallback: try to get user's own quizzes if browse fails
       if (currentUser?.uid) {
         try {
-          const userQuizzes = await quizService.getCustomQuizzesByUser(currentUser.uid);
+          const userQuizzes = await quizRetrievalService.getCustomQuizzesByUser(currentUser.uid);
           setQuizzes(userQuizzes || []);
           setError('Showing your quizzes only (server temporarily unavailable)'); // Inform user
         } catch (fallbackError) {
@@ -153,7 +153,7 @@ const AllCustomQuizzes = () => {
           <div id="customQuizDiv" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
             {quizzes.map((q) => {
               // Use the normalized data from the service layer or fallback
-              const quizData = quizService.normalizeQuizData ? quizService.normalizeQuizData(q) : {
+              const quizData = quizRetrievalService.normalizeQuizData ? quizRetrievalService.normalizeQuizData(q) : {
                 // Fallback normalization using corrected schema mapping
                 id: q.id || q.uid,
                 title: q.metadata?.title || q.title || 'Untitled Quiz',
