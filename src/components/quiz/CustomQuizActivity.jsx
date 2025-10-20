@@ -11,7 +11,7 @@ import BackToTop from './BackToTopButton';
 import { shuffle } from '../../utils/shuffle';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResults } from '../../contexts/ResultsContext';
-import quizSubmissionService from '../../services/quizSubmissionService';
+import quizSubmissionService from '../../services/quiz/quizSubmissionService';
 
 function CustomQuizActivity() {
   const { quizID } = useParams();

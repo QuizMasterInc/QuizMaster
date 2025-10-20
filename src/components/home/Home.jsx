@@ -1,11 +1,11 @@
 import HeroSection from "./HeroSection";
 import { FaRocket, FaChartLine, FaPenFancy } from "react-icons/fa";
-import { motion } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
 
-// Optimized FeatureCard component using CSS variables
-const FeatureCard = ({ icon, title, desc, delay, route, isAuthenticated }) => {
+// Optimized FeatureCard component using CSS animations
+const FeatureCard = ({ icon, title, desc, delayClass, route, isAuthenticated }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -13,14 +13,9 @@ const FeatureCard = ({ icon, title, desc, delay, route, isAuthenticated }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.6, ease: "easeOut" }}
-      whileHover={{ scale: 1.03 }} // Simplified hover effect
-      whileTap={{ scale: 0.97 }}
+    <div
       onClick={handleClick}
-      className="feature-card bg-card border border-accent rounded-2xl p-6 w-72 cursor-pointer transition-all duration-200 shadow-xl"
+      className={`feature-card bg-card border border-accent rounded-2xl p-6 w-72 cursor-pointer animate-hover-scale animate-tap-scale shadow-xl ${delayClass}`}
     >
       <div className="text-4xl mb-4 text-accent">
         {icon}
@@ -31,12 +26,36 @@ const FeatureCard = ({ icon, title, desc, delay, route, isAuthenticated }) => {
       <p className="text-sm text-secondary">
         {desc}
       </p>
-    </motion.div>
+    </div>
   );
 };
 
 function Home() {
   const { isAuthenticated } = useAuth();
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden font-main bg-primary text-primary">
@@ -44,13 +63,7 @@ function Home() {
         <HeroSection isAuthenticated={isAuthenticated} />
       </div>
 
-      <motion.section
-        initial={{ opacity: 0, rotateX: -10 }}
-        whileInView={{ opacity: 1, rotateX: 0 }}
-        transition={{ duration: 1 }}
-        viewport={{ once: true }}
-        className="py-20 text-center px-4 relative z-10"
-      >
+      <section ref={sectionRef} className="py-20 text-center px-4 relative z-10 animate-on-scroll">
         <h2 className="text-4xl font-bold mb-12 font-main text-gradient-primary">
           What can you do?
         </h2>
@@ -59,7 +72,7 @@ function Home() {
             icon={<FaRocket />}
             title="Take Quizzes"
             desc="Test your knowledge!"
-            delay={0.1}
+            delayClass="animate-fade-in-up-delay-100"
             route="/typeofquiz"
             isAuthenticated={isAuthenticated}
           />
@@ -67,7 +80,7 @@ function Home() {
             icon={<FaChartLine />}
             title="Track Progress"
             desc="Visualize your performance."
-            delay={0.2}
+            delayClass="animate-fade-in-up-delay-200"
             route="/dashboard"
             isAuthenticated={isAuthenticated}
           />
@@ -75,12 +88,12 @@ function Home() {
             icon={<FaPenFancy />}
             title="Create Quizzes"
             desc="Craft your own challenges."
-            delay={0.3}
+            delayClass="animate-fade-in-up-delay-300"
             route="/customquiz"
             isAuthenticated={isAuthenticated}
           />
         </div>
-      </motion.section>
+      </section>
     </div>
   );
 }

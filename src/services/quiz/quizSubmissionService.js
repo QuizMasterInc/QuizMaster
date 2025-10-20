@@ -2,7 +2,7 @@
  * Quiz Submission Service - handles quiz submission and attempt tracking
  */
 import { httpsCallable } from 'firebase/functions';
-import { functions, handleFirebaseError, timestamp } from './firebaseService';
+import { functions, handleFirebaseError, timestamp } from '../firebase/firebaseService';
 
 class QuizSubmissionService {
     constructor() {

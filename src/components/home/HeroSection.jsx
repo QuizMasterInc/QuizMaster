@@ -1,5 +1,3 @@
-import { motion } from "framer-motion";
-
 const HeroSection = ({ isAuthenticated }) => (
   <section
     className="relative flex items-center justify-center py-32 min-h-[80vh]"
@@ -26,12 +24,7 @@ const HeroSection = ({ isAuthenticated }) => (
       }}
     />
 
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1 }}
-      className="relative z-10 text-center px-6"
-    >
+    <div className="relative z-10 text-center px-6 animate-fade-in-up-large">
       <h1 className="text-5xl md:text-6xl font-extrabold leading-tight font-main text-white drop-shadow-2xl">
         Welcome to{" "}
         <span 
@@ -74,7 +67,7 @@ const HeroSection = ({ isAuthenticated }) => (
           </a>
         )}
       </div>
-    </motion.div>
+    </div>
   </section>
 );
 

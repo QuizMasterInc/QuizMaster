@@ -2,7 +2,7 @@
  * Flashcard service - handles all flashcard deck operations
  */
 import { httpsCallable } from 'firebase/functions';
-import { functions, handleFirebaseError, withRetry } from './firebaseService';
+import { db, handleFirebaseError, withRetry, timestamp } from '../firebase/firebaseService';
 
 class FlashcardService {
     constructor() {

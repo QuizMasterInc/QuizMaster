@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import flashcardService from '../../services/flashcardService';
+import flashcardService from '../../services/flashcards/flashcardService';
 import CardCreation from './CardCreation';
 
 export default function DeckManager() {

@@ -4,7 +4,7 @@ import SearchBar from "./SearchBar";
 import PrivacyList from "./PrivacyList";
 import SortByList from "./SortByList";
 import { useAuth } from "../../../contexts/AuthContext";
-import quizRetrievalService from "../../../services/quizRetrievalService";
+import quizRetrievalService from "../../../services/quiz/quizRetrievalService";
 
 const AllCustomQuizzes = () => {
   const { currentUser } = useAuth();

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Q } from '../icons/index.jsx';
-import QuizRetrievalService from '../../services/quizRetrievalService.js';
+import QuizRetrievalService from '../../services/quiz/quizRetrievalService.js';
 
 const CustomQuizzesTable = () => {
   const [customQuizzes, setCustomQuizzes] = useState(null);

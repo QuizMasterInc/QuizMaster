@@ -2,7 +2,7 @@
  * Analytics Service - handles analytics, statistics, performance calculations, and exports
  */
 import { httpsCallable } from 'firebase/functions';
-import { functions, handleFirebaseError } from './firebaseService';
+import { functions, handleFirebaseError } from '../firebase/firebaseService';
 
 class AnalyticsService {
     constructor() {

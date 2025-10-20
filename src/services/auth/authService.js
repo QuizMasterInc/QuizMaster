@@ -4,7 +4,7 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updatePassword, updateProfile, onAuthStateChanged,
     EmailAuthProvider, reauthenticateWithCredential, signInWithPopup, GoogleAuthProvider, updateEmail } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { auth, db, handleFirebaseError, withRetry, timestamp } from './firebaseService';
+import { auth, db, handleFirebaseError, withRetry, timestamp } from '../firebase/firebaseService';
   
 class AuthService {
     constructor() {

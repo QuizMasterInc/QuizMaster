@@ -11,7 +11,7 @@ import React, {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
 import { Q } from '../icons/index.jsx';
-import authService from '../../services/authService';
+import authService from '../../services/auth/authService.js';
 
 //State variables
 export default function UpdateProfile() {

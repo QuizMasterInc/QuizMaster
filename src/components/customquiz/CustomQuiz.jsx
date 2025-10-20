@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import QuizQuestionsList from './QuizQuestionsList'
 import QuizCreation from './QuizCreation'
 import {useAuth} from '../../contexts/AuthContext'
-import quizCreationService from '../../services/quizCreationService'
-import quizRetrievalService from '../../services/quizRetrievalService'
+import quizCreationService from '../../services/quiz/quizCreationService'
+import quizRetrievalService from '../../services/quiz/quizRetrievalService'
 
 export default function CustomQuiz () {
   const [quizData, setQuizData] = useState([])
