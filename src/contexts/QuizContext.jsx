@@ -2,9 +2,9 @@
  * Quiz Context using the quizService
  */
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
-import quizRetrievalService from '../services/quizRetrievalService';
-import quizSubmissionService from '../services/quizSubmissionService';
-import analyticsService from '../services/analyticsService';
+import quizRetrievalService from '../services/quiz/quizRetrievalService';
+import quizSubmissionService from '../services/quiz/quizSubmissionService';
+import analyticsService from '../services/analytics/analyticsService';
 
 // Create context
 const QuizContext = createContext(null);

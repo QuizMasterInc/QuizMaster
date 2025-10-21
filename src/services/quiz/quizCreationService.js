@@ -2,7 +2,7 @@
  * Quiz Creation Service - handles quiz creation, validation, and normalization
  */
 import { httpsCallable } from 'firebase/functions';
-import { functions, handleFirebaseError, timestamp } from './firebaseService';
+import { functions, handleFirebaseError, timestamp } from '../firebase/firebaseService';
 
 class QuizCreationService {
     constructor() {

@@ -3,11 +3,7 @@
  * This gets displayed when a user enters a route that is not recognized by the application.
  * This also allows users to go back home via a button. 
  */
-import React from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { HomeIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { useAuth } from "../contexts/AuthContext";
 import { Q } from "../components/icons/index.jsx";
 
 const NotFound = () => (

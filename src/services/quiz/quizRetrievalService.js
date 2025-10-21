@@ -2,7 +2,7 @@
  * Quiz Retrieval Service - handles quiz reading, browsing, and searching
  */
 import { collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter } from 'firebase/firestore';
-import { db, handleFirebaseError, withRetry, timestamp } from './firebaseService';
+import { db, handleFirebaseError, withRetry, timestamp } from '../firebase/firebaseService';
 
 class QuizRetrievalService {
     constructor() {

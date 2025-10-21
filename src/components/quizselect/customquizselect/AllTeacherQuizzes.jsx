@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import CustomQuizSelectButton from "./CustomQuizSelectButton";
 import SearchBar from "./SearchBar";
 import SortByList from "./SortByList";
@@ -20,6 +21,13 @@ const AllTeacherQuizzes = () => {
 			"tags": []
 	}])
   const [quizzesToDisplay, setQuizzesToDisplay] = useState(quizzes);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Get current filter values from URL
+  const filters = {
+    searchTerm: searchParams.get('q') || '',
+    sortBy: searchParams.get('sort') || 'newest'
+  };
 
   useEffect(() => {
 	async function fetchCustomQuizzes() {
@@ -71,6 +79,12 @@ const AllTeacherQuizzes = () => {
 	fetchCustomQuizzes();
   }, []);
 
+  // Apply filters when URL params change
+  useEffect(() => {
+    sortQuizzes();
+    search();
+  }, [searchParams]);
+
 	function parseCreatedAt(createdAt) {
 		if (!createdAt) return 0;
 
@@ -83,10 +97,10 @@ const AllTeacherQuizzes = () => {
 		return new Date(createdAt).getTime();
 	}
 
-	function sortQuizzes() {
+	function sortQuizzes(sortValue = filters.sortBy) {
 		let sortedQuizzes = [...quizzes];
 
-		switch (sessionStorage.getItem("sortingQuery")) {
+		switch (sortValue) {
 			case "newest":
 				sortedQuizzes.sort((a, b) => parseCreatedAt(b.createdAt) - parseCreatedAt(a.createdAt));
 				break;
@@ -128,7 +142,7 @@ const AllTeacherQuizzes = () => {
 	}
 
 	function search() {
-		const searchTerm = sessionStorage.getItem("searchQuery")?.toLowerCase() || "";
+		const searchTerm = filters.searchTerm?.toLowerCase() || "";
 		let searchedQuizzes;
 
 		if (searchTerm.length > 0) {
@@ -147,6 +161,23 @@ const AllTeacherQuizzes = () => {
 		search();
 	}
 
+	// Update URL params when filters change
+	const updateFilters = useCallback((newFilters) => {
+		const updatedFilters = { ...filters, ...newFilters };
+
+		// Build clean URL params (omit defaults)
+		const params = {};
+		if (updatedFilters.searchTerm.trim()) {
+			params.q = updatedFilters.searchTerm.trim();
+		}
+		if (updatedFilters.sortBy !== 'newest') {
+			params.sort = updatedFilters.sortBy;
+		}
+
+		// Update URL without creating history entries
+		setSearchParams(params, { replace: true });
+	}, [filters, setSearchParams]);
+
 
 	return (
 		<div className="min-h-screen bg-primary relative overflow-hidden py-20 px-6">
@@ -158,8 +189,14 @@ const AllTeacherQuizzes = () => {
 					</h1>
 					
 					<div className="flex justify-center items-center gap-4 mt-4">
-          				<SearchBar />
-						<SortByList onSortChange={searchAndFilter} />
+          				<SearchBar 
+							value={filters.searchTerm} 
+							onChange={(searchTerm) => updateFilters({ searchTerm })} 
+						/>
+						<SortByList 
+							value={filters.sortBy} 
+							onChange={(sortBy) => updateFilters({ sortBy })} 
+						/>
 						<button
 							className="inline-block px-4 py-1 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
 							onClick={searchAndFilter}

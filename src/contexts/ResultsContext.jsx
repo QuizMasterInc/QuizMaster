@@ -4,7 +4,7 @@
  */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
-import resultService from '../services/resultService';
+import resultService from '../services/quiz/resultService';
 
 const ResultsContext = createContext();
 

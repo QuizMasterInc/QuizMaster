@@ -10,7 +10,7 @@ import HelpModal from './HelpModal';
 import Timer from './Timer';
 import ProgressBar from './ProgressBar';
 import { shuffle } from '../../utils/shuffle';
-import quizSubmissionService from '../../services/quizSubmissionService';
+import quizSubmissionService from '../../services/quiz/quizSubmissionService';
 
 
 function QuizActivity() {

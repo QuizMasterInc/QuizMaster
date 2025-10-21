@@ -1,26 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import CustomQuizSelectButton from "./CustomQuizSelectButton";
 import SearchBar from "./SearchBar";
 import PrivacyList from "./PrivacyList";
 import SortByList from "./SortByList";
 import { useAuth } from "../../../contexts/AuthContext";
-import quizRetrievalService from "../../../services/quizRetrievalService";
+import quizRetrievalService from "../../../services/quiz/quizRetrievalService";
 
 const AllCustomQuizzes = () => {
   const { currentUser } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
-  const [browseOptions, setBrowseOptions] = useState({
-    searchTerm: '',
-    sortBy: 'newest',
-    privacy: 'all',
-    limit: 50
-  });
+
+  // Get current filter values from URL
+  const filters = {
+    searchTerm: searchParams.get('q') || '',
+    sortBy: searchParams.get('sort') || 'newest',
+    privacy: searchParams.get('privacy') || 'All'
+  };
 
   useEffect(() => {
     fetchQuizzes();
-  }, [currentUser]); // Remove browseOptions dependency to prevent infinite loops
+  }, [currentUser, searchParams]); // Refetch when user or filters change
 
   // Optimized fetch function using server-side operations and Firestore indexes
   const fetchQuizzes = async () => {
@@ -28,10 +31,10 @@ const AllCustomQuizzes = () => {
       setLoading(true);
       setError(null);
 
-      // Get filter values from sessionStorage or use defaults
-      const searchTerm = sessionStorage.getItem("searchQuery") || '';
-      const sortBy = sessionStorage.getItem("sortingQuery") || 'newest';  
-      const privacy = sessionStorage.getItem("privacy") || 'all';
+                  // Get filter values from URL params
+      const searchTerm = filters.searchTerm;
+      const sortBy = filters.sortBy;
+      const privacy = filters.privacy.toLowerCase();
 
       const options = {
         searchTerm: searchTerm.trim(),
@@ -85,32 +88,27 @@ const AllCustomQuizzes = () => {
     }
   };
 
-  // Trigger refetch when user changes filters
-  const handleSearchAndFilter = () => {
-    fetchQuizzes();
-  };
+  // Filters update automatically via URL params, no manual trigger needed
 
-  // Handle filter updates from child components
-  const updateFilters = (newFilters) => {
-    setBrowseOptions(prev => ({
-      ...prev,
-      ...newFilters
-    }));
-    
-    // Update sessionStorage
-    if (newFilters.searchTerm !== undefined) {
-      sessionStorage.setItem("searchQuery", newFilters.searchTerm);
+  // Update URL params when filters change
+  const updateFilters = useCallback((newFilters) => {
+    const updatedFilters = { ...filters, ...newFilters };
+
+    // Build clean URL params (omit defaults, use short names)
+    const params = {};
+    if (updatedFilters.searchTerm.trim()) {
+      params.q = updatedFilters.searchTerm.trim();
     }
-    if (newFilters.sortBy !== undefined) {
-      sessionStorage.setItem("sortingQuery", newFilters.sortBy);
+    if (updatedFilters.sortBy !== 'newest') {
+      params.sort = updatedFilters.sortBy;
     }
-    if (newFilters.privacy !== undefined) {
-      sessionStorage.setItem("privacy", newFilters.privacy);
+    if (updatedFilters.privacy !== 'All') {
+      params.privacy = updatedFilters.privacy;
     }
-    
-    // Fetch with new filters
-    setTimeout(fetchQuizzes, 100); // Small delay to ensure sessionStorage is updated
-  };
+
+    // Update URL without creating history entries for programmatic changes
+    setSearchParams(params, { replace: true });
+  }, [filters, setSearchParams]);
 
   return (
     <div className="min-h-screen bg-primary relative overflow-hidden py-20 px-6 text-[var(--text-primary)]">
@@ -121,15 +119,24 @@ const AllCustomQuizzes = () => {
         </h1>
 
         <div className="flex justify-center items-center gap-4 mt-4">
-          <SearchBar onSearch={(term) => updateFilters({ searchTerm: term })} />
-          <PrivacyList onPrivacyChange={(privacy) => updateFilters({ privacy })} />
-          <SortByList onSortChange={handleSearchAndFilter} />
+          <SearchBar 
+            value={filters.searchTerm} 
+            onChange={(searchTerm) => updateFilters({ searchTerm })} 
+          />
+          <PrivacyList 
+            value={filters.privacy} 
+            onChange={(privacy) => updateFilters({ privacy })} 
+          />
+          <SortByList 
+            value={filters.sortBy} 
+            onChange={(sortBy) => updateFilters({ sortBy })} 
+          />
           <button
             className="inline-block px-4 py-1 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
-            onClick={handleSearchAndFilter}
+            onClick={() => fetchQuizzes()}
             disabled={loading}
           >
-            {loading ? 'Loading...' : 'Search & Filter'}
+            {loading ? 'Loading...' : 'Refresh'}
           </button>
         </div>
 
