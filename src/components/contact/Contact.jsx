@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 import max from "../../assets/max.webp"
+import faiza from "../../assets/faiza.jpg"
 import anthony from "../../assets/anthony.webp"
 import matt from "../../assets/matt.webp"
 import jose from "../../assets/jose.webp"
@@ -101,6 +102,13 @@ const Contact = () => (
                     Fall 2025 Dream Team
                 </h2>
                 <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+                    <TeamMember
+                        image={faiza}
+                        name="Faiza Khan"
+                        group="TitanicSwimTeam Group"
+                        email="faizaakhan@lewisu.edu"
+                        githubLink="https://github.com/faizak2521"
+                    />
                     <TeamMember
                         image={ben}
                         name="Benjamin Eiler"
