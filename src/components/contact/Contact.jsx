@@ -105,7 +105,7 @@ const Contact = () => (
                     <TeamMember
                         image={faiza}
                         name="Faiza Khan"
-                        group="TitanicSwimTeam Group"
+                        group="ElectricalSquirrels Group"
                         email="faizaakhan@lewisu.edu"
                         githubLink="https://github.com/faizak2521"
                     />
