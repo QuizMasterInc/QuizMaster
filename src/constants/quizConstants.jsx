@@ -9,7 +9,6 @@
  * Note: Order matters! Icons and destinations arrays must match the order of quizCategories.
  */
 
-import React from 'react';
 import { 
   Book, 
   World, 

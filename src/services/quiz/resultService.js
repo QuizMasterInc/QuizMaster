@@ -1,13 +1,14 @@
 /**
  * Result Service - handles basic quiz result retrieval
  */
-import { collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter } from 'firebase/firestore';
-import { db, handleFirebaseError, withRetry, timestamp } from '../firebase/firebaseService';
+import { collection, getDocs, query, where, orderBy, limit, startAfter } from 'firebase/firestore';
+import { db, handleFirebaseError, timestamp } from '../firebase/firebaseService';
+import cloudFunctionsAPI from '../api/cloudFunctions';
 
 class ResultService {
     constructor() {
-        this.attemptsCollection = 'quizAttempts';
-        this.resultsCollection = 'quizResults';
+        this.attemptsCollection = 'quiz_results';
+        this.resultsCollection = 'quiz_results';
     }
 
     /**
@@ -17,20 +18,14 @@ class ResultService {
      */
     async getAttemptById(attemptId) {
         try {
-            const attemptDoc = await withRetry(() =>
-                getDoc(doc(db, this.attemptsCollection, attemptId))
-            );
+            // Use unified CloudFunctionsAPI
+            const data = await cloudFunctionsAPI.getQuizResultDetails(attemptId);
 
-            if (!attemptDoc.exists()) {
-                throw new Error('Quiz attempt not found');
-            }
-
-            const attempt = attemptDoc.data();
             return {
-                id: attemptDoc.id,
-                ...attempt,
-                submittedAt: timestamp.fromFirestore(attempt.submittedAt),
-                startedAt: timestamp.fromFirestore(attempt.startedAt)
+                id: data.id,
+                ...data,
+                submittedAt: data.submittedAt ? timestamp.fromFirestore(data.submittedAt) : null,
+                startedAt: data.startedAt ? timestamp.fromFirestore(data.startedAt) : null
             };
 
         } catch (error) {
@@ -49,40 +44,23 @@ class ResultService {
             const {
                 quizId,
                 limitCount = 20,
-                startAfterDoc = null,
-                orderByField = 'submittedAt',
-                orderDirection = 'desc'
+                offset = 0,
+                quizType,
+                category
             } = options;
 
-            let q = collection(db, this.attemptsCollection);
-            q = query(q, where('userId', '==', userId));
-
-            if (quizId) {
-                q = query(q, where('quizId', '==', quizId));
-            }
-
-            q = query(q, orderBy(orderByField, orderDirection));
-
-            // Apply pagination
-            if (startAfterDoc) {
-                q = query(q, startAfter(startAfterDoc));
-            }
-
-            q = query(q, limit(limitCount));
-
-            const querySnapshot = await getDocs(q);
-
-            const attempts = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                submittedAt: timestamp.fromFirestore(doc.data().submittedAt),
-                startedAt: timestamp.fromFirestore(doc.data().startedAt)
-            }));
+            // Use unified CloudFunctionsAPI
+            const data = await cloudFunctionsAPI.getQuizResults({
+                quizType,
+                category,
+                limit: limitCount,
+                offset
+            });
 
             return {
-                attempts,
-                hasMore: querySnapshot.docs.length === limitCount,
-                lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1] || null
+                attempts: data.results || [],
+                hasMore: (data.results || []).length === limitCount,
+                lastDoc: null // Cloud Functions handle pagination differently
             };
 
         } catch (error) {
@@ -159,23 +137,7 @@ class ResultService {
 
             const data = { uid: userId };
 
-            const response = await fetch(
-                'https://graballresultsv2-ukhjsvkoca-uc.a.run.app',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const allResults = await response.json();
+            const allResults = await cloudFunctionsAPI.getAllResults(userId);
 
             // Cache the results
             this._allResultsCache = allResults;
@@ -227,7 +189,21 @@ class ResultService {
     }
 
     /**
-     * Clear results cache (useful after taking a new quiz)
+     * Delete a quiz result
+     * @param {string} resultId - Result ID to delete
+     * @returns {Promise<Object>} Deletion result
+     */
+    async deleteQuizResult(resultId) {
+        try {
+            return await cloudFunctionsAPI.deleteQuizResult(resultId);
+        } catch (error) {
+            throw handleFirebaseError(error);
+        }
+    }
+
+    /**
+     * Clear the results cache
+     * @returns {void}
      */
     clearResultsCache() {
         this._allResultsCache = null;

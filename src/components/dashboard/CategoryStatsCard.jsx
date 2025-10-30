@@ -1,7 +1,6 @@
 /**
  * This displays the quiz performance stats for each category on the dashboard
  */
-import React from 'react';
 import { ClipLoader } from 'react-spinners';
 import { useResults } from '../../contexts/ResultsContext';
 

@@ -1,7 +1,7 @@
 /**
  * Quiz Context using the quizService
  */
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import { createContext, useContext, useReducer, useCallback } from 'react';
 import quizRetrievalService from '../services/quiz/quizRetrievalService';
 import quizSubmissionService from '../services/quiz/quizSubmissionService';
 import analyticsService from '../services/analytics/analyticsService';
@@ -162,83 +162,13 @@ export const QuizProvider = ({ children }) => {
         }
     }, []);
 
-    /**
-     * Create a new quiz - OBSOLETE: Old quiz collection no longer exists
-     * Custom quizzes are now created via quizCreationService.submitCustomQuiz()
-     */
-    const createQuiz = useCallback(async (quizData) => {
-        throw new Error('Quiz creation is now handled via quizCreationService.submitCustomQuiz()');
-    }, []);
-
-    /**
-     * Update an existing quiz - OBSOLETE: Old quiz collection no longer exists
-     * Custom quiz updates should be handled via cloud functions
-     */
-    const updateQuiz = useCallback(async (quizId, updates) => {
-        throw new Error('Quiz updates are now handled via cloud functions');
-    }, []);
-
-    /**
-     * Delete a quiz - OBSOLETE: Old quiz collection no longer exists
-     * Custom quiz deletion should be handled via cloud functions
-     */
-    const deleteQuiz = useCallback(async (quizId) => {
-        throw new Error('Quiz deletion is now handled via cloud functions');
-    }, []);
-
-    /**
-     * Submit quiz attempt
-     */
-    const submitQuizAttempt = useCallback(async (quizId, attemptData) => {
-        try {
-            const result = await quizSubmissionService.submitQuizAttempt(quizId, attemptData);
-            return result;
-        
-        } catch (error) {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
-            throw error;
-        }
-    }, []);
-
-    /**
-     * Get quiz statistics
-     */
-    const getQuizStatistics = useCallback(async (quizId) => {
-        try {
-            const stats = await analyticsService.getQuizAnalytics(quizId);
-            return stats;
-        
-        } catch (error) {
-            dispatch({ type: 'SET_ERROR', payload: error.message });
-            throw error;
-        }
-    }, []);
-
-    /**
-     * Duplicate a quiz - OBSOLETE: Old quiz collection no longer exists
-     * Custom quiz duplication should be handled via cloud functions
-     */
-    const duplicateQuiz = useCallback(async (quizId, overrides = {}) => {
-        throw new Error('Quiz duplication is now handled via cloud functions');
-    }, []);
-
     // Context value
     const value = {
         ...state,
         loadQuizzes,
-        loadMoreQuizzes,
         getQuizById,
-        createQuiz,
-        updateQuiz,
-        deleteQuiz,
-        submitQuizAttempt,
-        getQuizStatistics,
-        duplicateQuiz,
-        clearError: () => dispatch({ type: 'CLEAR_ERROR' }),
-        clearCurrentQuiz: () => dispatch({ type: 'CLEAR_CURRENT_QUIZ' }),
         quiz: state.currentQuiz,
-        getQuiz: getQuizById,
-        updateQuizDB: updateQuiz
+        getQuiz: getQuizById
     };
 
     return (

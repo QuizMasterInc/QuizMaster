@@ -3,6 +3,7 @@
  */
 import { httpsCallable } from 'firebase/functions';
 import { functions, handleFirebaseError, timestamp } from '../firebase/firebaseService';
+import cloudFunctionsAPI from '../api/cloudFunctions';
 
 class QuizSubmissionService {
     constructor() {
@@ -16,24 +17,11 @@ class QuizSubmissionService {
      */
     async submitQuizResults(attemptData) {
         try {
-            // Use HTTP request like all other functions
-            const response = await fetch('https://us-central1-quizmaster-c66a2.cloudfunctions.net/submitQuizResults', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    ...attemptData,
-                    submittedAt: timestamp.now()
-                })
+            // Use unified CloudFunctionsAPI
+            return await cloudFunctionsAPI.call('submitQuizResults', {
+                ...attemptData,
+                submittedAt: timestamp.now()
             });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            return await response.json();
 
         } catch (error) {
             console.error('submitQuizResults error details:', error);

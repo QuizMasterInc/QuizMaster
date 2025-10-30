@@ -1,8 +1,7 @@
 /**
  * Flashcard service - handles all flashcard deck operations
  */
-import { httpsCallable } from 'firebase/functions';
-import { db, handleFirebaseError, withRetry, timestamp } from '../firebase/firebaseService';
+import cloudFunctionsAPI from '../api/cloudFunctions';
 
 class FlashcardService {
     constructor() {
@@ -140,23 +139,7 @@ class FlashcardService {
      */
     async submitFlashcardDeck(deckObject) {
         try {
-            const response = await fetch(
-                'https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomFlashcardDeck',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(deckObject)
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            return await response.json();
+            return await cloudFunctionsAPI.call('addCustomFlashcardDeck', deckObject);
         } catch (error) {
             console.error('Error submitting flashcard deck:', error);
             throw new Error('Failed to create flashcard deck. Please try again.');
@@ -174,29 +157,7 @@ class FlashcardService {
                 return [];
             }
 
-            const response = await fetch(
-                `https://us-central1-quizmaster-c66a2.cloudfunctions.net/getUserFlashcardDecks?userId=${userId}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                }
-            );
-
-            if (!response.ok) {
-                if (response.status === 404) {
-                    return [];
-                }
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            
-            if (!data || !data.success) {
-                return [];
-            }
-            
+            const data = await cloudFunctionsAPI.call('getUserFlashcardDecks', { userId }, 'GET');
             return data.data || [];
 
         } catch (error) {
@@ -216,26 +177,7 @@ class FlashcardService {
                 throw new Error('Deck ID is required');
             }
 
-            const response = await fetch(
-                `https://us-central1-quizmaster-c66a2.cloudfunctions.net/getFlashcardDeck?deckId=${deckId}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            
-            if (!data || !data.success) {
-                throw new Error(data.message || 'Failed to fetch flashcard deck');
-            }
-            
+            const data = await cloudFunctionsAPI.call('getFlashcardDeck', { deckId }, 'GET');
             return data.data;
 
         } catch (error) {
@@ -256,29 +198,7 @@ class FlashcardService {
                 throw new Error('Deck ID and User ID are required');
             }
 
-            const response = await fetch(
-                'https://us-central1-quizmaster-c66a2.cloudfunctions.net/deleteFlashcardDeck',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ deckId, userId })
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            
-            if (!data || !data.success) {
-                throw new Error(data.message || 'Failed to delete flashcard deck');
-            }
-            
-            return data;
+            return await cloudFunctionsAPI.call('deleteFlashcardDeck', { deckId, userId });
 
         } catch (error) {
             console.error('Error deleting flashcard deck:', error);

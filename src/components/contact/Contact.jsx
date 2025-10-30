@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import max from "../../assets/max.webp"
 import faiza from "../../assets/faiza.jpg"

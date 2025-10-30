@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import authService from '../services/auth/authService';
 
 const AuthContext = createContext(null);
@@ -200,48 +200,6 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const updateUserProfile = useCallback(async (updates) => {
-        if (!user) {
-            throw new Error('No user is currently signed in');
-        }
-
-        setLoading(true);
-        setError(null);
-
-        try {
-            const updatedProfile = await authService.updateUserProfile(user.uid, updates);
-            setProfile(updatedProfile);
-            return updatedProfile;
-        } catch (err) {
-            setError(err.message || 'Profile update failed');
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    }, [user]);
-
-    const changePassword = useCallback(async (currentPassword, newPassword) => {
-        setError(null);
-
-        try {
-            await authService.changePassword(currentPassword, newPassword);
-        } catch (err) {
-            setError(err.message || 'Password change failed');
-            throw err;
-        }
-    }, []);
-
-    const hasRole = useCallback(async (roles) => {
-        if (!user) return false;
-
-        try {
-            return await authService.hasRole(user.uid, roles);
-        } catch (err) {
-            console.error('Error checking role:', err);
-            return false;
-        }
-    }, [user]);
-
     const value = {
         user,
         profile,
@@ -251,7 +209,6 @@ export const AuthProvider = ({ children }) => {
         isGoogleAuth,
         authInitialized,
         isAuthenticated: !!user,
-        login: signIn,
         googleLogin,
         googleRegister,
         signup: signUp,
@@ -260,11 +217,6 @@ export const AuthProvider = ({ children }) => {
         logout: signOut,
         signOut,
         resetPassword,
-        updateUserProfile,
-        updateProfile: updateUserProfile,
-        changePassword,
-        hasRole,
-        clearError: () => setError(null),
     };
 
     return (

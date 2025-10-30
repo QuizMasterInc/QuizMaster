@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function TermsOfService() {
   return (
     <div className="min-h-screen py-20 px-6 font-main bg-primary text-primary">

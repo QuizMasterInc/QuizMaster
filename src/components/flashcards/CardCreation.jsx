@@ -1,5 +1,5 @@
 /* Allows the User to make a deck of Flashcards */
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 export default function CardCreation({ saveDeck, isLoading }) {
   const [deckName, setDeckName] = useState('');
