@@ -759,3 +759,90 @@ exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
         }
     })
 })
+
+/**
+ * Update an existing custom quiz
+ */
+exports.updateCustomQuiz = onCall(async (data, context) => {
+    // Check if user is authenticated
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
+    }
+
+    const userId = context.auth.uid
+    const { quizId, quizData } = data
+
+    if (!quizId || !quizData) {
+        throw new functions.https.HttpsError('invalid-argument', 'Quiz ID and quiz data are required')
+    }
+
+    try {
+        const quizRef = admin.firestore().collection('custom_quizzes').doc(quizId)
+
+        // Verify the quiz belongs to the user
+        const doc = await quizRef.get()
+        if (!doc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Quiz not found')
+        }
+
+        const existingData = doc.data()
+        if (existingData.creator?.uid !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Access denied')
+        }
+
+        // Prepare update data
+        const updateData = {
+            ...quizData,
+            'timestamps.updatedAt': admin.firestore.Timestamp.now()
+        }
+
+        await quizRef.update(updateData)
+
+        return {
+            id: quizId,
+            ...existingData,
+            ...updateData
+        }
+    } catch (error) {
+        console.error('[updateCustomQuiz] Error updating custom quiz:', error)
+        throw new functions.https.HttpsError('internal', 'Error updating custom quiz')
+    }
+})
+
+/**
+ * Delete a custom quiz
+ */
+exports.deleteCustomQuiz = onCall(async (data, context) => {
+    // Check if user is authenticated
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
+    }
+
+    const userId = context.auth.uid
+    const { quizId } = data
+
+    if (!quizId) {
+        throw new functions.https.HttpsError('invalid-argument', 'Quiz ID is required')
+    }
+
+    try {
+        const quizRef = admin.firestore().collection('custom_quizzes').doc(quizId)
+
+        // Verify the quiz belongs to the user
+        const doc = await quizRef.get()
+        if (!doc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Quiz not found')
+        }
+
+        if (doc.data().creator?.uid !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Access denied')
+        }
+
+        await quizRef.delete()
+
+        return { success: true, message: 'Quiz deleted successfully' }
+    } catch (error) {
+        console.error('[deleteCustomQuiz] Error deleting custom quiz:', error)
+        throw new functions.https.HttpsError('internal', 'Error deleting custom quiz')
+    }
+})

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import CustomQuizSelectButton from "./CustomQuizSelectButton";
 import FilterSelect from "./FilterSelect";
@@ -19,12 +19,12 @@ const QuizList = ({
   const [quizzes, setQuizzes] = useState([]);
   const [quizzesToDisplay, setQuizzesToDisplay] = useState([]);
 
-  // Get current filter values from URL
-  const filters = {
+  // Get current filter values from URL (memoized to prevent infinite re-renders)
+  const filters = useMemo(() => ({
     searchTerm: searchParams.get('q') || '',
     sortBy: searchParams.get('sort') || 'newest',
     privacy: searchParams.get('privacy') || 'All'
-  };
+  }), [searchParams]);
 
   // Data fetching logic based on dataSource
   const fetchQuizzes = useCallback(async () => {
