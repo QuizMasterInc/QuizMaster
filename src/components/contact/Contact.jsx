@@ -30,6 +30,7 @@ import rudra from "../../assets/rudra.webp"
 import ben from "../../assets/ben.webp"
 import ethan from "../../assets/ethan.webp"
 import salah from "../../assets/salah.webp"
+import joseph from "../../assets/joseph.webp"
 
 const TeamSection = ({ title, isOpen = false, children }) => {
     const [expanded, setExpanded] = useState(isOpen);
@@ -116,6 +117,13 @@ const Contact = () => (
                         group="ElectricalSquirrels Group"
                         email="salahjabdelmajid@lewisu.edu"
                         githubLink={"https://github.com/salahmajid"}
+                    />
+                    <TeamMember
+                        image={joseph}
+                        name="Joseph Chavez"
+                        group="ElectricalSquirrels Group"
+                        email="josephrchavez1@lewisu.edu"
+                        githubLink="https://github.com/Jchave2000"
                     />
                     <TeamMember
                         image={ben}
