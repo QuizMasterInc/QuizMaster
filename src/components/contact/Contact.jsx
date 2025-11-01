@@ -31,6 +31,7 @@ import ben from "../../assets/ben.webp"
 import ethan from "../../assets/ethan.webp"
 import salah from "../../assets/salah.webp"
 import joseph from "../../assets/joseph.webp"
+import adrian from "../../assests/Adrian.webp"
 
 const TeamSection = ({ title, isOpen = false, children }) => {
     const [expanded, setExpanded] = useState(isOpen);
@@ -104,6 +105,13 @@ const Contact = () => (
                     Fall 2025 Dream Team
                 </h2>
                 <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+                    <TeamMember
+                        image={Adrian}
+                        name="Adrian Salinas"
+                        group="ElectricalSquirrels Group"
+                        email="adriansalinas@lewisu.edu"
+                        githubLink="https://github.com/adrian57831"
+                    />
                     <TeamMember
                         image={faiza}
                         name="Faiza Khan"
