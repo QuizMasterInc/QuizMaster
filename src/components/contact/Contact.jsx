@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import max from "../../assets/max.webp"
+import faiza from "../../assets/faiza.jpg"
 import anthony from "../../assets/anthony.webp"
 import matt from "../../assets/matt.webp"
 import jose from "../../assets/jose.webp"
@@ -28,6 +29,9 @@ import kolade from "../../assets/kolade.webp"
 import rudra from "../../assets/rudra.webp"
 import ben from "../../assets/ben.webp"
 import ethan from "../../assets/ethan.webp"
+import salah from "../../assets/salah.webp"
+import joseph from "../../assets/joseph.webp"
+import adrian from "../../assets/adrian.webp"
 
 const TeamSection = ({ title, isOpen = false, children }) => {
     const [expanded, setExpanded] = useState(isOpen);
@@ -101,6 +105,34 @@ const Contact = () => (
                     Fall 2025 Dream Team
                 </h2>
                 <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
+                    <TeamMember
+                        image={adrian}
+                        name="Adrian Salinas"
+                        group="ElectricalSquirrels Group"
+                        email="adriansalinas@lewisu.edu"
+                        githubLink="https://github.com/adrian57831"
+                    />
+                    <TeamMember
+                        image={faiza}
+                        name="Faiza Khan"
+                        group="ElectricalSquirrels Group"
+                        email="faizaakhan@lewisu.edu"
+                        githubLink="https://github.com/faizak2521"
+                    />
+                    <TeamMember
+                        image={salah}
+                        name="Salah Abdelmajid"
+                        group="ElectricalSquirrels Group"
+                        email="salahjabdelmajid@lewisu.edu"
+                        githubLink={"https://github.com/salahmajid"}
+                    />
+                    <TeamMember
+                        image={joseph}
+                        name="Joseph Chavez"
+                        group="ElectricalSquirrels Group"
+                        email="josephrchavez1@lewisu.edu"
+                        githubLink="https://github.com/Jchave2000"
+                    />
                     <TeamMember
                         image={ben}
                         name="Benjamin Eiler"

@@ -1,7 +1,6 @@
 /**
  * Shared UI components for consistent design across the app
  */
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 // Reusable Button Component

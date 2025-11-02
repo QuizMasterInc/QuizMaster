@@ -14,6 +14,10 @@ const study = require('./study')
 exports.addDefaultQuestion = questions.addDefaultQuestion
 exports.grabSubV2 = questions.grabSubV2
 exports.getSubcategories = questions.getSubcategories
+exports.getCustomQuestions = questions.getCustomQuestions
+exports.addCustomQuestion = questions.addCustomQuestion
+exports.updateCustomQuestion = questions.updateCustomQuestion
+exports.deleteCustomQuestion = questions.deleteCustomQuestion
 
 // Quizzes module
 exports.grabCustomQuiz = quizzes.grabCustomQuiz
@@ -23,10 +27,15 @@ exports.browseCustomQuizzesOptimized = quizzes.browseCustomQuizzesOptimized
 exports.addCustomQuiz = quizzes.addCustomQuiz
 exports.grabUserCustomQuizzesV2 = quizzes.grabUserCustomQuizzesV2
 exports.browseCustomQuizzesV2 = quizzes.browseCustomQuizzesV2
+exports.updateCustomQuiz = quizzes.updateCustomQuiz
+exports.deleteCustomQuiz = quizzes.deleteCustomQuiz
 
 // Results module
 exports.grabAllResultsV2 = results.grabAllResultsV2
 exports.submitQuizResults = results.submitQuizResults
+exports.getQuizResults = results.getQuizResults
+exports.getQuizResultDetails = results.getQuizResultDetails
+exports.deleteQuizResult = results.deleteQuizResult
 
 // Flashcards module
 exports.addCustomFlashcardDeck = flashcards.addCustomFlashcardDeck

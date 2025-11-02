@@ -1,4 +1,3 @@
-import React from "react";
 import { SquareX } from "../icons/index.jsx";
 import Modal from "react-modal";
 

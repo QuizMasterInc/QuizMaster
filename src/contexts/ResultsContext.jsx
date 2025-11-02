@@ -2,7 +2,7 @@
  * Results Context - Provides optimized batch results to all components
  * Uses grabAllResultsV2 to fetch all categories in one call
  */
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import resultService from '../services/quiz/resultService';
 

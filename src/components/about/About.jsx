@@ -1,5 +1,4 @@
 // This is our information tab page that displays info to the user
-// Updated design on March 23, 2025 by sami alzoubi
 
 export default function About() {
   // Return JSX for the About component

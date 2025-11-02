@@ -2,8 +2,6 @@
  * This is the question choice component. 
  * This holds the text for each question choice
  */
-import React from "react";
-
 function QuestionChoice ({choiceText, isAnswer, isSelected, onSelect, isCorrect, isIncorrect, isDisabled}){
 
     /**

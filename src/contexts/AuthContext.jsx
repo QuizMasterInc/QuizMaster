@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import authService from '../services/auth/authService';
 
 const AuthContext = createContext(null);
@@ -151,6 +151,86 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
+    const githubLogin = useCallback(async () => {
+        setError(null);
+
+        try {
+            const result = await authService.signInWithGitHub();
+
+            if (result && result.user) {
+                return result;
+            }
+
+        } catch (err) {
+            const errorMessage = err.message || 'Failed to sign in with GitHub';
+            setError(errorMessage);
+            throw new Error(errorMessage);
+        }
+    }, []);
+
+    const githubRegister = useCallback(async (additionalData = {}) => {
+        setError(null);
+
+        try {
+            const result = await authService.registerWithGitHub(additionalData);
+
+            if (result && result.user && result.profile) {
+                setUser(result.user);
+                setProfile(result.profile);
+                setLoading(false);
+                return result;
+            }
+
+            throw new Error('Registration completed but data not returned');
+
+        } catch (err) {
+            const errorMessage = err.message || 'Failed to register with GitHub';
+            setError(errorMessage);
+            setLoading(false);
+            throw new Error(errorMessage);
+        }
+    }, []);
+
+    const appleLogin = useCallback(async () => {
+        setError(null);
+
+        try {
+            const result = await authService.signInWithApple();
+
+            if (result && result.user) {
+                return result;
+            }
+
+        } catch (err) {
+            const errorMessage = err.message || 'Failed to sign in with Apple';
+            setError(errorMessage);
+            throw new Error(errorMessage);
+        }
+    }, []);
+
+    const appleRegister = useCallback(async (additionalData = {}) => {
+        setError(null);
+
+        try {
+            const result = await authService.registerWithApple(additionalData);
+
+            if (result && result.user && result.profile) {
+                setUser(result.user);
+                setProfile(result.profile);
+                setLoading(false);
+                return result;
+            }
+
+            throw new Error('Registration completed but data not returned');
+
+        } catch (err) {
+            const errorMessage = err.message || 'Failed to register with Apple';
+            setError(errorMessage);
+            setLoading(false);
+            throw new Error(errorMessage);
+        }
+    }, []);
+
     const signUp = useCallback(async (userData) => {
         // Don't set global loading - let components handle their own loading states
         setError(null);
@@ -200,48 +280,6 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const updateUserProfile = useCallback(async (updates) => {
-        if (!user) {
-            throw new Error('No user is currently signed in');
-        }
-
-        setLoading(true);
-        setError(null);
-
-        try {
-            const updatedProfile = await authService.updateUserProfile(user.uid, updates);
-            setProfile(updatedProfile);
-            return updatedProfile;
-        } catch (err) {
-            setError(err.message || 'Profile update failed');
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    }, [user]);
-
-    const changePassword = useCallback(async (currentPassword, newPassword) => {
-        setError(null);
-
-        try {
-            await authService.changePassword(currentPassword, newPassword);
-        } catch (err) {
-            setError(err.message || 'Password change failed');
-            throw err;
-        }
-    }, []);
-
-    const hasRole = useCallback(async (roles) => {
-        if (!user) return false;
-
-        try {
-            return await authService.hasRole(user.uid, roles);
-        } catch (err) {
-            console.error('Error checking role:', err);
-            return false;
-        }
-    }, [user]);
-
     const value = {
         user,
         profile,
@@ -251,20 +289,18 @@ export const AuthProvider = ({ children }) => {
         isGoogleAuth,
         authInitialized,
         isAuthenticated: !!user,
-        login: signIn,
         googleLogin,
         googleRegister,
+        githubLogin,
+        githubRegister,
+        appleLogin,
+        appleRegister,
         signup: signUp,
         signIn,
         signUp,
         logout: signOut,
         signOut,
         resetPassword,
-        updateUserProfile,
-        updateProfile: updateUserProfile,
-        changePassword,
-        hasRole,
-        clearError: () => setError(null),
     };
 
     return (

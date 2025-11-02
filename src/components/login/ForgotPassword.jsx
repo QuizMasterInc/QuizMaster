@@ -2,7 +2,7 @@
 * Template used from https://tailwindui.com/components/application-ui/forms/sign-in-forms
 * This is used for if the user forgets their password
 */
-import React, {useRef, useState} from "react";
+import {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
 import { Q } from '../icons/index.jsx';

@@ -3,7 +3,6 @@
  * based on the quiz category
  */
 // Full updated SelectSub.jsx
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCategory } from '../../contexts/AppContext';
 import { BackButton } from '../ui/index.jsx';

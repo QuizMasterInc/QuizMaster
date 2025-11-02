@@ -1,19 +1,13 @@
 /**
  * This component hosts a button to click for each custom quiz
  */
-import React, {useState} from "react"
-import { useAuth } from "../../../contexts/AuthContext";
+import {useState} from "react"
 import { Link, useNavigate } from "react-router-dom"; 
 
 const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, creator}) => {
 
-  const { currentUser } = useAuth();
-  const navigate = useNavigate()
-  const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("")
-  // const [quizPasswordAttemptCheck, setQuizPasswordAttemptCheck] = useState()
-  // Removed unnecessary creator info fetching since we already get the display name from the backend
-
-
+  const navigate = useNavigate();
+  const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("");
 
   function displayCreatorName() {
     // Use the creator prop directly (it's already the display name from the backend)

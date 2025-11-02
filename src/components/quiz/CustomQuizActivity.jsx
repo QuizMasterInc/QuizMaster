@@ -1,5 +1,5 @@
 // CustomQuizActivity.jsx
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import Question from './Question';

@@ -1,12 +1,12 @@
 /**
  * Quiz Retrieval Service - handles quiz reading, browsing, and searching
  */
-import { collection, doc, getDoc, getDocs, query, where, orderBy, limit, startAfter } from 'firebase/firestore';
-import { db, handleFirebaseError, withRetry, timestamp } from '../firebase/firebaseService';
+import { handleFirebaseError } from '../firebase/firebaseService';
+import cloudFunctionsAPI from '../api/cloudFunctions';
 
 class QuizRetrievalService {
     constructor() {
-        this.collection = 'quizzes';
+        this.collection = 'custom_quizzes';
     }
 
     /**
@@ -21,22 +21,14 @@ class QuizRetrievalService {
                 throw new Error('Quiz ID is required');
             }
 
-            const quizDoc = await withRetry(() =>
-                getDoc(doc(db, this.collection, quizId))
-            );
+            // Use unified CloudFunctionsAPI
+            const quiz = await cloudFunctionsAPI.getCustomQuiz(quizId);
 
-            if (!quizDoc.exists()) {
-                const error = new Error('Quiz not found');
-                error.code = 'quiz-not-found';
-                throw error;
-            }
-
-            const quiz = quizDoc.data();
             return {
-                id: quizDoc.id,
+                id: quiz.id || quiz.uid,
                 ...quiz,
-                createdAt: timestamp.fromFirestore(quiz.createdAt),
-                updatedAt: timestamp.fromFirestore(quiz.updatedAt)
+                createdAt: quiz.timestamps?.createdAt || quiz.createdAt,
+                updatedAt: quiz.timestamps?.updatedAt || quiz.updatedAt
             };
 
         } catch (error) {
@@ -66,40 +58,28 @@ class QuizRetrievalService {
                 startAfterDoc = null
             } = options;
 
-            let q = collection(db, this.collection);
+            // Map orderByField to browseCustomQuizzes sort options
+            const sortMapping = {
+                'createdAt': orderDirection === 'desc' ? 'newest' : 'oldest',
+                'title': orderDirection === 'asc' ? 'title' : 'titleReverse',
+                'updatedAt': orderDirection === 'desc' ? 'newest' : 'oldest'
+            };
 
-            // Apply filters
-            if (creatorId) {
-                q = query(q, where('creatorId', '==', creatorId));
-            }
+            const sortBy = sortMapping[orderByField] || 'newest';
 
-            if (isActive !== undefined) {
-                q = query(q, where('isActive', '==', isActive));
-            }
-
-            // Apply ordering
-            q = query(q, orderBy(orderByField, orderDirection));
-
-            // Apply pagination
-            if (startAfterDoc) {
-                q = query(q, startAfter(startAfterDoc));
-            }
-
-            q = query(q, limit(limitCount));
-
-            const querySnapshot = await getDocs(q);
-
-            const quizzes = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                createdAt: timestamp.fromFirestore(doc.data().createdAt),
-                updatedAt: timestamp.fromFirestore(doc.data().updatedAt)
-            }));
+            // Use browseCustomQuizzes for filtering and pagination
+            const result = await cloudFunctionsAPI.browseCustomQuizzes({
+                sortBy,
+                limit: limitCount,
+                creator: creatorId,
+                // Note: browseCustomQuizzes doesn't support startAfterDoc pagination in the same way
+                // This is a limitation we'll need to work with
+            });
 
             return {
-                quizzes,
-                hasMore: querySnapshot.docs.length === limitCount,
-                lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1] || null
+                quizzes: result.quizzes || [],
+                hasMore: (result.quizzes || []).length === limitCount,
+                lastDoc: null // Cloud Functions handle pagination differently
             };
 
         } catch (error) {
@@ -119,33 +99,15 @@ class QuizRetrievalService {
                 return [];
             }
 
-            const response = await fetch(
-                `https://graballcustomquizzes-ukhjsvkoca-uc.a.run.app`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                }
-            );
-
-            if (!response.ok) {
-                // Handle specific HTTP status codes
-                if (response.status === 404) {
-                    return [];
-                }
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
+            const response = await cloudFunctionsAPI.getAllCustomQuizzes();
 
             // Handle response from grabAllCustomQuizzes
-            if (!data || !data.result) {
+            if (!response || !response.result) {
                 return [];
             }
 
             // Filter quizzes by the current user
-            const allQuizzes = data.data || [];
+            const allQuizzes = response.data || [];
             const userQuizzes = allQuizzes.filter(quiz => {
                 // Handle new nested schema
                 if (quiz.creator && quiz.creator.userId) {
@@ -280,37 +242,17 @@ class QuizRetrievalService {
         } = options;
 
         try {
-            // Use the new optimized endpoint that leverages Firestore indexes
-            const endpoint = useIndexes ?
-                'https://us-central1-quizmaster-c66a2.cloudfunctions.net/browseCustomQuizzesOptimized' :
-                'https://us-central1-quizmaster-c66a2.cloudfunctions.net/browseCustomQuizzesV2';
-
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    searchTerm,
-                    sortBy,
-                    privacy,
-                    limit,
-                    creator: currentUserId,
-                    useIndexes,
-                    // Additional optimization parameters
-                    category: 'all',
-                    difficulty: 'all'
-                })
+            const data = await cloudFunctionsAPI.browseCustomQuizzes({
+                searchTerm,
+                sortBy,
+                privacy,
+                limit,
+                creator: currentUserId,
+                useIndexes,
+                // Additional optimization parameters
+                category: 'all',
+                difficulty: 'all'
             });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`Browse API Error ${response.status}:`, errorText);
-                throw new Error(`API Error ${response.status}: ${errorText}`);
-            }
-
-            const data = await response.json();
 
             // Handle both new optimized endpoint and legacy endpoint responses
             const isOptimizedResponse = data.success !== undefined;
@@ -322,7 +264,7 @@ class QuizRetrievalService {
             }
 
             return {
-                quizzes: data.data || [],
+                quizzes: data.quizzes || data.data || [],
                 count: data.meta?.count || data.count || 0,
                 searchTerm: data.meta?.searchTerm || data.searchTerm,
                 sortBy: data.meta?.sortBy || data.sortBy,
@@ -343,6 +285,33 @@ class QuizRetrievalService {
             } else {
                 throw new Error(error.message || 'Failed to load quizzes. Please try again.');
             }
+        }
+    }
+
+    /**
+     * Update an existing custom quiz
+     * @param {string} quizId - Quiz ID to update
+     * @param {Object} quizData - Updated quiz data
+     * @returns {Promise<Object>} Updated quiz data
+     */
+    async updateCustomQuiz(quizId, quizData) {
+        try {
+            return await cloudFunctionsAPI.updateCustomQuiz(quizId, quizData);
+        } catch (error) {
+            throw handleFirebaseError(error);
+        }
+    }
+
+    /**
+     * Delete a custom quiz
+     * @param {string} quizId - Quiz ID to delete
+     * @returns {Promise<Object>} Deletion result
+     */
+    async deleteCustomQuiz(quizId) {
+        try {
+            return await cloudFunctionsAPI.deleteCustomQuiz(quizId);
+        } catch (error) {
+            throw handleFirebaseError(error);
         }
     }
 }

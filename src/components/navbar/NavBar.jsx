@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
 import { School, Computer, Profile, Info, SignIn, Email, Gear, Q, Scroll } from "../icons/index.jsx";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";

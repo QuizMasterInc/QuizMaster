@@ -7,7 +7,7 @@
 * Current password is required to change any account email or password.
 */
 
-import React, {useRef, useState} from "react";
+import {useRef, useState} from "react";
 import {useAuth} from '../../contexts/AuthContext'
 import { Link } from "react-router-dom";
 import { Q } from '../icons/index.jsx';

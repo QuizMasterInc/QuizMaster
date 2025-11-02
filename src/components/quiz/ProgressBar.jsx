@@ -1,5 +1,3 @@
-import React from "react";
-
 const ProgressBar = ({ answeredCount, totalQuestions }) => {
   // Handle division by zero to prevent NaN
   const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;

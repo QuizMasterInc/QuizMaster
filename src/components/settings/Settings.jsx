@@ -1,4 +1,3 @@
-import React from 'react';
 import DarkLightMode from './DarkLightMode';
 
 export default function Settings() {

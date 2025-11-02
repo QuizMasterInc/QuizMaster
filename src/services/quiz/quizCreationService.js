@@ -1,8 +1,9 @@
 /**
  * Quiz Creation Service - handles quiz creation, validation, and normalization
  */
-import { httpsCallable } from 'firebase/functions';
-import { functions, handleFirebaseError, timestamp } from '../firebase/firebaseService';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/firebaseService';
+import cloudFunctionsAPI from '../api/cloudFunctions';
 
 class QuizCreationService {
     constructor() {
@@ -69,24 +70,17 @@ class QuizCreationService {
     }
 
     /**
-     * Check if quiz title already exists for user
-     * @param {Array} userQuizzes - User's existing quizzes
+     * Check if quiz title already exists for user (using array of titles)
+     * @param {Array} existingTitles - Array of existing quiz titles
      * @param {string} newTitle - New quiz title to check
      * @returns {boolean} - True if title exists
      */
-    isTitleDuplicate(userQuizzes, newTitle) {
-        if (!userQuizzes || !Array.isArray(userQuizzes)) return false;
+    isTitleDuplicateFromTitles(existingTitles, newTitle) {
+        if (!existingTitles || !Array.isArray(existingTitles)) {
+            return false;
+        }
 
-        const titles = userQuizzes.map(quiz => {
-            // Handle new nested schema
-            if (quiz.metadata && quiz.metadata.title) {
-                return quiz.metadata.title;
-            }
-            // Handle old flat schema
-            return quiz.title || (quiz.data && quiz.data.title) || '';
-        });
-
-        return titles.some(title =>
+        return existingTitles.some(title =>
             title.toLowerCase() === newTitle.toLowerCase()
         );
     }
@@ -98,13 +92,10 @@ class QuizCreationService {
      * @returns {Object} - Questions object in unified format
      */
     createQuizDataObject(quizDataArray) {
-        console.log('createQuizDataObject received:', quizDataArray);
         const questionsObject = {};
 
         quizDataArray.forEach((questionDetailsArray, index) => {
             const questionKey = `Question ${index + 1}`;
-
-            console.log(`Processing question ${index + 1}:`, questionDetailsArray);
 
             // Handle different question types
             const questionType = questionDetailsArray[6] || "Multiple";
@@ -143,22 +134,58 @@ class QuizCreationService {
                 points: 1
             };
 
-            console.log(`Created question object for ${questionKey}:`, questionObject);
-
             questionsObject[questionKey] = questionObject;
         });
-
-        console.log('Final questionsObject:', questionsObject);
 
         return questionsObject;
     }
 
     /**
+     * Fetch user's existing quiz titles using Cloud Function for consistency
+     * @param {string} userId - User ID to fetch quizzes for
+     * @returns {Promise<Array>} Array of existing quiz titles
+     */
+    async fetchUserQuizTitles(userId) {
+        try {
+            if (!userId) {
+                return [];
+            }
+
+            // Use unified CloudFunctionsAPI
+            const data = await cloudFunctionsAPI.call('grabUserCustomQuizzesV2', { uid: userId }, 'GET');
+
+            // Extract titles from the quiz data
+            const titles = data.data.map(quiz => {
+                // Handle new nested schema first
+                if (quiz.metadata && quiz.metadata.title) {
+                    return quiz.metadata.title;
+                }
+                // Handle old flat schema
+                else if (quiz.title) {
+                    return quiz.title;
+                }
+                // Handle old nested data schema
+                else if (quiz.data && quiz.data.title) {
+                    return quiz.data.title;
+                }
+                return '';
+            }).filter(title => title.length > 0);
+
+            return titles;
+
+        } catch (error) {
+            console.error('Error fetching user quiz titles from Cloud Function:', error);
+            // Return empty array on error to allow quiz creation rather than block it
+            return [];
+        }
+    }
+
+    /**
      * Create complete quiz object with validation
      * @param {Object} quizInput - Quiz creation data
-     * @returns {Object} - Validated quiz object or validation errors
+     * @returns {Promise<Object>} - Validated quiz object or validation errors
      */
-    createValidatedQuizObject(quizInput) {
+    async createValidatedQuizObject(quizInput) {
         const {
             quizName,
             quizData,
@@ -166,17 +193,25 @@ class QuizCreationService {
             privateQuiz,
             privateQuizPassword,
             currentUserId,
-            userQuizzes,
             showTimer,
             showPauseButton,
             duration
         } = quizInput;
 
+        // Fetch fresh user quiz titles for duplicate validation
+        let userQuizTitles = [];
+        try {
+            userQuizTitles = await this.fetchUserQuizTitles(currentUserId);
+        } catch (error) {
+            console.error('Error fetching user quiz titles for validation:', error);
+            // Continue with empty array - better to allow creation than block due to fetch error
+        }
+
         // Validation
         const validations = {
             validQuizName: this.validateQuizName(quizName),
             validQuizTags: this.validateQuizTags(quizTags),
-            duplicateTitle: this.isTitleDuplicate(userQuizzes, quizName),
+            duplicateTitle: this.isTitleDuplicateFromTitles(userQuizTitles, quizName),
             validPassword: privateQuiz ? this.validateQuizPassword(privateQuizPassword) : true
         };
 
@@ -295,23 +330,7 @@ class QuizCreationService {
      */
     async submitCustomQuiz(quizObject) {
         try {
-            const response = await fetch(
-                'https://us-central1-quizmaster-c66a2.cloudfunctions.net/addCustomQuiz',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(quizObject)
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            return await response.json();
+            return await cloudFunctionsAPI.call('addCustomQuiz', quizObject);
         } catch (error) {
             console.error('Error submitting quiz:', error);
             throw new Error('Failed to create quiz. Please try again.');

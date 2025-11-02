@@ -1,8 +1,8 @@
 /**
  * Analytics Service - handles analytics, statistics, performance calculations, and exports
  */
-import { httpsCallable } from 'firebase/functions';
-import { functions, handleFirebaseError } from '../firebase/firebaseService';
+import cloudFunctionsAPI from '../api/cloudFunctions';
+import { handleFirebaseError } from '../firebase/firebaseService';
 
 class AnalyticsService {
     constructor() {
@@ -16,10 +16,7 @@ class AnalyticsService {
      */
     async getQuizAnalytics(quizId) {
         try {
-            const analyticsFunction = httpsCallable(functions, 'getQuizAnalytics');
-            const result = await analyticsFunction({ quizId });
-
-            return result.data;
+            return await cloudFunctionsAPI.call('getQuizAnalytics', { quizId });
 
         } catch (error) {
             throw handleFirebaseError(error);
@@ -33,10 +30,7 @@ class AnalyticsService {
      */
     async getUserPerformanceSummary(userId) {
         try {
-            const summaryFunction = httpsCallable(functions, 'getUserPerformanceSummary');
-            const result = await summaryFunction({ userId });
-
-            return result.data;
+            return await cloudFunctionsAPI.call('getUserPerformanceSummary', { userId });
 
         } catch (error) {
             throw handleFirebaseError(error);
@@ -51,13 +45,12 @@ class AnalyticsService {
      */
     async exportQuizResults(quizId, options = {}) {
         try {
-            const exportFunction = httpsCallable(functions, 'exportQuizResults');
-            const result = await exportFunction({
+            const data = await cloudFunctionsAPI.call('exportQuizResults', {
                 quizId,
                 ...options
             });
 
-            return result.data;
+            return data;
 
         } catch (error) {
             throw handleFirebaseError(error);

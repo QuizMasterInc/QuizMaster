@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 function Question({ question, onAnswer, isCompleted, onAnswerChange, answerCount }) {
   const [selectedIndex, setSelectedIndex] = useState(null);

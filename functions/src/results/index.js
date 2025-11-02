@@ -243,3 +243,133 @@ exports.submitQuizResults = onRequest(async (req, res) => {
         }
     });
 })
+
+/**
+ * Get quiz results for a user with optional filtering
+ */
+exports.getQuizResults = onCall(async (data, context) => {
+    // Check if user is authenticated
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
+    }
+
+    const userId = context.auth.uid
+    const { quizType, category, limit = 50, offset = 0 } = data
+
+    try {
+        let query = admin.firestore()
+            .collection('quiz_results')
+            .where('userId', '==', userId)
+            .orderBy('submittedAt', 'desc')
+
+        // Apply filters if provided
+        if (quizType) {
+            query = query.where('quizType', '==', quizType)
+        }
+
+        if (category) {
+            query = query.where('category', '==', category.toLowerCase())
+        }
+
+        // Apply pagination
+        if (offset > 0) {
+            query = query.offset(offset)
+        }
+
+        query = query.limit(limit)
+
+        const snapshot = await query.get()
+
+        const results = []
+        snapshot.forEach(doc => {
+            results.push({
+                id: doc.id,
+                ...doc.data()
+            })
+        })
+
+        return { results }
+    } catch (error) {
+        console.error('[getQuizResults] Error fetching quiz results:', error)
+        throw new functions.https.HttpsError('internal', 'Error fetching quiz results')
+    }
+})
+
+/**
+ * Get detailed information about a specific quiz result
+ */
+exports.getQuizResultDetails = onCall(async (data, context) => {
+    // Check if user is authenticated
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
+    }
+
+    const userId = context.auth.uid
+    const { resultId } = data
+
+    if (!resultId) {
+        throw new functions.https.HttpsError('invalid-argument', 'Result ID is required')
+    }
+
+    try {
+        const resultRef = admin.firestore().collection('quiz_results').doc(resultId)
+        const doc = await resultRef.get()
+
+        if (!doc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Quiz result not found')
+        }
+
+        const resultData = doc.data()
+
+        // Verify the result belongs to the user
+        if (resultData.userId !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Access denied')
+        }
+
+        return {
+            id: doc.id,
+            ...resultData
+        }
+    } catch (error) {
+        console.error('[getQuizResultDetails] Error fetching quiz result details:', error)
+        throw new functions.https.HttpsError('internal', 'Error fetching quiz result details')
+    }
+})
+
+/**
+ * Delete a quiz result
+ */
+exports.deleteQuizResult = onCall(async (data, context) => {
+    // Check if user is authenticated
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
+    }
+
+    const userId = context.auth.uid
+    const { resultId } = data
+
+    if (!resultId) {
+        throw new functions.https.HttpsError('invalid-argument', 'Result ID is required')
+    }
+
+    try {
+        const resultRef = admin.firestore().collection('quiz_results').doc(resultId)
+
+        // Verify the result belongs to the user
+        const doc = await resultRef.get()
+        if (!doc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Quiz result not found')
+        }
+
+        if (doc.data().userId !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Access denied')
+        }
+
+        await resultRef.delete()
+
+        return { success: true, message: 'Quiz result deleted successfully' }
+    } catch (error) {
+        console.error('[deleteQuizResult] Error deleting quiz result:', error)
+        throw new functions.https.HttpsError('internal', 'Error deleting quiz result')
+    }
+})

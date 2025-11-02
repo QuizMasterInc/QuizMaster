@@ -1,7 +1,7 @@
 /**
  * Custom Quiz Settings - allows users to configure timer settings before taking a custom quiz
  */
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { BackButton } from '../ui/index.jsx';

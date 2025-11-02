@@ -7,7 +7,6 @@ import { useState, useEffect } from "react";
 function Timer({ duration, onFinish, timerFinished, showTimer = true, loading , showPause}) {
   const [timeLeft, setTimeLeft] = useState(duration * 60); // Convert minutes to seconds
   const [isPaused, setIsPaused] = useState(false);
-  const [halfTimeAlert, setHalfTimeAlert] = useState(false);
   const [lowTimeAlert, setLowTimeAlert] = useState(false);
 
   const lowTimeLimit = 30; // 30 seconds warning only

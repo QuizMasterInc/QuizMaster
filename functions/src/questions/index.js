@@ -178,3 +178,155 @@ exports.getSubcategories = onRequest(async (req, res) => {
         }
     })
 })
+
+/**
+ * Get all custom questions for a specific user
+ */
+exports.getCustomQuestions = onCall(async (data, context) => {
+    // Check if user is authenticated
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
+    }
+
+    const userId = context.auth.uid
+
+    try {
+        const questionsRef = admin.firestore().collection('custom-questions')
+        const snapshot = await questionsRef.where('userId', '==', userId).get()
+
+        const questions = []
+        snapshot.forEach(doc => {
+            questions.push({
+                id: doc.id,
+                ...doc.data()
+            })
+        })
+
+        return { questions }
+    } catch (error) {
+        console.error('[getCustomQuestions] Error fetching custom questions:', error)
+        throw new functions.https.HttpsError('internal', 'Error fetching custom questions')
+    }
+})
+
+/**
+ * Add a new custom question for a user
+ */
+exports.addCustomQuestion = onCall(async (data, context) => {
+    // Check if user is authenticated
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
+    }
+
+    const userId = context.auth.uid
+    const { question } = data
+
+    if (!question) {
+        throw new functions.https.HttpsError('invalid-argument', 'Question data is required')
+    }
+
+    try {
+        const questionsRef = admin.firestore().collection('custom-questions')
+        const newQuestion = {
+            ...question,
+            userId,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        }
+
+        const docRef = await questionsRef.add(newQuestion)
+
+        return {
+            id: docRef.id,
+            ...newQuestion
+        }
+    } catch (error) {
+        console.error('[addCustomQuestion] Error adding custom question:', error)
+        throw new functions.https.HttpsError('internal', 'Error adding custom question')
+    }
+})
+
+/**
+ * Update an existing custom question
+ */
+exports.updateCustomQuestion = onCall(async (data, context) => {
+    // Check if user is authenticated
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
+    }
+
+    const userId = context.auth.uid
+    const { questionId, question } = data
+
+    if (!questionId || !question) {
+        throw new functions.https.HttpsError('invalid-argument', 'Question ID and question data are required')
+    }
+
+    try {
+        const questionRef = admin.firestore().collection('custom-questions').doc(questionId)
+
+        // Verify the question belongs to the user
+        const doc = await questionRef.get()
+        if (!doc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Question not found')
+        }
+
+        if (doc.data().userId !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Access denied')
+        }
+
+        const updatedQuestion = {
+            ...question,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        }
+
+        await questionRef.update(updatedQuestion)
+
+        return {
+            id: questionId,
+            ...doc.data(),
+            ...updatedQuestion
+        }
+    } catch (error) {
+        console.error('[updateCustomQuestion] Error updating custom question:', error)
+        throw new functions.https.HttpsError('internal', 'Error updating custom question')
+    }
+})
+
+/**
+ * Delete a custom question
+ */
+exports.deleteCustomQuestion = onCall(async (data, context) => {
+    // Check if user is authenticated
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
+    }
+
+    const userId = context.auth.uid
+    const { questionId } = data
+
+    if (!questionId) {
+        throw new functions.https.HttpsError('invalid-argument', 'Question ID is required')
+    }
+
+    try {
+        const questionRef = admin.firestore().collection('custom-questions').doc(questionId)
+
+        // Verify the question belongs to the user
+        const doc = await questionRef.get()
+        if (!doc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Question not found')
+        }
+
+        if (doc.data().userId !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Access denied')
+        }
+
+        await questionRef.delete()
+
+        return { success: true, message: 'Question deleted successfully' }
+    } catch (error) {
+        console.error('[deleteCustomQuestion] Error deleting custom question:', error)
+        throw new functions.https.HttpsError('internal', 'Error deleting custom question')
+    }
+})
