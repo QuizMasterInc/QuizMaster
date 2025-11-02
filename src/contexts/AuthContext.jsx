@@ -191,45 +191,6 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const appleLogin = useCallback(async () => {
-        setError(null);
-
-        try {
-            const result = await authService.signInWithApple();
-
-            if (result && result.user) {
-                return result;
-            }
-
-        } catch (err) {
-            const errorMessage = err.message || 'Failed to sign in with Apple';
-            setError(errorMessage);
-            throw new Error(errorMessage);
-        }
-    }, []);
-
-    const appleRegister = useCallback(async (additionalData = {}) => {
-        setError(null);
-
-        try {
-            const result = await authService.registerWithApple(additionalData);
-
-            if (result && result.user && result.profile) {
-                setUser(result.user);
-                setProfile(result.profile);
-                setLoading(false);
-                return result;
-            }
-
-            throw new Error('Registration completed but data not returned');
-
-        } catch (err) {
-            const errorMessage = err.message || 'Failed to register with Apple';
-            setError(errorMessage);
-            setLoading(false);
-            throw new Error(errorMessage);
-        }
-    }, []);
 
     const signUp = useCallback(async (userData) => {
         // Don't set global loading - let components handle their own loading states
@@ -293,8 +254,6 @@ export const AuthProvider = ({ children }) => {
         googleRegister,
         githubLogin,
         githubRegister,
-        appleLogin,
-        appleRegister,
         signup: signUp,
         signIn,
         signUp,

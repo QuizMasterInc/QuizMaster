@@ -95,7 +95,7 @@ class AuthService {
         if (authUser.providerData?.length > 0) {
             const provider = authUser.providerData[0].providerId;
             authProvider = provider === 'google.com' ? 'google' : 
-                          provider === 'apple.com' ? 'apple' : 
+                          provider === 'github.com' ? 'github' :
                           provider === 'microsoft.com' ? 'microsoft' : 'email';
         }
 
@@ -609,126 +609,7 @@ class AuthService {
         }
     }
 
-    /**
-     * Sign in with Apple (creates account automatically if it doesn't exist)
-     */
-    async signInWithApple() {
-        try {
-            const provider = new OAuthProvider('apple.com');
-            provider.addScope('email');
-            provider.addScope('name');
 
-            const result = await signInWithPopup(auth, provider);
-
-            if (!result || !result.user) {
-                throw new Error('No user returned from Apple sign-in');
-            }
-
-            const user = result.user;
-
-            // Check if user profile exists
-            const userDocRef = doc(db, 'users', user.uid);
-            const profileDoc = await getDoc(userDocRef);
-
-            let userProfile;
-
-            if (!profileDoc.exists()) {
-                // Profile doesn't exist - create it automatically
-                const userDocument = this.createCompleteUserDocument(user, {});
-                await setDoc(userDocRef, userDocument);
-                userProfile = userDocument;
-            } else {
-                // Profile exists - update last login
-                userProfile = profileDoc.data();
-                await updateDoc(userDocRef, {
-                    'timestamps.lastLoginAt': timestamp.now(),
-                    'timestamps.updatedAt': timestamp.now()
-                });
-            }
-
-            return {
-                user: user,
-                profile: userProfile
-            };
-
-        } catch (error) {
-            console.error('Apple sign-in error:', error);
-            throw this.handleAuthError(error);
-        }
-    }
-
-    /**
-     * Register with Apple (creates new account)
-     */
-    async registerWithApple(additionalData = {}) {
-        try {
-            const provider = new OAuthProvider('apple.com');
-            provider.addScope('email');
-            provider.addScope('name');
-
-            // Step 1: Authenticate with Apple
-            const result = await signInWithPopup(auth, provider);
-
-            if (!result || !result.user) {
-                throw new Error('No user returned from Apple sign-in');
-            }
-
-            const user = result.user;
-
-            // Step 2: Check if profile already exists
-            const userDocRef = doc(db, 'users', user.uid);
-            const existingDoc = await getDoc(userDocRef);
-
-            if (existingDoc.exists()) {
-                // User already registered - this is actually a login
-                await user.delete(); // Clean up the duplicate auth
-                throw new Error('An account with this Apple ID already exists. Please sign in instead.');
-            }
-
-            // Step 3: Create profile IMMEDIATELY
-            const { firstName, lastName } = this.extractNameData(user.displayName || '', user.email);
-
-            // Merge with additional data
-            const userData = {
-                firstName: additionalData.firstName || firstName,
-                lastName: additionalData.lastName || lastName,
-                title: additionalData.title || '',
-                theme: additionalData.theme || 'dark'
-            };
-
-            // Create the CORRECT nested schema document
-            const userDocument = this.createCompleteUserDocument(user, userData);
-
-            // Use setDoc with merge: false to ensure we're creating, not updating
-            await setDoc(userDocRef, userDocument);
-
-            // Step 4: Verify the profile was created
-            const verifyDoc = await getDoc(userDocRef);
-            if (!verifyDoc.exists()) {
-                throw new Error('Failed to create user profile');
-            }
-
-            // Step 5: Return success
-            return {
-                user: user,
-                profile: verifyDoc.data()
-            };
-
-        } catch (error) {
-            console.error('Apple registration error:', error);
-
-            // Clean up auth if profile creation failed
-            if (auth.currentUser) {
-                try {
-                    await auth.currentUser.delete();
-                } catch (cleanupError) {
-                    console.error('Failed to clean up auth user:', cleanupError);
-                }
-            }
-
-            throw this.handleAuthError(error);
-        }
-    }
 
     /**
      * Sign out user

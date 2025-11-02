@@ -1,7 +1,7 @@
 import {useRef, useState, useEffect} from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { GoogleButton, GitHubButton, AppleButton } from "./OAuthButtons";
+import { GoogleButton, GitHubButton } from "./OAuthButtons";
 
 export default function Register() {
   const firstNameRef = useRef()
@@ -10,7 +10,7 @@ export default function Register() {
   const emailRef = useRef()
   const passwordRef = useRef()
   const confirmPasswordRef = useRef()
-  const {signup, googleRegister, githubRegister, appleRegister, isAuthenticated, loading: authLoading} = useAuth()
+  const {signup, googleRegister, githubRegister, isAuthenticated, loading: authLoading} = useAuth()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -122,27 +122,6 @@ export default function Register() {
     }
   }
 
-  async function handleAppleRegister(e) {
-    e.preventDefault()
-
-    try {
-      setError('')
-      setLoading(true)
-
-      const additionalData = {
-        firstName: firstNameRef.current?.value?.trim() || '',
-        lastName: lastNameRef.current?.value?.trim() || '',
-        title: titleRef.current?.value?.trim() || '',
-        theme: getSystemTheme()
-      }
-
-      await appleRegister(additionalData)
-      // Success - user will be redirected automatically by auth state change
-    } catch (error) {
-      setError(error.message || "Failed to create account with Apple")
-      setLoading(false)
-    }
-  }
 
   return (
     <div className="flex flex-col min-h-screen justify-center items-center px-4 py-5 bg-primary">
@@ -298,12 +277,6 @@ export default function Register() {
               onClick={handleGitHubRegister}
               disabled={loading}
               label={loading ? "Creating account..." : "Sign up with GitHub"}
-            />
-
-            <AppleButton
-              onClick={handleAppleRegister}
-              disabled={loading}
-              label={loading ? "Creating account..." : "Sign up with Apple"}
             />
           </div>
           <p className="text-xs text-secondary mt-2">

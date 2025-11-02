@@ -4,10 +4,9 @@ This guide explains how to set up GitHub and Apple authentication for QuizMaster
 
 ## Overview
 
-QuizMaster now supports three OAuth providers:
+QuizMaster now supports two OAuth providers:
 - **Google** (already configured)
 - **GitHub** (new)
-- **Apple** (new)
 
 All OAuth authentication uses Firebase's built-in OAuth flow with `signInWithPopup()`, which means **you don't need custom callback URLs in your React app**. Firebase handles all redirects automatically.
 
@@ -51,69 +50,7 @@ All OAuth authentication uses Firebase's built-in OAuth flow with `signInWithPop
 
 ✅ **Done!** GitHub authentication is now configured.
 
----
 
-## Apple Authentication Setup
-
-### Step 1: Apple Developer Account
-
-You need an **Apple Developer Account** ($99/year) to use Sign in with Apple.
-
-### Step 2: Create App ID
-
-1. Go to [Apple Developer Console](https://developer.apple.com/account/)
-2. Navigate to **Certificates, Identifiers & Profiles → Identifiers**
-3. Click **+** to create a new identifier
-4. Select **App IDs** and click **Continue**
-5. Fill in:
-   - **Description**: `QuizMaster`
-   - **Bundle ID**: Your app's bundle ID (e.g., `com.yourcompany.quizmaster`)
-6. Under **Capabilities**, enable **Sign in with Apple**
-7. Click **Continue** and **Register**
-
-### Step 3: Create Service ID
-
-1. In Identifiers, click **+** again
-2. Select **Services IDs** and click **Continue**
-3. Fill in:
-   - **Description**: `QuizMaster Web`
-   - **Identifier**: A unique identifier (e.g., `com.yourcompany.quizmaster.web`)
-4. Enable **Sign in with Apple**
-5. Click **Configure** next to Sign in with Apple
-6. Configure:
-   - **Primary App ID**: Select your App ID from Step 2
-   - **Domains**: Add `<your-firebase-project-id>.firebaseapp.com`
-   - **Return URLs**: Add `https://<your-firebase-project-id>.firebaseapp.com/__/auth/handler`
-7. Click **Save**, **Continue**, and **Register**
-
-### Step 4: Create Key
-
-1. Go to **Keys** section
-2. Click **+** to create a new key
-3. Fill in:
-   - **Key Name**: `QuizMaster Sign in with Apple Key`
-4. Enable **Sign in with Apple**
-5. Click **Configure** and select your Primary App ID
-6. Click **Save**, **Continue**, and **Register**
-7. **Download the key file** (.p8 file) - you can only download it once!
-8. Note your **Key ID** (shown at the top)
-
-### Step 5: Configure Firebase
-
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Select your project
-3. Navigate to **Authentication → Sign-in method**
-4. Click **"Add new provider"**
-5. Select **Apple**
-6. Enable the provider
-7. Fill in:
-   - **Service ID**: The identifier from Step 3 (e.g., `com.yourcompany.quizmaster.web`)
-   - **Apple Team ID**: Find this in your Apple Developer account (top right, next to your name)
-   - **Key ID**: From Step 4
-   - **Private Key**: Open the .p8 file and paste its contents
-8. Click **Save**
-
-✅ **Done!** Apple authentication is now configured.
 
 ---
 
@@ -189,7 +126,7 @@ async registerWithGitHub(additionalData) {
 
 ---
 
-## Security Notes
+3. Click "Sign up with GitHub"
 
 1. **Never commit** your OAuth secrets to version control
 2. Store secrets in environment variables or Firebase Functions config
@@ -198,10 +135,6 @@ async registerWithGitHub(additionalData) {
 5. Monitor authentication logs in Firebase Console
 
 ---
-
-## Production Deployment
-
-### Update URLs
 
 When deploying to production, update your OAuth app settings:
 
@@ -221,7 +154,7 @@ If you want to use a custom domain for OAuth callbacks:
 2. Update OAuth provider callback URLs to: `https://yourdomain.com/__/auth/handler`
 3. Firebase will automatically handle the routing
 
----
+1. User clicks "Sign up with GitHub"
 
 ## Support
 
