@@ -1,7 +1,8 @@
 import {useRef, useState, useEffect} from "react";
-import {useAuth} from '../../contexts/AuthContext'
+import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleButton } from "react-google-button";
+import { GitHubButton, AppleButton } from "./OAuthButtons";
 
 export default function Register() {
   const firstNameRef = useRef()
@@ -10,7 +11,7 @@ export default function Register() {
   const emailRef = useRef()
   const passwordRef = useRef()
   const confirmPasswordRef = useRef()
-  const {signup, googleRegister, isAuthenticated, loading: authLoading} = useAuth()
+  const {signup, googleRegister, githubRegister, appleRegister, isAuthenticated, loading: authLoading} = useAuth()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -96,6 +97,50 @@ export default function Register() {
     } catch (error) {
       console.error('Google registration failed:', error)
       setError(error.message || "Failed to create account with Google")
+      setLoading(false)
+    }
+  }
+
+  async function handleGitHubRegister(e) {
+    e.preventDefault()
+
+    try {
+      setError('')
+      setLoading(true)
+
+      const additionalData = {
+        firstName: firstNameRef.current?.value?.trim() || '',
+        lastName: lastNameRef.current?.value?.trim() || '',
+        title: titleRef.current?.value?.trim() || '',
+        theme: getSystemTheme()
+      }
+
+      await githubRegister(additionalData)
+      // Success - user will be redirected automatically by auth state change
+    } catch (error) {
+      setError(error.message || "Failed to create account with GitHub")
+      setLoading(false)
+    }
+  }
+
+  async function handleAppleRegister(e) {
+    e.preventDefault()
+
+    try {
+      setError('')
+      setLoading(true)
+
+      const additionalData = {
+        firstName: firstNameRef.current?.value?.trim() || '',
+        lastName: lastNameRef.current?.value?.trim() || '',
+        title: titleRef.current?.value?.trim() || '',
+        theme: getSystemTheme()
+      }
+
+      await appleRegister(additionalData)
+      // Success - user will be redirected automatically by auth state change
+    } catch (error) {
+      setError(error.message || "Failed to create account with Apple")
       setLoading(false)
     }
   }
@@ -242,17 +287,29 @@ export default function Register() {
           </div>
         </form>
         <div className="mt-8 text-center">
-          <p className="text-sm mb-4 text-secondary">Or</p>
-          <div className="flex justify-center">
+          <p className="text-sm mb-4 text-secondary">Or continue with</p>
+          <div className="space-y-3">
             <GoogleButton
-              className="bg-input text-primary border border-input"
+              className="bg-input text-primary border border-input w-full"
               onClick={handleGoogleRegister}
               disabled={loading}
               label={loading ? "Creating account..." : "Sign up with Google"}
             />
+
+            <GitHubButton
+              onClick={handleGitHubRegister}
+              disabled={loading}
+              label={loading ? "Creating account..." : "Sign up with GitHub"}
+            />
+
+            <AppleButton
+              onClick={handleAppleRegister}
+              disabled={loading}
+              label={loading ? "Creating account..." : "Sign up with Apple"}
+            />
           </div>
           <p className="text-xs text-secondary mt-2">
-            Google registration will use your Google profile information and automatically detect your system theme preference.
+            Social sign-up will use your profile information and automatically detect your system theme preference.
           </p>
         </div>
       </div>

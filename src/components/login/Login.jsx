@@ -2,11 +2,12 @@ import { useRef, useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleButton } from "react-google-button";
+import { GitHubButton, AppleButton } from "./OAuthButtons";
 
 export default function Login() {
   const emailRef = useRef();
   const passwordRef = useRef();
-  const { login, googleLogin, isAuthenticated, loading: authLoading } = useAuth();
+  const { login, googleLogin, githubLogin, appleLogin, isAuthenticated, loading: authLoading } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -37,6 +38,30 @@ export default function Login() {
       await googleLogin();
     } catch (error) {
       setError(error.message || "Failed to sign in with Google");
+      setLoading(false);
+    }
+  }
+
+  async function handleGitHubSignIn(e) {
+    e.preventDefault();
+    try {
+      setError("");
+      setLoading(true);
+      await githubLogin();
+    } catch (error) {
+      setError(error.message || "Failed to sign in with GitHub");
+      setLoading(false);
+    }
+  }
+
+  async function handleAppleSignIn(e) {
+    e.preventDefault();
+    try {
+      setError("");
+      setLoading(true);
+      await appleLogin();
+    } catch (error) {
+      setError(error.message || "Failed to sign in with Apple");
       setLoading(false);
     }
   }
@@ -129,11 +154,24 @@ export default function Login() {
           </div>
         </form>
         <div className="mt-8 text-center">
-          <p className="text-sm mb-4 text-secondary">Or</p>
-          <div className="flex justify-center">
+          <p className="text-sm mb-4 text-secondary">Or continue with</p>
+          <div className="space-y-3">
             <GoogleButton
-              className="bg-input text-primary border border-input"
+              className="bg-input text-primary border border-input w-full"
               onClick={handleGoogleSignIn}
+              disabled={loading}
+            />
+            
+            <GitHubButton
+              onClick={handleGitHubSignIn}
+              disabled={loading}
+              label="Sign in with GitHub"
+            />
+            
+            <AppleButton
+              onClick={handleAppleSignIn}
+              disabled={loading}
+              label="Sign in with Apple"
             />
           </div>
         </div>
