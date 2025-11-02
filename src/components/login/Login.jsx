@@ -1,8 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { GoogleButton } from "react-google-button";
-import { GitHubButton, AppleButton } from "./OAuthButtons";
+import { GoogleButton, GitHubButton, AppleButton } from "./OAuthButtons";
 
 export default function Login() {
   const emailRef = useRef();
@@ -157,9 +156,9 @@ export default function Login() {
           <p className="text-sm mb-4 text-secondary">Or continue with</p>
           <div className="space-y-3">
             <GoogleButton
-              className="bg-input text-primary border border-input w-full"
               onClick={handleGoogleSignIn}
               disabled={loading}
+              label="Sign in with Google"
             />
             
             <GitHubButton

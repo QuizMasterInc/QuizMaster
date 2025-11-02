@@ -1,8 +1,7 @@
 import {useRef, useState, useEffect} from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { GoogleButton } from "react-google-button";
-import { GitHubButton, AppleButton } from "./OAuthButtons";
+import { GoogleButton, GitHubButton, AppleButton } from "./OAuthButtons";
 
 export default function Register() {
   const firstNameRef = useRef()
@@ -146,7 +145,7 @@ export default function Register() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen justify-center items-center px-4 bg-primary">
+    <div className="flex flex-col min-h-screen justify-center items-center px-4 py-5 bg-primary">
       <div className="w-full max-w-md shadow-2xl rounded-xl px-8 py-8 border bg-secondary border-primary">
         {error && (
           <div className="mb-6 text-center py-3 font-semibold rounded-lg border input-error">
@@ -290,7 +289,6 @@ export default function Register() {
           <p className="text-sm mb-4 text-secondary">Or continue with</p>
           <div className="space-y-3">
             <GoogleButton
-              className="bg-input text-primary border border-input w-full"
               onClick={handleGoogleRegister}
               disabled={loading}
               label={loading ? "Creating account..." : "Sign up with Google"}
