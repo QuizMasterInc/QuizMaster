@@ -32,7 +32,7 @@ import ethan from "../../assets/ethan.webp"
 import salah from "../../assets/salah.webp"
 import joseph from "../../assets/joseph.webp"
 import adrian from "../../assets/adrian.webp"
-import benC from "../../assets/benC.webp" 
+import benC from "../../assets/benC.webp"
 
 const TeamSection = ({ title, isOpen = false, children }) => {
     const [expanded, setExpanded] = useState(isOpen);
