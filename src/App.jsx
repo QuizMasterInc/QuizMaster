@@ -41,6 +41,7 @@ import { Footer } from './components/ui/index.jsx';
 import Settings from './components/settings/Settings'
 import { CATEGORY_DESTINATIONS } from './constants/quizConstants.jsx';
 import { useAuth } from './contexts/AuthContext';
+import Presentation from './components/presentation/presentation';
 
 function App() {
   const { user, loading, error } = useAuth();
@@ -195,6 +196,8 @@ function App() {
               <Dashboard />
             </PrivateRoute>
           }/>
+
+          <Route path="/presentation" element={<Presentation />} />
 
           <Route path="*" element={<NotFound />} />
             </Routes>
