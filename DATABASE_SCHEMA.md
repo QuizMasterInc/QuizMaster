@@ -1,198 +1,221 @@
-# QuizMaster Database Schema
+# QuizMaster Database Schema - Cleaned & Optimized
+
+## Design Philosophy
+- Remove unused fields that create confusion
+- Keep valuable optimizations (stats, cache for performance)
+- Strategic placeholders for likely features
+- Document what fields are actually used vs placeholders
+- Balance: Don't pre-optimize everything, but don't leave future devs with migration hell
 
 ## Collections
 
-### 1. `users`
+### 1. Users Collection - Cleaned Schema
+
 ```javascript
 {
-  uid: "string",
-  email: "string",
-  profile: {
-    firstName: "string",
-    lastName: "string",
-    displayName: "string"
-  },
-  role: "user" | "developer" | "instructor",
-  stats: {
-    quizmasterQuizzesTaken: "number",
-    quizmasterTotalScore: "number",
-    quizmasterAverageScore: "number",
-    customQuizActivity: {
-      totalTaken: "number",
-      totalScore: "number",
-      averageScore: "number",
-      lastTaken: "timestamp"
-    },
-    categoryStats: {
-      geography: { best: "number", avg: "number", attempts: "number", totalScore: "number" },
-      science: { best: "number", avg: "number", attempts: "number", totalScore: "number" },
-      sports: { best: "number", avg: "number", attempts: "number", totalScore: "number" },
-      mathematics: { best: "number", avg: "number", attempts: "number", totalScore: "number" },
-      history: { best: "number", avg: "number", attempts: "number", totalScore: "number" },
-      entertainment: { best: "number", avg: "number", attempts: "number", totalScore: "number" }
-    }
-  },
-  timestamps: {
-    createdAt: "timestamp",
-    updatedAt: "timestamp"
-  }
+  	// PRIMARY IDENTIFIERS
+  	uid: "string", // Firebase Auth UID (primary key)
+  	email: "string", // User's email address
+  	emailVerified: "boolean", // Whether email is verified
+
+  	// AUTHENTICATION
+  	authProvider: "google | email | github", // How user signed up
+
+	// PROFILE INFORMATION (ALL USED)
+	profile: {
+		displayName: "string", // Display name (used in 20+ places)
+		firstName: "string", // First name for formal display
+		lastName: "string" // Last name for formal display
+	},
+
+	// USER PREFERENCES (PARTIALLY IMPLEMENTED)
+	preferences: {
+		theme: "light | dark" // PLACEHOLDER: Settings page exists but theme switching not implemented yet
+	},
+
+	// ROLES & PERMISSIONS (ALL USED)
+	role: "user | developer | teacher", // Default: "user"
+	permissions: {
+		canCreateQuizzes: "boolean", // Default: true
+		canCreatePublicQuizzes: "boolean", // Default: true
+		canModerateContent: "boolean", // Default: false
+		maxQuizzesAllowed: "number" // Default: 50
+	},
+
+	// RECENT ACTIVITY TRACKING (USED - Performance optimization)
+	recentActivity: {
+		flashcardIds: "array", // Recently created flashcard deck IDs (used in Cloud Functions)
+		quizIds: "array" // Recently created quiz IDs (used in Cloud Functions)
+	},
+
+	// DETAILED STATISTICS (HEAVILY USED - Core business value)
+	stats: {
+		// Category-specific performance tracking (used in 20+ places)
+		categoryStats: {
+			entertainment: { attempts: "number", bestScore: "number", avgScore: "number", totalScore: "number" },
+			geography: { attempts: "number", bestScore: "number", avgScore: "number", totalScore: "number" },
+			history: { attempts: "number", bestScore: "number", avgScore: "number", totalScore: "number" },
+			mathematics: { attempts: "number", bestScore: "number", avgScore: "number", totalScore: "number" },
+			science: { attempts: "number", bestScore: "number", avgScore: "number", totalScore: "number" },
+			sports: { attempts: "number", bestScore: "number", avgScore: "number", totalScore: "number" }
+		},
+
+		// Custom quiz engagement (used for user analytics)
+		customQuizActivity: {
+			averageScore: "number",
+			lastTakenAt: "timestamp",
+			totalScore: "number",
+			totalTaken: "number"
+		},
+
+		// Content creation metrics (used for user profiles)
+		flashcardDecksCreated: "number", // Updated in Cloud Functions
+		quizmasterAverageScore: "number", // Calculated in Cloud Functions
+		quizmasterQuizzesTaken: "number" // Calculated in Cloud Functions
+	},
+
+	// TIMESTAMPS (ALL USED)
+	timestamps: {
+		createdAt: "timestamp", // When account was created
+		updatedAt: "timestamp", // When profile was last updated
+		lastLoginAt: "timestamp", // Last authentication
+		lastActiveAt: "timestamp" // Last app activity (updated by Cloud Functions)
+	},
+
+	// STATUS (USED)
+	status: {
+		isActive: "boolean" // Default: true
+	}
 }
 ```
 
 ### 2. `custom_quizzes`
 ```javascript
 {
-  metadata: {
-    title: "string",
-    description: "string",
-    tags: "string",
-    category: "string",
-    questionCount: "number",
-    isPublic: "boolean",
-    hasPassword: "boolean",
-    difficulty: "string",
-    version: "number"
-  },
-  creator: {
-    uid: "string",
-    displayName: "string",
-    username: "string"
-  },
-  content: {
-    questions: {
-      "Question 1": {
-        question: "string",
-        option_1: "string",
-        option_2: "string",
-        option_3: "string",
-        option_4: "string",
-        correct_answer: "string",
-        type: "string",
-        difficulty: "number",
-        explanation: "string",
-        points: "number"
-      }
-    }
-  },
-  access: {
-    visibility: "string", // "public" | "private"
-    password: "string"
-  },
-  analytics: {
-    stats: {
-      attempts: "number",
-      completions: "number",
-      averageScore: "number"
-    }
-  },
-  moderation: {
-    status: "string" // "active" | "deleted"
-  },
-  password: "string", // root level
-  timestamps: {
-    createdAt: "string",
-    updatedAt: "string",
-    lastAttemptAt: "string"
-  }
+	metadata: {
+		title: "string",
+		description: "string",
+		tags: "string",
+		category: "string",
+		questionCount: "number",
+		isPublic: "boolean",
+		hasPassword: "boolean",
+		difficulty: "string",
+		version: "number"
+	},
+	creator: {
+		uid: "string",
+		displayName: "string",
+		username: "string"
+	},
+	content: {
+		questions: {
+			"Question 1": {
+				question: "string",
+				option_1: "string",
+				option_2: "string",
+				option_3: "string",
+				option_4: "string",
+				correct_answer: "string",
+				type: "string",
+				difficulty: "number",
+				explanation: "string",
+				points: "number"
+			}
+		}
+	},
+	timestamps: {
+		createdAt: "string",
+		updatedAt: "string",
+		lastAttemptAt: "string"
+	}
 }
 ```
 
 ### 3. `default-questions`
 ```javascript
 {
-  question: "string",
-  option_1: "string",
-  option_2: "string",
-  option_3: "string",
-  option_4: "string",
-  correct_answer: "string",
-  category: "string",
-  "sub-category": "string",
-  difficulty: "number",
-  type: "string"
+	question: "string",
+	option_1: "string",
+	option_2: "string",
+	option_3: "string",
+	option_4: "string",
+	correct_answer: "string",
+	category: "string",
+	"sub-category": "string",
+	difficulty: "number",
+	type: "string",
+	sub-category: "string",
 }
 ```
 
-### 4. `flashcard_decks`
+### 4. Flashcard Decks Collection - Cleaned Schema
+
 ```javascript
 {
-  metadata: {
-    title: "string",
-    description: "string",
-    category: "string",
-    tags: "string",
-    cardCount: "number",
-    isPublic: "boolean"
-  },
-  creator: {
-    uid: "string",
-    displayName: "string",
-    username: "string"
-  },
-  content: {
-    cards: {
-      "Card 1": {
-        front: "string",
-        back: "string",
-        type: "string"
-      }
-    }
-  },
-  timestamps: {
-    createdAt: "string",
-    updatedAt: "string"
-  },
-  moderation: {
-    status: "string"
-  }
+	// PRIMARY IDENTIFIERS
+	id: "string", // Auto-generated document ID
+
+	// BASIC METADATA (ALL USED)
+	title: "string", // Used in UI display
+	description: "string", // Used in UI display
+	category: "string", // Used for categorization
+	tags: "array", // Used for filtering
+	difficulty: "easy | medium | hard", // Used for display
+	isPublic: "boolean", // Used for visibility control
+	allowCopying: "boolean", // Used in services
+
+	// CREATOR INFORMATION (USED)
+	creatorId: "string", // Reference to users.uid
+	creatorName: "string", // Cached display name
+
+	// DECK STRUCTURE (USED)
+	cardCount: "number", // Used for display
+	cards: [
+		{
+			id: "string", // Unique card identifier
+			front: "string",
+			back: "string",
+			type: "basic | close | image"
+		}
+	],
+
+	// STUDY ANALYTICS (PARTIALLY USED)
+	analytics: {
+		stats: {
+			averageScore: "number", // Used in UI
+			timesStudied: "number", // Used in UI
+			lastStudied: "timestamp", // PLACEHOLDER: Always null
+			totalReviews: "number" // PLACEHOLDER: Never incremented
+		}
+  	},
+
+	// TIMESTAMPS (USED)
+	createdAt: "timestamp", // Used for sorting
+	updatedAt: "timestamp", // Used for sorting
+	lastStudiedAt: "timestamp", // PLACEHOLDER: Always null
+
+	// MODERATION (USED)
+	isActive: "boolean" // Used for soft deletes
 }
 ```
 
-### 5. `quiz_results`
+### 5. Quiz Results Collection
+
 ```javascript
 {
-  userId: "string",
-  category: "string",
-  quizType: "string", // "default" | "custom"
-  score: "number",
-  totalQuestions: "number",
-  amount: "number", // Number of questions requested/available
-  percentage: "number",
-  timeSpent: "number", // Time spent in seconds
-  submittedAt: "timestamp",
-  difficulty: "number", // Difficulty level as number
-  sessionId: "string", // Unique session identifier
-  quizId: "string", // Quiz identifier (generated for default, from DB for custom)
-  questionIds: "array", // Array of question identifiers
-  userAnswers: "object" // Object mapping question indices to user answers
+	userId: "string",
+	category: "string",
+	quizType: "string", // "default" | "custom"
+	score: "number",
+	totalQuestions: "number",
+	amount: "number", // Number of questions requested/available
+	percentage: "number",
+	submittedAt: "timestamp",
+	difficulty: "number", // Difficulty level as number
+	sessionId: "string", // Unique session identifier
+	quizId: "string", // Quiz identifier (generated for default, from DB for custom)
+	questionIds: "array", // Array of question identifiers
+	userAnswers: "object" // Object mapping question indices to user answers
 }
-```
-
-### 6. `studyMaterials`
-```javascript
-{
-  title: "string",
-  description: "string",
-  type: "string",
-  content: "string",
-  category: "string",
-  isPublic: "boolean",
-  createdAt: "timestamp"
-}
-```
-
-## Indexes
-
-### `default-questions`
-- `category + sub-category`
-- `category + question`
-
-### `custom_quizzes`
-- `creator.uid + timestamps.updatedAt`
-- `metadata.isPublic + timestamps.updatedAt`
-- `metadata.isPublic + metadata.title`
-
-### `flashcard_decks`
-- `creator.uid + moderation.status + timestamps.updatedAt`
-
 ```

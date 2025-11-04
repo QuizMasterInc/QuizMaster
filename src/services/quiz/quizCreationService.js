@@ -192,10 +192,7 @@ class QuizCreationService {
             quizTags,
             privateQuiz,
             privateQuizPassword,
-            currentUserId,
-            showTimer,
-            showPauseButton,
-            duration
+            currentUserId
         } = quizInput;
 
         // Fetch fresh user quiz titles for duplicate validation
@@ -313,9 +310,6 @@ class QuizCreationService {
                 shuffleAnswers: false,
                 showCorrectAnswers: true,
                 allowRetakes: true,
-                timeLimit: duration || null,
-                showTimer: showTimer !== undefined ? showTimer : true,
-                showPauseButton: showPauseButton !== undefined ? showPauseButton : true,
                 passingScore: 70
             }
         };

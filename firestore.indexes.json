@@ -9,7 +9,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "sub-category",
+          "fieldPath": "`sub-category`",
           "order": "ASCENDING"
         }
       ]
@@ -75,15 +75,15 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "creator.uid",
+          "fieldPath": "creatorId",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "moderation.status",
+          "fieldPath": "isActive",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "timestamps.updatedAt",
+          "fieldPath": "updatedAt",
           "order": "DESCENDING"
         }
       ]
@@ -180,7 +180,7 @@
     },
     {
       "collectionGroup": "flashcard_decks",
-      "fieldPath": "timestamps.updatedAt",
+      "fieldPath": "updatedAt",
       "indexes": [
         {
           "order": "ASCENDING",
@@ -194,7 +194,7 @@
     },
     {
       "collectionGroup": "flashcard_decks", 
-      "fieldPath": "timestamps.createdAt",
+      "fieldPath": "createdAt",
       "indexes": [
         {
           "order": "ASCENDING",

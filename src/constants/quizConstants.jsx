@@ -75,9 +75,6 @@ export const CATEGORY_DESTINATIONS = [
  */
 export const DEFAULT_QUIZ_SETTINGS = {
     amount: '10',
-    duration: 5,
-    showTimer: true,
-    showPauseButton: true,
     difficulty: ''
 };
 
@@ -88,10 +85,7 @@ export const STORAGE_KEYS = {
     CATEGORY: 'quizmaster_category',
     SUBCATEGORIES: 'quizmaster_subcategories',
     DIFFICULTY: 'quizmaster_difficulty',
-    AMOUNT: 'quizmaster_amount',
-    DURATION: 'quizmaster_duration',
-    SHOW_TIMER: 'quizmaster_showTimer',
-    SHOW_PAUSE_BUTTON: 'quizmaster_showPauseButton'
+    AMOUNT: 'quizmaster_amount'
 };
 
 /**
@@ -102,8 +96,7 @@ export const LEGACY_STORAGE_KEYS = {
     CATEGORY: 'category',
     SUBCATEGORIES: 'subcategories',
     DIFFICULTY: 'difficulty',
-    AMOUNT: 'amount',
-    DURATION: 'duration'
+    AMOUNT: 'amount'
 };
 
 /**

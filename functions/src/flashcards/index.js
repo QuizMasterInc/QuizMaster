@@ -50,71 +50,52 @@ exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
 
                 const currentDate = new Date().toISOString();
 
-                // Convert cards array to map format like custom_quizzes
-                const cardsMap = {};
-                cards.forEach((card, index) => {
-                    const cardKey = `Card ${index + 1}`;
-                    cardsMap[cardKey] = {
-                        front: card.front || '',
-                        back: card.back || '',
-                        type: card.type || 'basic'
-                    };
-                });
+                // Convert cards array to array format (flattened schema)
+                const cardsArray = cards.map((card, index) => ({
+                    id: `card_${index + 1}`,
+                    front: card.front || '',
+                    back: card.back || '',
+                    type: card.type || 'basic'
+                }));
 
+                // New flattened schema structure
                 const newFlashcardDeck = {
-                    // Metadata section
-                    metadata: {
-                        title: title,
-                        description: data.metadata?.description || data.description || "",
-                        category: data.metadata?.category || data.category || "General",
-                        tags: Array.isArray(tags) ? tags.join(', ') : (tags || ""),
-                        cardCount: cards.length,
-                        isPublic: data.metadata?.isPublic || data.isPublic || false,
-                        difficulty: data.metadata?.difficulty || data.difficulty || "2",
-                        version: 1
-                    },
+                    // PRIMARY IDENTIFIERS (will be doc.id)
+                    
+                    // BASIC METADATA (flattened from metadata.*)
+                    title: title,
+                    description: data.metadata?.description || data.description || "",
+                    category: data.metadata?.category || data.category || "General",
+                    tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()) : []),
+                    difficulty: data.metadata?.difficulty || data.difficulty || "medium",
+                    isPublic: data.metadata?.isPublic || data.isPublic || false,
+                    allowCopying: data.access?.allowCopying ?? true,
 
-                    // Creator information
-                    creator: creatorInfo,
+                    // CREATOR INFORMATION (flattened from creator.*)
+                    creatorId: creatorInfo.uid,
+                    creatorName: creatorInfo.displayName,
 
-                    // Content - cards stored as map
-                    content: {
-                        cards: cardsMap
-                    },
+                    // DECK STRUCTURE
+                    cardCount: cards.length,
+                    cards: cardsArray,
 
-                    // Analytics - initialize empty
+                    // STUDY ANALYTICS (simplified - removed cardStats)
                     analytics: {
                         stats: {
-                            timesStudied: 0,
                             averageScore: 0,
+                            timesStudied: 0,
                             lastStudied: null,
                             totalReviews: 0
-                        },
-                        performance: {
-                            cardStats: {}
                         }
                     },
 
-                    // Access control
-                    access: {
-                        visibility: data.metadata?.isPublic || data.isPublic ? "public" : "private",
-                        allowCopying: data.access?.allowCopying || true,
-                        studyMode: data.access?.studyMode || "flashcards"
-                    },
+                    // TIMESTAMPS (flattened from timestamps.*)
+                    createdAt: currentDate,
+                    updatedAt: currentDate,
+                    lastStudiedAt: null,
 
-                    // Timestamps
-                    timestamps: {
-                        createdAt: currentDate,
-                        updatedAt: currentDate,
-                        lastStudiedAt: null
-                    },
-
-                    // Moderation
-                    moderation: {
-                        status: "active",
-                        reports: [],
-                        flags: []
-                    }
+                    // MODERATION (simplified to just isActive)
+                    isActive: true
                 };
 
                 // Save to Firestore
@@ -125,7 +106,7 @@ exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
                     if (userDoc.exists) {
                         await user.update({
                             'stats.flashcardDecksCreated': admin.firestore.FieldValue.increment(1),
-                            'cache.recentFlashcardIds': admin.firestore.FieldValue.arrayUnion(result.id),
+                            'recentActivity.flashcardIds': admin.firestore.FieldValue.arrayUnion(result.id),
                             'timestamps.updatedAt': currentDate,
                             'timestamps.lastActiveAt': currentDate
                         });
@@ -179,9 +160,9 @@ exports.getUserFlashcardDecks = onRequest(async (req, res) => {
         try {
             const query = admin.firestore()
                 .collection('flashcard_decks')
-                .where('creator.uid', '==', userId)
-                .where('moderation.status', '==', 'active')
-                .orderBy('timestamps.updatedAt', 'desc');
+                .where('creatorId', '==', userId)
+                .where('isActive', '==', true)
+                .orderBy('updatedAt', 'desc');
 
             const querySnapshot = await query.get();
             const decks = [];
@@ -291,8 +272,8 @@ exports.deleteFlashcardDeck = onRequest(async (req, res) => {
 
             const deckData = deckDoc.data();
 
-            // Verify ownership
-            if (deckData.creator.uid !== userId) {
+            // Verify ownership (using flattened schema)
+            if (deckData.creatorId !== userId) {
                 return res.json({
                     status: 403,
                     success: false,
@@ -300,11 +281,10 @@ exports.deleteFlashcardDeck = onRequest(async (req, res) => {
                 });
             }
 
-            // Soft delete by updating moderation status
+            // Soft delete by setting isActive to false
             await admin.firestore().collection('flashcard_decks').doc(deckId).update({
-                'moderation.status': 'deleted',
-                'timestamps.updatedAt': new Date().toISOString(),
-                'timestamps.deletedAt': new Date().toISOString()
+                'isActive': false,
+                'updatedAt': new Date().toISOString()
             });
 
             // Update user stats: decrement deck count and remove from recent cache
@@ -312,7 +292,7 @@ exports.deleteFlashcardDeck = onRequest(async (req, res) => {
                 const user = admin.firestore().collection('users').doc(userId);
                 await user.update({
                     'stats.flashcardDecksCreated': admin.firestore.FieldValue.increment(-1),
-                    'cache.recentFlashcardIds': admin.firestore.FieldValue.arrayRemove(deckId),
+                    'recentActivity.flashcardIds': admin.firestore.FieldValue.arrayRemove(deckId),
                     'timestamps.updatedAt': new Date().toISOString()
                 });
             } catch (error) {

@@ -35,16 +35,16 @@ exports.grabAllResultsV2 = onRequest(async (req, res) => {
                 categories.forEach(category => {
                     const categoryKey = category.toLowerCase();
                     const stats = categoryStats[categoryKey] || {
-                        best: 0,
-                        avg: 0,
+                        bestScore: 0,
+                        avgScore: 0,
                         attempts: 0,
                         totalScore: 0
                     };
 
-                    // Convert to the format expected by frontend (score = best, avgScore = avg)
+                    // Convert to the format expected by frontend (score = bestScore, avgScore = avgScore)
                     allResults[category] = {
-                        score: (stats.best || 0) / 100, // Convert percentage to decimal
-                        avgScore: (stats.avg || 0) / 100, // Convert percentage to decimal
+                        score: (stats.bestScore || 0) / 100, // Convert percentage to decimal
+                        avgScore: (stats.avgScore || 0) / 100, // Convert percentage to decimal
                         attempts: stats.attempts || 0
                     };
                 });
@@ -74,7 +74,6 @@ exports.submitQuizResults = onRequest(async (req, res) => {
                 category,
                 score,
                 totalQuestions,
-                timeSpent,
                 difficulty = "3",
                 sessionId,
                 quizType = "default",
@@ -121,7 +120,6 @@ exports.submitQuizResults = onRequest(async (req, res) => {
                 totalQuestions,
                 amount: Number(amount) || totalQuestions, // Convert to number and use provided amount or default to totalQuestions
                 percentage,
-                timeSpent: timeSpent || 0,
                 submittedAt: admin.firestore.Timestamp.now(),
                 difficulty: Number(difficulty), // Store as number to match database schema
                 sessionId: sessionId || admin.firestore.FieldValue.serverTimestamp(),
@@ -162,8 +160,8 @@ exports.submitQuizResults = onRequest(async (req, res) => {
                 baseUpdate['stats.quizmasterTotalScore'] = admin.firestore.FieldValue.increment(percentage);
 
                 const currentCategoryStats = userData.stats?.categoryStats?.[category.toLowerCase()] || {
-                    best: 0,
-                    avg: 0,
+                    bestScore: 0,
+                    avgScore: 0,
                     attempts: 0,
                     totalScore: 0
                 };
@@ -171,12 +169,12 @@ exports.submitQuizResults = onRequest(async (req, res) => {
                 // Calculate new category stats
                 const newAttempts = currentCategoryStats.attempts + 1;
                 const newTotalScore = currentCategoryStats.totalScore + percentage;
-                const newAvg = Math.round(newTotalScore / newAttempts);
-                const newBest = Math.max(currentCategoryStats.best, percentage);
+                const newAvgScore = Math.round(newTotalScore / newAttempts);
+                const newBestScore = Math.max(currentCategoryStats.bestScore, percentage);
 
                 // Add category-specific updates
-                baseUpdate[`stats.categoryStats.${category.toLowerCase()}.best`] = newBest;
-                baseUpdate[`stats.categoryStats.${category.toLowerCase()}.avg`] = newAvg;
+                baseUpdate[`stats.categoryStats.${category.toLowerCase()}.bestScore`] = newBestScore;
+                baseUpdate[`stats.categoryStats.${category.toLowerCase()}.avgScore`] = newAvgScore;
                 baseUpdate[`stats.categoryStats.${category.toLowerCase()}.attempts`] = newAttempts;
                 baseUpdate[`stats.categoryStats.${category.toLowerCase()}.totalScore`] = newTotalScore;
 
@@ -199,7 +197,7 @@ exports.submitQuizResults = onRequest(async (req, res) => {
                 baseUpdate['stats.customQuizActivity.totalTaken'] = admin.firestore.FieldValue.increment(1);
                 baseUpdate['stats.customQuizActivity.totalScore'] = admin.firestore.FieldValue.increment(percentage);
                 baseUpdate['stats.customQuizActivity.averageScore'] = newCustomAverage;
-                baseUpdate['stats.customQuizActivity.lastTaken'] = admin.firestore.Timestamp.now();
+                baseUpdate['stats.customQuizActivity.lastTakenAt'] = admin.firestore.Timestamp.now();
             }
 
             // Apply all updates
@@ -218,8 +216,8 @@ exports.submitQuizResults = onRequest(async (req, res) => {
                     quizId: finalQuizId,
                     categoryStats: isDefaultQuiz ? {
                         [category.toLowerCase()]: {
-                            best: baseUpdate[`stats.categoryStats.${category.toLowerCase()}.best`],
-                            avg: baseUpdate[`stats.categoryStats.${category.toLowerCase()}.avg`],
+                            bestScore: baseUpdate[`stats.categoryStats.${category.toLowerCase()}.bestScore`],
+                            avgScore: baseUpdate[`stats.categoryStats.${category.toLowerCase()}.avgScore`],
                             attempts: baseUpdate[`stats.categoryStats.${category.toLowerCase()}.attempts`]
                         }
                     } : null,

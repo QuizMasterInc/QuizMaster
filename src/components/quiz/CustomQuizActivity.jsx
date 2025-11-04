@@ -5,7 +5,6 @@ import { ScaleLoader } from 'react-spinners';
 import Question from './Question';
 import DoneModal from './DoneModal';
 import HelpModal from './HelpModal';
-import Timer from './Timer';
 import ProgressBar from './ProgressBar';
 import BackToTop from './BackToTopButton';
 import { shuffle } from '../../utils/shuffle';
@@ -18,7 +17,6 @@ function CustomQuizActivity() {
   const location = useLocation();
   const navigate = useNavigate();
   const password = location.state?.password;
-  const timerSettings = location.state; // Get timer settings from navigation state
   const { currentUser } = useAuth();
   const { refreshResults } = useResults();
 
@@ -27,7 +25,6 @@ function CustomQuizActivity() {
   const [completed, setCompleted] = useState(false);
   const [helpActive, setHelpActive] = useState(false);
   const [doneActive, setDoneActive] = useState(false);
-  const [timerFinished, setTimerFinished] = useState(false);
   const [answeredCount, setAnsweredCount] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [answerCount, setAnswerCount] = useState(4); // default max
@@ -36,11 +33,6 @@ function CustomQuizActivity() {
   const [quizMetadata, setQuizMetadata] = useState(null);
   const [userAnswers, setUserAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
-  const [quizSettings, setQuizSettings] = useState({
-    showTimer: true,
-    showPauseButton: true,
-    duration: 5
-  });
 
   const recordCorrect = useCallback(
     (isCorrect) => isCorrect && setCorrectCount((c) => c + 1),
@@ -122,13 +114,6 @@ function CustomQuizActivity() {
           difficulty: metadata.difficulty || quiz.difficulty || 3,
           title: metadata.title || quiz.title || 'Custom Quiz'
         });
-
-        // Store timer settings - use navigation state if available, otherwise quiz settings
-        setQuizSettings({
-          showTimer: timerSettings?.showTimer !== undefined ? timerSettings.showTimer : (settings.showTimer !== undefined ? settings.showTimer : true),
-          showPauseButton: timerSettings?.showPauseButton !== undefined ? timerSettings.showPauseButton : (settings.showPauseButton !== undefined ? settings.showPauseButton : true),
-          duration: timerSettings?.duration || settings.timeLimit || 5
-        });
       } catch (error) {
         console.error('Failed to fetch custom quiz:', error);
       } finally {
@@ -145,10 +130,6 @@ function CustomQuizActivity() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [loading, questions.length]);
-
-  useEffect(() => {
-    if (timerFinished && !completed) handleSubmit();
-  }, [timerFinished, completed]);
 
   const handleSubmit = async () => {
     if (submittingResults || !currentUser) return;
@@ -238,9 +219,6 @@ function CustomQuizActivity() {
     setUserAnswers(userAnswers);
     
     try {
-      // Calculate time spent in seconds
-      const timeSpent = Math.round((Date.now() - quizStartTime) / 1000);
-      
       // Submit custom quiz results to backend using calculated score
       await quizSubmissionService.submitQuizResults({
         userId: currentUser.uid,
@@ -248,7 +226,6 @@ function CustomQuizActivity() {
         score: calculatedScore,
         totalQuestions: questions.length,
         amount: questions.length, // For custom quizzes, amount equals total questions
-        timeSpent,
         difficulty: quizMetadata?.difficulty || 3,
         quizType: 'custom',
         quizId: quizID,
@@ -268,7 +245,6 @@ function CustomQuizActivity() {
       setSubmittingResults(false);
       setCompleted(true);
       setDoneActive(true);
-      setTimerFinished(true);
     }
   };
 
@@ -371,36 +347,15 @@ function CustomQuizActivity() {
               </div>
             </div>
 
-            {/* Timer + Progress row - only show when quiz is not completed and timer is enabled */}
-            {quizSettings.showTimer && !completed && (
-              <div className="flex justify-center gap-6 mb-6">
-                <div className="bg-card rounded-2xl p-4 shadow-xl border border-accent flex-1 max-w-xs">
-                  <Timer
-                    duration={quizSettings.duration}
-                    showPause={quizSettings.showPauseButton}
-                    onFinish={() => setTimerFinished(true)}
-                  />
-                </div>
-                <div className="bg-card rounded-2xl p-4 shadow-xl border border-accent flex-1 max-w-xs flex items-center justify-center">
-                  <ProgressBar
-                    answeredCount={answeredCount}
-                    totalQuestions={questions.length}
-                  />
-                </div>
+            {/* Progress Bar */}
+            <div className="flex justify-center mb-6">
+              <div className="bg-card rounded-2xl p-4 shadow-xl border border-accent max-w-xs flex items-center justify-center">
+                <ProgressBar
+                  answeredCount={answeredCount}
+                  totalQuestions={questions.length}
+                />
               </div>
-            )}
-
-            {/* Show progress bar separately if timer is disabled */}
-            {(!quizSettings.showTimer || completed) && (
-              <div className="flex justify-center mb-6">
-                <div className="bg-card rounded-2xl p-4 shadow-xl border border-accent max-w-xs flex items-center justify-center">
-                  <ProgressBar
-                    answeredCount={answeredCount}
-                    totalQuestions={questions.length}
-                  />
-                </div>
-              </div>
-            )}
+            </div>
 
             {/* Questions */}
             <div className="space-y-8">
@@ -516,7 +471,6 @@ function CustomQuizActivity() {
           isActive={setHelpActive}
           active={helpActive}
           amount={questions.length}
-          duration={quizSettings.duration}
         />
       )}
 

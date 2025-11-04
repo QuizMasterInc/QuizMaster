@@ -87,9 +87,8 @@ exports.trackQuizAttempt = onCall(async (request) => {
             );
         }
 
-        // Increment attempt count and update last played time
+        // Update last played time
         await quizRef.update({
-            'analytics.stats.attempts': admin.firestore.FieldValue.increment(1),
             'timestamps.lastAttemptAt': admin.firestore.Timestamp.now(),
             'timestamps.updatedAt': admin.firestore.Timestamp.now()
         });
@@ -133,8 +132,9 @@ exports.grabAllCustomQuizzes = onRequest(async (req, res) => {
 
             // Leverage Firestore indexes for efficient queries
             if (useIndexes && privacy !== 'all') {
-                // Use access.privacy index
-                query = query.where('access.privacy', '==', privacy);
+                // Filter by metadata.isPublic field
+                const isPublic = privacy === 'public';
+                query = query.where('metadata.isPublic', '==', isPublic);
             }
 
             // Apply sorting using indexed fields
@@ -144,10 +144,6 @@ exports.grabAllCustomQuizzes = onRequest(async (req, res) => {
                 query = query.orderBy('timestamps.createdAt', 'asc');
             } else if (sortBy === 'title') {
                 query = query.orderBy('metadata.title', 'asc');
-            } else if (sortBy === 'attempts') {
-                query = query.orderBy('analytics.stats.attempts', 'desc');
-            } else if (sortBy === 'score') {
-                query = query.orderBy('analytics.stats.averageScore', 'desc');
             } else {
                 // Default to newest
                 query = query.orderBy('timestamps.updatedAt', 'desc');
@@ -528,7 +524,7 @@ exports.addCustomQuiz = onRequest(async (req, res) => {
                         // Update user stats with consistent timestamp format (strings)
                         await user.update({
                             'stats.quizzesCreated': admin.firestore.FieldValue.increment(1),
-                            'cache.recentQuizIds': admin.firestore.FieldValue.arrayUnion(docRef.id),
+                            'recentActivity.quizIds': admin.firestore.FieldValue.arrayUnion(docRef.id),
                             'timestamps.updatedAt': currentDate,  // Use string format consistently
                             'timestamps.lastActiveAt': currentDate
                         })
@@ -726,10 +722,6 @@ exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
                         // Questions and password from nested structure
                         questions: quizData.content.questions,
                         quizPassword: quizData.content.password,
-
-                        // Analytics from nested structure
-                        totalAttempts: quizData.analytics.totalAttempts,
-                        averageScore: quizData.analytics.averageScore,
 
                         // Timestamps from nested structure
                         createdAt: quizData.timestamps.createdAt,

@@ -113,10 +113,7 @@ class AuthService {
             profile: {
                 firstName: firstName,
                 lastName: lastName,
-                displayName: displayName,
-                title: additionalData.title || '',
-                isPublicProfile: additionalData.isPublicProfile || false,
-                showEmail: additionalData.showEmail || false,
+                displayName: displayName
             },
             
             // Authorization & Roles
@@ -130,41 +127,33 @@ class AuthService {
             
             // Account Status
             status: {
-                isActive: true,
-                isVerified: authUser.emailVerified || false,
-                isSuspended: false,
-                suspensionReason: '',
-                profileComplete: !!(firstName && lastName && authUser.email),
+                isActive: true
             },
             
             // Analytics & Tracking
             stats: {
-                quizzesCreated: 0,
-                
                 // QuizMaster (default) quiz performance tracking
                 quizmasterQuizzesTaken: 0,
-                quizmasterTotalScore: 0,
                 quizmasterAverageScore: 0,
                 
-                // Custom quiz activity tracking (separate from dashboard averages)
+                // Custom quiz activity tracking
                 customQuizActivity: {
                     totalTaken: 0,
                     totalScore: 0,
                     averageScore: 0,
-                    lastTaken: null
+                    lastTakenAt: null
                 },
                 
-                lastActivity: timestamp.now(),
                 flashcardDecksCreated: 0,
                 
                 // Pre-calculated category statistics for instant dashboard loading
                 categoryStats: {
-                    geography: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
-                    science: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
-                    sports: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
-                    mathematics: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
-                    history: { best: 0, avg: 0, attempts: 0, totalScore: 0 },
-                    entertainment: { best: 0, avg: 0, attempts: 0, totalScore: 0 }
+                    geography: { bestScore: 0, avgScore: 0, attempts: 0, totalScore: 0 },
+                    science: { bestScore: 0, avgScore: 0, attempts: 0, totalScore: 0 },
+                    sports: { bestScore: 0, avgScore: 0, attempts: 0, totalScore: 0 },
+                    mathematics: { bestScore: 0, avgScore: 0, attempts: 0, totalScore: 0 },
+                    history: { bestScore: 0, avgScore: 0, attempts: 0, totalScore: 0 },
+                    entertainment: { bestScore: 0, avgScore: 0, attempts: 0, totalScore: 0 }
                 }
             },
             
@@ -181,12 +170,10 @@ class AuthService {
                 lastActiveAt: timestamp.now(),
             },
             
-            // Cache (empty initially)
-            cache: {
-                recentQuizIds: [],
-                favoriteCategories: [],
-                achievementBadges: [],
-                recentFlashcardIds: [],
+            // Recent Activity (empty initially)
+            recentActivity: {
+                quizIds: [],
+                flashcardIds: []
             }
         };
     }

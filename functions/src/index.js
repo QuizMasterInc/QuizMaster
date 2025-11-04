@@ -7,7 +7,6 @@ const questions = require('./questions')
 const quizzes = require('./quizzes')
 const results = require('./results')
 const flashcards = require('./flashcards')
-const study = require('./study')
 
 // Export all functions from modules
 // Questions module
@@ -42,6 +41,3 @@ exports.addCustomFlashcardDeck = flashcards.addCustomFlashcardDeck
 exports.getUserFlashcardDecks = flashcards.getUserFlashcardDecks
 exports.getFlashcardDeck = flashcards.getFlashcardDeck
 exports.deleteFlashcardDeck = flashcards.deleteFlashcardDeck
-
-// Study module
-exports.getStudyMaterial = study.getStudyMaterial
