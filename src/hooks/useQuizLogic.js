@@ -13,10 +13,7 @@ export const useQuizLogic = (config, api) => {
         setCategory,
         setSubcategories,
         setDifficulty,
-        setAmount,
-        setDuration,
-        setShowTimer,
-        setShowPauseButton
+        setAmount
     } = config;
 
     const {
@@ -77,27 +74,12 @@ export const useQuizLogic = (config, api) => {
         setAmount(String(newAmount));
     };
 
-    const updateDuration = (newDuration) => {
-        setDuration(Number(newDuration));
-    };
-
-    const toggleTimerVisibility = () => {
-        setShowTimer(current => !current);
-    };
-
-    const togglePauseButtonVisibility = () => {
-        setShowPauseButton(current => !current);
-    };
-
     return {
         // Actions
         selectCategory,
         toggleSubcategory,
         updateDifficulty,
         updateAmount,
-        updateDuration,
-        toggleTimerVisibility,
-        togglePauseButtonVisibility,
 
         // Aliases for backward compatibility
         allSubcategories,

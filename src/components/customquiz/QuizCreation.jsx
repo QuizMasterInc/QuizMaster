@@ -17,12 +17,6 @@ export default function QuizCreation({
   teacherQuiz,
   setTeacherQuiz,
   isCreatingQuiz,
-  showTimer,
-  setShowTimer,
-  showPauseButton,
-  setShowPauseButton,
-  duration,
-  setDuration,
 }) {
   const { logout } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -496,63 +490,6 @@ export default function QuizCreation({
               )}
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Timer Settings Card */}
-      <div className="bg-card border border-primary rounded-xl p-6 md:p-8 shadow-lg">
-        <h2 className="text-xl md:text-2xl font-semibold text-primary mb-4 md:mb-6">⏱️ Timer Settings</h2>
-
-        <div className="space-y-6">
-          {/* Show Timer */}
-          <div className="flex items-center p-4 rounded-lg bg-[var(--primary-500)] shadow-lg border-2 border-accent">
-            <label className="text-white font-semibold mr-4">Show Timer</label>
-            <input
-              type="checkbox"
-              checked={showTimer}
-              onChange={(e) => setShowTimer(e.target.checked)}
-              className="form-checkbox h-5 w-5 text-white focus:ring-white cursor-pointer"
-            />
-            <span className="ml-4 text-white text-sm">
-              {showTimer ? 'Timer is visible' : 'Timer is hidden'}
-            </span>
-          </div>
-          
-          {showTimer && (
-            <>
-              {/* Show Pause Button */}
-              <div className="flex items-center p-4 rounded-lg bg-[var(--primary-500)] shadow-lg border-2 border-accent">
-                <label className="text-white font-semibold mr-4">Show Pause Button</label>
-                <input
-                  type="checkbox"
-                  checked={showPauseButton}
-                  onChange={(e) => setShowPauseButton(e.target.checked)}
-                  className="form-checkbox h-5 w-5 text-white focus:ring-white cursor-pointer"
-                />
-                <span className="ml-4 text-white text-sm">
-                  {showPauseButton ? 'Pause Button is visible' : 'Pause Button is hidden'}
-                </span>
-              </div>
-              
-              {/* Quiz Duration */}
-              <div className="text-center">
-                <h3 className="text-2xl font-semibold text-gradient-primary mb-2">
-                  Select Quiz Duration (In minutes)
-                </h3>
-                <input
-                  type="number"
-                  min="1"
-                  max="60"
-                  className="mt-2 p-2 w-16 text-center text-black font-bold rounded-lg shadow-md border-2 border-accent"
-                  value={duration}
-                  onChange={(e) => setDuration(Math.max(1, Math.min(60, parseInt(e.target.value) || 1)))}
-                />
-                <p className="text-sm text-secondary mt-2">
-                  Duration: {duration} minute{duration !== 1 ? 's' : ''}
-                </p>
-              </div>
-            </>
-          )}
         </div>
       </div>
 

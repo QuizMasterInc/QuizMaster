@@ -7,7 +7,6 @@ import { useResults } from '../../contexts/ResultsContext';
 import Question from './Question';
 import DoneModal from './DoneModal';
 import HelpModal from './HelpModal';
-import Timer from './Timer';
 import ProgressBar from './ProgressBar';
 import { shuffle } from '../../utils/shuffle';
 import quizSubmissionService from '../../services/quiz/quizSubmissionService';
@@ -18,10 +17,7 @@ function QuizActivity() {
     category,
     subcategories,
     difficulty,
-    amount,
-    duration,
-    showTimer,
-    showPauseButton,
+    amount
   } = useCategory();
   const { currentUser } = useAuth();
   const { refreshResults } = useResults();
@@ -32,7 +28,6 @@ function QuizActivity() {
   const [completed, setCompleted] = useState(false);
   const [helpActive, setHelpActive] = useState(false);
   const [doneActive, setDoneActive] = useState(false);
-  const [timerFinished, setTimerFinished] = useState(false);
   const [answeredCount, setAnsweredCount] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [quizId, setQuizId] = useState(null);
@@ -171,15 +166,6 @@ function QuizActivity() {
     }
   }, [loading, questions.length]);
 
-  useEffect(() => {
-    if (timerFinished && !completed) {
-      // Add small delay to ensure all state updates are processed
-      setTimeout(() => {
-        handleSubmit();
-      }, 100);
-    }
-  }, [timerFinished, completed]);
-
   const handleSubmit = async () => {
     if (submittingResults || !currentUser) return;
     
@@ -292,7 +278,6 @@ function QuizActivity() {
       setSubmittingResults(false);
       setCompleted(true);
       setDoneActive(true);
-      setTimerFinished(true);
     }
   };
 
@@ -309,116 +294,6 @@ function QuizActivity() {
       <div className="max-w-6xl mx-auto">
         {!showResults ? (
           <>
-            {showTimer ? (
-            <>
-            {/* Header */}
-            <div className="mb-6">
-              <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
-                <h1 className="text-4xl font-bold text-center mb-2 text-gradient-primary">
-                  {category} Quiz!
-                </h1>
-                <p className="text-lg text-center text-secondary">
-                  Test your knowledge with {questions.length} questions
-                </p>
-              </div>
-            </div>
-        
-            {/* Settings + Submit row (moved up) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              {/* Settings */}
-              <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
-                <h2 className="text-2xl font-semibold mb-4 text-center text-gradient-primary">
-                  Quiz Settings
-                </h2>
-                <div className="mb-4">
-                  <label className="block text-base mb-2 text-secondary">
-                    Answers per question:
-                  </label>
-                  <select
-                    value={answerCount}
-                    onChange={(e) => setAnswerCount(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-lg bg-input text-primary border border-accent"
-                    disabled={completed}
-                  >
-                    {[2, 3, 4].map((num) => (
-                      <option key={num} value={num}>
-                        {num} options
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <button
-                  onClick={() => setHelpActive(true)}
-                  className="w-full px-6 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-accent"
-                  disabled={completed}
-                >
-                  Help
-                </button>
-              </div>
-        
-              {/* Progress + Submit */}
-              <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
-                <h2 className="text-2xl font-semibold mb-4 text-center text-gradient-primary">
-                  Quiz Progress
-                </h2>
-                <p className="text-base text-secondary mb-2">
-                  Questions answered:{' '}
-                  <span className="font-medium text-accent">
-                    {answeredCount} / {questions.length}
-                  </span>
-                </p>
-                <p className="text-base text-secondary mb-4">
-                  Correct answers:{' '}
-                  <span className="font-medium text-accent">{correctCount}</span>
-                </p>
-                <button
-                  onClick={() => {
-                    // Give time for all recordCorrect calls to complete
-                    setTimeout(handleSubmit, 200);
-                  }}
-                  className={`w-full px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border flex items-center justify-center gap-2 ${
-                    completed || submittingResults
-                      ? 'bg-neutral-400 border-neutral-400 text-white cursor-not-allowed'
-                      : 'bg-accent hover:bg-accent-hover text-btn-primary border-accent'
-                  }`}
-                  disabled={completed || submittingResults}
-                >
-                  {submittingResults ? (
-                    <>
-                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Submitting...
-                    </>
-                  ) : completed ? (
-                    'Quiz Completed!'
-                  ) : (
-                    'Submit Quiz'
-                  )}
-                </button>
-              </div>
-            </div>
-        
-            {/* Timer + Progress row (moved below, horizontal) */}
-            <div className="flex justify-center gap-6 mb-6">
-              <div className="bg-card rounded-2xl p-4 shadow-xl border border-accent flex-1 max-w-xs">
-                <Timer
-                  duration={duration}
-                  showPause={showPauseButton}
-                  onFinish={() => setTimerFinished(true)}
-                />
-              </div>
-              <div className="bg-card rounded-2xl p-4 shadow-xl border border-accent flex-1 max-w-xs flex items-center justify-center">
-                <ProgressBar
-                  answeredCount={answeredCount}
-                  totalQuestions={questions.length}
-                />
-              </div>
-            </div>
-          </>
-        ) : (
-          /* 2x2 grid layout when no timer */
           <div className="grid grid-cols-2 gap-8 mb-8">
             {/* Title */}
             <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
@@ -508,10 +383,7 @@ function QuizActivity() {
                 )}
               </button>
             </div>
-          </div>
-        )}
-
-        {/* Questions */}
+          </div>        {/* Questions */}
         <div className="space-y-8">
           {questions.map((q, i) => (
             <div
@@ -625,7 +497,6 @@ function QuizActivity() {
           isActive={setHelpActive}
           active={helpActive}
           amount={amount}
-          duration={duration}
         />
       )}
 

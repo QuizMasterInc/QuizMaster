@@ -19,13 +19,7 @@ function SelectSub() {
     difficulty,
     selectDifficulty,
     amount,
-    selectAmount,
-    duration,
-    updateDuration,
-    showTimer,
-    toggleTimerVisibility,
-    showPauseButton,
-    togglePauseButtonVisibility,
+    selectAmount
   } = useCategory();
 
   // Use availableSubcategories if available, otherwise fall back to hardcoded
@@ -90,51 +84,6 @@ function SelectSub() {
           <div className="flex justify-center">
             <QuestionAmount min={1} max={10} amount={amount} selectAmount={selectAmount} />
           </div>
-        </section>
-
-        <section className="space-y-4">
-          <div className="flex items-center p-4 rounded-lg bg-[var(--primary-500)] shadow-lg border-2 border-accent">
-            <label className="text-white font-semibold mr-4">Show Timer</label>
-            <input
-              type="checkbox"
-              checked={showTimer}
-              onChange={toggleTimerVisibility}
-              className="form-checkbox h-5 w-5 text-white focus:ring-white cursor-pointer"
-            />
-            <span className="ml-4 text-white text-sm">
-              {showTimer ? 'Timer is visible' : 'Timer is hidden'}
-            </span>
-          </div>
-          
-          {showTimer && (
-            <>
-              <div className="flex items-center p-4 rounded-lg bg-[var(--primary-500)] shadow-lg border-2 border-accent">
-                <label className="text-white font-semibold mr-4">Show Pause Button</label>
-                <input
-                  type="checkbox"
-                  checked={showPauseButton}
-                  onChange={togglePauseButtonVisibility}
-                  className="form-checkbox h-5 w-5 text-white focus:ring-white cursor-pointer"
-                />
-                <span className="ml-4 text-white text-sm">
-                  {showPauseButton ? 'Pause Button is visible' : 'Pause Button is hidden'}
-                </span>
-              </div>
-              
-              <div className="text-center">
-                <h2 className="text-2xl font-semibold text-gradient-primary mb-2">
-                  Select Quiz Duration (In minutes)
-                </h2>
-                <input
-                  type="number"
-                  min="1"
-                  className="mt-2 p-2 w-16 text-center text-black font-bold rounded-lg shadow-md border-2 border-accent"
-                  value={duration}
-                  onChange={(e) => updateDuration(e.target.value)}
-                />
-              </div>
-            </>
-          )}
         </section>
 
         <div className="pt-8 flex justify-center gap-8">

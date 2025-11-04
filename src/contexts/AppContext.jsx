@@ -22,9 +22,6 @@ export const AppProvider = ({ children }) => {
     const [subcategories, setSubcategories] = useSessionStorage('quizmaster_subcategories', [], true);
     const [difficulty, setDifficulty] = useSessionStorage('quizmaster_difficulty', '');
     const [amount, setAmount] = useSessionStorage('quizmaster_amount', '10');
-    const [duration, setDuration] = useSessionStorage('quizmaster_duration', 5);
-    const [showTimer, setShowTimer] = useSessionStorage('quizmaster_showTimer', true, true);
-    const [showPauseButton, setShowPauseButton] = useSessionStorage('quizmaster_showPauseButton', true, true);
 
     // Compose configuration state
     const config = {
@@ -35,13 +32,7 @@ export const AppProvider = ({ children }) => {
         difficulty,
         setDifficulty,
         amount,
-        setAmount,
-        duration,
-        setDuration,
-        showTimer,
-        setShowTimer,
-        showPauseButton,
-        setShowPauseButton
+        setAmount
     };
 
     // API operations
@@ -64,9 +55,6 @@ export const AppProvider = ({ children }) => {
         subcategories,
         difficulty,
         amount,
-        duration,
-        showTimer,
-        showPauseButton,
 
         // API state
         isLoadingSubcategories: api.isLoadingSubcategories,

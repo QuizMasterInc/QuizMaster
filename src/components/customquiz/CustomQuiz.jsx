@@ -16,9 +16,6 @@ export default function CustomQuiz () {
   const [customQuizzes, setCustomQuizzes] = useState([])
   const [teacherQuiz, setTeacherQuiz] = useState(false)
   const [isCreatingQuiz, setIsCreatingQuiz] = useState(false)
-  const [showTimer, setShowTimer] = useState(true)
-  const [showPauseButton, setShowPauseButton] = useState(true)
-  const [duration, setDuration] = useState(5)
   const { currentUser } = useAuth()
   const navigate = useNavigate()
 
@@ -61,10 +58,6 @@ export default function CustomQuiz () {
         privateQuiz,
         privateQuizPassword,
         currentUserId: currentUser.uid,
-        // Timer settings
-        showTimer,
-        showPauseButton,
-        duration,
         // NEW FIELDS for new schema
         description: "", // Add a description input field if desired
         category: "" // Add a category selector if desired
@@ -145,12 +138,6 @@ export default function CustomQuiz () {
             teacherQuiz={teacherQuiz}
             setTeacherQuiz={setTeacherQuiz}
             isCreatingQuiz={isCreatingQuiz}
-            showTimer={showTimer}
-            setShowTimer={setShowTimer}
-            showPauseButton={showPauseButton}
-            setShowPauseButton={setShowPauseButton}
-            duration={duration}
-            setDuration={setDuration}
           />
           <QuizQuestionsList 
             quizData={quizData} 

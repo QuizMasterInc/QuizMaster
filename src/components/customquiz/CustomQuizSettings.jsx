@@ -1,5 +1,5 @@
 /**
- * Custom Quiz Settings - allows users to configure timer settings before taking a custom quiz
+ * Custom Quiz Settings - allows users to configure quiz settings before taking a custom quiz
  */
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
@@ -12,9 +12,6 @@ function CustomQuizSettings() {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [quizData, setQuizData] = useState(null);
-  const [showTimer, setShowTimer] = useState(true);
-  const [showPauseButton, setShowPauseButton] = useState(true);
-  const [duration, setDuration] = useState(5);
 
   const password = location.state?.password;
 
@@ -26,12 +23,7 @@ function CustomQuizSettings() {
         const data = await res.json();
         const quiz = data.data;
 
-        // Extract existing settings if available
-        const settings = quiz.settings || {};
         setQuizData(quiz);
-        setShowTimer(settings.showTimer !== undefined ? settings.showTimer : true);
-        setShowPauseButton(settings.showPauseButton !== undefined ? settings.showPauseButton : true);
-        setDuration(settings.timeLimit || 5);
       } catch (error) {
         console.error('Failed to fetch quiz data:', error);
       } finally {
@@ -43,13 +35,10 @@ function CustomQuizSettings() {
   }, [quizID]);
 
   const handleStartQuiz = () => {
-    // Navigate to quiz with settings
+    // Navigate to quiz
     navigate(`/quizstarted/${quizID}`, {
       state: {
-        password,
-        showTimer,
-        showPauseButton,
-        duration
+        password
       }
     });
   };
@@ -96,60 +85,12 @@ function CustomQuizSettings() {
             {quizData.metadata?.title || quizData.title || 'Custom Quiz'}
           </h2>
           <p className="text-secondary">
-            Configure your quiz settings before starting
+            Ready to start your quiz?
           </p>
         </div>
 
         <div className="space-y-6">
-          {/* Show Timer */}
-          <div className="flex items-center p-4 rounded-lg bg-[var(--primary-500)] shadow-lg border-2 border-accent">
-            <label className="text-white font-semibold mr-4">Show Timer</label>
-            <input
-              type="checkbox"
-              checked={showTimer}
-              onChange={(e) => setShowTimer(e.target.checked)}
-              className="form-checkbox h-5 w-5 text-white focus:ring-white cursor-pointer"
-            />
-            <span className="ml-4 text-white text-sm">
-              {showTimer ? 'Timer is visible' : 'Timer is hidden'}
-            </span>
-          </div>
-
-          {showTimer && (
-            <>
-              {/* Show Pause Button */}
-              <div className="flex items-center p-4 rounded-lg bg-[var(--primary-500)] shadow-lg border-2 border-accent">
-                <label className="text-white font-semibold mr-4">Show Pause Button</label>
-                <input
-                  type="checkbox"
-                  checked={showPauseButton}
-                  onChange={(e) => setShowPauseButton(e.target.checked)}
-                  className="form-checkbox h-5 w-5 text-white focus:ring-white cursor-pointer"
-                />
-                <span className="ml-4 text-white text-sm">
-                  {showPauseButton ? 'Pause Button is visible' : 'Pause Button is hidden'}
-                </span>
-              </div>
-
-              {/* Quiz Duration */}
-              <div className="text-center">
-                <h3 className="text-2xl font-semibold text-gradient-primary mb-2">
-                  Select Quiz Duration (In minutes)
-                </h3>
-                <input
-                  type="number"
-                  min="1"
-                  max="60"
-                  className="mt-2 p-2 w-16 text-center text-black font-bold rounded-lg shadow-md border-2 border-accent"
-                  value={duration}
-                  onChange={(e) => setDuration(Math.max(1, Math.min(60, parseInt(e.target.value) || 1)))}
-                />
-                <p className="text-sm text-secondary mt-2">
-                  Duration: {duration} minute{duration !== 1 ? 's' : ''}
-                </p>
-              </div>
-            </>
-          )}
+          {/* Quiz instructions or additional settings could go here */}
         </div>
 
         <div className="pt-8 flex justify-center">

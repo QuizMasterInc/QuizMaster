@@ -217,38 +217,37 @@ class FlashcardService {
         return {
             // Basic info
             id: deck.id,
-            title: deck.metadata?.title || deck.name || 'Untitled Deck',
-            description: deck.metadata?.description || '',
+            title: deck.title || deck.name || 'Untitled Deck',
+            description: deck.description || '',
             
             // Content info
-            cardCount: deck.metadata?.cardCount || (deck.content?.cards ? Object.keys(deck.content.cards).length : 0),
-            cards: deck.content?.cards || {},
-            category: deck.metadata?.category || 'General',
-            difficulty: deck.metadata?.difficulty || '2',
+            cardCount: deck.cardCount || (deck.cards ? Object.keys(deck.cards).length : 0),
+            cards: deck.cards || {},
+            category: deck.category || 'General',
+            difficulty: deck.difficulty || '2',
             
             // Tags handling
-            tags: deck.metadata?.tags ? 
-                  (typeof deck.metadata.tags === 'string' ? deck.metadata.tags.split(',').map(t => t.trim()) : deck.metadata.tags) : [],
+            tags: deck.tags ? 
+                  (typeof deck.tags === 'string' ? deck.tags.split(',').map(t => t.trim()) : deck.tags) : [],
             
             // Creator info
-            creator: deck.creator?.displayName || deck.creator?.username || 'Anonymous User',
-            creatorId: deck.creator?.uid || '',
+            creatorId: deck.creatorId || '',
             
             // Access info
-            isPublic: deck.metadata?.isPublic || false,
-            isPrivate: !deck.metadata?.isPublic,
+            isPublic: deck.isPublic || false,
+            isPrivate: !deck.isPublic,
             
             // Analytics
-            timesStudied: deck.analytics?.stats?.timesStudied || 0,
-            averageScore: deck.analytics?.stats?.averageScore || 0,
-            lastStudied: deck.analytics?.stats?.lastStudied,
+            timesStudied: deck.timesStudied || 0,
+            averageScore: deck.averageScore || 0,
+            lastStudied: deck.lastStudied,
             
             // Timestamps
-            createdAt: deck.timestamps?.createdAt,
-            updatedAt: deck.timestamps?.updatedAt,
+            createdAt: deck.createdAt,
+            updatedAt: deck.updatedAt,
             
             // Status
-            isActive: deck.moderation?.status === 'active'
+            isActive: deck.isActive !== false
         };
     }
 }

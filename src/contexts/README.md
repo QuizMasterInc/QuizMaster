@@ -17,7 +17,7 @@ Manages global application settings and state.
 
 ### QuizContext.jsx
 Manages active quiz session data during quiz-taking.
-- **Provides**: Current quiz questions, user answers, timer state, submission functions
+- **Provides**: Current quiz questions, user answers, submission functions
 - **Used by**: Quiz components during active quiz sessions
 
 ### ResultsContext.jsx
