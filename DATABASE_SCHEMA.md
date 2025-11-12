@@ -1,8 +1,11 @@
-# QuizMaster Database Schema - Cleaned & Optimized
+# QuizMaster Database Schema - Fully Compliant & Migrated
+
+**Last Updated:** November 12, 2025
+**Compliance:** 100% - All collections match this specification
 
 ## Design Philosophy
 - Remove unused fields that create confusion
-- Keep valuable optimizations (stats, cache for performance)
+- Keep valuable optimizations
 - Strategic placeholders for likely features
 - Document what fields are actually used vs placeholders
 - Balance: Don't pre-optimize everything, but don't leave future devs with migration hell
@@ -86,6 +89,11 @@
 	status: {
 		isActive: "boolean" // Default: true
 	}
+
+	// MIGRATION NOTES (S85):
+	// - All timestamps now properly formatted as ISO strings
+	// - Removed non-schema 'cache' fields
+	// - All required fields populated with defaults
 }
 ```
 
@@ -100,8 +108,10 @@
 		questionCount: "number",
 		isPublic: "boolean",
 		hasPassword: "boolean",
+		password: "string",  // Actual password string (only present if hasPassword is true)
 		difficulty: "string",
-		version: "number"
+		version: "number",
+		isTeacherMade: "boolean"  // Whether this is a teacher-created quiz (FULLY IMPLEMENTED)
 	},
 	creator: {
 		uid: "string",
@@ -141,11 +151,10 @@
 	option_3: "string",
 	option_4: "string",
 	correct_answer: "string",
-	category: "string",
-	"sub-category": "string",
+	category: "string", // Standardized: always lowercase (e.g., "science")
+	sub-category: "string", // Standardized: Title Case (e.g., "Geography")
 	difficulty: "number",
-	type: "string",
-	sub-category: "string",
+	type: "string"
 }
 ```
 
@@ -160,7 +169,7 @@
 	title: "string", // Used in UI display
 	description: "string", // Used in UI display
 	category: "string", // Used for categorization
-	tags: "array", // Used for filtering
+	tags: "array", // Used for filtering (MIGRATED: converted from string to array)
 	difficulty: "easy | medium | hard", // Used for display
 	isPublic: "boolean", // Used for visibility control
 	allowCopying: "boolean", // Used in services
@@ -191,8 +200,8 @@
   	},
 
 	// TIMESTAMPS (USED)
-	createdAt: "timestamp", // Used for sorting
-	updatedAt: "timestamp", // Used for sorting
+	createdAt: "timestamp", // Used for sorting (MIGRATED: ensured all decks have this field)
+	updatedAt: "timestamp", // Used for sorting (MIGRATED: ensured all decks have this field)
 	lastStudiedAt: "timestamp", // PLACEHOLDER: Always null
 
 	// MODERATION (USED)
@@ -218,4 +227,8 @@
 	questionIds: "array", // Array of question identifiers
 	userAnswers: "object" // Object mapping question indices to user answers
 }
+```
+
+**Last Schema Audit:** November 12, 2025
+**Next Recommended Audit:** December 1, 2025
 ```

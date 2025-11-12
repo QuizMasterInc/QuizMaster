@@ -61,12 +61,12 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "metadata.isPublic",
+          "fieldPath": "metadata.isTeacherMade",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "metadata.title",
-          "order": "ASCENDING"
+          "fieldPath": "timestamps.updatedAt",
+          "order": "DESCENDING"
         }
       ]
     },

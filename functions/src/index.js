@@ -28,6 +28,7 @@ exports.grabUserCustomQuizzesV2 = quizzes.grabUserCustomQuizzesV2
 exports.browseCustomQuizzesV2 = quizzes.browseCustomQuizzesV2
 exports.updateCustomQuiz = quizzes.updateCustomQuiz
 exports.deleteCustomQuiz = quizzes.deleteCustomQuiz
+exports.getTeacherQuizzes = quizzes.getTeacherQuizzes
 
 // Results module
 exports.grabAllResultsV2 = results.grabAllResultsV2

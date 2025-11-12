@@ -152,23 +152,11 @@ class QuizCreationService {
             }
 
             // Use unified CloudFunctionsAPI
-            const data = await cloudFunctionsAPI.call('grabUserCustomQuizzesV2', { uid: userId }, 'GET');
+            const data = await cloudFunctionsAPI.call('grabUserCustomQuizzesV2', { uid: userId }, 'POST');
 
-            // Extract titles from the quiz data
+            // Extract titles from the quiz data (new nested schema only)
             const titles = data.data.map(quiz => {
-                // Handle new nested schema first
-                if (quiz.metadata && quiz.metadata.title) {
-                    return quiz.metadata.title;
-                }
-                // Handle old flat schema
-                else if (quiz.title) {
-                    return quiz.title;
-                }
-                // Handle old nested data schema
-                else if (quiz.data && quiz.data.title) {
-                    return quiz.data.title;
-                }
-                return '';
+                return quiz.metadata?.title || '';
             }).filter(title => title.length > 0);
 
             return titles;
@@ -192,7 +180,8 @@ class QuizCreationService {
             quizTags,
             privateQuiz,
             privateQuizPassword,
-            currentUserId
+            currentUserId,
+            teacherQuiz
         } = quizInput;
 
         // Fetch fresh user quiz titles for duplicate validation
@@ -251,7 +240,11 @@ class QuizCreationService {
                 tags: this.normalizeTags(quizTags).split(',').filter(t => t.trim()),
                 difficulty: "3",
                 language: "en",
-                version: "1.0.0"
+                version: "1.0.0",
+                isPublic: !privateQuiz,
+                hasPassword: !!privateQuiz,
+                password: privateQuiz ? privateQuizPassword : null,
+                isTeacherMade: !!teacherQuiz
             },
 
             // Creator section
@@ -271,7 +264,6 @@ class QuizCreationService {
             // Access section
             access: {
                 visibility: privateQuiz ? "private" : "public",
-                password: privateQuiz ? privateQuizPassword : null,
                 allowAnonymous: !privateQuiz,
                 restrictions: []
             },

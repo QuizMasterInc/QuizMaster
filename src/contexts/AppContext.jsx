@@ -59,6 +59,9 @@ export const AppProvider = ({ children }) => {
         // API state
         isLoadingSubcategories: api.isLoadingSubcategories,
 
+        // API methods
+        allSubcategories: api.fetchSubcategories,
+
         // Business logic methods
         ...logic
     };

@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import CustomQuizSelectButton from "./CustomQuizSelectButton";
 import FilterSelect from "./FilterSelect";
 import { useAuth } from "../../../contexts/AuthContext";
 import quizRetrievalService from "../../../services/quiz/quizRetrievalService";
+import cloudFunctionsAPI from "../../../services/api/cloudFunctions";
 
 const QuizList = ({
   title,
@@ -18,6 +19,10 @@ const QuizList = ({
   const [error, setError] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [quizzesToDisplay, setQuizzesToDisplay] = useState([]);
+
+  // Debounced search state
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const debounceTimerRef = useRef(null);
 
   // Get current filter values from URL (memoized to prevent infinite re-renders)
   const filters = useMemo(() => ({
@@ -37,7 +42,7 @@ const QuizList = ({
       if (dataSource === "browseCustomQuizzes") {
         // AllCustomQuizzes logic
         const options = {
-          searchTerm: filters.searchTerm.trim(),
+          searchTerm: debouncedSearchTerm.trim(),
           sortBy: filters.sortBy,
           privacy: filters.privacy.toLowerCase(),
           limit: 50,
@@ -65,43 +70,12 @@ const QuizList = ({
         }
 
       } else if (dataSource === "teacherQuizzes") {
-        // AllTeacherQuizzes logic
-        const response = await fetch(
-          "https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabAllCustomQuizzes",
-          {
-            method: "POST",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json"
-            }
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const json = await response.json();
-        const quizData = json.data;
-
-        // Filter for teacher-made quizzes
-        const filtered = quizData.filter((quiz) => {
-          const tags = quiz.tags;
-          if (Array.isArray(tags)) {
-            return tags.some((tag) => tag.toLowerCase() === "teachermade (no other tags can be added)");
-          } else if (typeof tags === 'string') {
-            return tags.toLowerCase().includes("teachermade (no other tags can be added)");
-          }
-          return false;
+        // AllTeacherQuizzes logic - now uses server-side filtering
+        result = await cloudFunctionsAPI.getTeacherQuizzes({
+          searchTerm: filters.searchTerm,
+          sortBy: filters.sortBy,
+          limit: 50
         });
-
-        // Clean tags to only show 'teachermade'
-        const cleaned = filtered.map((quiz) => ({
-          ...quiz,
-          tags: ["teachermade"]
-        }));
-
-        result = { quizzes: cleaned };
       }
 
       const quizArray = result.quizzes || [];
@@ -116,7 +90,7 @@ const QuizList = ({
     } finally {
       setLoading(false);
     }
-  }, [dataSource, filters, currentUser?.uid]);
+  }, [dataSource, debouncedSearchTerm, filters.sortBy, filters.privacy, currentUser?.uid]);
 
   // Initial fetch - different behavior based on dataSource
   useEffect(() => {
@@ -131,7 +105,7 @@ const QuizList = ({
       // Custom quizzes: fetch when filters change (server-side filtering)
       fetchQuizzes();
     }
-  }, [dataSource, currentUser?.uid, searchParams]); // Refetch custom quizzes when filters change
+  }, [dataSource, currentUser?.uid, debouncedSearchTerm, filters.sortBy, filters.privacy]); // Refetch custom quizzes when filters change
 
   // For teacher quizzes, apply client-side filtering when filters change
   useEffect(() => {
@@ -189,17 +163,12 @@ const QuizList = ({
 
   const parseCreatedAt = (createdAt) => {
     if (!createdAt) return 0;
-    if (createdAt.seconds) return createdAt.seconds * 1000;
     return new Date(createdAt).getTime();
   };
 
   const checkTags = (quiz, searchTerm) => {
-    if (quiz.tags) {
-      if (Array.isArray(quiz.tags) && quiz.tags.length > 0) {
-        return quiz.tags.some(tag => tag.toLowerCase().includes(searchTerm));
-      } else if (typeof quiz.tags === 'string' && quiz.tags.length > 0) {
-        return quiz.tags.toLowerCase().includes(searchTerm);
-      }
+    if (quiz.tags && Array.isArray(quiz.tags) && quiz.tags.length > 0) {
+      return quiz.tags.some(tag => tag.toLowerCase().includes(searchTerm));
     }
     return false;
   };
@@ -208,15 +177,29 @@ const QuizList = ({
   const updateFilters = useCallback((newFilters) => {
     const updatedFilters = { ...filters, ...newFilters };
 
+    // Handle search term with debouncing
+    if (newFilters.searchTerm !== undefined) {
+      // Clear existing timer
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      
+      // Set new timer for 300ms delay
+      debounceTimerRef.current = setTimeout(() => {
+        setDebouncedSearchTerm(newFilters.searchTerm);
+      }, 300);
+    }
+
+    // Update URL params immediately for all filters
     const params = {};
-    if (updatedFilters.searchTerm.trim()) {
-      params.q = updatedFilters.searchTerm.trim();
+    if (updatedFilters.searchTerm !== undefined ? updatedFilters.searchTerm.trim() : filters.searchTerm.trim()) {
+      params.q = updatedFilters.searchTerm !== undefined ? updatedFilters.searchTerm.trim() : filters.searchTerm.trim();
     }
-    if (updatedFilters.sortBy !== 'newest') {
-      params.sort = updatedFilters.sortBy;
+    if (updatedFilters.sortBy !== undefined ? updatedFilters.sortBy !== 'newest' : filters.sortBy !== 'newest') {
+      params.sort = updatedFilters.sortBy !== undefined ? updatedFilters.sortBy : filters.sortBy;
     }
-    if (enabledFilters.includes('privacy') && updatedFilters.privacy !== 'All') {
-      params.privacy = updatedFilters.privacy;
+    if (enabledFilters.includes('privacy') && (updatedFilters.privacy !== undefined ? updatedFilters.privacy !== 'All' : filters.privacy !== 'All')) {
+      params.privacy = updatedFilters.privacy !== undefined ? updatedFilters.privacy : filters.privacy;
     }
 
     setSearchParams(params, { replace: true });
@@ -225,24 +208,8 @@ const QuizList = ({
   // Normalize quiz data for display
   const normalizeQuizData = (quiz) => {
     if (dataSource === "browseCustomQuizzes") {
-      // Complex normalization for browseCustomQuizzes
-      return quizRetrievalService.normalizeQuizData ?
-        quizRetrievalService.normalizeQuizData(quiz) : {
-          id: quiz.id || quiz.uid,
-          title: quiz.metadata?.title || quiz.title || 'Untitled Quiz',
-          numQuestions: quiz.metadata?.questionCount || quiz.numQuestions || quiz.questionCount || 0,
-          tags: Array.isArray(quiz.metadata?.tags) ? quiz.metadata.tags :
-                (quiz.tags ? (typeof quiz.tags === 'string' ? quiz.tags.split(',').map(t => t.trim()) : quiz.tags) : []),
-          password: (quiz.hasPassword || quiz.metadata?.hasPassword || quiz.password || quiz.metadata?.password) ? 'protected' : null,
-          creator: quiz.creator?.displayName || quiz.creator?.username || quiz.creator?.userId || quiz.creator || quiz.creatorID || 'Anonymous User',
-          difficulty: quiz.metadata?.difficulty || quiz.difficulty || '3',
-          category: quiz.metadata?.category || quiz.category || 'General',
-          isPrivate: !quiz.metadata?.isPublic || quiz.access?.visibility === 'private' || !!quiz.quizPassword || quiz.hasPassword,
-          attempts: quiz.analytics?.stats?.attempts || quiz.attemptCount || 0,
-          averageScore: quiz.analytics?.stats?.averageScore || quiz.averageScore || 0,
-          createdAt: quiz.timestamps?.createdAt || quiz.createdAt,
-          updatedAt: quiz.timestamps?.updatedAt || quiz.updatedAt
-        };
+      // Use service-level normalization for browseCustomQuizzes
+      return quizRetrievalService.normalizeQuizData(quiz);
     } else {
       // Simple normalization for teacher quizzes
       return {

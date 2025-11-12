@@ -58,6 +58,7 @@ export default function CustomQuiz () {
         privateQuiz,
         privateQuizPassword,
         currentUserId: currentUser.uid,
+        teacherQuiz, // Add teacher quiz flag
         // NEW FIELDS for new schema
         description: "", // Add a description input field if desired
         category: "" // Add a category selector if desired

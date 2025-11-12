@@ -38,9 +38,9 @@ exports.grabSubV2 = onRequest(async (req, res) => {
         }
 
         try {
-            // Try lowercase first
+            // Use lowercase category (standardized format)
             const lowercaseCategory = category.toLowerCase();
-            console.log('[grabSubV2] Trying lowercase:', lowercaseCategory);
+            console.log('[grabSubV2] Using lowercase category:', lowercaseCategory);
 
             let quizzes = await admin.firestore()
                 .collection('default-questions')
@@ -48,21 +48,7 @@ exports.grabSubV2 = onRequest(async (req, res) => {
                 .orderBy('sub-category')
                 .get()
 
-            console.log('[grabSubV2] Lowercase query returned:', quizzes.size, 'documents');
-
-            // If no results, try with first letter capitalized
-            if (quizzes.empty) {
-                const capitalizedCategory = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
-                console.log('[grabSubV2] Trying capitalized:', capitalizedCategory);
-
-                quizzes = await admin.firestore()
-                    .collection('default-questions')
-                    .where('category', '==', capitalizedCategory)
-                    .orderBy('sub-category')
-                    .get()
-
-                console.log('[grabSubV2] Capitalized query returned:', quizzes.size, 'documents');
-            }
+            console.log('[grabSubV2] Query returned:', quizzes.size, 'documents');
 
             if (quizzes.empty) {
                 console.log('[grabSubV2] No questions found! Checking total collection size...');
@@ -131,23 +117,13 @@ exports.getSubcategories = onRequest(async (req, res) => {
         }
 
         try {
-            // Try lowercase first
+            // Use lowercase category (standardized format)
             const lowercaseCategory = category.toLowerCase();
 
             let quizzes = await admin.firestore()
                 .collection('default-questions')
                 .where('category', '==', lowercaseCategory)
                 .get()
-
-            // If no results, try with first letter capitalized
-            if (quizzes.empty) {
-                const capitalizedCategory = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
-
-                quizzes = await admin.firestore()
-                    .collection('default-questions')
-                    .where('category', '==', capitalizedCategory)
-                    .get()
-            }
 
             if (quizzes.empty) {
                 console.log('[getSubcategories] No questions found for category:', category);

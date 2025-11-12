@@ -11,21 +11,19 @@ import QuestionAmount from './QuestionAmount';
 
 function SelectSub() {
   const {
-    quizSubcategories,
-    availableSubcategories, // Use dynamic subcategories
+    availableSubcategories, // Use dynamic subcategories only
+    isLoadingSubcategories,
     category,
     toggleSubcategory,
     subcategories,
     difficulty,
-    selectDifficulty,
+    updateDifficulty,
     amount,
-    selectAmount
+    updateAmount
   } = useCategory();
 
-  // Use availableSubcategories if available, otherwise fall back to hardcoded
-  const subcategoriesToDisplay = availableSubcategories.length > 0
-    ? availableSubcategories
-    : (quizSubcategories[category.toLowerCase()] || []);
+  // Use only dynamic subcategories - no hardcoded fallback
+  const subcategoriesToDisplay = availableSubcategories;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-primary relative overflow-hidden m-5">
@@ -43,8 +41,10 @@ function SelectSub() {
 
         <section className="text-center space-y-4">
           <h2 className="text-2xl font-semibold text-gradient-primary">Choose Sub-Categories</h2>
-          {subcategoriesToDisplay.length === 0 ? (
+          {isLoadingSubcategories ? (
             <p className="text-secondary italic">Loading subcategories...</p>
+          ) : subcategoriesToDisplay.length === 0 ? (
+            <p className="text-secondary italic">No subcategories available for this category.</p>
           ) : (
             <div className="flex flex-wrap justify-center gap-4">
               {subcategoriesToDisplay.map((subcategory) => (
@@ -66,7 +66,7 @@ function SelectSub() {
 
         <section className="text-center space-y-4">
           <h2 className="text-2xl font-semibold text-gradient-primary">Select Difficulty</h2>
-          <StarRating difficulty={difficulty} selectDifficulty={selectDifficulty} />
+          <StarRating difficulty={difficulty} updateDifficulty={updateDifficulty} />
           {difficulty === 0 && (
             <p className="text-sm text-muted italic">
               ℹ️ No difficulty selected - questions of all difficulty levels will be included
@@ -82,7 +82,7 @@ function SelectSub() {
         <section className="text-center space-y-4">
           <h2 className="text-2xl font-semibold text-gradient-primary">Select Amount of Questions</h2>
           <div className="flex justify-center">
-            <QuestionAmount min={1} max={10} amount={amount} selectAmount={selectAmount} />
+            <QuestionAmount min={1} max={10} amount={amount} updateAmount={updateAmount} />
           </div>
         </section>
 

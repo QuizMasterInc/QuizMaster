@@ -28,3 +28,6 @@ update.cjs
 serviceAccountKey.json
 admin.json
 .env
+
+# Audit database with node.js
+audit-database.js
