@@ -488,6 +488,9 @@ function CustomQuizActivity() {
             setShowResults(true);
             setDoneActive(false);
           }}
+          category={quizMetadata?.name || "Custom Quiz"}
+          difficulty={quizMetadata?.difficulty}
+          quizStartTime={quizStartTime}
         />
       )}
 

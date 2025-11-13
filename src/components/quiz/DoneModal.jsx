@@ -2,8 +2,9 @@ import { useState } from "react";
 import Modal from "react-modal";
 import { SquareX } from "../icons";
 import { Link } from "react-router-dom";
+import DownloadQuiz from "./DownloadQuiz";
 
-const DoneModal = ({ isActive, amountCorrect, totalAmount, active, questions = [], userAnswers = {}, quizId, isCustomQuiz = false, onViewDetails }) => {
+const DoneModal = ({ isActive, amountCorrect, totalAmount, active, questions = [], userAnswers = {}, quizId, isCustomQuiz = false, onViewDetails, category = "Quiz", difficulty, quizStartTime }) => {
     const [showDetails, setShowDetails] = useState(false);
 
     console.log('Modal open')
@@ -89,8 +90,14 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, questions = [
                                     </div>
                                 </div>
 
-                                {/* Action Buttons */}
-                                <div className="flex items-center justify-center gap-4 p-8 border-t border-primary">
+                                <div className="flex items-center justify-center gap-4 p-8 border-t border-primary flex-wrap">
+                                    <DownloadQuiz
+                                        questions={questions}
+                                        userAnswers={userAnswers}
+                                        correctCount={amountCorrect}
+                                        category={category}
+                                    />
+
                                     <Link to="/typeofquiz">
                                         <button
                                             type="button"
