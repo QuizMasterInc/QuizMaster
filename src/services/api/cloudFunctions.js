@@ -99,6 +99,11 @@ class CloudFunctionsAPI {
   async fetchSubcategories(category) {
     return this.call('getSubcategories', { category }, 'GET');
   }
+
+  // ===== TEACHER QUIZZES =====
+  async getTeacherQuizzes(options = {}) {
+    return this.call('getTeacherQuizzes', options, 'POST');
+  }
 }
 
 export default new CloudFunctionsAPI();

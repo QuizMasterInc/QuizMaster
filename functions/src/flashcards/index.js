@@ -12,11 +12,11 @@ exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
         if (dataType === 'application/json') {
             const data = JSON.parse(JSON.stringify(req.body));
 
-            // Extract data from request
-            const creatorID = data.creator?.uid || data.creatorID;
-            const title = data.metadata?.title || data.name || data.title;
-            const cards = data.content?.cards || data.cards || [];
-            const tags = data.metadata?.tags || data.tags || "";
+            // Extract data from flattened request
+            const creatorID = data.creatorId;
+            const title = data.title;
+            const cards = data.cards || [];
+            const tags = data.tags || "";
 
             // Validation
             if (!creatorID || !title.trim() || !Array.isArray(cards) || cards.length === 0) {
@@ -58,29 +58,27 @@ exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
                     type: card.type || 'basic'
                 }));
 
-                // New flattened schema structure
+                // Use the flattened schema structure from frontend
                 const newFlashcardDeck = {
-                    // PRIMARY IDENTIFIERS (will be doc.id)
-                    
-                    // BASIC METADATA (flattened from metadata.*)
+                    // Basic metadata (use incoming data directly)
                     title: title,
-                    description: data.metadata?.description || data.description || "",
-                    category: data.metadata?.category || data.category || "General",
+                    description: data.description || "",
+                    category: data.category || "General",
                     tags: Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()) : []),
-                    difficulty: data.metadata?.difficulty || data.difficulty || "medium",
-                    isPublic: data.metadata?.isPublic || data.isPublic || false,
-                    allowCopying: data.access?.allowCopying ?? true,
+                    difficulty: data.difficulty || "medium",
+                    isPublic: data.isPublic || false,
+                    allowCopying: data.allowCopying ?? true,
 
-                    // CREATOR INFORMATION (flattened from creator.*)
+                    // Creator information
                     creatorId: creatorInfo.uid,
                     creatorName: creatorInfo.displayName,
 
-                    // DECK STRUCTURE
+                    // Deck structure
                     cardCount: cards.length,
                     cards: cardsArray,
 
-                    // STUDY ANALYTICS (simplified - removed cardStats)
-                    analytics: {
+                    // Study analytics (use incoming or defaults)
+                    analytics: data.analytics || {
                         stats: {
                             averageScore: 0,
                             timesStudied: 0,
@@ -89,12 +87,12 @@ exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
                         }
                     },
 
-                    // TIMESTAMPS (flattened from timestamps.*)
+                    // Timestamps
                     createdAt: currentDate,
                     updatedAt: currentDate,
                     lastStudiedAt: null,
 
-                    // MODERATION (simplified to just isActive)
+                    // Status
                     isActive: true
                 };
 

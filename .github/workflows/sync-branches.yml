@@ -1,0 +1,26 @@
+name: Sync prod to develop
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - production # Changed from 'prod'
+
+jobs:
+  sync:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: production # Changed from 'prod'
+          fetch-depth: 0
+      
+      - name: Merge production into development
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout development
+          git merge production --no-ff -m "Auto-sync prod to develop after PR #${{ github.event.pull_request.number }}"
+          git push origin development
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

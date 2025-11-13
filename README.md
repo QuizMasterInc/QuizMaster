@@ -20,8 +20,8 @@ Team Fun | Software Systems Capstone Project
 
 <div align="center">
 
-[![Production](https://img.shields.io/github/actions/workflow/status/QuizMasterInc/QuizMaster/prod.yml?branch=main&label=Production&style=for-the-badge)](https://github.com/QuizMasterInc/QuizMaster/actions/workflows/prod.yml) 
-[![Testing](https://img.shields.io/github/actions/workflow/status/QuizMasterInc/QuizMaster/testing.yml?branch=testing&label=Testing&style=for-the-badge)](https://github.com/QuizMasterInc/QuizMaster/actions/workflows/testing.yml)
+[![Production](https://img.shields.io/github/actions/workflow/status/QuizMasterInc/QuizMaster/prod.yml?branch=production&label=Production&style=for-the-badge)](https://github.com/QuizMasterInc/QuizMaster/actions/workflows/prod.yml) 
+[![Testing](https://img.shields.io/github/actions/workflow/status/QuizMasterInc/QuizMaster/development.yml?branch=development&label=Testing&style=for-the-badge)](https://github.com/QuizMasterInc/QuizMaster/actions/workflows/development.yml)
 
 </div>
 

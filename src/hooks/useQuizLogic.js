@@ -52,19 +52,6 @@ export const useQuizLogic = (config, api) => {
         });
     };
 
-    /**
-     * Select all subcategories for a category
-     * @param {string} selectedCategory - Category to select all subcategories for
-     */
-    const allSubcategories = (selectedCategory) => {
-        const categoryKey = selectedCategory.toLowerCase();
-        // Use availableSubcategories if present, otherwise fall back to quizSubcategories
-        const allSubs = availableSubcategories.length > 0
-            ? availableSubcategories
-            : (quizSubcategories[categoryKey] || []);
-        setSubcategories(allSubs);
-    };
-
     // Settings methods
     const updateDifficulty = (newDifficulty) => {
         setDifficulty(newDifficulty);
@@ -79,11 +66,6 @@ export const useQuizLogic = (config, api) => {
         selectCategory,
         toggleSubcategory,
         updateDifficulty,
-        updateAmount,
-
-        // Aliases for backward compatibility
-        allSubcategories,
-        selectDifficulty: updateDifficulty,
-        selectAmount: updateAmount,
+        updateAmount
     };
 };

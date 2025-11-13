@@ -89,17 +89,6 @@ export const STORAGE_KEYS = {
 };
 
 /**
- * Legacy SessionStorage keys for migration
- * Used to migrate from old CategoryContext to new AppContext
- */
-export const LEGACY_STORAGE_KEYS = {
-    CATEGORY: 'category',
-    SUBCATEGORIES: 'subcategories',
-    DIFFICULTY: 'difficulty',
-    AMOUNT: 'amount'
-};
-
-/**
  * Helper function to get icon by category name
  * @param {string} categoryName - Name of the category
  * @returns {JSX.Element} - The corresponding icon component

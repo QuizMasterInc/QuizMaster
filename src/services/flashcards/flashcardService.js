@@ -67,36 +67,44 @@ class FlashcardService {
             };
         }
 
-        // Create deck object matching our schema
+        // Create deck object matching our flattened schema
         const deckObject = {
-            // Metadata section
-            metadata: {
-                title: deckName.trim(),
-                description: description || "",
-                category: category || "General",
-                tags: this.normalizeTags(tags),
-                cardCount: cards.length,
-                isPublic: isPublic || false,
-                difficulty: difficulty || "2",
-                version: 1
+            // Basic metadata
+            title: deckName.trim(),
+            description: description || "",
+            category: category || "General",
+            tags: this.normalizeTags(tags),
+            cardCount: cards.length,
+            isPublic: isPublic || false,
+            difficulty: difficulty || "2",
+            
+            // Creator info
+            creatorId: currentUserId,
+            creatorName: "", // Will be populated by backend
+            
+            // Content
+            cards: cards,
+            
+            // Access control
+            allowCopying: true,
+            
+            // Analytics (initialized)
+            analytics: {
+                stats: {
+                    averageScore: 0,
+                    timesStudied: 0,
+                    lastStudied: null,
+                    totalReviews: 0
+                }
             },
             
-            // Creator section
-            creator: {
-                uid: currentUserId
-            },
+            // Timestamps (will be set by backend)
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            lastStudiedAt: null,
             
-            // Content section - cards array will be converted to map in backend
-            content: {
-                cards: cards
-            },
-            
-            // Access section
-            access: {
-                visibility: isPublic ? "public" : "private",
-                allowCopying: true,
-                studyMode: "flashcards"
-            }
+            // Status
+            isActive: true
         };
 
         return { success: true, deckObject };

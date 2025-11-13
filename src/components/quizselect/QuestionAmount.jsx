@@ -1,18 +1,18 @@
 import { useRef, useEffect } from 'react'
 
-function QuestionAmount ({ min, max , amount, selectAmount}) {
+function QuestionAmount ({ min, max , amount, updateAmount}) {
     const inputRef = useRef(null)
   
     const handleInputChange = (e) => {
       const inputValue = parseInt(e.target.value, 10)
-      selectAmount(isNaN(inputValue) ? '' : inputValue)
+      updateAmount(isNaN(inputValue) ? '' : inputValue)
     }
   
   
     const handleEnterKey = () => {
       let newValue = parseInt(inputRef.current.value, 10)
       newValue = Math.min(Math.max(newValue, min), max)
-      selectAmount(isNaN(newValue) ? '' : newValue)
+      updateAmount(isNaN(newValue) ? '' : newValue)
       console.log('Handled enter')
     }
   

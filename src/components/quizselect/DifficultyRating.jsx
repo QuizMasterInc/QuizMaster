@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const StarRating = ({ difficulty, selectDifficulty }) => {
+const StarRating = ({ difficulty, updateDifficulty }) => {
   const [difficultyState, setDifficulty] = useState(0);
 
   const handleStarClick = (starIndex) => {
@@ -9,7 +9,7 @@ const StarRating = ({ difficulty, selectDifficulty }) => {
       newDifficulty = 0;
     }
     setDifficulty(newDifficulty);
-    selectDifficulty(newDifficulty);
+    updateDifficulty(newDifficulty);
   };
 
   return (

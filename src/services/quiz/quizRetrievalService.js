@@ -109,15 +109,16 @@ class QuizRetrievalService {
             // Filter quizzes by the current user
             const allQuizzes = response.data || [];
             const userQuizzes = allQuizzes.filter(quiz => {
-                // Handle new nested schema
-                if (quiz.creator && quiz.creator.userId) {
-                    return quiz.creator.userId === userId;
-                }
-                // Handle old flat schema
-                return quiz.creator === userId || quiz.creatorID === userId;
+                // New nested schema only
+                return quiz.creator?.userId === userId;
             });
 
-            return this.ensureQuizzesSorted(userQuizzes);
+            // Sort quizzes by creation date (newest first)
+            return userQuizzes.sort((a, b) => {
+                const dateA = new Date(a.timestamps?.createdAt || 0);
+                const dateB = new Date(b.timestamps?.createdAt || 0);
+                return dateB.getTime() - dateA.getTime();
+            });
 
         } catch (error) {
             console.error('Error fetching user custom quizzes:', error);
@@ -130,91 +131,6 @@ class QuizRetrievalService {
             // For other errors, still return empty array but log the error
             return [];
         }
-    }
-
-    /**
-     * Normalize quiz data to work with both old and new schema formats
-     * @param {Object} quiz - Quiz object (could be old or new format)
-     * @returns {Object} Normalized quiz object
-     */
-    normalizeQuizData(quiz) {
-        if (!quiz) return null;
-
-        return {
-            // Basic info
-            id: quiz.id || quiz.uid,
-            title: quiz.metadata?.title || quiz.title || 'Untitled Quiz',
-
-            // Content info - check new schema location first
-            numQuestions: quiz.metadata?.questionCount || quiz.content?.totalQuestions || quiz.numQuestions || quiz.questionCount || 0,
-            category: quiz.metadata?.category || quiz.category || 'General',
-            difficulty: quiz.metadata?.difficulty || quiz.difficulty || '3',
-
-            // Tags handling
-            tags: quiz.metadata?.tags ?
-                  (Array.isArray(quiz.metadata.tags) ? quiz.metadata.tags : [quiz.metadata.tags]) :
-                  (quiz.tags ? (typeof quiz.tags === 'string' ? quiz.tags.split(',').map(t => t.trim()) : quiz.tags) : []),
-
-            // Creator info - prioritize displayName from database
-            creator: quiz.creator?.displayName || quiz.creator?.username || quiz.creator?.userId || quiz.creator || quiz.creatorID || 'Anonymous User',
-            creatorUsername: quiz.creator?.username || '',
-
-            // Access info - check new schema first
-            isPrivate: !quiz.metadata?.isPublic || quiz.access?.visibility === 'private' || quiz.access?.password || !!quiz.quizPassword || quiz.hasPassword,
-            password: (quiz.hasPassword || quiz.metadata?.hasPassword) ? 'protected' : null,
-
-            // Analytics
-            attempts: quiz.analytics?.stats?.attempts || quiz.attemptCount || 0,
-            averageScore: quiz.analytics?.stats?.averageScore || quiz.averageScore || 0,
-
-            // Timestamps
-            createdAt: quiz.timestamps?.createdAt || quiz.createdAt,
-            updatedAt: quiz.timestamps?.updatedAt || quiz.updatedAt,
-
-            // Status
-            isActive: quiz.moderation?.status === 'active' || quiz.isActive !== false
-        };
-    }
-
-    /**
-     * Ensure quizzes are sorted by creation date (newest first) as a fallback
-     * @param {Array} quizzes - Array of quiz objects
-     * @returns {Array} Sorted quizzes
-     */
-    ensureQuizzesSorted(quizzes) {
-        if (!Array.isArray(quizzes)) {
-            return [];
-        }
-
-        return quizzes.sort((a, b) => {
-            // Handle different date formats and schema structures
-            let dateA, dateB;
-
-            // New nested schema
-            if (a.timestamps && a.timestamps.createdAt) {
-                dateA = new Date(a.timestamps.createdAt);
-            }
-            // Old flat schema
-            else if (a.createdAt) {
-                dateA = new Date(a.createdAt);
-            } else {
-                dateA = new Date(0);
-            }
-
-            // New nested schema
-            if (b.timestamps && b.timestamps.createdAt) {
-                dateB = new Date(b.timestamps.createdAt);
-            }
-            // Old flat schema
-            else if (b.createdAt) {
-                dateB = new Date(b.createdAt);
-            } else {
-                dateB = new Date(0);
-            }
-
-            // Sort descending (newest first)
-            return dateB.getTime() - dateA.getTime();
-        });
     }
 
     /**
@@ -254,24 +170,20 @@ class QuizRetrievalService {
                 difficulty: 'all'
             });
 
-            // Handle both new optimized endpoint and legacy endpoint responses
-            const isOptimizedResponse = data.success !== undefined;
-
-            if (isOptimizedResponse && !data.success) {
+            // Handle response from browseCustomQuizzesOptimized (new format only)
+            if (!data.success) {
                 throw new Error(data.error || 'Failed to browse quizzes');
-            } else if (!isOptimizedResponse && !data.result) {
-                throw new Error(data.message || 'Failed to browse quizzes');
             }
 
             return {
-                quizzes: data.quizzes || data.data || [],
-                count: data.meta?.count || data.count || 0,
-                searchTerm: data.meta?.searchTerm || data.searchTerm,
-                sortBy: data.meta?.sortBy || data.sortBy,
-                privacy: data.meta?.privacy || data.privacy,
-                timestamp: data.meta?.queryTime || data.timestamp,
-                indexesUsed: data.meta?.indexesUsed || null,
-                optimized: data.meta?.optimized || false
+                quizzes: data.quizzes || [],
+                count: data.meta?.count || 0,
+                searchTerm: data.meta?.searchTerm,
+                sortBy: data.meta?.sortBy,
+                privacy: data.meta?.privacy,
+                timestamp: data.meta?.queryTime,
+                indexesUsed: data.meta?.indexesUsed,
+                optimized: true
             };
 
         } catch (error) {
@@ -313,6 +225,31 @@ class QuizRetrievalService {
         } catch (error) {
             throw handleFirebaseError(error);
         }
+    }
+
+    /**
+     * Normalize quiz data for consistent display format
+     * @param {Object} quiz - Raw quiz data from API
+     * @returns {Object} Normalized quiz data for UI components
+     */
+    normalizeQuizData(quiz) {
+        if (!quiz) return null;
+
+        return {
+            id: quiz.uid || quiz.id,
+            title: quiz.title || quiz.metadata?.title || 'Untitled Quiz',
+            numQuestions: quiz.numQuestions || quiz.metadata?.questionCount || quiz.questionCount || 0,
+            tags: Array.isArray(quiz.tags) ? quiz.tags : (quiz.tags ? [quiz.tags] : []),
+            password: quiz.quizPassword || quiz.password || null,
+            creator: quiz.creator?.displayName || 'Anonymous User',
+            difficulty: quiz.difficulty || quiz.metadata?.difficulty || 'Medium',
+            category: quiz.category || quiz.metadata?.category || 'General',
+            isPrivate: quiz.isPrivate || !quiz.metadata?.isPublic,
+            attempts: quiz.attempts || quiz.quizTaken || quiz.analytics?.stats?.attempts || 0,
+            averageScore: quiz.averageScore || quiz.analytics?.stats?.averageScore || 0,
+            createdAt: quiz.createdAt || quiz.timestamps?.createdAt,
+            updatedAt: quiz.updatedAt || quiz.lastEdit || quiz.timestamps?.updatedAt
+        };
     }
 }
 

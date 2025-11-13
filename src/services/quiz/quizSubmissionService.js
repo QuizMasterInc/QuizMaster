@@ -28,35 +28,6 @@ class QuizSubmissionService {
             throw handleFirebaseError(error);
         }
     }
-
-    /**
-     * Submit quiz attempt (legacy method - kept for compatibility)
-     * @param {string} quizId - Quiz ID
-     * @param {Object} attemptData - Quiz attempt data
-     * @returns {Promise<Object>} Attempt result
-     */
-    async submitQuizAttempt(quizId, attemptData) {
-        try {
-            // For default quizzes, use the new submitQuizResults method
-            if (attemptData.quizType === 'default' || attemptData.category) {
-                return await this.submitQuizResults(attemptData);
-            }
-
-            // For custom quizzes, use existing custom quiz tracking
-            const trackQuizFunction = httpsCallable(functions, 'trackQuizAttempt');
-
-            const result = await trackQuizFunction({
-                quizId,
-                ...attemptData,
-                submittedAt: timestamp.now()
-            });
-
-            return result.data;
-
-        } catch (error) {
-            throw handleFirebaseError(error);
-        }
-    }
 }
 
 export default new QuizSubmissionService();

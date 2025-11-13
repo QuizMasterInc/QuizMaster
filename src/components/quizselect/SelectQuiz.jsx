@@ -51,15 +51,15 @@ function SelectQuiz() {
     destinations,
     selectCategory,
     allSubcategories,
-    selectDifficulty,
-    selectAmount,
+    updateDifficulty,
+    updateAmount,
   } = useCategory();
 
   // Initialize default values in useEffect to avoid state updates during render
   useEffect(() => {
-    selectDifficulty(0);
-    selectAmount(10);
-  }, [selectDifficulty, selectAmount]);
+    updateDifficulty(0);
+    updateAmount(10);
+  }, [updateDifficulty, updateAmount]);
 
   const randomIndex = Math.floor(Math.random() * quizCategories.length);
 

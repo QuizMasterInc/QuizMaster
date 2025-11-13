@@ -156,9 +156,8 @@ export default function QuizCreation({
 
   // Initialize raw tags input from existing quizTags
   useEffect(() => {
-    if (!teacherQuiz && quizTags.length > 0) {
-      const nonTeacherTags = quizTags.filter(tag => tag !== 'teachermade (no other tags can be added)');
-      setRawTagsInput(nonTeacherTags.join(', '));
+    if (quizTags.length > 0) {
+      setRawTagsInput(quizTags.join(', '));
     }
   }, []);  // Only run on component mount
 
@@ -172,16 +171,13 @@ export default function QuizCreation({
     setTeacherQuiz(value);
     if (value) {
       setPrivateQuiz(true);
-      if (!privateQuizPassword) setPrivateQuizPassword('teacherOnly');
-      setQuizTags(['teachermade (no other tags can be added)']);
-      setRawTagsInput(''); // Clear raw input when teacher mode is enabled
+      // Allow teachers to set their own password instead of forcing 'teacherOnly'
+      if (!privateQuizPassword || privateQuizPassword === 'teacherOnly') {
+        setPrivateQuizPassword(''); // Clear any forced password, let teacher set their own
+      }
     } else {
       setPrivateQuiz(false);
       setPrivateQuizPassword('');
-      setQuizTags((prevTags) => prevTags.filter(tag => tag !== 'teachermade (no other tags can be added)'));
-      // Restore raw input from current tags (excluding teachermade)
-      const nonTeacherTags = quizTags.filter(tag => tag !== 'teachermade (no other tags can be added)');
-      setRawTagsInput(nonTeacherTags.join(', '));
     }
   };
 
@@ -195,22 +191,16 @@ export default function QuizCreation({
       .map(tag => tag.trim()) // Trim each tag to remove extra spaces
       .filter(tag => tag !== ''); // Remove any empty entries
     
-    // Remove "teachermade" from the list if it's in the input
-    return inputTags.filter(tag => tag !== 'teachermade (no other tags can be added)');
+    return inputTags;
   };
 
   const updateQuizTags = (e) => {
     const inputValue = e.target.value;
     setRawTagsInput(inputValue); // Always update the raw input for display
     
-    if (teacherQuiz) {
-      // Automatically set the tags to "teachermade" when teacherQuiz is enabled
-      setQuizTags(['teachermade (no other tags can be added)']); // Only "teachermade" is allowed
-    } else {
-      // Process and store the tags - this allows free-form input with spaces and commas
-      const processedTags = processTagsFromInput(inputValue);
-      setQuizTags(processedTags);
-    }
+    // Process and store the tags - allow free-form input
+    const processedTags = processTagsFromInput(inputValue);
+    setQuizTags(processedTags);
   };
 
   // Update number of answers in the current question
@@ -429,11 +419,10 @@ export default function QuizCreation({
             <div className="md:col-span-3">
               <input
                 type="text"
-                value={teacherQuiz ? 'teachermade (no other tags can be added)' : rawTagsInput}
+                value={rawTagsInput}
                 onChange={updateQuizTags}
                 className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
                 placeholder="Enter tags separated by commas (e.g. Computer Science, History, Sports)"
-                disabled={teacherQuiz}
               />
             </div>
           </div>
@@ -465,7 +454,6 @@ export default function QuizCreation({
                   onChange={handleQuizPasswordChange}
                   className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
                   placeholder="Enter password for quiz access"
-                  disabled={teacherQuiz && privateQuizPassword === 'teacherOnly'}
                 />
               </div>
             </div>
@@ -485,7 +473,7 @@ export default function QuizCreation({
               </select>
               {teacherQuiz && (
                 <p className="text-sm text-accent mt-2">
-                  ℹ️ Teacher quizzes are automatically set to private.
+                  ℹ️ Teacher quizzes are automatically set to private. You can set your own password.
                 </p>
               )}
             </div>
