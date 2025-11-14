@@ -157,8 +157,8 @@ Manages individual questions in the default question bank used for system-genera
 
 ---
 
-### flashcardService.js
-Manages flashcard deck creation, retrieval, and management using Cloud Functions for data consistency.
+### flashcards/flashcardService.js
+Manages flashcard deck creation, retrieval, browsing, and management using Cloud Functions for data consistency.
 
 **Functions:**
 - `createValidatedDeckObject(deckData)` - Validates and formats flashcard deck data before submission
@@ -166,7 +166,24 @@ Manages flashcard deck creation, retrieval, and management using Cloud Functions
 - `getUserFlashcardDecks(userId)` - Gets all flashcard decks created by a specific user (calls CloudFunctionsAPI)
 - `getFlashcardDeck(deckId)` - Gets a specific flashcard deck by its ID (calls CloudFunctionsAPI)
 - `deleteFlashcardDeck(deckId, userId)` - Deletes a flashcard deck (with user permission verification, calls CloudFunctionsAPI)
+- `browsePublicFlashcards(options)` - Browse public flashcard decks with filtering by category, difficulty, and sort (calls CloudFunctionsAPI)
+- `getPublicFlashcardCategories()` - Gets unique categories from public flashcard decks (calls CloudFunctionsAPI)
 - `normalizeDeckData(rawData)` - Converts flashcard deck data to a consistent format
+
+---
+
+### flashcards/studySession.js
+**NEW (S79):** Manages flashcard study sessions with progress tracking and spaced repetition.
+
+**Functions:**
+- `createStudySession(deckId)` - Creates a new study session for a flashcard deck (calls CloudFunctionsAPI)
+- `getStudySession(sessionId)` - Gets a specific study session by ID (calls CloudFunctionsAPI)
+- `getActiveStudySession(deckId)` - Gets active (incomplete) study session for a deck (calls CloudFunctionsAPI)
+- `getStudyHistory(deckId, limit)` - Gets completed study sessions for a deck (calls CloudFunctionsAPI)
+- `updateStudySession(sessionId, updates)` - Updates study session progress and card ratings (calls CloudFunctionsAPI)
+- `completeStudySession(sessionId)` - Marks study session as complete and updates analytics (calls CloudFunctionsAPI)
+- `deleteStudySession(sessionId)` - Deletes a study session (calls CloudFunctionsAPI)
+- `calculateSessionStats(cardRatings)` - Calculates success rate and statistics from card ratings
 
 ## How Services Work Together
 All services use the same patterns for error handling, data validation, and Firebase operations. Components import these services to perform database operations without handling Firebase directly. The services automatically handle things like user authentication, data formatting, and error messages. All data operations now route through Firebase Cloud Functions via the unified CloudFunctionsAPI for consistent security and access control.

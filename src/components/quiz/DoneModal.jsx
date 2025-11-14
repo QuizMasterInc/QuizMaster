@@ -7,8 +7,6 @@ import DownloadQuiz from "./DownloadQuiz";
 const DoneModal = ({ isActive, amountCorrect, totalAmount, active, questions = [], userAnswers = {}, quizId, isCustomQuiz = false, onViewDetails, category = "Quiz", difficulty, quizStartTime }) => {
     const [showDetails, setShowDetails] = useState(false);
 
-    console.log('Modal open')
-
     return (
         <Modal
             isOpen={active}

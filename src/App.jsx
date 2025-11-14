@@ -29,6 +29,9 @@ import DeveloperRoute from './routes/DeveloperRoute';
 import CustomQuiz from './components/customquiz/CustomQuiz.jsx';
 import DeckManager from './components/flashcards/DeckManager';
 import MyFlashcards from './components/flashcards/MyFlashcards';
+import BrowsePublicFlashcards from './components/flashcards/BrowsePublicFlashcards';
+import StudyMode from './components/flashcards/study/StudyMode';
+import StudyResults from './components/flashcards/study/StudyResults';
 import EditCustomQuiz from "./components/customquiz/EditCustomQuiz"
 import SelectSubCategory from './components/quizselect/SelectSubCategory';
 import TypeOfQuiz from './pages/TypeOfQuiz';
@@ -150,6 +153,22 @@ function App() {
           <Route path="/myflashcards" element={
             <PrivateRoute>
               <MyFlashcards />
+            </PrivateRoute>
+          }/>
+
+          <Route path="/browse-flashcards" element={
+            <BrowsePublicFlashcards />
+          }/>
+
+          <Route path="/flashcards/study/:deckId" element={
+            <PrivateRoute>
+              <StudyMode />
+            </PrivateRoute>
+          }/>
+
+          <Route path="/flashcards/study/:deckId/results" element={
+            <PrivateRoute>
+              <StudyResults />
             </PrivateRoute>
           }/>
 

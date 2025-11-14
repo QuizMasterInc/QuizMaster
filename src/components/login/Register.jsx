@@ -78,8 +78,6 @@ export default function Register() {
       setError('')
       setLoading(true)
       
-      console.log('Starting Google registration...')
-      
       // Prepare additional data from form (if filled)
       const additionalData = {
         firstName: firstNameRef.current?.value?.trim() || '',
@@ -88,10 +86,7 @@ export default function Register() {
         theme: getSystemTheme()
       }
       
-      console.log('Additional data for Google registration:', additionalData)
-      
       const result = await googleRegister(additionalData)
-      console.log('Google registration successful:', result)
       // Success - user will be redirected automatically by auth state change
     } catch (error) {
       console.error('Google registration failed:', error)

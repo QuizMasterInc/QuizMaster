@@ -158,7 +158,7 @@
 }
 ```
 
-### 4. Flashcard Decks Collection - Cleaned Schema
+### 4. Flashcard Decks Collection - S79 Enhanced Schema
 
 ```javascript
 {
@@ -189,27 +189,67 @@
 		}
 	],
 
-	// STUDY ANALYTICS (PARTIALLY USED)
+	// STUDY ANALYTICS (S79 - USED FOR DECK-LEVEL STATS)
 	analytics: {
 		stats: {
-			averageScore: "number", // Used in UI
-			timesStudied: "number", // Used in UI
-			lastStudied: "timestamp", // PLACEHOLDER: Always null
-			totalReviews: "number" // PLACEHOLDER: Never incremented
+			timesStudied: "number", // Total study sessions completed
+			lastStudiedAt: "timestamp" // Last study session completion time
 		}
   	},
 
 	// TIMESTAMPS (USED)
-	createdAt: "timestamp", // Used for sorting (MIGRATED: ensured all decks have this field)
-	updatedAt: "timestamp", // Used for sorting (MIGRATED: ensured all decks have this field)
-	lastStudiedAt: "timestamp", // PLACEHOLDER: Always null
+	createdAt: "timestamp", // Used for sorting
+	updatedAt: "timestamp", // Used for sorting
 
 	// MODERATION (USED)
 	isActive: "boolean" // Used for soft deletes
 }
 ```
 
-### 5. Quiz Results Collection
+### 5. Study Sessions Collection - S79 New Collection
+
+```javascript
+{
+	// PRIMARY IDENTIFIERS
+	id: "string", // Auto-generated session ID
+	
+	// SESSION OWNERSHIP
+	userId: "string", // Reference to users.uid
+	deckId: "string", // Reference to flashcard_decks.id
+	
+	// SESSION TIMING
+	startedAt: "timestamp", // When study session began
+	lastActivityAt: "timestamp", // Last interaction (for resume detection)
+	completedAt: "timestamp", // When session ended (null if in progress)
+	
+	// SESSION PROGRESS
+	currentCardIndex: "number", // Index of current card (for resume)
+	cardsStudied: "number", // Count of cards reviewed in this session
+	
+	// CARD RATINGS (S79 Acceptance Criteria: Easy/Good/Hard tracking)
+	cardRatings: [
+		{
+			cardId: "string", // Reference to card ID from deck
+			rating: "easy | good | hard", // User's rating
+			timestamp: "timestamp" // When rating was given
+		}
+	],
+	
+	// SESSION STATUS
+	isCompleted: "boolean", // Whether session finished or abandoned
+	
+	// SESSION STATISTICS (S79 Acceptance Criteria)
+	stats: {
+		timeSpent: "number", // Total seconds spent in session
+		easyCount: "number", // Number of "easy" ratings
+		goodCount: "number", // Number of "good" ratings
+		hardCount: "number", // Number of "hard" ratings
+		successRate: "number" // Percentage (easy+good)/total * 100
+	}
+}
+```
+
+### 6. Quiz Results Collection
 
 ```javascript
 {

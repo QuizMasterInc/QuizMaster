@@ -65,7 +65,6 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
       setQuizPasswordAttempt((prevQuizPassword) => {
         let newPassword = prevQuizPassword;
         newPassword = e.target.value;
-        console.log(newPassword)
         return newPassword
       })
     }

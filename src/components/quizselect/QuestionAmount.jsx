@@ -13,7 +13,6 @@ function QuestionAmount ({ min, max , amount, updateAmount}) {
       let newValue = parseInt(inputRef.current.value, 10)
       newValue = Math.min(Math.max(newValue, min), max)
       updateAmount(isNaN(newValue) ? '' : newValue)
-      console.log('Handled enter')
     }
   
     useEffect(() => {

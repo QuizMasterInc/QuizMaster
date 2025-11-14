@@ -55,7 +55,6 @@ function QuizActivity() {
         const url = `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabSubV2?category=${encodeURIComponent(
           category.toLowerCase()
         )}`;
-        console.log('Fetching questions from:', url);
 
         const res = await fetch(url);
 
@@ -65,29 +64,21 @@ function QuizActivity() {
         }
 
         const data = await res.json();
-        console.log('Received data:', data);
-        console.log('Data keys (subcategories):', Object.keys(data));
 
         let pool = [];
         (subcategories.length ? subcategories : Object.keys(data)).forEach(
           (sub) => {
             if (data[sub]) {
-              console.log(`Adding ${data[sub].length} questions from subcategory: ${sub}`);
               pool = [...pool, ...data[sub]];
             }
           }
         );
 
-        console.log('Total questions in pool before filtering:', pool.length);
-
         if (difficulty && difficulty > 0) {
-          const beforeFilter = pool.length;
           pool = pool.filter((q) => Number(q.difficulty) === Number(difficulty));
-          console.log(`Filtered by difficulty ${difficulty}: ${beforeFilter} -> ${pool.length} questions`);
         }
 
         pool = shuffle(pool).slice(0, amount);
-        console.log('Final pool after shuffle and slice:', pool.length);
 
         if (pool.length === 0) {
           console.warn('No questions available! Check if questions exist in database for:', {
@@ -534,6 +525,4 @@ function QuizActivity() {
   );
 
 }
-
 export default QuizActivity;
-

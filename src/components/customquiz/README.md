@@ -22,13 +22,21 @@ Main container for custom quiz management and browsing.
 - Context-driven state management
 
 ### `QuizCreation.jsx` 
-Handles quiz metadata creation (title, description, settings).
+Handles quiz metadata creation (title, description, settings) and question building.
 
 **Functionality:**
 - Quiz configuration and settings management
 - Tag and category assignment
 - Privacy and access controls
+- Multiple question type support (Multiple Choice, True/False, Fill in Blank, Multiple Answer, Drag & Drop)
+- CSV bulk upload for questions
+- Difficulty level selection (1-5 scale)
 - Integration with quizService for efficient creation
+
+**Recent Refactoring (November 2025):**
+- Extracted business logic to utility files (csvParser.js, questionValidator.js, tagProcessor.js, questionTypes.js)
+- Custom hooks for state management (useQuizForm, useQuestionForm, useCSVUpload)
+- Reduced component size by 25% while maintaining all functionality
 
 ### `QuizQuestionsList.jsx`
 Manages individual quiz questions and answers.

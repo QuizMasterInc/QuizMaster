@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { FaChevronDown, FaBars, FaTimes } from "react-icons/fa";
-import { School, Computer, Profile, Info, SignIn, Email, Gear, Q, Scroll } from "../icons/index.jsx";
+import { School, Computer, Profile, Info, SignIn, Email, Gear, Q, Scroll, Book } from "../icons/index.jsx";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import '../../styles/nav.css';
@@ -129,6 +129,19 @@ export default function NavBar() {
                                     >
                                         <Scroll className="w-5 h-5 navbar-icon" />
                                         My Flashcards
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
+                                        to="/browse-flashcards"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <Book className="w-5 h-5 navbar-icon" />
+                                        Browse Flashcards
                                     </NavLink>
                                 </li>
                                 <li>
@@ -303,6 +316,10 @@ export default function NavBar() {
                                 <NavLink to="/myflashcards" onClick={handleClick} className="mobile-nav-item">
                                     <Scroll className="w-5 h-5" />
                                     My Flashcards
+                                </NavLink>
+                                <NavLink to="/browse-flashcards" onClick={handleClick} className="mobile-nav-item">
+                                    <Book className="w-5 h-5" />
+                                    Browse Flashcards
                                 </NavLink>
                                 <NavLink to="/customquiz" onClick={handleClick} className="mobile-nav-item">
                                     <Q className="w-5 h-5" />

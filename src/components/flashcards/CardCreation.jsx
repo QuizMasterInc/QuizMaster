@@ -181,11 +181,11 @@ export default function CardCreation({ saveDeck, isLoading }) {
                 <div className="flex-1">
                   <div className="mb-2">
                     <span className="font-semibold text-blue-600">Front:</span> 
-                    <span className="ml-2">{card.front}</span>
+                    <span className="ml-2 text-[var(--neutral-600)]">{card.front}</span>
                   </div>
                   <div>
                     <span className="font-semibold text-green-600">Back:</span> 
-                    <span className="ml-2">{card.back}</span>
+                    <span className="ml-2 text-[var(--neutral-600)]">{card.back}</span>
                   </div>
                 </div>
                 <button

@@ -6,7 +6,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "jest --config jest.config.cjs"
+    "test": "jest --config jest.config.cjs",
+    "emulators": "firebase emulators:start",
+    "deploy:indexes": "firebase deploy --only firestore:indexes",
+    "deploy:functions": "firebase deploy --only functions"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
