@@ -314,3 +314,175 @@ exports.deleteFlashcardDeck = onRequest(async (req, res) => {
         }
     });
 });
+
+/**
+ * Update flashcard deck analytics after study session
+ */
+exports.updateFlashcardDeckAnalytics = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        const deckId = req.query.deckId || req.body?.deckId;
+
+        if (!deckId) {
+            return res.json({
+                status: 400,
+                success: false,
+                message: "Deck ID is required"
+            });
+        }
+
+        try {
+            const deckRef = admin.firestore().collection('flashcard_decks').doc(deckId);
+            const deckDoc = await deckRef.get();
+
+            if (!deckDoc.exists) {
+                return res.json({
+                    status: 404,
+                    success: false,
+                    message: "Flashcard deck not found"
+                });
+            }
+
+            const deckData = deckDoc.data();
+            const currentTimesStudied = deckData.analytics?.stats?.timesStudied || 0;
+
+            // Update deck analytics
+            await deckRef.update({
+                'analytics.stats.timesStudied': currentTimesStudied + 1,
+                'analytics.stats.lastStudiedAt': new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+
+            return res.json({
+                status: 200,
+                success: true,
+                message: "Deck analytics updated successfully"
+            });
+
+        } catch (error) {
+            console.error('Error updating deck analytics:', error);
+            return res.json({
+                status: 500,
+                success: false,
+                message: error.message
+            });
+        }
+    });
+});
+
+/**
+ * Browse public flashcard decks
+ * GET /browsePublicFlashcards?category=Science&difficulty=1&sortBy=recent&limit=50
+ */
+exports.browsePublicFlashcards = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'GET') {
+            return res.status(405).json({
+                success: false,
+                message: 'Method not allowed. Use GET.'
+            });
+        }
+
+        try {
+            const db = admin.firestore();
+            const { category, difficulty, sortBy = 'recent', limit: limitCount = 50 } = req.query;
+
+            // Build query
+            let query = db.collection('flashcard_decks')
+                .where('isPublic', '==', true)
+                .where('isActive', '==', true);
+
+            // Add category filter
+            if (category && category !== 'all') {
+                query = query.where('category', '==', category);
+            }
+
+            // Add difficulty filter
+            if (difficulty && difficulty !== 'all') {
+                query = query.where('difficulty', '==', difficulty);
+            }
+
+            // Add sorting
+            if (sortBy === 'recent') {
+                query = query.orderBy('updatedAt', 'desc');
+            } else if (sortBy === 'oldest') {
+                query = query.orderBy('createdAt', 'asc');
+            } else if (sortBy === 'popular') {
+                query = query.orderBy('analytics.stats.timesStudied', 'desc');
+            }
+
+            // Apply limit
+            query = query.limit(parseInt(limitCount) || 50);
+
+            const snapshot = await query.get();
+            const decks = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            return res.status(200).json({
+                success: true,
+                count: decks.length,
+                decks
+            });
+
+        } catch (error) {
+            console.error('Error browsing public flashcards:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to browse public flashcards',
+                error: error.message
+            });
+        }
+    });
+});
+
+/**
+ * Get unique categories from flashcard decks
+ * GET /getFlashcardCategories
+ */
+exports.getFlashcardCategories = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        if (req.method !== 'GET') {
+            return res.status(405).json({
+                success: false,
+                message: 'Method not allowed. Use GET.'
+            });
+        }
+
+        try {
+            const db = admin.firestore();
+            
+            // Get all public decks
+            const snapshot = await db.collection('flashcard_decks')
+                .where('isPublic', '==', true)
+                .where('isActive', '==', true)
+                .select('category')
+                .get();
+
+            // Extract unique categories
+            const categoriesSet = new Set();
+            snapshot.docs.forEach(doc => {
+                const category = doc.data().category;
+                if (category) {
+                    categoriesSet.add(category);
+                }
+            });
+
+            const categories = Array.from(categoriesSet).sort();
+
+            return res.status(200).json({
+                success: true,
+                count: categories.length,
+                categories
+            });
+
+        } catch (error) {
+            console.error('Error fetching flashcard categories:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to fetch categories',
+                error: error.message
+            });
+        }
+    });
+});

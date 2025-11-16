@@ -71,6 +71,25 @@ service cloud.firestore {
         resource.data.createdBy == request.auth.uid;
     }
 
+    // Study sessions collection
+    match /study_sessions/{sessionId} {
+      // Users can only read their own study sessions
+      allow read: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+
+      // Users can only create their own study sessions
+      allow create: if request.auth != null &&
+        request.resource.data.userId == request.auth.uid;
+
+      // Users can only update their own study sessions
+      allow update: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+
+      // Users can delete their own study sessions
+      allow delete: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+    }
+
     // Users collection
     match /users/{userId} {
       // Users can read their own data

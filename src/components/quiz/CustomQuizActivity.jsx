@@ -237,7 +237,6 @@ function CustomQuizActivity() {
       // Refresh dashboard cache to show updated scores immediately
       await refreshResults();
       
-      console.log('Custom quiz results submitted successfully');
     } catch (error) {
       console.error('Error submitting custom quiz results:', error);
       // Still show results even if submission fails
@@ -488,6 +487,9 @@ function CustomQuizActivity() {
             setShowResults(true);
             setDoneActive(false);
           }}
+          category={quizMetadata?.name || "Custom Quiz"}
+          difficulty={quizMetadata?.difficulty}
+          quizStartTime={quizStartTime}
         />
       )}
 

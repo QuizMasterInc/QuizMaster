@@ -1,7 +1,19 @@
-//This file handles creating the users custom quiz and making it able to be accessed within the product and database
-import {useState, useEffect} from 'react'
-import {useAuth} from '../../contexts/AuthContext'
-import { Navigate } from 'react-router-dom'
+/**
+ * Quiz Creation Component - Refactored with custom hooks and utilities
+ * This file handles creating the user's custom quiz
+ */
+
+import { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
+
+// Custom Hooks
+import { useQuestionForm } from '../../hooks/useQuestionForm';
+import { useCSVUpload } from '../../hooks/useCSVUpload';
+
+// Utilities
+import { QUESTION_TYPES, getDifficultyLabel } from '../../utils/questionTypes';
+import { processTagsFromInput } from '../../utils/tagProcessor';
 
 export default function QuizCreation({
   setQuizData,
@@ -20,16 +32,34 @@ export default function QuizCreation({
 }) {
   const { logout } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [currentQuestion, setCurrentQuestion] = useState(['', '', '', '', '', '', 'Multiple', '', 3]); // difficulty at index 8 as number
-  const [selectedCorrectAnswers, setSelectedCorrectAnswers] = useState([false, false, false, false]);
-  const [droppedOption, setDroppedOption] = useState('');
-  const [rawTagsInput, setRawTagsInput] = useState('');
-  const [numAnswers, setNumAnswers] = useState(4); // New state for answer count (2-4)
-  const [questionDifficulty, setQuestionDifficulty] = useState(3); // New state for difficulty (1-5) as number
 
-  // CSV Upload States
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [isUploadingCSV, setIsUploadingCSV] = useState(false);
+  // Question form hook
+  const {
+    currentQuestion,
+    selectedCorrectAnswers,
+    droppedOption,
+    numAnswers,
+    questionDifficulty,
+    setSelectedCorrectAnswers,
+    setDroppedOption,
+    handleQuestionChange,
+    updateNumAnswers,
+    updateQuestionDifficulty,
+    resetQuestionForm,
+    validateCurrentQuestion,
+    getCurrentQuestionData
+  } = useQuestionForm();
+
+  // CSV upload hook
+  const {
+    selectedFile,
+    isUploadingCSV,
+    uploadError,
+    handleFileSelect,
+    handleCSVUpload: performCSVUpload
+  } = useCSVUpload((questions) => {
+    setQuizData(prev => [...prev, ...questions]);
+  });
 
   const handleLogout = async () => {
     try {
@@ -42,138 +72,42 @@ export default function QuizCreation({
     setLoading(false);
   };
 
-  const verifyQuestionInput = (question) => {
-    const type = question[6];
-    const optionsFilled = [1, 2, 3, 4].slice(0, numAnswers).every((idx) => question[idx].trim() !== '');
-
-    if (type === 'TrueFalse') {
-      return question[0].trim() !== '' && question[5] !== '';
-    } else if (type === 'FillInTheBlank') {
-      return question[0].trim() !== '' && question[1].trim() !== '';
-    } else if (type === 'MultipleAnswer') {
-      return question[0].trim() !== '' && optionsFilled && selectedCorrectAnswers.some(Boolean);
-    } else if (type === 'DragAndDrop') {
-      return question[0].includes('[blank]') && optionsFilled && question[5].trim() !== '';
-    } else if (type === 'Multiple') {
-      return question[0].trim() !== '' && optionsFilled && question[5].trim() !== '';
-    }
-    return false;
-  };
-
-  const handleQuestionChange = (e, index) => {
-    setCurrentQuestion((prevCurrentQuestion) => {
-      const updatedQuestion = [...prevCurrentQuestion];
-      updatedQuestion[index] = e.target.value;
-      return updatedQuestion;
-    })
-  };
-
-  //this function adds the question to the quizData array after user finished making the question 
-  // ALSO CALLS THE FUNCTION THAT VERIFIES IF THE QUESTION INPUTS ARE ALL COMPLETED
+  // Add question to quiz
   const addCurrentQuestion = () => {
-    if (!verifyQuestionInput(currentQuestion)) {
+    if (!validateCurrentQuestion()) {
       alert('Please fill out all inputs for the question.');
       return;
     }
 
-    let question;
-    const type = currentQuestion[6];
-
-    if (type === 'TrueFalse') {
-      question = [
-        currentQuestion[0],  // index 0: question text
-        'True',              // index 1: option_1
-        'False',             // index 2: option_2
-        '',                  // index 3: option_3
-        '',                  // index 4: option_4
-        currentQuestion[5],  // index 5: correct_answer
-        'TrueFalse',         // index 6: type
-        '',                  // index 7: explanation
-        currentQuestion[8] || questionDifficulty || 3  // index 8: difficulty
-      ];
-    } else if (type === 'FillInTheBlank') {
-      question = [
-        currentQuestion[0],  // index 0: question text
-        currentQuestion[1],  // index 1: correct answer (option_1)
-        '',                  // index 2: option_2
-        '',                  // index 3: option_3
-        '',                  // index 4: option_4
-        currentQuestion[1],  // index 5: correct_answer (same as option_1)
-        'FillInTheBlank',    // index 6: type
-        '',                  // index 7: explanation
-        currentQuestion[8] || questionDifficulty || 3  // index 8: difficulty
-      ];
-    } else if (type === 'MultipleAnswer') {
-      const options = currentQuestion.slice(1, 5);
-      const correctAnswers = selectedCorrectAnswers
-        .map((selected, idx) => (selected ? options[idx] : null))
-        .filter(Boolean);
-      question = [
-        currentQuestion[0],                // index 0: question text
-        ...options,                        // index 1-4: options
-        correctAnswers.join('||'),         // index 5: correct_answer
-        'MultipleAnswer',                  // index 6: type
-        '',                                // index 7: explanation
-        currentQuestion[8] || questionDifficulty || 3  // index 8: difficulty
-      ];
-      setSelectedCorrectAnswers([false, false, false, false]);
-    } else if (type === 'DragAndDrop') {
-      question = [
-        currentQuestion[0],                // index 0: question text
-        ...currentQuestion.slice(1, 5),    // index 1-4: options
-        currentQuestion[5],                // index 5: correct_answer
-        'DragAndDrop',                     // index 6: type
-        '',                                // index 7: explanation
-        currentQuestion[8] || questionDifficulty || 3  // index 8: difficulty
-      ];
-    } else {
-      // Multiple choice - make sure all indices are properly included
-      question = [
-        currentQuestion[0],                // index 0: question text
-        currentQuestion[1],                // index 1: option_1
-        currentQuestion[2],                // index 2: option_2
-        currentQuestion[3],                // index 3: option_3
-        currentQuestion[4],                // index 4: option_4
-        currentQuestion[5],                // index 5: correct_answer
-        currentQuestion[6],                // index 6: type
-        '',                                // index 7: explanation
-        currentQuestion[8] || questionDifficulty || 3  // index 8: difficulty
-      ];
-    }
-
+    const question = getCurrentQuestionData();
     setQuizData((prev) => [...prev, question]);
-    setCurrentQuestion(['', '', '', '', '', '', 'Multiple', '', 3]); // Reset with default difficulty as number
-    setQuestionDifficulty(3); // Reset difficulty state
+    resetQuestionForm();
+    
+    // Reset multiple answer selections
+    setSelectedCorrectAnswers([false, false, false, false]);
     setDroppedOption('');
   };
 
-  useEffect(() => {
-    // Reset password when switching from "Yes" to "No"
-    if (!privateQuiz) {
-      setPrivateQuizPassword("");
-    }
-  }, [privateQuiz]);
+  // Handle quiz name change
+  const handleQuizNameChange = (e) => setQuizName(e.target.value);
 
-  // Initialize raw tags input from existing quizTags
-  useEffect(() => {
-    if (quizTags.length > 0) {
-      setRawTagsInput(quizTags.join(', '));
-    }
-  }, []);  // Only run on component mount
+  // Handle quiz password change
+  const handleQuizPasswordChange = (e) => setPrivateQuizPassword(e.target.value);
 
+  // Handle private quiz toggle
   const handlePrivateQuizChange = (e) => {
     const value = e.target.value === 'yes';
     if (!teacherQuiz) setPrivateQuiz(value);
   };
 
+  // Handle teacher quiz toggle
   const handleTeacherQuizChange = (e) => {
     const value = e.target.value === 'yes';
     setTeacherQuiz(value);
     if (value) {
       setPrivateQuiz(true);
-      // Allow teachers to set their own password instead of forcing 'teacherOnly'
       if (!privateQuizPassword || privateQuizPassword === 'teacherOnly') {
-        setPrivateQuizPassword(''); // Clear any forced password, let teacher set their own
+        setPrivateQuizPassword('');
       }
     } else {
       setPrivateQuiz(false);
@@ -181,142 +115,13 @@ export default function QuizCreation({
     }
   };
 
-  const handleQuizPasswordChange = (e) => setPrivateQuizPassword(e.target.value);
-  const handleQuizNameChange = (e) => setQuizName(e.target.value);
-  
-  // Process tags from raw input string
-  const processTagsFromInput = (inputValue) => {
-    const inputTags = inputValue
-      .split(',') // Split the input into tags based on commas (allows spaces in tag names)
-      .map(tag => tag.trim()) // Trim each tag to remove extra spaces
-      .filter(tag => tag !== ''); // Remove any empty entries
-    
-    return inputTags;
-  };
-
+  // Handle tags input
+  const [rawTagsInput, setRawTagsInputLocal] = useState('');
   const updateQuizTags = (e) => {
     const inputValue = e.target.value;
-    setRawTagsInput(inputValue); // Always update the raw input for display
-    
-    // Process and store the tags - allow free-form input
+    setRawTagsInputLocal(inputValue);
     const processedTags = processTagsFromInput(inputValue);
     setQuizTags(processedTags);
-  };
-
-  // Update number of answers in the current question
-  const updateNumAnswers = (newCount) => {
-    setNumAnswers(newCount);
-    setCurrentQuestion((prev) => {
-      const updated = [...prev];
-      // Clear options beyond the new count
-      for (let i = newCount + 1; i <= 4; i++) {
-        updated[i] = '';
-      }
-      return updated;
-    });
-  };
-
-  // Update question difficulty
-  const updateQuestionDifficulty = (value) => {
-    const validValue = !isNaN(value) && value >= 1 && value <= 5 ? value : 3;
-    setQuestionDifficulty(validValue);
-    setCurrentQuestion((prev) => {
-      const updated = [...prev];
-      updated[8] = validValue; // Update the difficulty index with valid number
-      return updated;
-    });
-  };
-
-  const getDifficultyLabel = (level) => {
-    const labels = {
-      1: 'Very Easy',
-      2: 'Easy',
-      3: 'Medium',
-      4: 'Hard',
-      5: 'Very Hard'
-    };
-    return labels[level] || 'Medium';
-  };
-
-  const handleFileSelect = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
-        setSelectedFile(file);
-      } else {
-        alert('Please select a valid CSV file');
-        event.target.value = '';
-      }
-    }
-  };
-
-  const handleCSVUpload = async () => {
-    if (!selectedFile) {
-      alert('Please select a CSV file first');
-      return;
-    }
-
-    setIsUploadingCSV(true);
-
-    try {
-      // Parse CSV file
-      const text = await selectedFile.text();
-      const lines = text.split('\n').filter(line => line.trim());
-
-      if (lines.length < 2) {
-        alert('CSV file appears to be empty or invalid');
-        setIsUploadingCSV(false);
-        return;
-      }
-
-      // Parse questions from CSV
-      const questions = [];
-      for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
-
-        // Simple CSV parsing (handle quoted values)
-        const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map(val =>
-          val.replace(/^"|"$/g, '').trim()
-        ) || [];
-
-        if (values.length >= 6) {
-          const question = [
-            values[0] || '',  // question
-            values[1] || '',  // option_1
-            values[2] || '',  // option_2
-            values[3] || '',  // option_3
-            values[4] || '',  // option_4
-            values[5] || '',  // correct_answer
-            'Multiple',       // type
-            '',              // explanation
-            parseInt(values[6]) || 3  // difficulty
-          ];
-          questions.push(question);
-        }
-      }
-
-      if (questions.length === 0) {
-        alert('No valid questions found in CSV file');
-        setIsUploadingCSV(false);
-        return;
-      }
-
-      // Add all questions to quiz
-      setQuizData(prev => [...prev, ...questions]);
-      alert(`Successfully added ${questions.length} questions from CSV!`);
-
-      // Clear file input
-      setSelectedFile(null);
-      const fileInput = document.getElementById('csv-file-input');
-      if (fileInput) fileInput.value = '';
-
-    } catch (error) {
-      console.error('Error uploading CSV:', error);
-      alert('Error processing CSV file. Please check the format.');
-    } finally {
-      setIsUploadingCSV(false);
-    }
   };
 
   return (
@@ -346,9 +151,13 @@ export default function QuizCreation({
               className="hidden"
             />
 
+            {uploadError && (
+              <p className="text-sm text-error">{uploadError}</p>
+            )}
+
             {selectedFile && (
               <button
-                onClick={handleCSVUpload}
+                onClick={performCSVUpload}
                 disabled={isUploadingCSV}
                 className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
@@ -489,7 +298,7 @@ export default function QuizCreation({
           type="text"
           placeholder="Enter your question"
           value={currentQuestion[0]}
-          onChange={(e) => handleQuestionChange(e, 0)}
+          onChange={(e) => handleQuestionChange(e.target.value, 0)}
           className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
         />
       </div>
@@ -502,21 +311,23 @@ export default function QuizCreation({
           <div className="md:col-span-3">
             <select
               value={currentQuestion[6]}
-              onChange={(e) => handleQuestionChange(e, 6)}
+              onChange={(e) => handleQuestionChange(e.target.value, 6)}
               className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
             >
-              <option value="Multiple">Multiple Choice</option>
-              <option value="TrueFalse">True/False</option>
-              <option value="FillInTheBlank">Fill in the Blank</option>
-              <option value="MultipleAnswer">Multiple Answer</option>
-              <option value="DragAndDrop">Drag and Drop</option>
+              <option value={QUESTION_TYPES.MULTIPLE_CHOICE}>Multiple Choice</option>
+              <option value={QUESTION_TYPES.TRUE_FALSE}>True/False</option>
+              <option value={QUESTION_TYPES.FILL_IN_BLANK}>Fill in the Blank</option>
+              <option value={QUESTION_TYPES.MULTIPLE_ANSWER}>Multiple Answer</option>
+              <option value={QUESTION_TYPES.DRAG_AND_DROP}>Drag and Drop</option>
             </select>
           </div>
         </div>
       </div>
 
       {/* Answer Options Card */}
-      {(currentQuestion[6] === 'Multiple' || currentQuestion[6] === 'MultipleAnswer' || currentQuestion[6] === 'DragAndDrop') && (
+      {(currentQuestion[6] === QUESTION_TYPES.MULTIPLE_CHOICE || 
+        currentQuestion[6] === QUESTION_TYPES.MULTIPLE_ANSWER || 
+        currentQuestion[6] === QUESTION_TYPES.DRAG_AND_DROP) && (
         <div className="bg-card border border-primary rounded-xl p-8 shadow-lg">
           <h2 className="text-2xl font-semibold text-primary mb-6">📋 Answer Options</h2>
 
@@ -544,11 +355,11 @@ export default function QuizCreation({
                   <input
                     type="text"
                     value={currentQuestion[idx]}
-                    onChange={(e) => handleQuestionChange(e, idx)}
+                    onChange={(e) => handleQuestionChange(e.target.value, idx)}
                     className="flex-1 bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
                     placeholder={`Option ${idx}`}
                   />
-                  {currentQuestion[6] === 'MultipleAnswer' && (
+                  {currentQuestion[6] === QUESTION_TYPES.MULTIPLE_ANSWER && (
                     <div className="flex items-center">
                       <input
                         type="checkbox"
@@ -567,7 +378,7 @@ export default function QuizCreation({
             ))}
           </div>
 
-          {currentQuestion[6] === 'DragAndDrop' && (
+          {currentQuestion[6] === QUESTION_TYPES.DRAG_AND_DROP && (
             <div className="mt-6 space-y-4">
               <p className="text-secondary text-sm">
                 💡 Drag and drop requires [blank] in your question text. Users will drag the correct option.
@@ -593,7 +404,7 @@ export default function QuizCreation({
       )}
 
       {/* Fill in the Blank */}
-      {currentQuestion[6] === 'FillInTheBlank' && (
+      {currentQuestion[6] === QUESTION_TYPES.FILL_IN_BLANK && (
         <div className="bg-card border border-primary rounded-xl p-8 shadow-lg">
           <h2 className="text-2xl font-semibold text-primary mb-6">✍️ Correct Answer</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
@@ -602,7 +413,7 @@ export default function QuizCreation({
               <input
                 type="text"
                 value={currentQuestion[1]}
-                onChange={(e) => handleQuestionChange(e, 1)}
+                onChange={(e) => handleQuestionChange(e.target.value, 1)}
                 className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
                 placeholder="Enter the correct answer"
               />
@@ -612,7 +423,7 @@ export default function QuizCreation({
       )}
 
       {/* True/False Selection */}
-      {currentQuestion[6] === 'TrueFalse' && (
+      {currentQuestion[6] === QUESTION_TYPES.TRUE_FALSE && (
         <div className="bg-card border border-primary rounded-xl p-8 shadow-lg">
           <h2 className="text-2xl font-semibold text-primary mb-6">✅ Correct Answer</h2>
           <div className="flex gap-6 justify-center">
@@ -621,7 +432,7 @@ export default function QuizCreation({
                 type="radio"
                 value="True"
                 checked={currentQuestion[5] === 'True'}
-                onChange={(e) => handleQuestionChange(e, 5)}
+                onChange={(e) => handleQuestionChange(e.target.value, 5)}
                 className="w-5 h-5 text-accent bg-card border-primary focus:ring-accent"
               />
               <span className="text-lg">True</span>
@@ -631,7 +442,7 @@ export default function QuizCreation({
                 type="radio"
                 value="False"
                 checked={currentQuestion[5] === 'False'}
-                onChange={(e) => handleQuestionChange(e, 5)}
+                onChange={(e) => handleQuestionChange(e.target.value, 5)}
                 className="w-5 h-5 text-accent bg-card border-primary focus:ring-accent"
               />
               <span className="text-lg">False</span>
@@ -641,7 +452,7 @@ export default function QuizCreation({
       )}
 
       {/* Correct Answer Selection (Multiple Choice) */}
-      {currentQuestion[6] === 'Multiple' && (
+      {currentQuestion[6] === QUESTION_TYPES.MULTIPLE_CHOICE && (
         <div className="bg-card border border-primary rounded-xl p-8 shadow-lg">
           <h2 className="text-2xl font-semibold text-primary mb-6">✅ Correct Answer</h2>
           <div className="space-y-6">
@@ -653,7 +464,7 @@ export default function QuizCreation({
               <div className="md:col-span-3">
                 <select
                   value={currentQuestion[5]}
-                  onChange={(e) => handleQuestionChange(e, 5)}
+                  onChange={(e) => handleQuestionChange(e.target.value, 5)}
                   className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
                 >
                   <option value="">Select correct answer</option>
@@ -670,7 +481,7 @@ export default function QuizCreation({
       )}
 
       {/* Correct Answer for Drag and Drop */}
-      {currentQuestion[6] === 'DragAndDrop' && (
+      {currentQuestion[6] === QUESTION_TYPES.DRAG_AND_DROP && (
         <div className="bg-card border border-primary rounded-xl p-8 shadow-lg">
           <h2 className="text-2xl font-semibold text-primary mb-6">✅ Correct Answer</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
@@ -679,7 +490,7 @@ export default function QuizCreation({
               <input
                 type="text"
                 value={currentQuestion[5]}
-                onChange={(e) => handleQuestionChange(e, 5)}
+                onChange={(e) => handleQuestionChange(e.target.value, 5)}
                 className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
                 placeholder="Correct answer (must match one of the options)"
               />
@@ -755,5 +566,4 @@ export default function QuizCreation({
       </div>
     </div>
   );
-  
 }

@@ -7,6 +7,7 @@ const questions = require('./questions')
 const quizzes = require('./quizzes')
 const results = require('./results')
 const flashcards = require('./flashcards')
+const studySessions = require('./study_sessions')
 
 // Export all functions from modules
 // Questions module
@@ -42,3 +43,15 @@ exports.addCustomFlashcardDeck = flashcards.addCustomFlashcardDeck
 exports.getUserFlashcardDecks = flashcards.getUserFlashcardDecks
 exports.getFlashcardDeck = flashcards.getFlashcardDeck
 exports.deleteFlashcardDeck = flashcards.deleteFlashcardDeck
+exports.updateFlashcardDeckAnalytics = flashcards.updateFlashcardDeckAnalytics
+exports.browsePublicFlashcards = flashcards.browsePublicFlashcards
+exports.getFlashcardCategories = flashcards.getFlashcardCategories
+
+// Study Sessions module
+exports.createStudySession = studySessions.createStudySession
+exports.getStudySession = studySessions.getStudySession
+exports.getActiveSession = studySessions.getActiveSession
+exports.getStudyHistory = studySessions.getStudyHistory
+exports.updateStudySession = studySessions.updateStudySession
+exports.completeStudySession = studySessions.completeStudySession
+exports.deleteStudySession = studySessions.deleteStudySession

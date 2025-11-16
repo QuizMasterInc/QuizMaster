@@ -81,7 +81,7 @@ export default function DeckManager() {
         
         {/* Quick nav to view existing decks */}
         <div className="mt-8 text-center">
-          <p className="text-gray-300 mb-4">
+          <p className="text-[var(--primary-500)] mb-4">
             Want to view your existing flashcard decks?
           </p>
           <button

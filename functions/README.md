@@ -17,7 +17,10 @@ functions/src/
 ├── results/
 │   └── index.js          # Quiz results and statistics functions (2 functions)
 ├── flashcards/
-│   └── index.js          # Flashcard deck management functions (4 functions)
+│   └── index.js          # Flashcard deck management functions (10 functions)
+│                         # - 4 CRUD functions
+│                         # - 2 browse/discovery functions
+│                         # - 4 study session functions (S79)
 └── study/
     └── index.js          # Study material functions (1 function)
 ```
@@ -50,8 +53,8 @@ firebase functions:list
 
 ## 📊 Function Architecture Overview
 
-**Total Functions**: 17 functions (all modular, Node.js 20)
-- **HTTP Triggers**: 16 functions
+**Total Functions**: 23 functions (all modular, Node.js 20)
+- **HTTP Triggers**: 22 functions
 - **Callable Triggers**: 1 function (`trackQuizAttempt`)
 - **Runtime**: Node.js 20 (2nd Gen) for all functions
 - **Caching**: Intelligent 5-30 minute caching implemented
@@ -135,27 +138,67 @@ Functions for quiz result processing and user statistics.
 - **Optimization**: Atomic transaction for results + stats updates
 - **Module**: `results/index.js`
 
-### � **Flashcards Module** (`src/flashcards/index.js`)
-Functions for flashcard deck management and study sessions.
+### 🃏 **Flashcards Module** (`src/flashcards/index.js`)
+Functions for flashcard deck management, public browsing, and study sessions (S79).
 
-#### `addCustomFlashcardDeck`
+#### **CRUD Operations**
+
+##### `addCustomFlashcardDeck`
 - **Purpose**: Create a new flashcard deck with user tracking
 - **Method**: POST with deck data and cards
 - **Module**: `flashcards/index.js`
 
-#### `getUserFlashcardDecks`
+##### `getUserFlashcardDecks`
 - **Purpose**: Get all flashcard decks created by a user
 - **Method**: POST with `{ userId: "id" }`
 - **Module**: `flashcards/index.js`
 
-#### `getFlashcardDeck`
+##### `getFlashcardDeck`
 - **Purpose**: Get a specific flashcard deck by ID
 - **Method**: POST with `{ deckId: "id" }`
 - **Module**: `flashcards/index.js`
 
-#### `deleteFlashcardDeck`
+##### `deleteFlashcardDeck`
 - **Purpose**: Soft delete a flashcard deck with ownership verification
 - **Method**: POST with `{ deckId: "id", userId: "id" }`
+- **Module**: `flashcards/index.js`
+
+#### **Browse & Discovery (November 2025)**
+
+##### `browsePublicFlashcards`
+- **Purpose**: Browse public flashcard decks with filtering and sorting
+- **Method**: POST with `{ category, difficulty, sortBy, limit }`
+- **Optimization**: Server-side filtering with composite indexes
+- **Module**: `flashcards/index.js`
+
+##### `getFlashcardCategories`
+- **Purpose**: Get unique categories from public flashcard decks
+- **Method**: GET
+- **Module**: `flashcards/index.js`
+
+#### **Study Sessions (S79 - November 2025)**
+
+##### `createFlashcardStudySession`
+- **Purpose**: Create a new study session for a flashcard deck
+- **Method**: POST with `{ deckId }`
+- **Returns**: Session ID and initial card set
+- **Module**: `flashcards/index.js`
+
+##### `getFlashcardStudySession`
+- **Purpose**: Get a specific study session by ID
+- **Method**: POST with `{ sessionId }`
+- **Module**: `flashcards/index.js`
+
+##### `updateFlashcardStudySession`
+- **Purpose**: Update study session progress and card ratings
+- **Method**: POST with `{ sessionId, cardRatings, currentCardIndex }`
+- **Analytics**: Tracks card-level performance (Easy/Medium/Hard/Again)
+- **Module**: `flashcards/index.js`
+
+##### `completeFlashcardStudySession`
+- **Purpose**: Mark study session as complete and update deck analytics
+- **Method**: POST with `{ sessionId }`
+- **Updates**: Deck study count, last studied timestamp, session success rate
 - **Module**: `flashcards/index.js`
 
 ### 📚 **Study Module** (`src/study/index.js`)
@@ -199,7 +242,7 @@ Functions for educational content and study materials.
 - **Questions**: Question bank management and retrieval
 - **Quizzes**: Custom quiz CRUD operations and browsing
 - **Results**: Quiz result processing and user statistics
-- **Flashcards**: Flashcard deck management
+- **Flashcards**: Flashcard deck management, public browsing, and study sessions (S79)
 - **Study**: Educational content and study materials
 
 ### **Best Practices**
@@ -230,8 +273,9 @@ Functions for educational content and study materials.
 
 ---
 
-**Last Updated**: October 16, 2025  
+**Last Updated**: November 2025  
 **Architecture**: Modular Functions  
 **Functions Version**: firebase-functions v6.4.0  
 **Node.js Runtime**: 20 (2nd Gen)  
-**Total Functions**: 17 (organized in 5 modules) 
+**Total Functions**: 23 (organized in 5 modules)
+- **S79 Study Mode**: Complete flashcard study session implementation (4 new functions) 

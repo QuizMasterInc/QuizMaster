@@ -8,6 +8,7 @@ import Question from './Question';
 import DoneModal from './DoneModal';
 import HelpModal from './HelpModal';
 import ProgressBar from './ProgressBar';
+import DownloadQuiz from './DownloadQuiz';
 import { shuffle } from '../../utils/shuffle';
 import quizSubmissionService from '../../services/quiz/quizSubmissionService';
 
@@ -54,7 +55,6 @@ function QuizActivity() {
         const url = `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabSubV2?category=${encodeURIComponent(
           category.toLowerCase()
         )}`;
-        console.log('Fetching questions from:', url);
 
         const res = await fetch(url);
 
@@ -64,29 +64,21 @@ function QuizActivity() {
         }
 
         const data = await res.json();
-        console.log('Received data:', data);
-        console.log('Data keys (subcategories):', Object.keys(data));
 
         let pool = [];
         (subcategories.length ? subcategories : Object.keys(data)).forEach(
           (sub) => {
             if (data[sub]) {
-              console.log(`Adding ${data[sub].length} questions from subcategory: ${sub}`);
               pool = [...pool, ...data[sub]];
             }
           }
         );
 
-        console.log('Total questions in pool before filtering:', pool.length);
-
         if (difficulty && difficulty > 0) {
-          const beforeFilter = pool.length;
           pool = pool.filter((q) => Number(q.difficulty) === Number(difficulty));
-          console.log(`Filtered by difficulty ${difficulty}: ${beforeFilter} -> ${pool.length} questions`);
         }
 
         pool = shuffle(pool).slice(0, amount);
-        console.log('Final pool after shuffle and slice:', pool.length);
 
         if (pool.length === 0) {
           console.warn('No questions available! Check if questions exist in database for:', {
@@ -412,12 +404,20 @@ function QuizActivity() {
                 <h1 className="text-4xl font-bold text-gradient-primary">
                   Quiz Results
                 </h1>
-                <button
-                  onClick={() => navigate('/dashboard')}
-                  className="px-4 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200"
-                >
-                  Return to Dashboard
-                </button>
+                <div className="flex gap-3">
+                  <DownloadQuiz
+                    questions={questions}
+                    userAnswers={userAnswers}
+                    correctCount={correctCount}
+                    category={category}
+                  />
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="px-4 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200"
+                  >
+                    Return to Dashboard
+                  </button>
+                </div>
               </div>
               <p className="text-lg text-secondary mt-2">
                 Review your answers below
@@ -514,6 +514,9 @@ function QuizActivity() {
             setShowResults(true);
             setDoneActive(false);
           }}
+          category={category}
+          difficulty={difficulty}
+          quizStartTime={quizStartTime}
         />
       )}
 
@@ -522,6 +525,4 @@ function QuizActivity() {
   );
 
 }
-
 export default QuizActivity;
-

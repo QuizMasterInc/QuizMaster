@@ -19,9 +19,6 @@ export default function QuizQuestionsList ({quizData, setQuizData, handleDeleteQ
 			newDoneEditingChoice = false
 			return newDoneEditingChoice
 		})
-		console.log("editing question: " + editingQuestionindex)
-		console.log("edit question:" + editQuestionChoice)
-		console.log("done editing question:" + doneEditingQuestion)
 	}
 
   function editingQuestionIndex(index) {
@@ -53,8 +50,6 @@ export default function QuizQuestionsList ({quizData, setQuizData, handleDeleteQ
 			newIndex = -1
 			return newIndex
 		});
-		console.log("editQuestionChoice: " + editQuestionChoice)
-		console.log("doneEditingQuestion: " + doneEditingQuestion)
 	  }
 
 	  //This function updates the information for each individual question

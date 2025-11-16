@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import flashcardService from '../../services/flashcards/flashcardService';
 
 export default function MyFlashcards() {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [flashcardDecks, setFlashcardDecks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -79,6 +80,12 @@ export default function MyFlashcards() {
           >
             Create New Deck
           </Link>
+          <Link 
+            to="/browse-flashcards" 
+            className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
+          >
+            Browse Public Decks
+          </Link>
         </div>
 
         <p className="mt-6 text-center text-lg">
@@ -135,16 +142,18 @@ export default function MyFlashcards() {
                       <div className="text-sm text-secondary">
                         <strong>Visibility:</strong> {deck.isPublic ? 'Public' : 'Private'}
                       </div>
-                      {deck.tags && deck.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {deck.tags.map((tag, tagIndex) => (
-                            <span key={tagIndex} className="px-2 py-1 bg-[var(--primary-100)] text-[var(--primary-700)] rounded-full text-xs">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                     </div>
+
+                    {/* Tags - centered and prominent */}
+                    {deck.tags && deck.tags.length > 0 && (
+                      <div className="flex flex-wrap justify-center gap-2 my-4">
+                        {deck.tags.map((tag, tagIndex) => (
+                          <span key={tagIndex} className="px-3 py-1 bg-[var(--primary-400)] text-white rounded-full text-sm font-medium">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                     {deck.description && (
                       <div className="mb-4">
@@ -196,10 +205,7 @@ export default function MyFlashcards() {
                     <button
                       className="flex-1 px-4 py-2 bg-[var(--primary-400)] hover:bg-[var(--primary-500)] text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
                       disabled={loading}
-                      onClick={() => {
-                        // TODO: Implement study mode
-                        alert('Study mode coming soon!');
-                      }}
+                      onClick={() => navigate(`/flashcards/study/${deck.id}`)}
                     >
                       Study
                     </button>

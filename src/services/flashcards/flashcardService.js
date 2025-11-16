@@ -215,6 +215,74 @@ class FlashcardService {
     }
 
     /**
+     * Update deck analytics after study session
+     * @param {string} deckId - Deck ID
+     * @returns {Promise<void>}
+     */
+    async updateDeckAnalytics(deckId) {
+        try {
+            if (!deckId) {
+                throw new Error('Deck ID is required');
+            }
+
+            return await cloudFunctionsAPI.call('updateFlashcardDeckAnalytics', { deckId });
+
+        } catch (error) {
+            console.error('Error updating deck analytics:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Browse public flashcard decks with filters
+     * @param {Object} options - Filter and sort options
+     * @returns {Promise<Array>} Array of public decks
+     */
+    async browsePublicFlashcards(options = {}) {
+        try {
+            const { category, difficulty, sortBy, limitCount = 50 } = options;
+
+            const queryOptions = {
+                isPublic: true,
+                isActive: true,
+                category: category !== 'all' ? category : undefined,
+                difficulty: difficulty !== 'all' ? difficulty : undefined,
+                sortBy: sortBy || 'recent',
+                limit: limitCount
+            };
+
+            // Remove undefined values
+            Object.keys(queryOptions).forEach(key => 
+                queryOptions[key] === undefined && delete queryOptions[key]
+            );
+
+            const result = await cloudFunctionsAPI.call('browsePublicFlashcards', queryOptions, 'GET');
+            
+            // Normalize all decks
+            return (result.decks || []).map(deck => this.normalizeDeckData(deck));
+
+        } catch (error) {
+            console.error('Error browsing public flashcards:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get unique categories from public flashcards
+     * @returns {Promise<Array>} Array of category names
+     */
+    async getPublicFlashcardCategories() {
+        try {
+            const result = await cloudFunctionsAPI.call('getFlashcardCategories', {}, 'GET');
+            return result.categories || ['General'];
+        } catch (error) {
+            console.error('Error fetching flashcard categories:', error);
+            // Return default if error
+            return ['General'];
+        }
+    }
+
+    /**
      * Normalize flashcard deck data for consistent display
      * @param {Object} deck - Raw deck data from Firebase
      * @returns {Object} Normalized deck object
@@ -246,9 +314,8 @@ class FlashcardService {
             isPrivate: !deck.isPublic,
             
             // Analytics
-            timesStudied: deck.timesStudied || 0,
-            averageScore: deck.averageScore || 0,
-            lastStudied: deck.lastStudied,
+            timesStudied: deck.analytics?.stats?.timesStudied || deck.timesStudied || 0,
+            lastStudiedAt: deck.analytics?.stats?.lastStudiedAt || deck.lastStudiedAt || null,
             
             // Timestamps
             createdAt: deck.createdAt,
