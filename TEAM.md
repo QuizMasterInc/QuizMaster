@@ -6,6 +6,8 @@ Rudra Patel - Scrum Master
 
 Kolade Idris - Product Owner
 
+Ethan Myers- Development Team
+
 
 ### Spring 2025 Team Roles
 
