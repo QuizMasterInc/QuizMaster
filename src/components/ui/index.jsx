@@ -2,6 +2,7 @@
  * Shared UI components for consistent design across the app
  */
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 // Reusable Button Component
 export const Button = ({ 
@@ -44,14 +45,29 @@ export const Button = ({
 
 // Reusable Back Button Component
 export const BackButton = ({ 
-  to, 
+  to,
   children = 'Back', 
 }) => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else if (to) {
+      navigate(to);
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <div>
-      <Link to={to} className='inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent'>
+      <button 
+        onClick={handleBack}
+        className='inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent'
+      >
         {children}
-      </Link>
+      </button>
     </div>
   );
 };
