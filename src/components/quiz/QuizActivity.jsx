@@ -11,6 +11,7 @@ import ProgressBar from './ProgressBar';
 import DownloadQuiz from './DownloadQuiz';
 import { shuffle } from '../../utils/shuffle';
 import quizSubmissionService from '../../services/quiz/quizSubmissionService';
+import BackToTopButton from './BackToTopButton'; 
 
 
 function QuizActivity() {
@@ -490,6 +491,9 @@ function QuizActivity() {
         </div>
       )}
       </div>
+
+      {/* Top button */}
+      <BackToTopButton />
 
       {/* Modals */}
       {helpActive && (
