@@ -3,8 +3,9 @@
  */
 import {useState} from "react"
 import { Link, useNavigate } from "react-router-dom"; 
+import DeleteQuizButton from "./DeleteQuizButton";
 
-const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, creator}) => {
+const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, creator, creatorId, currentUserId, onDeleted}) => {
 
   const navigate = useNavigate();
   const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("");
@@ -73,7 +74,7 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
 
       return (<div className="w-1/2 p-5 text-center -sm:p-1">
           {quizPassword ? 
-          <div className="card rounded-lg shadow-lg hover:shadow-xl border border-accent">
+          <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
               <div className="text-2xl text-[var(--primary-500)]">{title}</div>
               <div className="text-base">{displayCreatorName()}</div>
               <div className="text-base">{displayTags(tags)}</div>
@@ -93,17 +94,28 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
                     Start
                   </button>
               </div>
-              
+              <DeleteQuizButton
+                quizId={uid}
+                creatorId={creatorId}
+                currentUserId={currentUserId}
+                onDeleted={onDeleted}
+              />
           </div>
           :
-          <Link to={'/customquiz/settings/' + uid}>
-            <div className="card rounded-lg shadow-lg hover:shadow-xl border border-accent">
+          <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
+            <Link to={'/customquiz/settings/' + uid}>
               <div className="text-2xl text-[var(--primary-500)]">{title}</div>
               <div className="text-base">{displayCreatorName()}</div>
               <div className="text-base">{displayTags(tags)}</div>
               <div className="text-base">Questions: {numQuestions}</div>
-            </div>
-          </Link>
+            </Link>
+            <DeleteQuizButton
+              quizId={uid}
+              creatorId={creatorId}
+              currentUserId={currentUserId}
+              onDeleted={onDeleted}
+            />
+          </div>
           }
           
       </div>

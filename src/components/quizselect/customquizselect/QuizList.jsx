@@ -229,6 +229,23 @@ const QuizList = ({
       };
     }
   };
+  
+  // Called after a quiz is successfully deleted on the server.
+  const handleQuizDeleted = (deletedId) => {
+    setQuizzes((prev) =>
+      prev.filter((quiz) => {
+        const quizData = normalizeQuizData(quiz);
+        return quizData.id !== deletedId;
+      })
+    );
+// Removes that quiz from both the master list and the displayed list
+    setQuizzesToDisplay((prev) =>
+      prev.filter((quiz) => {
+        const quizData = normalizeQuizData(quiz);
+        return quizData.id !== deletedId;
+      })
+    );
+  };
 
   return (
     <div className={`min-h-screen bg-primary relative overflow-hidden py-20 px-6 text-[var(--text-primary)] ${className}`}>
@@ -312,9 +329,17 @@ const QuizList = ({
         ) : (
           <div id="customQuizDiv" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
             {quizzesToDisplay.map((quiz) => {
-              const quizData = normalizeQuizData(quiz);
+
+              const quizData = normalizeQuizData(quiz);            
+              // NEW: Used to decide if the Delete button should be shown (only for its owner).
+              let creatorId = null;
+              if (dataSource === "browseCustomQuizzes") { // Determine the creator's user ID for this quiz.
+                // raw Firestore result usually has creator.uid
+                creatorId = quiz.creatorID || quiz.creator?.userId || null;
+              }
 
               return (
+                // Render a single quiz card, passing down all display data. 
                 <CustomQuizSelectButton
                   key={quizData.id + quizData.title}
                   title={quizData.title}
@@ -329,6 +354,10 @@ const QuizList = ({
                   averageScore={quizData.averageScore}
                   createdAt={quizData.createdAt}
                   isPrivate={quizData.isPrivate}
+                  // props needed by DeleteQuizButton
+                  creatorId={creatorId}
+                  currentUserId={currentUser?.uid}
+                  onDeleted={handleQuizDeleted}
                 />
               );
             })}
