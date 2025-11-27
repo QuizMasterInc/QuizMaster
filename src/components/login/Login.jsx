@@ -6,7 +6,7 @@ import { GoogleButton, GitHubButton } from "./OAuthButtons";
 export default function Login() {
   const emailRef = useRef();
   const passwordRef = useRef();
-  const {login, googleLogin, githubLogin, isAuthenticated, loading: authLoading} = useAuth();
+  const {signIn, googleLogin, githubLogin, isAuthenticated, loading: authLoading} = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export default function Login() {
     try {
       setError("");
       setLoading(true);
-      await login(emailRef.current.value, passwordRef.current.value);
+      await signIn(emailRef.current.value, passwordRef.current.value);
     } catch (error) {
       setError(error.message || "Failed to sign in");
       setLoading(false);
