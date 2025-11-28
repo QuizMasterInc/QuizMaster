@@ -1,17 +1,19 @@
 /**
  * Authentication service - handles all user authentication operations
  */
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updatePassword, updateProfile, onAuthStateChanged,
-    EmailAuthProvider, reauthenticateWithCredential, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, OAuthProvider, updateEmail } from 'firebase/auth';
+import {
+    createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, updatePassword, updateProfile, onAuthStateChanged,
+    EmailAuthProvider, reauthenticateWithCredential, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, OAuthProvider, updateEmail
+} from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db, handleFirebaseError, withRetry, timestamp } from '../firebase/firebaseService';
-  
+
 class AuthService {
     constructor() {
         this.currentUser = null;
         this.authStateListeners = [];
     }
-  
+
     /**
      * Initialize auth state listener
      */
@@ -21,7 +23,7 @@ class AuthService {
             this.authStateListeners.forEach(callback => callback(user));
         });
     }
-  
+
     /**
      * Subscribe to authentication state changes
      * @param {Function} callback - Callback function to execute on auth state change
@@ -29,13 +31,13 @@ class AuthService {
      */
     onAuthStateChange(callback) {
         this.authStateListeners.push(callback);
-      
+
         // Return unsubscribe function
         return () => {
             this.authStateListeners = this.authStateListeners.filter(cb => cb !== callback);
         };
     }
-  
+
     /**
      * Extract and clean name data from various sources
      */
@@ -65,7 +67,7 @@ class AuthService {
                 .split(' ')
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
                 .join(' ');
-            
+
             const nameParts = displayName.split(' ');
             firstName = nameParts[0] || 'User';
             lastName = nameParts.slice(1).join(' ') || '';
@@ -89,33 +91,33 @@ class AuthService {
      */
     createCompleteUserDocument(authUser, additionalData = {}) {
         const { firstName, lastName, displayName } = this.extractNameData(authUser, additionalData);
-        
+
         // Determine auth provider
         let authProvider = 'email';
         if (authUser.providerData?.length > 0) {
             const provider = authUser.providerData[0].providerId;
-            authProvider = provider === 'google.com' ? 'google' : 
-                          provider === 'github.com' ? 'github' :
-                          provider === 'microsoft.com' ? 'microsoft' : 'email';
+            authProvider = provider === 'google.com' ? 'google' :
+                provider === 'github.com' ? 'github' :
+                    provider === 'microsoft.com' ? 'microsoft' : 'email';
         }
 
         // Create complete user document following your schema
         return {
             // Document ID matches Firebase Auth UID
             uid: authUser.uid,
-            
+
             // Authentication & Identity
             email: authUser.email || '',
             emailVerified: authUser.emailVerified || false,
             authProvider: authProvider,
-            
+
             // Profile Information
             profile: {
                 firstName: firstName,
                 lastName: lastName,
                 displayName: displayName
             },
-            
+
             // Authorization & Roles
             role: additionalData.role || 'user',
             permissions: {
@@ -124,18 +126,18 @@ class AuthService {
                 canModerateContent: additionalData.role === 'developer' || additionalData.role === 'instructor',
                 maxQuizzesAllowed: 50,
             },
-            
+
             // Account Status
             status: {
                 isActive: true
             },
-            
+
             // Analytics & Tracking
             stats: {
                 // QuizMaster (default) quiz performance tracking
                 quizmasterQuizzesTaken: 0,
                 quizmasterAverageScore: 0,
-                
+
                 // Custom quiz activity tracking
                 customQuizActivity: {
                     totalTaken: 0,
@@ -143,9 +145,9 @@ class AuthService {
                     averageScore: 0,
                     lastTakenAt: null
                 },
-                
+
                 flashcardDecksCreated: 0,
-                
+
                 // Pre-calculated category statistics for instant dashboard loading
                 categoryStats: {
                     geography: { bestScore: 0, avgScore: 0, attempts: 0, totalScore: 0 },
@@ -156,12 +158,12 @@ class AuthService {
                     entertainment: { bestScore: 0, avgScore: 0, attempts: 0, totalScore: 0 }
                 }
             },
-            
+
             // Preferences
             preferences: {
                 theme: additionalData.theme || 'light',
             },
-            
+
             // Timestamps
             timestamps: {
                 createdAt: timestamp.now(),
@@ -169,7 +171,7 @@ class AuthService {
                 lastLoginAt: timestamp.now(),
                 lastActiveAt: timestamp.now(),
             },
-            
+
             // Recent Activity (empty initially)
             recentActivity: {
                 quizIds: [],
@@ -185,44 +187,44 @@ class AuthService {
      */
     async register(userData) {
         const { email, password } = userData;
-        
+
         // Validate input
         if (!email || !password) {
             throw new Error('Email and password are required');
         }
-        
+
         if (password.length < 6) {
             throw new Error('Password must be at least 6 characters long');
         }
-        
+
         try {
             // Check if user is already signed in
             if (auth.currentUser) {
                 await signOut(auth);
             }
-            
-            const userCredential = await withRetry(() => 
+
+            const userCredential = await withRetry(() =>
                 createUserWithEmailAndPassword(auth, email, password)
             );
-            
+
             const user = userCredential.user;
-            
+
             // Update Firebase Auth profile
             const displayName = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
             if (displayName) {
                 await updateProfile(user, { displayName });
             }
-            
+
             // Create complete user document
             const userDoc = this.createCompleteUserDocument(user, userData);
             await setDoc(doc(db, 'users', user.uid), userDoc);
-            
+
             return {
                 success: true,
                 user: user,
                 profile: userDoc
             };
-            
+
         } catch (error) {
             const customError = this.handleAuthError(error);
             throw customError;
@@ -290,7 +292,7 @@ class AuthService {
 
         return new Error(message);
     }
-  
+
     /**
      * Sign in user
      * @param {string} email - User email
@@ -299,25 +301,25 @@ class AuthService {
      */
     async signIn(email, password) {
         try {
-            const userCredential = await withRetry(() => 
+            const userCredential = await withRetry(() =>
                 signInWithEmailAndPassword(auth, email, password)
             );
-            
+
             const user = userCredential.user;
-            
+
             const profile = await this.getUserProfile(user.uid);
-            
+
             // Update last login time
             await updateDoc(doc(db, 'users', user.uid), {
                 lastLoginAt: timestamp.now(),
                 updatedAt: timestamp.now()
             });
-            
+
             return {
                 user: user,
                 profile: profile
             };
-            
+
         } catch (error) {
             const customError = this.handleAuthError(error);
             throw customError;
@@ -332,21 +334,21 @@ class AuthService {
             const provider = new GoogleAuthProvider();
             provider.addScope('email');
             provider.addScope('profile');
-            
+
             const result = await signInWithPopup(auth, provider);
-            
+
             if (!result || !result.user) {
                 throw new Error('No user returned from Google sign-in');
             }
-            
+
             const user = result.user;
-            
+
             // Check if user profile exists
             const userDocRef = doc(db, 'users', user.uid);
             const profileDoc = await getDoc(userDocRef);
-            
+
             let userProfile;
-            
+
             if (!profileDoc.exists()) {
                 // Profile doesn't exist - create it automatically
                 const userDocument = this.createCompleteUserDocument(user, {});
@@ -360,12 +362,12 @@ class AuthService {
                     'timestamps.updatedAt': timestamp.now()
                 });
             }
-            
+
             return {
                 user: user,
                 profile: userProfile
             };
-            
+
         } catch (error) {
             console.error('Google sign-in error:', error);
             throw this.handleAuthError(error);
@@ -381,30 +383,30 @@ class AuthService {
             const provider = new GoogleAuthProvider();
             provider.addScope('email');
             provider.addScope('profile');
-            
+
             // Step 1: Authenticate with Google
             const result = await signInWithPopup(auth, provider);
-            
+
             if (!result || !result.user) {
                 throw new Error('No user returned from Google sign-in');
             }
-            
+
             const user = result.user;
-            
+
             // Step 2: Check if profile already exists
             const userDocRef = doc(db, 'users', user.uid);
             const existingDoc = await getDoc(userDocRef);
-            
+
             if (existingDoc.exists()) {
                 // User already registered - this is actually a login
                 await user.delete(); // Clean up the duplicate auth
                 throw new Error('An account with this Google account already exists. Please sign in instead.');
             }
-            
+
             // Step 3: Create profile IMMEDIATELY (before any auth state changes propagate)
             // Extract name data properly
             const { firstName, lastName } = this.extractNameData(user.displayName || '', user.email);
-            
+
             // Merge with additional data
             const userData = {
                 firstName: additionalData.firstName || firstName,
@@ -412,28 +414,28 @@ class AuthService {
                 title: additionalData.title || '',
                 theme: additionalData.theme || 'dark'
             };
-            
+
             // Create the CORRECT nested schema document
             const userDocument = this.createCompleteUserDocument(user, userData);
-            
+
             // Use setDoc with merge: false to ensure we're creating, not updating
             await setDoc(userDocRef, userDocument);
-            
+
             // Step 4: Verify the profile was created
             const verifyDoc = await getDoc(userDocRef);
             if (!verifyDoc.exists()) {
                 throw new Error('Failed to create user profile');
             }
-            
+
             // Step 5: Return success
             return {
                 user: user,
                 profile: verifyDoc.data()
             };
-            
+
         } catch (error) {
             console.error('Google registration error:', error);
-            
+
             // Clean up auth if profile creation failed
             if (auth.currentUser) {
                 try {
@@ -442,7 +444,7 @@ class AuthService {
                     console.error('Failed to clean up auth user:', cleanupError);
                 }
             }
-            
+
             throw this.handleAuthError(error);
         }
     }
@@ -456,7 +458,7 @@ class AuthService {
         try {
             // Extract name data from Google profile
             const { firstName, lastName } = this.extractNameData(user.displayName || '', user.email);
-            
+
             // Merge with any additional data provided during registration
             const userData = {
                 firstName: additionalData.firstName || firstName,
@@ -465,12 +467,12 @@ class AuthService {
                 theme: additionalData.theme || 'light',
                 isGoogleAuth: true
             };
-            
+
             // Create schema-compliant user document
             const userDocument = this.createCompleteUserDocument(user, userData);
-            
+
             await setDoc(doc(db, 'users', user.uid), userDocument);
-            
+
         } catch (error) {
             console.error('Error handling Google user profile:', error);
             throw error;
@@ -610,7 +612,7 @@ class AuthService {
             throw customError;
         }
     }
-  
+
     /**
      * Get user profile from Firestore
      * @param {string} uid - User ID
@@ -619,11 +621,11 @@ class AuthService {
     async getUserProfile(uid) {
         try {
             const userDoc = await getDoc(doc(db, 'users', uid));
-            
+
             if (!userDoc.exists()) {
                 throw new Error('User profile not found');
             }
-            
+
             const profile = userDoc.data();
 
             return {
@@ -632,12 +634,12 @@ class AuthService {
                 updatedAt: timestamp.fromFirestore(profile.updatedAt),
                 lastLoginAt: timestamp.fromFirestore(profile.lastLoginAt)
             };
-            
+
         } catch (error) {
             throw handleFirebaseError(error);
         }
     }
-  
+
     /**
      * Update user profile
      * @param {string} uid - User ID
@@ -652,21 +654,21 @@ class AuthService {
             };
 
             await updateDoc(doc(db, 'users', uid), profileUpdates);
-            
+
             if (updates.firstName || updates.lastName) {
                 const displayName = `${updates.firstName || ''} ${updates.lastName || ''}`.trim();
                 if (displayName && this.currentUser) {
                     await updateProfile(this.currentUser, { displayName });
                 }
             }
-            
+
             return await this.getUserProfile(uid);
-            
+
         } catch (error) {
             throw handleFirebaseError(error);
         }
     }
-  
+
     /**
      * Send password reset email
      * @param {string} email - User email
@@ -680,7 +682,7 @@ class AuthService {
             throw customError;
         }
     }
-  
+
     /**
      * Change user password
      * @param {string} currentPassword - Current password
@@ -693,22 +695,22 @@ class AuthService {
             if (!user) {
                 throw new Error('No user is currently signed in');
             }
-            
+
             const credential = EmailAuthProvider.credential(user.email, currentPassword);
             await reauthenticateWithCredential(user, credential);
-            
+
             await updatePassword(user, newPassword);
-            
+
             await updateDoc(doc(db, 'users', user.uid), {
                 updatedAt: timestamp.now()
             });
-            
+
         } catch (error) {
             const customError = this.handleAuthError(error);
             throw customError;
         }
     }
-  
+
     /**
      * Check if user has specific role
      * @param {string} uid - User ID
@@ -719,19 +721,19 @@ class AuthService {
         try {
             const profile = await this.getUserProfile(uid);
             const userRole = profile.role;
-            
+
             if (Array.isArray(roles)) {
                 return roles.includes(userRole);
             }
-            
+
             return userRole === roles;
-            
+
         } catch (error) {
             console.error('Error checking user role:', error);
             return false;
         }
     }
-  
+
     /**
      * Get current user
      * @returns {Object|null} Current user
@@ -739,7 +741,7 @@ class AuthService {
     getCurrentUser() {
         return this.currentUser;
     }
-  
+
     /**
      * Check if user is authenticated
      * @returns {boolean} Whether user is authenticated
@@ -755,12 +757,12 @@ class AuthService {
      */
     async updateCompleteProfile(updates) {
         try {
-            const { 
-                currentPassword, 
-                newPassword, 
-                confirmNewPassword, 
-                newEmail, 
-                displayName 
+            const {
+                currentPassword,
+                newPassword,
+                confirmNewPassword,
+                newEmail,
+                displayName
             } = updates;
 
             const user = auth.currentUser;
@@ -769,7 +771,7 @@ class AuthService {
             }
 
             // Check if user is Google authenticated
-            const isGoogleAuth = user.providerData.some(provider => 
+            const isGoogleAuth = user.providerData.some(provider =>
                 provider.providerId === 'google.com'
             );
 
@@ -787,7 +789,7 @@ class AuthService {
                 if (!currentPassword) {
                     throw new Error('Current password is required for account changes');
                 }
-                
+
                 const credential = EmailAuthProvider.credential(user.email, currentPassword);
                 await reauthenticateWithCredential(user, credential);
             }
@@ -805,8 +807,8 @@ class AuthService {
                 updatePromises.push(
                     updatePassword(user, newPassword)
                         .then(() => { updateResults.password = true; })
-                        .catch(error => { 
-                            updateResults.errors.push(`Password update failed: ${error.message}`); 
+                        .catch(error => {
+                            updateResults.errors.push(`Password update failed: ${error.message}`);
                         })
                 );
             }
@@ -816,8 +818,8 @@ class AuthService {
                 updatePromises.push(
                     updateEmail(user, newEmail)
                         .then(() => { updateResults.email = true; })
-                        .catch(error => { 
-                            updateResults.errors.push(`Email update failed: ${error.message}`); 
+                        .catch(error => {
+                            updateResults.errors.push(`Email update failed: ${error.message}`);
                         })
                 );
             }
@@ -827,8 +829,8 @@ class AuthService {
                 updatePromises.push(
                     updateProfile(user, { displayName })
                         .then(() => { updateResults.displayName = true; })
-                        .catch(error => { 
-                            updateResults.errors.push(`Display name update failed: ${error.message}`); 
+                        .catch(error => {
+                            updateResults.errors.push(`Display name update failed: ${error.message}`);
                         })
                 );
             }
@@ -840,8 +842,8 @@ class AuthService {
             if (updateResults.email || updateResults.displayName) {
                 const docUpdates = { updatedAt: timestamp.now() };
                 if (newEmail && updateResults.email) docUpdates.email = newEmail;
-                if (displayName && updateResults.displayName) docUpdates.displayName = displayName;
-                
+                if (displayName && updateResults.displayName) docUpdates['profile.displayName'] = displayName;
+
                 await updateDoc(doc(db, 'users', user.uid), docUpdates);
             }
 
@@ -852,7 +854,33 @@ class AuthService {
             throw customError;
         }
     }
-  }
-  
+
+    /**
+     * Update only the display name (for Google users)
+     * @param {string} newDisplayName - New display name
+     * @returns {Promise<void>}
+     */
+    async updateDisplayName(newDisplayName) {
+        try {
+            const user = auth.currentUser;
+            if (!user) {
+                throw new Error('No user is currently signed in');
+            }
+
+            await updateProfile(user, { displayName: newDisplayName });
+
+            // Update Firestore document too
+            await updateDoc(doc(db, 'users', user.uid), {
+                'profile.displayName': newDisplayName,
+                'timestamps.updatedAt': timestamp.now()
+            });
+
+        } catch (error) {
+            throw this.handleAuthError(error);
+        }
+    }
+
+}
+
 // Export singleton instance
 export default new AuthService();
