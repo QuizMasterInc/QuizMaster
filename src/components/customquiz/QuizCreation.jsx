@@ -13,7 +13,7 @@ import { useCSVUpload } from '../../hooks/useCSVUpload';
 
 // Utilities
 import { QUESTION_TYPES, getDifficultyLabel } from '../../utils/questionTypes';
-import { processTagsFromInput } from '../../utils/tagProcessor';
+import { APPROVED_CATEGORIES, APPROVED_CATEGORY_SET } from '../../constants/approvedCategories';
 
 export default function QuizCreation({
   setQuizData,
@@ -115,13 +115,26 @@ export default function QuizCreation({
     }
   };
 
-  // Handle tags input
-  const [rawTagsInput, setRawTagsInputLocal] = useState('');
+  // Handle category/tag selection
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const updateQuizTags = (e) => {
-    const inputValue = e.target.value;
-    setRawTagsInputLocal(inputValue);
-    const processedTags = processTagsFromInput(inputValue);
-    setQuizTags(processedTags);
+    const options = Array.from(e.target.selectedOptions).map(opt => opt.value);
+    setSelectedCategories(options);
+    setQuizTags(options);
+  };
+
+  // Helper for category selection validation
+  const isCategorySelected = selectedCategories.length > 0;
+  const [showCategoryError, setShowCategoryError] = useState(false);
+
+  // Wrap sendQuiz to add validation
+  const handleSendQuiz = () => {
+    if (!isCategorySelected) {
+      setShowCategoryError(true);
+      return;
+    }
+    setShowCategoryError(false);
+    sendQuiz();
   };
 
   return (
@@ -222,17 +235,22 @@ export default function QuizCreation({
             </div>
           </div>
 
-          {/* Quiz Tags */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-            <label className="text-secondary font-medium md:text-right">Quiz Tags:</label>
+          {/* Quiz Tags (Dropdown Multi-select) */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2 items-center">
+            <label className="text-secondary font-medium md:text-right">Quiz Category/Tags:</label>
             <div className="md:col-span-3">
-              <input
-                type="text"
-                value={rawTagsInput}
+              <select
+                multiple
+                value={selectedCategories}
                 onChange={updateQuizTags}
-                className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200"
-                placeholder="Enter tags separated by commas (e.g. Computer Science, History, Sports)"
-              />
+                className="w-full bg-card text-primary border border-primary rounded-lg px-4 py-1 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all duration-200 cursor-pointer"
+                style={{ minHeight: '200px', maxHeight: '320px', overflowY: 'auto', scrollbarWidth: 'thin' }}
+              >
+                {APPROVED_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat} style={{ padding: '4px 4px', margin: '1px 0', fontSize: '1rem' }}>{cat}</option>
+                ))}
+              </select>
+              <p className="text-xs text-secondary mt-2">Hold Ctrl (Windows) or Cmd (Mac) to select multiple categories.</p>
             </div>
           </div>
 
@@ -543,13 +561,14 @@ export default function QuizCreation({
           ➕ Add Question to Quiz
         </button>
         <button
-          onClick={sendQuiz}
-          disabled={isCreatingQuiz}
+          onClick={handleSendQuiz}
+          disabled={isCreatingQuiz || !isCategorySelected}
           className={`flex-1 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] border-2 flex items-center justify-center gap-3 ${
-            isCreatingQuiz 
-              ? 'bg-gray-400 border-gray-400 text-gray-200 cursor-not-allowed' 
+            isCreatingQuiz || !isCategorySelected
+              ? 'bg-gray-400 border-gray-400 text-gray-200 cursor-not-allowed'
               : 'bg-green-600 hover:bg-green-700 text-white border-green-600'
           }`}
+          title={!isCategorySelected ? 'Please select at least one category/tag for your quiz. If nothing matches, select "Other".' : ''}
         >
           {isCreatingQuiz ? (
             <>
@@ -563,6 +582,9 @@ export default function QuizCreation({
             '✅ Finish & Create Quiz'
           )}
         </button>
+        {showCategoryError && !isCategorySelected && (
+          <div className="w-full text-center text-error text-sm mt-2">Please select at least one category/tag for your quiz.</div>
+        )}
       </div>
     </div>
   );
