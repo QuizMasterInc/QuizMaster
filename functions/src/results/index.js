@@ -245,52 +245,60 @@ exports.submitQuizResults = onRequest(async (req, res) => {
 /**
  * Get quiz results for a user with optional filtering
  */
-exports.getQuizResults = onCall(async (data, context) => {
-    // Check if user is authenticated
-    if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
-    }
+exports.getQuizResults = onRequest(async (req, res) => {
+    cors(req, res, async () => {
+        try {
+            const data = req.body;
+            const { userId, quizType, category, limit = 50, offset = 0 } = data;
 
-    const userId = context.auth.uid
-    const { quizType, category, limit = 50, offset = 0 } = data
+            // Validate required userId
+            if (!userId) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Missing required field: userId'
+                });
+            }
 
-    try {
-        let query = admin.firestore()
-            .collection('quiz_results')
-            .where('userId', '==', userId)
-            .orderBy('submittedAt', 'desc')
+            let query = admin.firestore()
+                .collection('quiz_results')
+                .where('userId', '==', userId)
+                .orderBy('submittedAt', 'desc')
 
-        // Apply filters if provided
-        if (quizType) {
-            query = query.where('quizType', '==', quizType)
-        }
+            // Apply filters if provided
+            if (quizType) {
+                query = query.where('quizType', '==', quizType)
+            }
 
-        if (category) {
-            query = query.where('category', '==', category.toLowerCase())
-        }
+            if (category) {
+                query = query.where('category', '==', category.toLowerCase())
+            }
 
-        // Apply pagination
-        if (offset > 0) {
-            query = query.offset(offset)
-        }
+            // Apply pagination
+            if (offset > 0) {
+                query = query.offset(offset)
+            }
 
-        query = query.limit(limit)
+            query = query.limit(limit)
 
-        const snapshot = await query.get()
+            const snapshot = await query.get()
 
-        const results = []
-        snapshot.forEach(doc => {
-            results.push({
-                id: doc.id,
-                ...doc.data()
+            const results = []
+            snapshot.forEach(doc => {
+                results.push({
+                    id: doc.id,
+                    ...doc.data()
+                })
             })
-        })
 
-        return { results }
-    } catch (error) {
-        console.error('[getQuizResults] Error fetching quiz results:', error)
-        throw new functions.https.HttpsError('internal', 'Error fetching quiz results')
-    }
+            res.json({ results })
+        } catch (error) {
+            console.error('[getQuizResults] Error fetching quiz results:', error)
+            res.status(500).json({
+                success: false,
+                error: 'Error fetching quiz results'
+            })
+        }
+    })
 })
 
 /**
@@ -352,20 +360,70 @@ exports.deleteQuizResult = onCall(async (data, context) => {
 
     try {
         const resultRef = admin.firestore().collection('quiz_results').doc(resultId)
-
-        // Verify the result belongs to the user
         const doc = await resultRef.get()
         if (!doc.exists) {
             throw new functions.https.HttpsError('not-found', 'Quiz result not found')
         }
-
-        if (doc.data().userId !== userId) {
+        const resultData = doc.data()
+        if (resultData.userId !== userId) {
             throw new functions.https.HttpsError('permission-denied', 'Access denied')
         }
 
+        // Delete the result
         await resultRef.delete()
 
-        return { success: true, message: 'Quiz result deleted successfully' }
+        // Update user document
+        const userRef = admin.firestore().collection('users').doc(userId)
+        const userDoc = await userRef.get()
+        if (!userDoc.exists) {
+            throw new functions.https.HttpsError('not-found', 'User not found')
+        }
+        const userData = userDoc.data()
+        const batch = admin.firestore().batch()
+
+        // Remove quizId from recentActivity.quizIds if present
+        let updatedQuizIds = userData.recentActivity?.quizIds || []
+        if (resultData.quizId && updatedQuizIds.includes(resultData.quizId)) {
+            updatedQuizIds = updatedQuizIds.filter(id => id !== resultData.quizId)
+        }
+
+        // If custom quiz, recalculate stats.customQuizActivity
+        if (resultData.quizType === 'custom') {
+            const userResultsSnapshot = await admin.firestore().collection('quiz_results')
+                .where('userId', '==', userId)
+                .where('quizType', '==', 'custom')
+                .get()
+            let totalScore = 0
+            let totalTaken = 0
+            let lastTakenAt = null
+            userResultsSnapshot.forEach(doc => {
+                const r = doc.data()
+                if (doc.id !== resultId) { // Exclude the deleted result
+                    totalScore += r.percentage || 0
+                    totalTaken += 1
+                    const attemptDate = r.submittedAt?._seconds ? new Date(r.submittedAt._seconds * 1000) : null
+                    if (attemptDate && (!lastTakenAt || attemptDate > lastTakenAt)) {
+                        lastTakenAt = attemptDate
+                    }
+                }
+            })
+            const averageScore = totalTaken > 0 ? totalScore / totalTaken : 0
+            batch.update(userRef, {
+                'recentActivity.quizIds': updatedQuizIds,
+                'stats.customQuizActivity.totalScore': totalScore,
+                'stats.customQuizActivity.totalTaken': totalTaken,
+                'stats.customQuizActivity.averageScore': averageScore,
+                'stats.customQuizActivity.lastTakenAt': lastTakenAt ? admin.firestore.Timestamp.fromDate(lastTakenAt) : null
+            })
+        } else {
+            batch.update(userRef, {
+                'recentActivity.quizIds': updatedQuizIds
+            })
+        }
+
+        await batch.commit()
+
+        return { success: true, message: 'Quiz result deleted and user stats updated successfully' }
     } catch (error) {
         console.error('[deleteQuizResult] Error deleting quiz result:', error)
         throw new functions.https.HttpsError('internal', 'Error deleting quiz result')
