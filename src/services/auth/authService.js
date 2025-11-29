@@ -312,8 +312,8 @@ class AuthService {
 
             // Update last login time
             await updateDoc(doc(db, 'users', user.uid), {
-                lastLoginAt: timestamp.now(),
-                updatedAt: timestamp.now()
+                'timestamps.lastLoginAt': timestamp.now(),
+                'timestamps.updatedAt': timestamp.now()
             });
 
             return {
@@ -650,9 +650,20 @@ class AuthService {
     async updateUserProfile(uid, updates) {
         try {
             const profileUpdates = {
-                ...updates,
-                updatedAt: timestamp.now()
+                profile: {
+                    firstName: updates.firstName,
+                    lastName: updates.lastName,
+                    displayName: updates.firstName && updates.lastName ? 
+                        `${updates.firstName} ${updates.lastName}`.trim() : undefined
+                },
+                email: updates.email,
+                'timestamps.updatedAt': timestamp.now()
             };
+
+            // Remove undefined values
+            if (profileUpdates.profile.displayName === undefined) {
+                delete profileUpdates.profile.displayName;
+            }
 
             await updateDoc(doc(db, 'users', uid), profileUpdates);
 
@@ -703,7 +714,7 @@ class AuthService {
             await updatePassword(user, newPassword);
 
             await updateDoc(doc(db, 'users', user.uid), {
-                updatedAt: timestamp.now()
+                'timestamps.updatedAt': timestamp.now()
             });
 
         } catch (error) {
@@ -841,7 +852,7 @@ class AuthService {
 
             // Update user document in Firestore
             if (updateResults.email || updateResults.displayName) {
-                const docUpdates = { updatedAt: timestamp.now() };
+                const docUpdates = { 'timestamps.updatedAt': timestamp.now() };
                 if (newEmail && updateResults.email) docUpdates.email = newEmail;
                 if (displayName && updateResults.displayName) docUpdates['profile.displayName'] = displayName;
 

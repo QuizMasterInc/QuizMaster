@@ -343,7 +343,12 @@ exports.getQuizResultDetails = onCall(async (data, context) => {
 })
 
 /**
- * Delete a quiz result
+ * NOTE: This function is not currently used by any frontend components.
+ * Purpose: Allow users to delete individual quiz attempt results from their history.
+ * Status: Not used in the app UI; all quiz deletion actions use deleteCustomQuiz instead.
+ * Reason: The main user story required deleting entire quizzes and cleaning up all related data,
+ *         so deleteCustomQuiz was updated to handle full cleanup. This function remains for possible
+ *         future use if granular quiz attempt deletion is needed. Code needs to change though.
  */
 exports.deleteQuizResult = onCall(async (data, context) => {
     // Check if user is authenticated

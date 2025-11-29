@@ -94,7 +94,7 @@ export const Footer = () => {
   const appVersion = "1.0.0";
 
   return (
-    <footer className="w-full bg-gradient-to-r from-[#1a0533] via-[#220b47] to-[#100222] text-center py-6 text-sm text-gray-300 mt-auto border-t border-purple-800 shadow-inner z-50">
+  <footer className="w-full fixed bottom-0 left-0 bg-gradient-to-r from-[#1a0533] via-[#220b47] to-[#100222] text-center py-6 text-sm text-gray-300 border-t border-purple-800 shadow-inner z-50">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <p className="font-medium tracking-wide text-gray-400">

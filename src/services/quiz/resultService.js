@@ -51,6 +51,7 @@ class ResultService {
 
             // Use unified CloudFunctionsAPI
             const data = await cloudFunctionsAPI.getQuizResults({
+                userId,
                 quizType,
                 category,
                 limit: limitCount,
@@ -58,7 +59,11 @@ class ResultService {
             });
 
             return {
-                attempts: data.results || [],
+                attempts: (data.results || []).map(result => ({
+                    ...result,
+                    submittedAt: result.submittedAt ? new Date(result.submittedAt._seconds * 1000 + (result.submittedAt._nanoseconds || 0) / 1000000) : null,
+                    startedAt: result.startedAt ? new Date(result.startedAt._seconds * 1000 + (result.startedAt._nanoseconds || 0) / 1000000) : null
+                })),
                 hasMore: (data.results || []).length === limitCount,
                 lastDoc: null // Cloud Functions handle pagination differently
             };

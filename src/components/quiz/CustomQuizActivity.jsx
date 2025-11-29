@@ -8,6 +8,7 @@ import HelpModal from './HelpModal';
 import ProgressBar from './ProgressBar';
 import BackToTop from './BackToTopButton';
 import { shuffle } from '../../utils/shuffle';
+import { generateChoicesForQuestion } from '../../utils/generateChoicesForQuestion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResults } from '../../contexts/ResultsContext';
 import quizSubmissionService from '../../services/quiz/quizSubmissionService';
@@ -71,38 +72,20 @@ function CustomQuizActivity() {
               : 'single';
 
           const correctAnswer = q.correct_answer;
-          const correctLower = String(correctAnswer).trim().toLowerCase();
-
-          const allChoices = [
+          const originalOptions = [
             q.option_1,
             q.option_2,
             q.option_3,
             q.option_4,
           ].filter(Boolean);
-
-          const correctChoice = allChoices.find(
-            (c) => c?.trim().toLowerCase() === correctLower
-          );
-
-          const wrongChoices = allChoices.filter(
-            (c) => c?.trim().toLowerCase() !== correctLower
-          );
-
-          const finalChoices =
-            tag === 'fill'
-              ? []
-              : shuffle([
-                  correctChoice,
-                  ...shuffle(wrongChoices).slice(0, Math.max(0, answerCount - 1)),
-                ]).filter(Boolean); // Filter out undefined/null values
-
           return {
             questionId: `custom_${quizID}_${questionKey}`,
             questionText: q.question,
             text: q.question,
-            choices: finalChoices,
+            choices: generateChoicesForQuestion({ ...q, correctAnswer, type: tag, originalOptions }, 4),
             correctAnswer: correctAnswer,
             type: tag,
+            originalOptions,
           };
         });
 
@@ -122,7 +105,20 @@ function CustomQuizActivity() {
     }
 
     fetchCustomQuiz();
-  }, [quizID, answerCount, password]);
+  }, [quizID, password]);
+
+  // Update choices for current questions when answerCount changes
+  useEffect(() => {
+    if (questions.length === 0) return;
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((question) => {
+        return {
+          ...question,
+          choices: generateChoicesForQuestion(question, answerCount)
+        };
+      })
+    );
+  }, [answerCount]);
 
   // Scroll to top when quiz loads
   useEffect(() => {

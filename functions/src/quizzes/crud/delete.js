@@ -34,66 +34,91 @@ const { onCall } = require('firebase-functions/v2/https')
 const admin = require('firebase-admin')
 
 exports.deleteCustomQuiz = onCall(async (request) => {
-const { data, auth } = request
+    const { data, auth } = request;
 
-try {
-    // Auth check: the caller must be signed in so we know who is attempting the delete.
-    if (!auth) {
-        throw new functions.https.HttpsError(
-        'unauthenticated',
-        'User must be authenticated'
-        )
-    }
-
-    const userId = auth.uid
-    const { quizId } = data || {}
-
-    // Input validation: a quizId must be provided by the client.
-    if (!quizId) {
-        throw new functions.https.HttpsError(
-        'invalid-argument',
-        'Quiz ID is required'
-        )
-    }
-
-    const quizRef = admin.firestore().collection('custom_quizzes').doc(quizId)
-    const doc = await quizRef.get()
-
-    // If the document does not exist, there is nothing to delete.
-    if (!doc.exists) {
-        throw new functions.https.HttpsError('not-found', 'Quiz not found')
-    }
-
-    const quizData = doc.data()
-    const creatorId =
-        quizData?.creator?.uid ||
-        quizData?.creatorID ||
-        quizData?.creator?.userId
-
-    // Permission check: only the original creator may delete this quiz.
-    if (!creatorId || creatorId !== userId) {
-        throw new functions.https.HttpsError(
-        'permission-denied',
-        'Access denied'
-        )
-    }
-
-    await quizRef.delete()
-
-// Return a simple success payload back to the client.
-    return { success: true, message: 'Quiz deleted successfully' }
-    } catch (error) {
-        // Log the error for server-side debugging, then surface a safe message to the client.
-        console.error('[deleteCustomQuiz] Error deleting custom quiz:', error)
-
-        if (error instanceof functions.https.HttpsError) {
-            // Re-throw known HttpsErrors so the client gets the specific code/message.
-            throw error
+    try {
+        // Auth check
+        if (!auth) {
+            throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
         }
 
-        throw new functions.https.HttpsError(
-            'internal',
-            'Error deleting custom quiz'
-        )
+        const userId = auth.uid;
+        const { quizId } = data || {};
+
+        // Input validation
+        if (!quizId) {
+            throw new functions.https.HttpsError('invalid-argument', 'Quiz ID is required');
+        }
+
+        const quizRef = admin.firestore().collection('custom_quizzes').doc(quizId);
+        const doc = await quizRef.get();
+
+        if (!doc.exists) {
+            throw new functions.https.HttpsError('not-found', 'Quiz not found');
+        }
+
+        const quizData = doc.data();
+        const creatorId = quizData?.creator?.uid || quizData?.creatorID || quizData?.creator?.userId;
+
+        // Permission check
+        if (!creatorId || creatorId !== userId) {
+            throw new functions.https.HttpsError('permission-denied', 'Access denied');
+        }
+
+        // 1. Delete quiz document
+        await quizRef.delete();
+
+        // 2. Delete all quiz results for this quiz
+        const resultsSnapshot = await admin.firestore().collection('quiz_results').where('quizId', '==', quizId).get();
+        const batch = admin.firestore().batch();
+        resultsSnapshot.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+
+        // 3. Remove quizId from all users' recentActivity.quizIds and recalculate stats
+        const usersSnapshot = await admin.firestore().collection('users').where('recentActivity.quizIds', 'array-contains', quizId).get();
+        const userBatch = admin.firestore().batch();
+        for (const userDoc of usersSnapshot.docs) {
+            const userData = userDoc.data();
+            // Remove quizId from recentActivity.quizIds
+            const updatedQuizIds = (userData.recentActivity?.quizIds || []).filter(id => id !== quizId);
+            // Get all remaining custom quiz results for this user
+            const userResultsSnapshot = await admin.firestore().collection('quiz_results')
+                .where('userId', '==', userDoc.id)
+                .where('quizType', '==', 'custom')
+                .get();
+            let totalScore = 0;
+            let totalTaken = 0;
+            let lastTakenAt = null;
+            userResultsSnapshot.forEach(doc => {
+                const result = doc.data();
+                if (result.quizId !== quizId) {
+                    totalScore += result.percentage || 0;
+                    totalTaken += 1;
+                    const attemptDate = result.submittedAt?._seconds ? new Date(result.submittedAt._seconds * 1000) : null;
+                    if (attemptDate && (!lastTakenAt || attemptDate > lastTakenAt)) {
+                        lastTakenAt = attemptDate;
+                    }
+                }
+            });
+            const averageScore = totalTaken > 0 ? totalScore / totalTaken : 0;
+            userBatch.update(userDoc.ref, {
+                'recentActivity.quizIds': updatedQuizIds,
+                'stats.customQuizActivity.totalScore': totalScore,
+                'stats.customQuizActivity.totalTaken': totalTaken,
+                'stats.customQuizActivity.averageScore': averageScore,
+                'stats.customQuizActivity.lastTakenAt': lastTakenAt ? admin.firestore.Timestamp.fromDate(lastTakenAt) : null
+            });
+        }
+        await userBatch.commit();
+
+        return { success: true, message: 'Quiz and related data deleted and cleaned up.' };
+    } catch (error) {
+        console.error('[deleteCustomQuiz] Error deleting custom quiz:', error);
+
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+
+        throw new functions.https.HttpsError('internal', 'Error deleting custom quiz');
     }
-})
+});
