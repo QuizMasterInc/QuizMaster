@@ -1,10 +1,33 @@
 /**
- * This component hosts a button to click for each custom quiz
+ * CustomQuizSelectButton
+ * ----------------------
+ * Renders a card + button UI for a single custom quiz in the "User-Made Quizzes" list.
+ *
+ * RESPONSIBILITIES:
+ *  - Display quiz metadata (title, creator name, tags, question count).
+ *  - Handle optional password-protected quizzes by prompting for a password
+ *    and validating it via the grabCustomQuiz Cloud Function before navigation.
+ *  - Render the DeleteQuizButton, which allows the quiz owner to delete their quiz
+ *    (non-owners will not see the delete control).
+ *
+ * PROPS:
+ *  - title: string            -> Quiz title.
+ *  - numQuestions: number     -> Count of questions in the quiz.
+ *  - tags: string | string[]  -> User-entered tag(s) for the quiz.
+ *  - uid: string              -> Quiz document ID used for navigation and API calls.
+ *  - quizPassword: string?    -> If present, quiz is password-protected.
+ *  - creator: string?         -> Display name of the quiz creator (from backend).
+ *  - creatorId: string        -> UID of the quiz creator (used for delete permissions).
+ *  - currentUserId: string    -> UID of the currently logged-in user.
+ *  - onDeleted: function      -> Callback invoked when the quiz is successfully deleted.
  */
+
 import {useState} from "react"
 import { Link, useNavigate } from "react-router-dom"; 
+import DeleteQuizButton from "./DeleteQuizButton";
 
-const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, creator}) => {
+// Helper to format the creator line; falls back to a generic label if name is missing.
+const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, creator, creatorId, currentUserId, onDeleted}) => {
 
   const navigate = useNavigate();
   const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("");
@@ -14,7 +37,7 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
     return "Created By: " + (creator || 'Anonymous User');
   }
 
-
+  // Helper to render user-defined tags, if any exist for this quiz.
   function displayTags(tags) {
       if (tags != undefined && tags.length > 0) {
           return "User Tag(s): " + tags
@@ -22,6 +45,8 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
       return;
   }
 
+  // Validate the entered password by calling the grabCustomQuiz HTTP Cloud Function.
+  // If the password is correct, navigate to the quiz settings screen with the password in state.
   const quizPasswordCheck = async (quizPasswordAttempt, quizPassword) => {
       if (!quizPasswordAttempt.trim()) {
           alert("Please enter a password!");
@@ -61,6 +86,7 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
       }
   }
 
+  // Keep local state in sync with the password input field.
   const handleQuizPasswordChange = (e) => {
       setQuizPasswordAttempt((prevQuizPassword) => {
         let newPassword = prevQuizPassword;
@@ -69,11 +95,12 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
       })
     }
 
-
-
+  // Render either a password-protected card (with input + Start button)
+  // or a direct link card when no password is required. In both cases,
+  // the DeleteQuizButton is rendered so owners can remove their quiz.
       return (<div className="w-1/2 p-5 text-center -sm:p-1">
           {quizPassword ? 
-          <div className="card rounded-lg shadow-lg hover:shadow-xl border border-accent">
+          <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
               <div className="text-2xl text-[var(--primary-500)]">{title}</div>
               <div className="text-base">{displayCreatorName()}</div>
               <div className="text-base">{displayTags(tags)}</div>
@@ -93,17 +120,28 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
                     Start
                   </button>
               </div>
-              
+              <DeleteQuizButton
+                quizId={uid}
+                creatorId={creatorId}
+                currentUserId={currentUserId}
+                onDeleted={onDeleted}
+              />
           </div>
           :
-          <Link to={'/customquiz/settings/' + uid}>
-            <div className="card rounded-lg shadow-lg hover:shadow-xl border border-accent">
+          <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
+            <Link to={'/customquiz/settings/' + uid}>
               <div className="text-2xl text-[var(--primary-500)]">{title}</div>
               <div className="text-base">{displayCreatorName()}</div>
               <div className="text-base">{displayTags(tags)}</div>
               <div className="text-base">Questions: {numQuestions}</div>
-            </div>
-          </Link>
+            </Link>
+            <DeleteQuizButton
+              quizId={uid}
+              creatorId={creatorId}
+              currentUserId={currentUserId}
+              onDeleted={onDeleted}
+            />
+          </div>
           }
           
       </div>

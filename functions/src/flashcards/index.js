@@ -43,7 +43,7 @@ exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
                     creatorInfo = {
                         uid: creatorID,
                         displayName: userData.profile?.displayName || userData.displayName ||
-                                   `${userData.profile?.firstName || 'Anonymous'} ${userData.profile?.lastName || 'User'}`.trim(),
+                        `${userData.profile?.firstName || 'Anonymous'} ${userData.profile?.lastName || 'User'}`.trim(),
                         username: userData.profile?.displayName || userData.displayName || 'Anonymous User'
                     };
                 }

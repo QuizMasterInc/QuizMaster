@@ -1,3 +1,42 @@
+/**
+ * QuizList.jsx
+ * ---------------------------------------------------------------------------
+ * This component renders a full, filterable list of quizzes for the QuizMaster
+ * app. It supports two data sources:
+ *   1. "browseCustomQuizzes"  → user-created community quizzes (public/private)
+ *   2. "teacherQuizzes"        → curated teacher-made quizzes
+ *
+ * RESPONSIBILITIES:
+ *   - Fetch quizzes from the backend using quizRetrievalService or Cloud Functions.
+ *   - Support server-side OR client-side filtering depending on the data source.
+ *   - Manage search, sort, and privacy filters, including debouncing search input.
+ *   - Maintain two parallel states: the master quiz list AND the currently
+ *     displayed filtered list.
+ *   - Render each quiz inside <CustomQuizSelectButton /> which also includes
+ *     the DeleteQuizButton for quizzes owned by the logged-in user.
+ *   - Update the UI instantly when a quiz is deleted by removing it from both
+ *     quiz lists via handleQuizDeleted().
+ *
+ * PROPS:
+ *   - title (string)                       → Section title ("My Quizzes", etc.)
+ *   - dataSource ("browseCustomQuizzes" | "teacherQuizzes")
+ *   - filters (array)                      → Which filters are enabled (search, sort, privacy)
+ *   - showRefreshButton (boolean)          → Whether the refresh button should appear
+ *   - className (string)                   → Extra styling passed from the parent
+ *
+ * HOW IT RELATES TO FIREBASE:
+ *   - Uses Firebase Auth (via useAuth()) to determine the current user's UID.
+ *   - For custom quizzes, includes the creatorId so deletion permissions can be
+ *     enforced by the backend Cloud Function deleteCustomQuiz.
+ *   - Fetches quizzes through services that ultimately call Firebase Cloud
+ *     Functions or Firestore.
+ *
+ * OVERALL:
+ *   This file controls the entire quiz browsing interface: fetching data,
+ *   filtering it, displaying it cleanly, and keeping UI state consistent after
+ *   quiz deletion.
+ */
+
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import CustomQuizSelectButton from "./CustomQuizSelectButton";
@@ -229,6 +268,23 @@ const QuizList = ({
       };
     }
   };
+  
+  // Called after a quiz is successfully deleted on the server.
+  const handleQuizDeleted = (deletedId) => {
+    setQuizzes((prev) =>
+      prev.filter((quiz) => {
+        const quizData = normalizeQuizData(quiz);
+        return quizData.id !== deletedId;
+      })
+    );
+// Removes that quiz from both the master list and the displayed list
+    setQuizzesToDisplay((prev) =>
+      prev.filter((quiz) => {
+        const quizData = normalizeQuizData(quiz);
+        return quizData.id !== deletedId;
+      })
+    );
+  };
 
   return (
     <div className={`min-h-screen bg-primary relative overflow-hidden py-20 px-6 text-[var(--text-primary)] ${className}`}>
@@ -312,9 +368,17 @@ const QuizList = ({
         ) : (
           <div id="customQuizDiv" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
             {quizzesToDisplay.map((quiz) => {
-              const quizData = normalizeQuizData(quiz);
+
+              const quizData = normalizeQuizData(quiz);            
+              // NEW: Used to decide if the Delete button should be shown (only for its owner).
+              let creatorId = null;
+              if (dataSource === "browseCustomQuizzes") { // Determines the creator's user ID for this quiz.
+                // raw Firestore result usually has creator.uid
+                creatorId = quiz.creatorID || quiz.creator?.userId || null;
+              }
 
               return (
+                // Render a single quiz card, passing down all display data. 
                 <CustomQuizSelectButton
                   key={quizData.id + quizData.title}
                   title={quizData.title}
@@ -329,6 +393,10 @@ const QuizList = ({
                   averageScore={quizData.averageScore}
                   createdAt={quizData.createdAt}
                   isPrivate={quizData.isPrivate}
+                  // props needed by DeleteQuizButton
+                  creatorId={creatorId}
+                  currentUserId={currentUser?.uid}
+                  onDeleted={handleQuizDeleted}
                 />
               );
             })}

@@ -22,7 +22,7 @@ import { QuizProvider } from './contexts/QuizContext';
 import { ResultsProvider } from './contexts/ResultsContext';
 import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
-import UpdateProfile from './components/login/UpdateProfile'
+import Profile from './pages/Profile.jsx'
 import PrivateRoute from './routes/PrivateRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
 import DeveloperRoute from './routes/DeveloperRoute';
@@ -189,11 +189,12 @@ function App() {
             </PrivateRoute>
           }/>
 
-          <Route path="/updateprofile" element={
+          <Route path="/profile" element={
             <PrivateRoute>
-              <UpdateProfile />
+              <Profile />
             </PrivateRoute>
           }/>
+
           <Route path="/signin" element={
             <PrivateSigninRoute>
               <Login />

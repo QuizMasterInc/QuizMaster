@@ -10,7 +10,9 @@ import HelpModal from './HelpModal';
 import ProgressBar from './ProgressBar';
 import DownloadQuiz from './DownloadQuiz';
 import { shuffle } from '../../utils/shuffle';
+import { generateChoicesForQuestion } from '../../utils/generateChoicesForQuestion';
 import quizSubmissionService from '../../services/quiz/quizSubmissionService';
+import BackToTopButton from './BackToTopButton'; 
 
 
 function QuizActivity() {
@@ -97,47 +99,22 @@ function QuizActivity() {
           else tag = 'single';
 
           const correctAnswer = row.correct_answer ?? row.correct;
-          const correctLower = String(correctAnswer).trim().toLowerCase();
+          const questionId = row.questionId || `default_${btoa(row.question).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16)}`;
 
-          const allChoices = [
+          const originalOptions = [
             row.option_1 ?? row.a,
             row.option_2 ?? row.b,
             row.option_3 ?? row.c,
             row.option_4 ?? row.d,
           ].filter(Boolean);
-
-          const correctChoice = allChoices.find(
-            (c) => c?.trim().toLowerCase() === correctLower
-          );
-
-          const wrongChoices = allChoices.filter(
-            (c) => c?.trim().toLowerCase() !== correctLower
-          );
-
-          // Ensure we have the correct answer in the choices
-          // If correctChoice is undefined, add the correctAnswer text directly
-          const correctToUse = correctChoice || correctAnswer;
-
-          // Calculate how many wrong choices we need
-          const wrongChoicesNeeded = Math.max(0, answerCount - 1);
-          const wrongChoicesToUse = shuffle(wrongChoices).slice(0, wrongChoicesNeeded);
-
-          // Build final choices array
-          const finalChoices = shuffle([
-            correctToUse,
-            ...wrongChoicesToUse
-          ]).filter(Boolean);
-
-          // Create a unique question ID based on question text
-          const questionId = row.questionId || `default_${btoa(row.question).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16)}`;
-
           return {
             questionId,
             questionText: row.question,
             text: row.question,
-            choices: finalChoices,
+            choices: generateChoicesForQuestion({ ...row, correctAnswer, type: tag, originalOptions }, 4),
             correctAnswer: correctAnswer,
             type: tag,
+            originalOptions,
           };
         });
 
@@ -150,7 +127,20 @@ function QuizActivity() {
     }
 
     fetchQuiz();
-  }, [category, subcategories, difficulty, amount, answerCount]);
+  }, [category, subcategories, difficulty, amount]);
+
+  // Update choices for current questions when answerCount changes
+  useEffect(() => {
+    if (questions.length === 0) return;
+    setQuestions((prevQuestions) =>
+      prevQuestions.map((question) => {
+        return {
+          ...question,
+          choices: generateChoicesForQuestion(question, answerCount)
+        };
+      })
+    );
+  }, [answerCount]);
 
   useEffect(() => {
     if (!loading && questions.length > 0) {
@@ -490,6 +480,9 @@ function QuizActivity() {
         </div>
       )}
       </div>
+
+      {/* Top button */}
+      <BackToTopButton />
 
       {/* Modals */}
       {helpActive && (

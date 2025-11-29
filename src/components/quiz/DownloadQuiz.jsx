@@ -66,7 +66,7 @@ const DownloadQuiz = ({ questions, userAnswers, correctCount, category }) => {
         if (question.type === 'multiple') {
           const correctAnswers = correctAns.split('||').map(a => a.trim().toLowerCase());
           return userAns.length === correctAnswers.length &&
-                 userAns.every(ans => correctAnswers.includes(ans));
+          userAns.every(ans => correctAnswers.includes(ans));
         } else {
           return userAns[0] === correctAns;
         }

@@ -38,11 +38,11 @@ export default function Dashboard() {
           <Link to="/flashcards" className="inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent">
             Make Flashcards
           </Link>
-          {isGoogleAuth && (
-            <Link to="/updateprofile" className="inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent">
-              Update Profile
-            </Link>
-          )}
+
+          <Link to="/profile" className="inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent">
+            My Profile
+          </Link>
+
         </section>
       </div>
     </div>
