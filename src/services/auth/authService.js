@@ -32,6 +32,7 @@ class AuthService {
     onAuthStateChange(callback) {
         this.authStateListeners.push(callback);
 
+    
         // Return unsubscribe function
         return () => {
             this.authStateListeners = this.authStateListeners.filter(cb => cb !== callback);
@@ -96,9 +97,9 @@ class AuthService {
         let authProvider = 'email';
         if (authUser.providerData?.length > 0) {
             const provider = authUser.providerData[0].providerId;
-            authProvider = provider === 'google.com' ? 'google' :
-                provider === 'github.com' ? 'github' :
-                    provider === 'microsoft.com' ? 'microsoft' : 'email';
+            authProvider = provider === 'google.com' ? 'google' : 
+                          provider === 'github.com' ? 'github' :
+                          provider === 'microsoft.com' ? 'microsoft' : 'email';
         }
 
         // Create complete user document following your schema
