@@ -5,13 +5,13 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, se
     EmailAuthProvider, reauthenticateWithCredential, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, OAuthProvider, updateEmail } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db, handleFirebaseError, withRetry, timestamp } from '../firebase/firebaseService';
-  
+
 class AuthService {
     constructor() {
         this.currentUser = null;
         this.authStateListeners = [];
     }
-  
+
     /**
      * Initialize auth state listener
      */
@@ -21,7 +21,7 @@ class AuthService {
             this.authStateListeners.forEach(callback => callback(user));
         });
     }
-  
+
     /**
      * Subscribe to authentication state changes
      * @param {Function} callback - Callback function to execute on auth state change
@@ -29,13 +29,13 @@ class AuthService {
      */
     onAuthStateChange(callback) {
         this.authStateListeners.push(callback);
-      
+    
         // Return unsubscribe function
         return () => {
             this.authStateListeners = this.authStateListeners.filter(cb => cb !== callback);
         };
     }
-  
+
     /**
      * Extract and clean name data from various sources
      */
@@ -95,8 +95,8 @@ class AuthService {
         if (authUser.providerData?.length > 0) {
             const provider = authUser.providerData[0].providerId;
             authProvider = provider === 'google.com' ? 'google' : 
-                          provider === 'github.com' ? 'github' :
-                          provider === 'microsoft.com' ? 'microsoft' : 'email';
+            provider === 'github.com' ? 'github' :
+            provider === 'microsoft.com' ? 'microsoft' : 'email';
         }
 
         // Create complete user document following your schema
@@ -290,7 +290,7 @@ class AuthService {
 
         return new Error(message);
     }
-  
+
     /**
      * Sign in user
      * @param {string} email - User email
@@ -637,7 +637,7 @@ class AuthService {
             throw handleFirebaseError(error);
         }
     }
-  
+
     /**
      * Update user profile
      * @param {string} uid - User ID
@@ -666,7 +666,7 @@ class AuthService {
             throw handleFirebaseError(error);
         }
     }
-  
+
     /**
      * Send password reset email
      * @param {string} email - User email
@@ -680,7 +680,7 @@ class AuthService {
             throw customError;
         }
     }
-  
+
     /**
      * Change user password
      * @param {string} currentPassword - Current password
@@ -852,7 +852,7 @@ class AuthService {
             throw customError;
         }
     }
-  }
-  
+}
+
 // Export singleton instance
 export default new AuthService();

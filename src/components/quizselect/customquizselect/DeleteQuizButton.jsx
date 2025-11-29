@@ -2,46 +2,57 @@ import React, { useState } from "react";
 import cloudFunctionsAPI from "../../../services/api/cloudFunctions";
 
 /**
- * Delete button for a single custom quiz.
- * - Only renders if currentUserId === creatorId
- * - Calls Cloud Function: deleteCustomQuiz(quizId)
+ * Delete button for a single custom quiz card.
+ *
+ * Props:
+ * - quizId: Firestore document ID of the quiz to delete.
+ * - creatorId: UID of the user who originally created the quiz.
+ * - currentUserId: UID of the currently logged-in user.
+ * - onDeleted: optional callback to let the parent know this quiz was successfully deleted.
+ *
+ * Behavior:
+ * - Button only renders if currentUserId === creatorId (owner-only control).
+ * - On click, confirms with the user, calls the deleteCustomQuiz Cloud Function,
+ *   and then notifies the parent via onDeleted so the UI list can update.
  */
+
 const DeleteQuizButton = ({ quizId, creatorId, currentUserId, onDeleted }) => {
     const [loading, setLoading] = useState(false);
 
-
-    // If user is not logged in or not the creator, hide the button completely
+  // Guard: only render the button for the quiz owner. Everyone else sees nothing.
     if (!currentUserId || currentUserId !== creatorId) {
-        return null;
+    return null;
     }
 
-
     const handleDelete = async () => {
-        const confirmed = window.confirm(
-        "Are you sure you want to delete this quiz? This action cannot be undone."
-        );
-        if (!confirmed) return;
+    // Ask for a final confirmation so deletes are intentional.
+    const confirmed = window.confirm(
+    "Are you sure you want to delete this quiz? This action cannot be undone."
+    );
+    if (!confirmed) return;
 
-        try {
+    // Perform the delete via the Cloud Function API and update local state.
+    try {
         setLoading(true);
 
-        // Using API from cloudFunctions.js
         await cloudFunctionsAPI.deleteCustomQuiz(quizId);
 
-        // Let the parent (QuizList) know this quiz is gone
+      // Inform the parent list that this quiz is gone so it can be removed from the UI.
         if (onDeleted) {
-            onDeleted(quizId);
+        onDeleted(quizId);
         }
-        } catch (error) {
+    } catch (error) {
         console.error("Failed to delete quiz:", error);
         alert("Error deleting quiz. Please try again.");
-        } finally {
+    } finally {
+      // Always clear the loading state, even if something failed.
         setLoading(false);
-        }
+    }
     };
 
+  // Owner-only delete button styled as a small, subtle control in the bottom-left of the card.
     return (
-        <button
+    <button
         type="button"
         onClick={handleDelete}
         disabled={loading}
@@ -56,12 +67,10 @@ const DeleteQuizButton = ({ quizId, creatorId, currentUserId, onDeleted }) => {
             text-[var(--neutral-900)]
             disabled:opacity-60 disabled:cursor-not-allowed
         "
-        >
+    >
         {loading ? "Deleting..." : "Delete"}
-        </button>
+    </button>
     );
-    };
+};
 
-
-
-    export default DeleteQuizButton;
+export default DeleteQuizButton;
