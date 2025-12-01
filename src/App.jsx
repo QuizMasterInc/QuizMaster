@@ -38,6 +38,7 @@ import TypeOfQuiz from './pages/TypeOfQuiz';
 import Developer from './components/developer/AddDefaultQuestion';
 import AllCustomQuizzes from './components/quizselect/customquizselect/AllCustomQuizzes';
 import AllTeacherQuizzes from './components/quizselect/customquizselect/AllTeacherQuizzes';
+import MyQuiz from './components/quizselect/customquizselect/MyQuiz';
 import CustomQuizActivity from './components/quiz/CustomQuizActivity'
 import CustomQuizSettings from './components/customquiz/CustomQuizSettings';
 import { Footer } from './components/ui/index.jsx';
@@ -186,6 +187,12 @@ function App() {
           <Route path="/allteacherquizzes" element={
             <PrivateRoute>
               <AllTeacherQuizzes />
+            </PrivateRoute>
+          }/>
+
+          <Route path="/myquizzes" element={
+            <PrivateRoute>
+              <MyQuiz title="My Quizzes" dataSource="browseCustomQuizzes" showRefreshButton={true} />
             </PrivateRoute>
           }/>
 
