@@ -9,7 +9,7 @@ const cors = require("cors")({origin: true})
 exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
     cors(req, res, async () => {
         const dataType = req.get('content-type');
-        if (dataType === 'application/json') {
+        if (dataType && dataType.includes('application/json')) {
             const data = JSON.parse(JSON.stringify(req.body));
 
             // Extract data from flattened request
