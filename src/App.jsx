@@ -22,6 +22,7 @@ import { QuizProvider } from './contexts/QuizContext';
 import { ResultsProvider } from './contexts/ResultsContext';
 import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
+import CustomQuizPerformance from './components/profile/CustomQuizPerformance';
 import Profile from './pages/Profile.jsx'
 import PrivateRoute from './routes/PrivateRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
@@ -59,7 +60,7 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div className="App pb-10">
       <AppProvider>
         <QuizProvider>
           <ResultsProvider>
@@ -192,6 +193,12 @@ function App() {
           <Route path="/profile" element={
             <PrivateRoute>
               <Profile />
+            </PrivateRoute>
+          }/>
+
+          <Route path="/profile/custom-quizzes" element={
+            <PrivateRoute>
+              <CustomQuizPerformance />
             </PrivateRoute>
           }/>
 
