@@ -20,7 +20,7 @@ const ActivityHistory = ({ quizzes, decks, results }) => {
       <div className="space-y-6">
         {/* Custom Quizzes Section */}
         <div>
-          <h3 className="text-lg font-medium mb-3 text-[var(--primary-600)]">Recent Custom Quizzes</h3>
+          <h3 className="text-lg font-medium mb-3 text-[var(--primary-600)]">Recent Custom Quiz Attempts</h3>
           {quizzes && quizzes.length > 0 ? (
             <div className="space-y-3">
               {quizzes.map((quiz, index) => (
@@ -34,7 +34,7 @@ const ActivityHistory = ({ quizzes, decks, results }) => {
                       <div className="flex items-center space-x-4 mt-2 text-xs text-[var(--text-muted)]">
                         <span>Questions: {quiz.numQuestions || quiz.questionCount || 0}</span>
                         <span>Category: {quiz.category || 'Uncategorized'}</span>
-                        <span>Updated: {formatDate(quiz.updatedAt)}</span>
+                        <span>Last Attempt: {formatDate(quiz.lastAttempt || quiz.updatedAt)}</span>
                       </div>
                     </div>
                     <div className="text-right">
@@ -49,7 +49,7 @@ const ActivityHistory = ({ quizzes, decks, results }) => {
               ))}
             </div>
           ) : (
-            <p className="text-[var(--text-muted)] italic">No recent custom quizzes found.</p>
+            <p className="text-[var(--text-muted)] italic">No recent custom quiz attempts found.</p>
           )}
         </div>
 
@@ -88,7 +88,7 @@ const ActivityHistory = ({ quizzes, decks, results }) => {
 
         {/* Flashcard Decks Section */}
         <div>
-          <h3 className="text-lg font-medium mb-3 text-[var(--info)]">Recent Flashcard Decks</h3>
+          <h3 className="text-lg font-medium mb-3 text-[var(--info)]">Recent Flashcard Activity</h3>
           {decks && decks.length > 0 ? (
             <div className="space-y-3">
               {decks.map((deck, index) => (
@@ -102,7 +102,7 @@ const ActivityHistory = ({ quizzes, decks, results }) => {
                       <div className="flex items-center space-x-4 mt-2 text-xs text-[var(--text-muted)]">
                         <span>Cards: {deck.cardCount || 0}</span>
                         <span>Category: {deck.category || 'Uncategorized'}</span>
-                        <span>Updated: {formatDate(deck.updatedAt)}</span>
+                        <span>Last Studied: {formatDate(deck.analytics?.stats?.lastStudiedAt || deck.updatedAt)}</span>
                       </div>
                     </div>
                     <div className="text-right">
@@ -117,14 +117,14 @@ const ActivityHistory = ({ quizzes, decks, results }) => {
               ))}
             </div>
           ) : (
-            <p className="text-[var(--text-muted)] italic">No recent flashcard decks found.</p>
+            <p className="text-[var(--text-muted)] italic">No recent flashcard activity found.</p>
           )}
         </div>
       </div>
 
       {(quizzes?.length === 0 && decks?.length === 0) && (
         <div className="text-center py-8">
-          <p className="text-[var(--text-muted)]">No recent activity found. Start creating quizzes and flashcards!</p>
+          <p className="text-[var(--text-muted)]">No recent activity found. Start taking quizzes and creating flashcards!</p>
         </div>
       )}
     </div>

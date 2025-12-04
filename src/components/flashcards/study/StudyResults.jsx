@@ -102,15 +102,45 @@ const StudyResults = () => {
                     </div>
 
                     <div className="card text-center p-6 space-y-2 border-2 border-accent hover:scale-105 transition-transform duration-200">
-                        <div className="text-4xl">🎯</div>
-                        <h3 className="text-sm font-semibold text-secondary uppercase tracking-wide">Success Rate</h3>
-                        <p className="text-4xl font-bold text-gradient-primary">{stats.successRate.toFixed(1)}%</p>
+                        <div className="text-4xl">📈</div>
+                        <h3 className="text-sm font-semibold text-secondary uppercase tracking-wide">Learning Progress</h3>
+                        <div className="space-y-1">
+                            <p className="text-2xl font-bold text-[var(--success)]">{stats.easyCount} Mastered</p>
+                            <p className="text-sm text-[var(--text-muted)]">{stats.goodCount + stats.hardCount} Need Practice</p>
+                        </div>
                     </div>
                 </div>
 
                 {/* Performance Breakdown */}
                 <div className="card p-8 space-y-6">
-                    <h2 className="text-2xl font-bold text-gradient-primary text-center">Performance Breakdown</h2>
+                    <h2 className="text-2xl font-bold text-gradient-primary text-center">Learning Insights</h2>
+                    
+                    {/* Actionable Recommendations */}
+                    <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border-l-4 border-[var(--primary-500)]">
+                        <h3 className="font-semibold text-[var(--text-primary)] mb-2">💡 Study Recommendations</h3>
+                        <div className="space-y-2 text-sm">
+                            {stats.hardCount > 0 && (
+                                <p className="text-[var(--error)]">
+                                    • Review the {stats.hardCount} cards you rated as "difficult" - these need extra attention
+                                </p>
+                            )}
+                            {stats.goodCount > 0 && (
+                                <p className="text-[var(--warning)]">
+                                    • Practice the {stats.goodCount} cards you rated as "good" more regularly to master them
+                                </p>
+                            )}
+                            {stats.easyCount === cardsStudied && (
+                                <p className="text-[var(--success)]">
+                                    • Excellent! All cards mastered. Try a harder deck for a challenge!
+                                </p>
+                            )}
+                            {stats.hardCount === 0 && stats.goodCount === 0 && stats.easyCount < cardsStudied && (
+                                <p className="text-[var(--success)]">
+                                    • Perfect session! Consider spaced repetition for long-term retention.
+                                </p>
+                            )}
+                        </div>
+                    </div>
                     
                     <div className="space-y-4">
                         {/* Easy Bar */}
@@ -118,9 +148,9 @@ const StudyResults = () => {
                             <div className="flex justify-between items-center">
                                 <span className="flex items-center gap-2 font-semibold">
                                     <span className="text-2xl">😊</span>
-                                    <span className="text-success">Easy</span>
+                                    <span className="text-success">Mastered ({stats.easyCount})</span>
                                 </span>
-                                <span className="text-lg font-bold text-primary">{stats.easyCount}</span>
+                                <span className="text-lg font-bold text-primary">{((stats.easyCount / cardsStudied) * 100).toFixed(0)}%</span>
                             </div>
                             <div className="w-full h-3 bg-[var(--neutral-200)] dark:bg-[var(--neutral-700)] rounded-full overflow-hidden">
                                 <div 
@@ -135,9 +165,9 @@ const StudyResults = () => {
                             <div className="flex justify-between items-center">
                                 <span className="flex items-center gap-2 font-semibold">
                                     <span className="text-2xl">👍</span>
-                                    <span className="text-warning">Good</span>
+                                    <span className="text-warning">Needs Practice ({stats.goodCount})</span>
                                 </span>
-                                <span className="text-lg font-bold text-primary">{stats.goodCount}</span>
+                                <span className="text-lg font-bold text-primary">{((stats.goodCount / cardsStudied) * 100).toFixed(0)}%</span>
                             </div>
                             <div className="w-full h-3 bg-[var(--neutral-200)] dark:bg-[var(--neutral-700)] rounded-full overflow-hidden">
                                 <div 
@@ -152,9 +182,9 @@ const StudyResults = () => {
                             <div className="flex justify-between items-center">
                                 <span className="flex items-center gap-2 font-semibold">
                                     <span className="text-2xl">😰</span>
-                                    <span className="text-error">Hard</span>
+                                    <span className="text-error">Difficult ({stats.hardCount})</span>
                                 </span>
-                                <span className="text-lg font-bold text-primary">{stats.hardCount}</span>
+                                <span className="text-lg font-bold text-primary">{((stats.hardCount / cardsStudied) * 100).toFixed(0)}%</span>
                             </div>
                             <div className="w-full h-3 bg-[var(--neutral-200)] dark:bg-[var(--neutral-700)] rounded-full overflow-hidden">
                                 <div 
