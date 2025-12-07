@@ -2,6 +2,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useStudySession } from '../../../hooks/useStudySession';
+import { useState, useMemo } from 'react';
+
 import StudyCard from './StudyCard';
 import StudyProgressBar from './StudyProgressBar';
 import RatingButtons from './RatingButtons';
@@ -9,7 +11,7 @@ import StudyStats from './StudyStats';
 
 /**
  * StudyMode - Main study session container
- * Responsible for: Orchestrating study flow and navigation
+ * Now includes: Search bar for locating specific questions
  */
 const StudyMode = () => {
     const { deckId } = useParams();
@@ -28,8 +30,29 @@ const StudyMode = () => {
         stats,
         cardsStudied,
         handleFlip,
-        handleRating
+        handleRating,
+        setCurrentCardIndex // ← we NEED this to JUMP to a card
     } = useStudySession(deckId, currentUser?.uid);
+
+    // -------------------------
+    // 🔎 SEARCH FEATURE ADDED
+    // -------------------------
+    const [searchTerm, setSearchTerm] = useState("");
+
+    // Filter cards based on search
+    const filteredResults = useMemo(() => {
+        if (!searchTerm.trim()) return [];
+        return cards
+            .map((c, index) => ({ ...c, index }))
+            .filter(c =>
+                c.question?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+    }, [searchTerm, cards]);
+
+    const handleJumpToCard = (index) => {
+        setCurrentCardIndex(index);
+        setSearchTerm("");
+    };
 
     // Handle rating and navigation
     const onRatingClick = async (rating) => {
@@ -74,7 +97,6 @@ const StudyMode = () => {
         );
     }
 
-    // Missing data state
     if (!deck || !session || !currentCard) {
         return (
             <div className="dashboard-content">
@@ -96,7 +118,8 @@ const StudyMode = () => {
     return (
         <div className="dashboard-content">
             <div className="max-w-4xl mx-auto space-y-8">
-                {/* Header */}
+                
+                {/* HEADER */}
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl font-bold text-gradient-primary">{deck.title}</h1>
                     <button 
@@ -108,11 +131,60 @@ const StudyMode = () => {
                     </button>
                 </div>
 
+                {/* 🔎 SEARCH BAR */}
+                <div className="relative max-w-xl mx-auto">
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search for a question..."
+                        className="w-full px-4 py-3 rounded-lg bg-input border border-accent text-primary focus:border-accent-hover transition-all"
+                    />
+                    
+                    {/* Clear button */}
+                    {searchTerm && (
+                        <button
+                            onClick={() => setSearchTerm("")}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-white"
+                        >
+                            ✕
+                        </button>
+                    )}
+
+                    {/* Search Results Dropdown */}
+                    {searchTerm && (
+                        <div className="absolute w-full mt-2 bg-card border border-accent rounded-xl shadow-xl max-h-60 overflow-y-auto z-20">
+                            {filteredResults.length === 0 ? (
+                                <div className="p-4 text-secondary text-center">
+                                    No matching questions found.
+                                </div>
+                            ) : (
+                                filteredResults.map(result => (
+                                    <button
+                                        key={result.index}
+                                        onClick={() => handleJumpToCard(result.index)}
+                                        className="block w-full text-left px-4 py-2 hover:bg-[var(--accent)] hover:text-white transition-all"
+                                    >
+                                        <span className="font-semibold text-primary">
+                                            Question {result.index + 1}:
+                                        </span>{' '}
+                                        {result.question.length > 60
+                                            ? result.question.slice(0, 60) + "..."
+                                            : result.question}
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* PROGRESS BAR */}
                 <StudyProgressBar 
                     currentIndex={currentCardIndex} 
                     total={cards.length} 
                 />
 
+                {/* FLASHCARD */}
                 <div className="space-y-6">
                     <StudyCard 
                         card={currentCard}
@@ -126,6 +198,7 @@ const StudyMode = () => {
                 </div>
 
                 <StudyStats stats={stats} />
+
             </div>
         </div>
     );
