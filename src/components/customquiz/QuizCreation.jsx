@@ -1,5 +1,5 @@
 /**
- * Quiz Creation Component - Refactored with focused sub-components
+ * Quiz Creation Component - Refactored with collapsible sections
  * This file orchestrates the quiz creation workflow
  */
 
@@ -17,6 +17,41 @@ import QuizSettingsForm from './forms/QuizSettingsForm';
 import CSVUploadSection from './forms/CSVUploadSection';
 import QuestionCreationForm from './forms/QuestionCreationForm';
 import DifficultySelector from './forms/DifficultySelector';
+
+// Simple collapsible wrapper with ▾ ▸ caret
+function CollapsibleSection({ title, subtitle, defaultOpen = true, children }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  return (
+    <div className="space-y-3">
+      <button
+        type="button"
+        onClick={() => setIsOpen(prev => !prev)}
+        className="w-full flex items-center justify-between gap-3 border-b border-accent pb-2"
+      >
+        <div className="text-left">
+          <h2 className="text-base md:text-lg font-semibold text-gradient-primary">
+            {title}
+          </h2>
+          {subtitle && (
+            <p className="text-xs md:text-sm text-secondary mt-1">
+              {subtitle}
+            </p>
+          )}
+        </div>
+        <span className="text-secondary text-xl md:text-2xl">
+          {isOpen ? '▾' : '▸'}
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="space-y-4">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function QuizCreation({
   setQuizData,
@@ -85,7 +120,7 @@ export default function QuizCreation({
     const question = getCurrentQuestionData();
     setQuizData((prev) => [...prev, question]);
     resetQuestionForm();
-    
+
     // Reset multiple answer selections
     setSelectedCorrectAnswers([false, false, false, false]);
     setDroppedOption('');
@@ -126,7 +161,6 @@ export default function QuizCreation({
     setQuizTags(options);
   };
 
-  // Helper for category selection validation
   const isCategorySelected = selectedCategories.length > 0;
   const [showCategoryError, setShowCategoryError] = useState(false);
 
@@ -142,89 +176,141 @@ export default function QuizCreation({
 
   return (
     <div className="space-y-8">
-      {/* CSV Bulk Upload */}
-      <CSVUploadSection
-        selectedFile={selectedFile}
-        onFileSelect={handleFileSelect}
-        onUpload={performCSVUpload}
-        isUploading={isUploadingCSV}
-        uploadError={uploadError}
-      />
+      {/* CSV Bulk Upload (collapsible) */}
+      <CollapsibleSection
+        title="📤 Bulk Upload from CSV"
+        subtitle="Upload a CSV file with multiple questions to add them all at once."
+        defaultOpen={true}
+      >
+        <CSVUploadSection
+          selectedFile={selectedFile}
+          onFileSelect={handleFileSelect}
+          onUpload={performCSVUpload}
+          isUploading={isUploadingCSV}
+          uploadError={uploadError}
+        />
+      </CollapsibleSection>
 
       {/* Divider */}
       <div className="flex items-center gap-4">
         <div className="flex-1 border-t border-primary"></div>
-        <span className="text-secondary font-medium text-sm md:text-base">OR Add Questions Manually</span>
+        <span className="text-secondary font-medium text-xs md:text-sm">
+          OR Add Questions Manually
+        </span>
         <div className="flex-1 border-t border-primary"></div>
       </div>
 
-      {/* Quiz Metadata */}
-      <QuizMetadataForm
-        quizName={quizName}
-        onQuizNameChange={handleQuizNameChange}
-        selectedCategories={selectedCategories}
-        onCategoryChange={updateQuizTags}
-        showCategoryError={showCategoryError}
-      />
+      {/* Quiz Metadata (collapsible) */}
+      <CollapsibleSection
+        title="📝 Quiz Information"
+        subtitle="Name your quiz and choose at least one category or tag."
+        defaultOpen={true}
+      >
+        <QuizMetadataForm
+          quizName={quizName}
+          onQuizNameChange={handleQuizNameChange}
+          selectedCategories={selectedCategories}
+          onCategoryChange={updateQuizTags}
+          showCategoryError={showCategoryError}
+        />
+      </CollapsibleSection>
 
-      {/* Quiz Settings */}
-      <QuizSettingsForm
-        privateQuiz={privateQuiz}
-        onPrivateQuizChange={handlePrivateQuizChange}
-        privateQuizPassword={privateQuizPassword}
-        onPasswordChange={handleQuizPasswordChange}
-        teacherQuiz={teacherQuiz}
-        onTeacherQuizChange={handleTeacherQuizChange}
-      />
+      {/* Quiz Settings (collapsed by default) */}
+      <CollapsibleSection
+        title="⚙️ Quiz Settings"
+        subtitle="Control privacy and teacher-only access."
+        defaultOpen={false}
+      >
+        <QuizSettingsForm
+          privateQuiz={privateQuiz}
+          onPrivateQuizChange={handlePrivateQuizChange}
+          privateQuizPassword={privateQuizPassword}
+          onPasswordChange={handleQuizPasswordChange}
+          teacherQuiz={teacherQuiz}
+          onTeacherQuizChange={handleTeacherQuizChange}
+        />
+      </CollapsibleSection>
 
-      {/* Question Creation */}
-      <QuestionCreationForm
-        currentQuestion={currentQuestion}
-        onQuestionChange={handleQuestionChange}
-        numAnswers={numAnswers}
-        onNumAnswersChange={updateNumAnswers}
-        selectedCorrectAnswers={selectedCorrectAnswers}
-        onCorrectAnswersChange={setSelectedCorrectAnswers}
-      />
+      {/* Question Creation + Difficulty (collapsible) */}
+      <CollapsibleSection
+        title="❓ Add Questions"
+        subtitle="Write your question, answer options, correct answer, and difficulty."
+        defaultOpen={true}
+      >
+        <QuestionCreationForm
+          currentQuestion={currentQuestion}
+          onQuestionChange={handleQuestionChange}
+          numAnswers={numAnswers}
+          onNumAnswersChange={updateNumAnswers}
+          selectedCorrectAnswers={selectedCorrectAnswers}
+          onCorrectAnswersChange={setSelectedCorrectAnswers}
+        />
 
-      {/* Difficulty Selector */}
-      <DifficultySelector
-        difficulty={questionDifficulty}
-        onDifficultyChange={updateQuestionDifficulty}
-      />
+        {/* Difficulty inside the same section so it feels like part of the question */}
+        <DifficultySelector
+          difficulty={questionDifficulty}
+          onDifficultyChange={updateQuestionDifficulty}
+        />
+      </CollapsibleSection>
 
       {/* Action Buttons */}
-      <div className="flex gap-4">
-        <button
-          onClick={addCurrentQuestion}
-          className="flex-1 px-8 py-4 bg-accent hover:bg-accent-hover text-white rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] border-2 border-accent"
-        >
-          ➕ Add Question to Quiz
-        </button>
-        <button
-          onClick={handleSendQuiz}
-          disabled={isCreatingQuiz || !isCategorySelected}
-          className={`flex-1 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] border-2 flex items-center justify-center gap-3 ${
-            isCreatingQuiz || !isCategorySelected
-              ? 'bg-gray-400 border-gray-400 text-gray-200 cursor-not-allowed'
-              : 'bg-green-600 hover:bg-green-700 text-white border-green-600'
-          }`}
-          title={!isCategorySelected ? 'Please select at least one category/tag for your quiz. If nothing matches, select "Other".' : ''}
-        >
-          {isCreatingQuiz ? (
-            <>
-              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Creating Quiz...
-            </>
-          ) : (
-            '✅ Finish & Create Quiz'
-          )}
-        </button>
+      <div className="space-y-3">
+        <div className="flex flex-col md:flex-row gap-4">
+          <button
+            onClick={addCurrentQuestion}
+            className="flex-1 px-6 md:px-8 py-3 md:py-4 bg-accent hover:bg-accent-hover text-white rounded-lg font-semibold text-base md:text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] border-2 border-accent"
+          >
+            ➕ Add Question to Quiz
+          </button>
+
+          <button
+            onClick={handleSendQuiz}
+            disabled={isCreatingQuiz || !isCategorySelected}
+            className={`flex-1 px-6 md:px-8 py-3 md:py-4 rounded-lg font-semibold text-base md:text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] border-2 flex items-center justify-center gap-3 ${
+              isCreatingQuiz || !isCategorySelected
+                ? 'bg-gray-400 border-gray-400 text-gray-200 cursor-not-allowed'
+                : 'bg-green-600 hover:bg-green-700 text-white border-green-600'
+            }`}
+            title={
+              !isCategorySelected
+                ? 'Please select at least one category/tag for your quiz. If nothing matches, select "Other".'
+                : ''
+            }
+          >
+            {isCreatingQuiz ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Creating Quiz...
+              </>
+            ) : (
+              '✅ Finish & Create Quiz'
+            )}
+          </button>
+        </div>
+
         {showCategoryError && !isCategorySelected && (
-          <div className="w-full text-center text-error text-sm mt-2">Please select at least one category/tag for your quiz.</div>
+          <div className="w-full text-center text-error text-sm">
+            Please select at least one category/tag for your quiz.
+          </div>
         )}
       </div>
     </div>
