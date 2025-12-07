@@ -1,69 +1,93 @@
-import React from "react";
-import { useCSVUpload } from "../../hooks/useCSVUpload";
+/**
+ * Custom hook for handling CSV file upload
+ */
 
-export default function CSVUpload({ onQuestionsAdded }) {
-  
-  const {
+import { useState } from 'react';
+import { validateCSVFile, parseCSVQuestions } from '../utils/csvParser';
+
+export const useCSVUpload = (onQuestionsAdded) => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploadingCSV, setIsUploadingCSV] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    setUploadError(null);
+
+    if (!file) {
+      setSelectedFile(null);
+      return;
+    }
+
+    const validation = validateCSVFile(file);
+    if (!validation.valid) {
+      setUploadError(validation.error);
+      event.target.value = '';
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
+  const handleCSVUpload = async () => {
+    if (!selectedFile) {
+      alert('Please select a CSV file first');
+      return;
+    }
+
+    setIsUploadingCSV(true);
+    setUploadError(null);
+
+    try {
+      // Read file content
+      const text = await selectedFile.text();
+      
+      // Parse CSV
+      const { questions, errors, count } = parseCSVQuestions(text);
+
+      if (errors.length > 0) {
+        console.warn('CSV parsing warnings:', errors);
+      }
+
+      if (count === 0) {
+        setUploadError('No valid questions found in CSV file');
+        setIsUploadingCSV(false);
+        return;
+      }
+
+      // Add questions via callback
+      if (onQuestionsAdded) {
+        onQuestionsAdded(questions);
+      }
+
+      alert(`Successfully added ${count} questions from CSV!`);
+
+      // Clear file input
+      clearFileInput();
+
+    } catch (error) {
+      console.error('Error uploading CSV:', error);
+      setUploadError('Error processing CSV file. Please check the format.');
+    } finally {
+      setIsUploadingCSV(false);
+    }
+  };
+
+  const clearFileInput = () => {
+    setSelectedFile(null);
+    setUploadError(null);
+    const fileInput = document.getElementById('csv-file-input');
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
+  return {
     selectedFile,
     isUploadingCSV,
     uploadError,
     handleFileSelect,
-    handleCSVUpload: upload,
-    clearFileInput,
-  } = useCSVUpload((parsedRows) => {
-    
-    // parsedRows = arrays like:
-    // [question, opt1, opt2, opt3, opt4, correct, type, exp, difficulty]
-
-    const formatted = parsedRows.map(row => ({
-      front: row[0] || "",           // question
-      back: row[5] || ""             // correct_answer
-    }));
-
-    onQuestionsAdded(formatted);
-  });
-
-  return (
-    <div className="bg-[#111827] p-6 rounded-lg border border-gray-700">
-      <h2 className="text-xl font-semibold text-white mb-4">
-        Bulk Upload from CSV
-      </h2>
-
-      <input
-        id="csv-file-input"
-        type="file"
-        accept=".csv"
-        onChange={handleFileSelect}
-        className="text-white mb-4 block"
-      />
-
-      {uploadError && (
-        <p className="text-red-400 mb-2">{uploadError}</p>
-      )}
-
-      {selectedFile && (
-        <p className="text-gray-300 mb-2">
-          Selected: {selectedFile.name}
-        </p>
-      )}
-
-      <button
-        onClick={upload}
-        disabled={isUploadingCSV}
-        className={`px-4 py-2 text-white rounded-lg 
-          ${isUploadingCSV ? "bg-gray-600" : "bg-purple-600 hover:bg-purple-700"}`}
-      >
-        {isUploadingCSV ? "Processing..." : "Upload CSV"}
-      </button>
-
-      {selectedFile && (
-        <button
-          onClick={clearFileInput}
-          className="ml-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg"
-        >
-          Clear
-        </button>
-      )}
-    </div>
-  );
-}
+    handleCSVUpload,
+    clearFileInput
+  };
+};
