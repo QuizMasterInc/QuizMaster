@@ -10,12 +10,6 @@ export default function DeckManager() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // toggles UI
-  const [mode, setMode] = useState("manual");
-
-  // holds CSV-imported cards
-  const [csvCards, setCsvCards] = useState([]);
-
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
