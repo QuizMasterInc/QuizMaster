@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+/* Allows the User to make a deck of Flashcards */
+import { useState } from "react";
+import CSVUpload from "./CSVUpload";
 
-export default function CardCreation({ saveDeck, isLoading, initialCards = [] }) {
+export default function CardCreation({ saveDeck, isLoading }) {
   const [deckName, setDeckName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("General");
@@ -13,26 +15,28 @@ export default function CardCreation({ saveDeck, isLoading, initialCards = [] })
 
   const [cards, setCards] = useState([]);
 
-  useEffect(() => {
-    if (initialCards.length > 0) {
-      setCards(initialCards);
-    }
-  }, [initialCards]);
+  const [showManual, setShowManual] = useState(true);
+  const [showCSV, setShowCSV] = useState(false);
 
   const handleAddCard = () => {
-    if (!front.trim() || !back.trim()) {
-      alert("Both front and back are required.");
-      return;
+    if (front.trim() && back.trim()) {
+      setCards([...cards, { front, back }]);
+      setFront("");
+      setBack("");
+    } else {
+      alert("Please fill in both the front and back of the flashcard.");
     }
-
-    setCards([...cards, { front, back }]);
-    setFront("");
-    setBack("");
   };
 
-  const handleSaveDeck = () => {
-    if (!deckName.trim()) return alert("Deck name is required.");
-    if (cards.length === 0) return alert("Add at least one flashcard.");
+  const handleSaveDeck = async () => {
+    if (!deckName.trim()) {
+      alert("Please enter a deck name.");
+      return;
+    }
+    if (cards.length === 0) {
+      alert("Please add at least one card to the deck.");
+      return;
+    }
 
     const deckData = {
       name: deckName,
@@ -44,7 +48,7 @@ export default function CardCreation({ saveDeck, isLoading, initialCards = [] })
       cards,
     };
 
-    saveDeck(deckData);
+    await saveDeck(deckData);
 
     setDeckName("");
     setDescription("");
@@ -53,137 +57,192 @@ export default function CardCreation({ saveDeck, isLoading, initialCards = [] })
     setTags("");
     setIsPublic(false);
     setCards([]);
+    setFront("");
+    setBack("");
   };
 
-  const removeCard = (i) => {
-    setCards(cards.filter((_, index) => index !== i));
+  const removeCard = (indexToRemove) => {
+    setCards(cards.filter((_, index) => index !== indexToRemove));
+  };
+
+  const handleCSVQuestionsAdded = (newCards) => {
+    setCards((prev) => [...prev, ...newCards]);
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto bg-gray-900 p-8 rounded-xl border border-purple-600 shadow-lg">
-      <h1 className="text-3xl font-bold text-purple-300 mb-6 text-center">
+    <div className="w-full max-w-4xl mx-auto card border-2 border-accent">
+      <h1 className="text-3xl font-bold text-gradient-primary mb-6 text-center">
         Create a Flashcard Deck
       </h1>
 
-      {/* Deck Info */}
+      {/* Deck Information */}
       <div className="space-y-4 mb-6">
         <input
           type="text"
-          className="w-full p-4 rounded bg-gray-800 text-white"
-          placeholder="Deck name"
           value={deckName}
           onChange={(e) => setDeckName(e.target.value)}
+          placeholder="Deck name"
+          disabled={isLoading}
+          className="w-full p-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
         />
 
         <textarea
-          rows="3"
-          className="w-full p-4 rounded bg-gray-800 text-white"
-          placeholder="Deck description (optional)"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          placeholder="Deck description (optional)"
+          disabled={isLoading}
+          rows="3"
+          className="w-full p-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <select
-            className="p-4 rounded bg-gray-800 text-white"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            disabled={isLoading}
+            className="p-4 rounded-lg bg-[var(--neutral-200)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
           >
-            <option>General</option>
-            <option>Language</option>
-            <option>Science</option>
-            <option>History</option>
-            <option>Math</option>
-            <option>Literature</option>
-            <option>Geography</option>
-            <option>Art</option>
-            <option>Music</option>
-            <option>Technology</option>
-            <option>Other</option>
+            <option value="General">General</option>
+            <option value="Language">Language</option>
+            <option value="Science">Science</option>
+            <option value="History">History</option>
+            <option value="Math">Math</option>
+            <option value="Literature">Literature</option>
+            <option value="Geography">Geography</option>
+            <option value="Art">Art</option>
+            <option value="Music">Music</option>
+            <option value="Technology">Technology</option>
+            <option value="Other">Other</option>
           </select>
 
           <select
-            className="p-4 rounded bg-gray-800 text-white"
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
+            disabled={isLoading}
+            className="p-4 rounded-lg bg-[var(--neutral-200)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
           >
             <option value="1">Easy</option>
             <option value="2">Medium</option>
             <option value="3">Hard</option>
           </select>
 
-          <label className="flex items-center gap-2 text-white">
+          <div className="flex items-center space-x-2">
             <input
               type="checkbox"
+              id="isPublic"
               checked={isPublic}
               onChange={(e) => setIsPublic(e.target.checked)}
+              disabled={isLoading}
+              className="w-5 h-5 text-[var(--primary-400)] focus:ring-[var(--primary-400)] disabled:opacity-50"
             />
-            Make Public
-          </label>
+            <label htmlFor="isPublic" className="text-sm font-medium">
+              Make Public
+            </label>
+          </div>
         </div>
 
         <input
           type="text"
-          className="w-full p-4 rounded bg-gray-800 text-white"
-          placeholder="Tags (comma-separated)"
           value={tags}
           onChange={(e) => setTags(e.target.value)}
+          placeholder="Tags (comma-separated, optional)"
+          disabled={isLoading}
+          className="w-full p-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
         />
       </div>
 
-      {/* Add Card */}
-      <div className="border-t border-gray-700 pt-6">
-        <h2 className="text-xl text-purple-300 font-semibold mb-4">Add Cards</h2>
-
-        <input
-          type="text"
-          className="w-full p-4 rounded bg-gray-800 text-white mb-4"
-          placeholder="Front"
-          value={front}
-          onChange={(e) => setFront(e.target.value)}
-        />
-
-        <input
-          type="text"
-          className="w-full p-4 rounded bg-gray-800 text-white mb-4"
-          placeholder="Back"
-          value={back}
-          onChange={(e) => setBack(e.target.value)}
-        />
-
+      {/* Accordion: Add Manually */}
+      <div className="border-t pt-4">
         <button
-          onClick={handleAddCard}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white p-3 rounded"
+          type="button"
+          onClick={() => setShowManual((prev) => !prev)}
+          className="w-full flex justify-between items-center text-left py-3 px-2"
         >
-          Add Card
+          <span className="text-lg font-semibold">Add Cards Manually</span>
+          <span className="text-sm text-[var(--neutral-600)]">
+            {showManual ? "▲" : "▼"}
+          </span>
         </button>
+
+        {showManual && (
+          <div className="space-y-4 pb-4">
+            <input
+              type="text"
+              value={front}
+              onChange={(e) => setFront(e.target.value)}
+              placeholder="Front of card"
+              disabled={isLoading}
+              className="w-full p-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
+            />
+            <input
+              type="text"
+              value={back}
+              onChange={(e) => setBack(e.target.value)}
+              placeholder="Back of card"
+              disabled={isLoading}
+              className="w-full p-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
+            />
+            <div className="flex justify-center">
+              <button
+                onClick={handleAddCard}
+                disabled={isLoading}
+                className="px-6 py-2 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent disabled:opacity-50 disabled:transform-none"
+              >
+                Add Card
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Card List */}
-      {cards.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-xl text-purple-300 font-semibold mb-4">
-            Cards in Deck ({cards.length})
-          </h2>
+      {/* Accordion: Upload CSV */}
+      <div className="border-t pt-4 mt-2">
+        <button
+          type="button"
+          onClick={() => setShowCSV((prev) => !prev)}
+          className="w-full flex justify-between items-center text-left py-3 px-2"
+        >
+          <span className="text-lg font-semibold">Upload Cards from CSV</span>
+          <span className="text-sm text-[var(--neutral-600)]">
+            {showCSV ? "▲" : "▼"}
+          </span>
+        </button>
 
-          <div className="space-y-3 max-h-80 overflow-y-auto">
-            {cards.map((c, index) => (
+        {showCSV && (
+          <CSVUpload onQuestionsAdded={handleCSVQuestionsAdded} />
+        )}
+      </div>
+
+      {/* Cards Display */}
+      {cards.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-4">
+            Cards in Deck ({cards.length}):
+          </h2>
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {cards.map((card, index) => (
               <div
                 key={index}
-                className="bg-gray-800 p-4 rounded flex justify-between items-start border border-gray-700"
+                className="bg-[var(--neutral-100)] p-4 rounded-lg border flex justify-between items-start"
               >
-                <div className="text-white">
-                  <p>
-                    <strong className="text-blue-300">Front:</strong> {c.front}
-                  </p>
-                  <p>
-                    <strong className="text-green-300">Back:</strong> {c.back}
-                  </p>
+                <div className="flex-1 whitespace-pre-line">
+                  <div className="mb-2">
+                    <span className="font-semibold text-blue-600">Front:</span>
+                    <span className="ml-2 text-[var(--neutral-600)]">
+                      {card.front}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-green-600">Back:</span>
+                    <span className="ml-2 text-[var(--neutral-600)]">
+                      {card.back}
+                    </span>
+                  </div>
                 </div>
-
                 <button
                   onClick={() => removeCard(index)}
-                  className="ml-4 px-3 py-1 bg-red-600 text-white rounded"
+                  disabled={isLoading}
+                  className="ml-4 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
                 >
                   Remove
                 </button>
@@ -193,12 +252,13 @@ export default function CardCreation({ saveDeck, isLoading, initialCards = [] })
         </div>
       )}
 
-      {/* Save Deck */}
+      {/* Save Button */}
       <button
         onClick={handleSaveDeck}
-        className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
+        disabled={isLoading || cards.length === 0 || !deckName.trim()}
+        className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? "Saving..." : "Save Deck"}
+        {isLoading ? "Creating Deck..." : "Save Deck"}
       </button>
     </div>
   );
