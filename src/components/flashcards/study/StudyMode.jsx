@@ -25,6 +25,8 @@ const StudyMode = () => {
         loading,
         error,
         cards,
+        stats,
+        cardsStudied,
         handleFlip,
         handleRating
     } = useStudySession(deckId, currentUser?.uid);
@@ -123,7 +125,7 @@ const StudyMode = () => {
                     )}
                 </div>
 
-                <StudyStats stats={session.stats} />
+                <StudyStats stats={stats} />
             </div>
         </div>
     );
