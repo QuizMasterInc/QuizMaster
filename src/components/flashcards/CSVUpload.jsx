@@ -1,5 +1,5 @@
 import React from "react";
-import { useCSVUpload } from "../../../hooks/useCSVUpload";
+import { useCSVUpload } from "../../hooks/useCSVUpload";
 
 export default function CSVUpload({ saveDeck }) {
 
