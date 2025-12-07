@@ -3,13 +3,20 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import flashcardService from '../../services/flashcards/flashcardService';
 import CardCreation from './CardCreation';
+import CSVUpload from './CSVUpload';
 
 export default function DeckManager() {
+  // Form state
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Controls which input method the user sees
+  const [mode, setMode] = useState("manual");
+
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
+  // Handles deck creation for both manual entry and CSV upload
   const saveDeck = async (deckData) => {
     if (!currentUser) {
       setError('Please sign in to create flashcard decks.');
@@ -20,7 +27,7 @@ export default function DeckManager() {
       setIsLoading(true);
       setError(null);
 
-      // Create deck input for validation
+      // Normalized input for the validator
       const deckInput = {
         deckName: deckData.name,
         cards: deckData.cards,
@@ -32,16 +39,17 @@ export default function DeckManager() {
         currentUserId: currentUser.uid
       };
 
-      // Validate and create deck object
+      // Validate deck and structure it for Firebase
       const validationResult = flashcardService.createValidatedDeckObject(deckInput);
-      
+
       if (!validationResult.success) {
         setError(validationResult.error);
         return;
       }
 
-      // Submit to Firebase
+      // Send deck to backend
       const response = await flashcardService.submitFlashcardDeck(validationResult.deckObject);
+
       
       if (response.success) {
         // Success! Redirect to My Flashcards page
@@ -62,24 +70,50 @@ export default function DeckManager() {
       <div className="absolute inset-0 z-10 bg-primary" />
 
       <div className="relative z-10 p-6">
-        {/* Error Message */}
+
+        {/* Shows validation or submission errors */}
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
 
-        {/* Loading Indicator */}
+        {/* Shows loading state while saving */}
         {isLoading && (
           <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
             Creating your flashcard deck...
           </div>
         )}
 
-        {/* Only show the creation form */}
-        <CardCreation saveDeck={saveDeck} isLoading={isLoading} />
-        
-        {/* Quick nav to view existing decks */}
+        {/* Switch between manual entry and CSV upload */}
+        <div className="flex space-x-4 mb-6">
+          <button
+            onClick={() => setMode("manual")}
+            className={`px-4 py-2 rounded-lg font-medium border transition 
+              ${mode === "manual" ? "bg-purple-600 text-white" : "bg-gray-800 text-gray-300"}`}
+          >
+            Add Manually
+          </button>
+
+          <button
+            onClick={() => setMode("csv")}
+            className={`px-4 py-2 rounded-lg font-medium border transition 
+              ${mode === "csv" ? "bg-purple-600 text-white" : "bg-gray-800 text-gray-300"}`}
+          >
+            Upload CSV
+          </button>
+        </div>
+
+        {/* Render the appropriate input UI */}
+        {mode === "manual" && (
+          <CardCreation saveDeck={saveDeck} isLoading={isLoading} />
+        )}
+
+        {mode === "csv" && (
+          <CSVUpload saveDeck={saveDeck} />
+        )}
+
+        {/* Link to view user's decks */}
         <div className="mt-8 text-center">
           <p className="text-[var(--primary-500)] mb-4">
             Want to view your existing flashcard decks?
