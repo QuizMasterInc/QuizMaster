@@ -1,5 +1,5 @@
 import React from "react";
-import { useCSVUpload } from "../../../hooks/useCSVUpload";
+import { useCSVUpload } from "../../hooks/useCSVUpload";
 
 export default function CSVUpload({ onQuestionsAdded }) {
   
@@ -12,6 +12,7 @@ export default function CSVUpload({ onQuestionsAdded }) {
     clearFileInput,
   } = useCSVUpload((parsedQuestions) => {
     
+    // Convert MCQ CSV → Flashcard format
     const formatted = parsedQuestions.map(q => ({
       front: q.question,
       back: q.correct_answer
@@ -22,7 +23,9 @@ export default function CSVUpload({ onQuestionsAdded }) {
 
   return (
     <div className="bg-gray-900 p-6 rounded-lg border border-gray-700">
-      <h2 className="text-xl font-semibold text-white mb-4">Bulk Upload from CSV</h2>
+      <h2 className="text-xl font-semibold text-white mb-4">
+        Bulk Upload from CSV
+      </h2>
 
       <input
         id="csv-file-input"
@@ -32,8 +35,15 @@ export default function CSVUpload({ onQuestionsAdded }) {
         className="text-white mb-4 block"
       />
 
-      {uploadError && <p className="text-red-400 mb-2">{uploadError}</p>}
-      {selectedFile && <p className="text-gray-300 mb-2">Selected: {selectedFile.name}</p>}
+      {uploadError && (
+        <p className="text-red-400 mb-2">{uploadError}</p>
+      )}
+
+      {selectedFile && (
+        <p className="text-gray-300 mb-2">
+          Selected: {selectedFile.name}
+        </p>
+      )}
 
       <button
         onClick={upload}
