@@ -1,74 +1,36 @@
 /**
  * QuizList.jsx
- * ---------------------------------------------------------------------------
- * This component renders a full, filterable list of quizzes for the QuizMaster
- * app. It supports two data sources:
- *   1. "browseCustomQuizzes"  → user-created community quizzes (public/private)
- *   2. "teacherQuizzes"        → curated teacher-made quizzes
- *
- * RESPONSIBILITIES:
- *   - Fetch quizzes from the backend using quizRetrievalService or Cloud Functions.
- *   - Support server-side OR client-side filtering depending on the data source.
- *   - Manage search, sort, and privacy filters, including debouncing search input.
- *   - Maintain two parallel states: the master quiz list AND the currently
- *     displayed filtered list.
- *   - Render each quiz inside <CustomQuizSelectButton /> which also includes
- *     the DeleteQuizButton for quizzes owned by the logged-in user.
- *   - Update the UI instantly when a quiz is deleted by removing it from both
- *     quiz lists via handleQuizDeleted().
- *
- * PROPS:
- *   - title (string)                       → Section title ("My Quizzes", etc.)
- *   - dataSource ("browseCustomQuizzes" | "teacherQuizzes")
- *   - filters (array)                      → Which filters are enabled (search, sort, privacy)
- *   - showRefreshButton (boolean)          → Whether the refresh button should appear
- *   - className (string)                   → Extra styling passed from the parent
- *
- * HOW IT RELATES TO FIREBASE:
- *   - Uses Firebase Auth (via useAuth()) to determine the current user's UID.
- *   - For custom quizzes, includes the creatorId so deletion permissions can be
- *     enforced by the backend Cloud Function deleteCustomQuiz.
- *   - Fetches quizzes through services that ultimately call Firebase Cloud
- *     Functions or Firestore.
- *
- * OVERALL:
- *   This file controls the entire quiz browsing interface: fetching data,
- *   filtering it, displaying it cleanly, and keeping UI state consistent after
- *   quiz deletion.
+ * Component for rendering filterable quiz lists with server-side or client-side filtering
  */
 
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useState, useCallback } from "react";
 import CustomQuizSelectButton from "./CustomQuizSelectButton";
-import FilterSelect from "./FilterSelect";
+import QuizFilters from "./QuizFilters";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useQuizFiltering } from "../../../hooks/useQuizFiltering";
 import quizRetrievalService from "../../../services/quiz/quizRetrievalService";
 import cloudFunctionsAPI from "../../../services/api/cloudFunctions";
 
 const QuizList = ({
   title,
-  dataSource = "browseCustomQuizzes", // "browseCustomQuizzes" | "teacherQuizzes"
+  dataSource = "browseCustomQuizzes",
   filters: enabledFilters = ["search", "privacy", "sort"],
   showRefreshButton = true,
   className = ""
 }) => {
   const { currentUser } = useAuth();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [quizzesToDisplay, setQuizzesToDisplay] = useState([]);
 
-  // Debounced search state
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const debounceTimerRef = useRef(null);
-
-  // Get current filter values from URL (memoized to prevent infinite re-renders)
-  const filters = useMemo(() => ({
-    searchTerm: searchParams.get('q') || '',
-    sortBy: searchParams.get('sort') || 'newest',
-    privacy: searchParams.get('privacy') || 'All'
-  }), [searchParams]);
+  // Use custom filtering hook
+  const {
+    filters,
+    debouncedSearchTerm,
+    updateFilters,
+    applyClientSideFilters
+  } = useQuizFiltering(enabledFilters);
 
   // Data fetching logic based on dataSource
   const fetchQuizzes = useCallback(async () => {
@@ -149,100 +111,10 @@ const QuizList = ({
   // For teacher quizzes, apply client-side filtering when filters change
   useEffect(() => {
     if (dataSource === "teacherQuizzes") {
-      applyClientSideFilters();
+      const filtered = applyClientSideFilters(quizzes);
+      setQuizzesToDisplay(filtered);
     }
-  }, [dataSource, filters, quizzes]);
-
-  const applyClientSideFilters = useCallback(() => {
-    let filtered = [...quizzes];
-
-    // Apply search filter
-    if (filters.searchTerm.trim()) {
-      const searchTerm = filters.searchTerm.toLowerCase();
-      filtered = filtered.filter(quiz =>
-        quiz.title.toLowerCase().includes(searchTerm) ||
-        checkTags(quiz, searchTerm)
-      );
-    }
-
-    // Apply sorting
-    filtered = sortQuizzes(filtered, filters.sortBy);
-
-    setQuizzesToDisplay(filtered);
-  }, [quizzes, filters]);
-
-  const sortQuizzes = (quizArray, sortValue) => {
-    const sorted = [...quizArray];
-
-    switch (sortValue) {
-      case "newest":
-        sorted.sort((a, b) => parseCreatedAt(b.createdAt) - parseCreatedAt(a.createdAt));
-        break;
-      case "oldest":
-        sorted.sort((a, b) => parseCreatedAt(a.createdAt) - parseCreatedAt(b.createdAt));
-        break;
-      case "title":
-        sorted.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case "titleReverse":
-        sorted.sort((a, b) => b.title.localeCompare(a.title));
-        break;
-      case "shortest":
-        sorted.sort((a, b) => a.numQuestions - b.numQuestions);
-        break;
-      case "longest":
-        sorted.sort((a, b) => b.numQuestions - a.numQuestions);
-        break;
-      default:
-        sorted.sort((a, b) => parseCreatedAt(b.createdAt) - parseCreatedAt(a.createdAt));
-    }
-
-    return sorted;
-  };
-
-  const parseCreatedAt = (createdAt) => {
-    if (!createdAt) return 0;
-    return new Date(createdAt).getTime();
-  };
-
-  const checkTags = (quiz, searchTerm) => {
-    if (quiz.tags && Array.isArray(quiz.tags) && quiz.tags.length > 0) {
-      return quiz.tags.some(tag => tag.toLowerCase().includes(searchTerm));
-    }
-    return false;
-  };
-
-  // Update URL params when filters change
-  const updateFilters = useCallback((newFilters) => {
-    const updatedFilters = { ...filters, ...newFilters };
-
-    // Handle search term with debouncing
-    if (newFilters.searchTerm !== undefined) {
-      // Clear existing timer
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-      
-      // Set new timer for 300ms delay
-      debounceTimerRef.current = setTimeout(() => {
-        setDebouncedSearchTerm(newFilters.searchTerm);
-      }, 300);
-    }
-
-    // Update URL params immediately for all filters
-    const params = {};
-    if (updatedFilters.searchTerm !== undefined ? updatedFilters.searchTerm.trim() : filters.searchTerm.trim()) {
-      params.q = updatedFilters.searchTerm !== undefined ? updatedFilters.searchTerm.trim() : filters.searchTerm.trim();
-    }
-    if (updatedFilters.sortBy !== undefined ? updatedFilters.sortBy !== 'newest' : filters.sortBy !== 'newest') {
-      params.sort = updatedFilters.sortBy !== undefined ? updatedFilters.sortBy : filters.sortBy;
-    }
-    if (enabledFilters.includes('privacy') && (updatedFilters.privacy !== undefined ? updatedFilters.privacy !== 'All' : filters.privacy !== 'All')) {
-      params.privacy = updatedFilters.privacy !== undefined ? updatedFilters.privacy : filters.privacy;
-    }
-
-    setSearchParams(params, { replace: true });
-  }, [filters, enabledFilters, setSearchParams]);
+  }, [dataSource, filters, quizzes, applyClientSideFilters]);
 
   // Normalize quiz data for display
   const normalizeQuizData = (quiz) => {
@@ -293,59 +165,18 @@ const QuizList = ({
           {title}
         </h1>
 
-        <div className="flex justify-center items-center gap-4 mt-4">
-          {enabledFilters.includes('search') && (
-            <FilterSelect
-              type="search"
-              label="Search:"
-              placeholder="Search"
-              value={filters.searchTerm}
-              onChange={(searchTerm) => updateFilters({ searchTerm })}
-              inputClassName="w-[150px] p-1 ml-1 text-black"
-            />
-          )}
-
-          {enabledFilters.includes('privacy') && (
-            <FilterSelect
-              type="select"
-              label="Display:"
-              value={filters.privacy}
-              onChange={(privacy) => updateFilters({ privacy })}
-              options={[
-                { value: "All", label: "All Quizzes" },
-                { value: "Public", label: "Public Quizzes" },
-                { value: "Private", label: "Private Quizzes" }
-              ]}
-              selectName="listPrivacyFilter"
-            />
-          )}
-
-          {enabledFilters.includes('sort') && (
-            <FilterSelect
-              type="select"
-              label="Sort by:"
-              value={filters.sortBy}
-              onChange={(sortBy) => updateFilters({ sortBy })}
-              options={[
-                { value: "newest", label: "Newest" },
-                { value: "oldest", label: "Oldest" },
-                { value: "title", label: "Title, A→Z" },
-                { value: "titleReverse", label: "Title, Z→A" },
-                { value: "shortest", label: "Shortest" },
-                { value: "longest", label: "Longest" }
-              ]}
-              selectName="listSortMethod"
-            />
-          )}
-
-          <button
-            className="inline-block px-4 py-1 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
-            onClick={dataSource === "teacherQuizzes" ? applyClientSideFilters : fetchQuizzes}
-            disabled={loading}
-          >
-            {loading ? 'Loading...' : (showRefreshButton ? 'Refresh' : 'Search & Filter')}
-          </button>
-        </div>
+        {/* Filters */}
+        <QuizFilters
+          enabledFilters={enabledFilters}
+          filters={filters}
+          onFilterChange={updateFilters}
+          onRefresh={dataSource === "teacherQuizzes" 
+            ? () => setQuizzesToDisplay(applyClientSideFilters(quizzes))
+            : fetchQuizzes
+          }
+          loading={loading}
+          showRefreshButton={showRefreshButton}
+        />
 
         {error && (
           <div className="flex mt-5 justify-center items-center">
