@@ -1,11 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function CardCreation({
-  saveDeck,
-  isLoading,
-  initialCards = [],
-  csvMode = false
-}) {
+export default function CardCreation({ saveDeck, isLoading, initialCards = [] }) {
   const [deckName, setDeckName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("General");
@@ -13,14 +8,11 @@ export default function CardCreation({
   const [tags, setTags] = useState("");
   const [isPublic, setIsPublic] = useState(false);
 
-  // Manual entry state
   const [front, setFront] = useState("");
   const [back, setBack] = useState("");
 
-  // All cards (manual OR CSV)
   const [cards, setCards] = useState([]);
 
-  // Load CSV-imported cards
   useEffect(() => {
     if (initialCards.length > 0) {
       setCards(initialCards);
@@ -28,24 +20,19 @@ export default function CardCreation({
   }, [initialCards]);
 
   const handleAddCard = () => {
-    if (front.trim() && back.trim()) {
-      setCards([...cards, { front, back }]);
-      setFront("");
-      setBack("");
-    } else {
-      alert("Please fill in both sides of the card.");
+    if (!front.trim() || !back.trim()) {
+      alert("Both front and back are required.");
+      return;
     }
+
+    setCards([...cards, { front, back }]);
+    setFront("");
+    setBack("");
   };
 
-  const handleSaveDeck = async () => {
-    if (!deckName.trim()) {
-      alert("Please enter a deck name.");
-      return;
-    }
-    if (cards.length === 0) {
-      alert("Please add at least one card.");
-      return;
-    }
+  const handleSaveDeck = () => {
+    if (!deckName.trim()) return alert("Deck name is required.");
+    if (cards.length === 0) return alert("Add at least one flashcard.");
 
     const deckData = {
       name: deckName,
@@ -54,10 +41,10 @@ export default function CardCreation({
       difficulty,
       tags,
       isPublic,
-      cards
+      cards,
     };
 
-    await saveDeck(deckData);
+    saveDeck(deckData);
 
     setDeckName("");
     setDescription("");
@@ -68,153 +55,135 @@ export default function CardCreation({
     setCards([]);
   };
 
-  const removeCard = (indexToRemove) => {
-    setCards(cards.filter((_, index) => index !== indexToRemove));
+  const removeCard = (i) => {
+    setCards(cards.filter((_, index) => index !== i));
   };
 
-
   return (
-    <div className="w-full max-w-4xl mx-auto card border-2 border-accent">
-      <h1 className="text-3xl font-bold text-gradient-primary mb-6 text-center">
+    <div className="w-full max-w-4xl mx-auto bg-gray-900 p-8 rounded-xl border border-purple-600 shadow-lg">
+      <h1 className="text-3xl font-bold text-purple-300 mb-6 text-center">
         Create a Flashcard Deck
       </h1>
 
-      {/* Deck Information */}
+      {/* Deck Info */}
       <div className="space-y-4 mb-6">
         <input
           type="text"
+          className="w-full p-4 rounded bg-gray-800 text-white"
+          placeholder="Deck name"
           value={deckName}
           onChange={(e) => setDeckName(e.target.value)}
-          placeholder="Deck name"
-          disabled={isLoading}
-          className="w-full p-4 rounded-lg bg-[var(--neutral-200)] text-black"
         />
 
         <textarea
+          rows="3"
+          className="w-full p-4 rounded bg-gray-800 text-white"
+          placeholder="Deck description (optional)"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Deck description (optional)"
-          disabled={isLoading}
-          rows="3"
-          className="w-full p-4 rounded-lg bg-[var(--neutral-200)] text-black"
         />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <select
+            className="p-4 rounded bg-gray-800 text-white"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            disabled={isLoading}
-            className="p-4 rounded-lg bg-[var(--neutral-200)] text-black"
           >
-            <option value="General">General</option>
-            <option value="Language">Language</option>
-            <option value="Science">Science</option>
-            <option value="History">History</option>
-            <option value="Math">Math</option>
-            <option value="Literature">Literature</option>
-            <option value="Geography">Geography</option>
-            <option value="Art">Art</option>
-            <option value="Music">Music</option>
-            <option value="Technology">Technology</option>
-            <option value="Other">Other</option>
+            <option>General</option>
+            <option>Language</option>
+            <option>Science</option>
+            <option>History</option>
+            <option>Math</option>
+            <option>Literature</option>
+            <option>Geography</option>
+            <option>Art</option>
+            <option>Music</option>
+            <option>Technology</option>
+            <option>Other</option>
           </select>
 
           <select
+            className="p-4 rounded bg-gray-800 text-white"
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
-            disabled={isLoading}
-            className="p-4 rounded-lg bg-[var(--neutral-200)] text-black"
           >
             <option value="1">Easy</option>
             <option value="2">Medium</option>
             <option value="3">Hard</option>
           </select>
 
-          <label className="flex items-center space-x-2">
+          <label className="flex items-center gap-2 text-white">
             <input
               type="checkbox"
-              id="isPublic"
               checked={isPublic}
               onChange={(e) => setIsPublic(e.target.checked)}
-              disabled={isLoading}
-              className="w-5 h-5"
             />
-            <span>Make Public</span>
+            Make Public
           </label>
         </div>
 
         <input
           type="text"
+          className="w-full p-4 rounded bg-gray-800 text-white"
+          placeholder="Tags (comma-separated)"
           value={tags}
           onChange={(e) => setTags(e.target.value)}
-          placeholder="Tags (comma-separated, optional)"
-          disabled={isLoading}
-          className="w-full p-4 rounded-lg bg-[var(--neutral-200)] text-black"
         />
       </div>
 
-      {/* Manual card creation – hidden in CSV mode */}
-      {!csvMode && (
-        <div className="border-t pt-6">
-          <h2 className="text-xl font-semibold mb-4">Add Cards to Your Deck</h2>
+      {/* Add Card */}
+      <div className="border-t border-gray-700 pt-6">
+        <h2 className="text-xl text-purple-300 font-semibold mb-4">Add Cards</h2>
 
-          <div className="space-y-4">
-            <input
-              type="text"
-              value={front}
-              onChange={(e) => setFront(e.target.value)}
-              placeholder="Front of card"
-              className="w-full p-4 rounded-lg bg-[var(--neutral-200)] text-black"
-            />
+        <input
+          type="text"
+          className="w-full p-4 rounded bg-gray-800 text-white mb-4"
+          placeholder="Front"
+          value={front}
+          onChange={(e) => setFront(e.target.value)}
+        />
 
-            <input
-              type="text"
-              value={back}
-              onChange={(e) => setBack(e.target.value)}
-              placeholder="Back of card"
-              className="w-full p-4 rounded-lg bg-[var(--neutral-200)] text-black"
-            />
+        <input
+          type="text"
+          className="w-full p-4 rounded bg-gray-800 text-white mb-4"
+          placeholder="Back"
+          value={back}
+          onChange={(e) => setBack(e.target.value)}
+        />
 
-            <div className="flex justify-center">
-              <button
-                onClick={handleAddCard}
-                className="px-6 py-2 bg-[var(--primary-400)] rounded-lg font-medium shadow-lg hover:scale-105"
-              >
-                Add Card
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        <button
+          onClick={handleAddCard}
+          className="w-full bg-purple-600 hover:bg-purple-700 text-white p-3 rounded"
+        >
+          Add Card
+        </button>
+      </div>
 
       {/* Card List */}
       {cards.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-4">
-            Cards in Deck ({cards.length}):
+        <div className="mt-8">
+          <h2 className="text-xl text-purple-300 font-semibold mb-4">
+            Cards in Deck ({cards.length})
           </h2>
 
-          <div className="space-y-3 max-h-64 overflow-y-auto">
-            {cards.map((card, index) => (
+          <div className="space-y-3 max-h-80 overflow-y-auto">
+            {cards.map((c, index) => (
               <div
                 key={index}
-                className="bg-[var(--neutral-100)] p-4 rounded-lg border flex justify-between"
+                className="bg-gray-800 p-4 rounded flex justify-between items-start border border-gray-700"
               >
-                <div className="flex-1 whitespace-pre-line">
+                <div className="text-white">
                   <p>
-                    <strong className="text-blue-600">Front:</strong>{" "}
-                    <span>{card.front}</span>
+                    <strong className="text-blue-300">Front:</strong> {c.front}
                   </p>
-                  <p className="mt-2">
-                    <strong className="text-green-600">Back:</strong>
-                    <br />
-                    {card.back}
+                  <p>
+                    <strong className="text-green-300">Back:</strong> {c.back}
                   </p>
                 </div>
 
                 <button
                   onClick={() => removeCard(index)}
-                  className="ml-4 px-3 py-1 bg-red-500 text-white rounded"
+                  className="ml-4 px-3 py-1 bg-red-600 text-white rounded"
                 >
                   Remove
                 </button>
@@ -224,13 +193,12 @@ export default function CardCreation({
         </div>
       )}
 
-      {/* Save Button */}
+      {/* Save Deck */}
       <button
         onClick={handleSaveDeck}
-        disabled={isLoading || cards.length === 0 || !deckName.trim()}
-        className="mt-6 w-full bg-green-600 text-white py-3 rounded-lg shadow-md disabled:opacity-50"
+        className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
       >
-        {isLoading ? "Creating Deck..." : "Save Deck"}
+        {isLoading ? "Saving..." : "Save Deck"}
       </button>
     </div>
   );

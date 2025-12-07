@@ -2,64 +2,61 @@ import React from "react";
 import { useCSVUpload } from "../../hooks/useCSVUpload";
 
 export default function CSVUpload({ onQuestionsAdded }) {
-
   const {
     selectedFile,
     isUploadingCSV,
     uploadError,
     handleFileSelect,
-    handleCSVUpload,
+    handleCSVUpload: upload,
     clearFileInput,
-  } = useCSVUpload((parsedQuestions) => {
-
-    // Convert MCQ rows → flashcards with formatted back
-    const formatted = parsedQuestions.map(q => ({
-      front: q.question,
-      back: `
-A) ${q.option_1}
-B) ${q.option_2}
-C) ${q.option_3}
-D) ${q.option_4}
-
-Correct: ${q.correct_answer}
-`.trim()
+  } = useCSVUpload((parsed) => {
+    const flashcards = parsed.map((q) => ({
+      front: q.question || q.front || "",
+      back: q.correct_answer || q.answer || q.back || "",
     }));
 
-    onQuestionsAdded(formatted);
+    onQuestionsAdded(flashcards);
   });
 
   return (
-    <div className="bg-gray-900 p-6 rounded-lg border border-gray-700">
-      <h2 className="text-xl font-semibold text-white mb-4">Bulk Upload from CSV</h2>
+    <div className="bg-[#0f172a] p-6 rounded-xl border border-gray-700 shadow-lg max-w-3xl mx-auto mb-10">
+      <h2 className="text-2xl font-bold text-purple-300 mb-4">
+        Bulk Upload from CSV
+      </h2>
 
       <input
         id="csv-file-input"
         type="file"
         accept=".csv"
         onChange={handleFileSelect}
-        className="text-white mb-4 block"
+        className="text-gray-300 mb-4"
       />
 
       {uploadError && <p className="text-red-400 mb-2">{uploadError}</p>}
-      {selectedFile && <p className="text-gray-300 mb-2">Selected: {selectedFile.name}</p>}
-
-      <button
-        onClick={handleCSVUpload}
-        disabled={isUploadingCSV}
-        className={`px-4 py-2 text-white rounded-lg 
-          ${isUploadingCSV ? "bg-gray-600" : "bg-purple-600 hover:bg-purple-700"}`}
-      >
-        {isUploadingCSV ? "Processing..." : "Upload CSV"}
-      </button>
 
       {selectedFile && (
-        <button
-          onClick={clearFileInput}
-          className="ml-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg"
-        >
-          Clear
-        </button>
+        <p className="text-gray-300 mb-3">Selected: {selectedFile.name}</p>
       )}
+
+      <div className="flex gap-4">
+        <button
+          onClick={upload}
+          disabled={isUploadingCSV}
+          className={`px-5 py-2 text-white rounded-lg transition 
+          ${isUploadingCSV ? "bg-gray-600" : "bg-purple-600 hover:bg-purple-700"}`}
+        >
+          {isUploadingCSV ? "Processing..." : "Upload CSV"}
+        </button>
+
+        {selectedFile && (
+          <button
+            onClick={clearFileInput}
+            className="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition"
+          >
+            Clear
+          </button>
+        )}
+      </div>
     </div>
   );
 }

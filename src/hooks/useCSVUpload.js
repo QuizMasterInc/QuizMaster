@@ -2,8 +2,8 @@
  * Custom hook for handling CSV file upload
  */
 
-import { useState } from 'react';
-import { validateCSVFile, parseCSVQuestions } from '../utils/csvParser';
+import { useState } from "react";
+import { validateCSVFile, parseCSVQuestions } from "../utils/csvParser";
 
 export const useCSVUpload = (onQuestionsAdded) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -22,7 +22,7 @@ export const useCSVUpload = (onQuestionsAdded) => {
     const validation = validateCSVFile(file);
     if (!validation.valid) {
       setUploadError(validation.error);
-      event.target.value = '';
+      event.target.value = "";
       return;
     }
 
@@ -31,7 +31,7 @@ export const useCSVUpload = (onQuestionsAdded) => {
 
   const handleCSVUpload = async () => {
     if (!selectedFile) {
-      alert('Please select a CSV file first');
+      alert("Please select a CSV file first");
       return;
     }
 
@@ -39,35 +39,33 @@ export const useCSVUpload = (onQuestionsAdded) => {
     setUploadError(null);
 
     try {
-      // Read file content
       const text = await selectedFile.text();
-      
-      // Parse CSV
       const { questions, errors, count } = parseCSVQuestions(text);
 
-      if (errors.length > 0) {
-        console.warn('CSV parsing warnings:', errors);
-      }
+      if (errors.length > 0) console.warn("CSV warnings:", errors);
 
       if (count === 0) {
-        setUploadError('No valid questions found in CSV file');
+        setUploadError("No valid questions found in CSV file");
         setIsUploadingCSV(false);
         return;
       }
 
-      // Add questions via callback
-      if (onQuestionsAdded) {
-        onQuestionsAdded(questions);
-      }
+      // 🔥 Normalize keys to avoid undefined
+      const normalized = questions.map((q) => {
+        const cleaned = {};
+        Object.keys(q).forEach((key) => {
+          cleaned[key.trim().toLowerCase()] = q[key];
+        });
+        return cleaned;
+      });
 
+      onQuestionsAdded(normalized);
       alert(`Successfully added ${count} questions from CSV!`);
 
-      // Clear file input
       clearFileInput();
-
     } catch (error) {
-      console.error('Error uploading CSV:', error);
-      setUploadError('Error processing CSV file. Please check the format.');
+      console.error("CSV Upload Error:", error);
+      setUploadError("Error processing CSV file. Please check the format.");
     } finally {
       setIsUploadingCSV(false);
     }
@@ -76,10 +74,9 @@ export const useCSVUpload = (onQuestionsAdded) => {
   const clearFileInput = () => {
     setSelectedFile(null);
     setUploadError(null);
-    const fileInput = document.getElementById('csv-file-input');
-    if (fileInput) {
-      fileInput.value = '';
-    }
+
+    const fileInput = document.getElementById("csv-file-input");
+    if (fileInput) fileInput.value = "";
   };
 
   return {
@@ -88,6 +85,6 @@ export const useCSVUpload = (onQuestionsAdded) => {
     uploadError,
     handleFileSelect,
     handleCSVUpload,
-    clearFileInput
+    clearFileInput,
   };
 };
