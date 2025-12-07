@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import flashcardService from '../../services/flashcards/flashcardService';
-import CardCreation from './CardCreation';
-import CSVUpload from './CSVUpload';
+import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import flashcardService from "../../services/flashcards/flashcardService";
+import CardCreation from "./CardCreation";
+import CSVUpload from "./CSVUpload";
 
 export default function DeckManager() {
   // Form state
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Controls which input method the user sees
+  // toggles UI
   const [mode, setMode] = useState("manual");
 
-  // Holds cards imported from CSV
+  // holds CSV-imported cards
   const [csvCards, setCsvCards] = useState([]);
 
   const { currentUser } = useAuth();
@@ -22,7 +22,7 @@ export default function DeckManager() {
   // Handles deck creation for both manual entry and CSV upload
   const saveDeck = async (deckData) => {
     if (!currentUser) {
-      setError('Please sign in to create flashcard decks.');
+      setError("Please sign in to create flashcard decks.");
       return;
     }
 
@@ -34,33 +34,32 @@ export default function DeckManager() {
       const deckInput = {
         deckName: deckData.name,
         cards: deckData.cards,
-        tags: deckData.tags || '',
+        tags: deckData.tags || "",
         isPublic: deckData.isPublic || false,
-        category: deckData.category || 'General',
-        difficulty: deckData.difficulty || '2',
-        description: deckData.description || '',
-        currentUserId: currentUser.uid
+        category: deckData.category || "General",
+        difficulty: deckData.difficulty || "2",
+        description: deckData.description || "",
+        currentUserId: currentUser.uid,
       };
-      
-  const validationResult = flashcardService.createValidatedDeckObject(deckInput);
 
-      if (!validationResult.success) {
-        setError(validationResult.error);
+      const validation = flashcardService.createValidatedDeckObject(deckInput);
+
+      if (!validation.success) {
+        setError(validation.error);
         return;
       }
 
-  const response = await flashcardService.submitFlashcardDeck(validationResult.deckObject);
+      const response = await flashcardService.submitFlashcardDeck(
+        validation.deckObject
+      );
 
       if (response.success) {
-        // Success! Redirect to My Flashcards page
-        navigate('/myflashcards');
+        navigate("/myflashcards");
       } else {
-        setError(response.message || 'Failed to create flashcard deck.');
+        setError(response.message || "Failed to create flashcard deck.");
       }
-
-    } catch (error) {
-      console.error('Error creating flashcard deck:', error);
-      setError('Failed to create flashcard deck. Please try again.');
+    } catch (err) {
+      setError("Failed to create flashcard deck. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -74,14 +73,14 @@ export default function DeckManager() {
 
         {/* Shows validation or submission errors */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-100 text-red-700 border border-red-400 px-4 py-3 rounded mb-4">
             {error}
           </div>
         )}
 
         {/* Shows loading state while saving */}
         {isLoading && (
-          <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
+          <div className="bg-blue-100 text-blue-700 border border-blue-400 px-4 py-3 rounded mb-4">
             Creating your flashcard deck...
           </div>
         )}
@@ -90,27 +89,38 @@ export default function DeckManager() {
         <div className="flex space-x-4 mb-6">
           <button
             onClick={() => setMode("manual")}
-            className={`px-4 py-2 rounded-lg font-medium border transition 
-              ${mode === "manual" ? "bg-purple-600 text-white" : "bg-gray-800 text-gray-300"}`}
+            className={`px-4 py-2 rounded-lg font-medium transition 
+            ${
+              mode === "manual"
+                ? "bg-purple-600 text-white"
+                : "bg-gray-800 text-gray-300"
+            }`}
           >
             Add Manually
           </button>
 
           <button
             onClick={() => setMode("csv")}
-            className={`px-4 py-2 rounded-lg font-medium border transition 
-              ${mode === "csv" ? "bg-purple-600 text-white" : "bg-gray-800 text-gray-300"}`}
+            className={`px-4 py-2 rounded-lg font-medium transition 
+            ${
+              mode === "csv"
+                ? "bg-purple-600 text-white"
+                : "bg-gray-800 text-gray-300"
+            }`}
           >
             Upload CSV
           </button>
         </div>
 
-        {/* Render the appropriate input UI */}
+        {mode === "csv" && (
+          <CSVUpload onQuestionsAdded={(cards) => setCsvCards(cards)} />
+        )}
+
         {mode === "manual" && (
           <CardCreation
             saveDeck={saveDeck}
             isLoading={isLoading}
-            initialCards={csvCards}   // <-- important
+            initialCards={csvCards}
           />
         )}
 
