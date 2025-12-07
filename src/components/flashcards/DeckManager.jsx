@@ -13,6 +13,9 @@ export default function DeckManager() {
   // Controls which input method the user sees
   const [mode, setMode] = useState("manual");
 
+  // Holds cards imported from CSV
+  const [csvCards, setCsvCards] = useState([]);
+
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -38,25 +41,23 @@ export default function DeckManager() {
         description: deckData.description || '',
         currentUserId: currentUser.uid
       };
-
-      // Validate deck and structure it for Firebase
-      const validationResult = flashcardService.createValidatedDeckObject(deckInput);
+      
+  const validationResult = flashcardService.createValidatedDeckObject(deckInput);
 
       if (!validationResult.success) {
         setError(validationResult.error);
         return;
       }
 
-      // Send deck to backend
-      const response = await flashcardService.submitFlashcardDeck(validationResult.deckObject);
+  const response = await flashcardService.submitFlashcardDeck(validationResult.deckObject);
 
-      
       if (response.success) {
         // Success! Redirect to My Flashcards page
         navigate('/myflashcards');
       } else {
         setError(response.message || 'Failed to create flashcard deck.');
       }
+
     } catch (error) {
       console.error('Error creating flashcard deck:', error);
       setError('Failed to create flashcard deck. Please try again.');
@@ -106,25 +107,17 @@ export default function DeckManager() {
 
         {/* Render the appropriate input UI */}
         {mode === "manual" && (
-          <CardCreation saveDeck={saveDeck} isLoading={isLoading} />
+          <CardCreation
+            saveDeck={saveDeck}
+            isLoading={isLoading}
+            initialCards={csvCards}   // <-- important
+          />
         )}
 
         {mode === "csv" && (
-          <CSVUpload saveDeck={saveDeck} />
+          <CSVUpload onQuestionsAdded={setCsvCards} />
         )}
 
-        {/* Link to view user's decks */}
-        <div className="mt-8 text-center">
-          <p className="text-[var(--primary-500)] mb-4">
-            Want to view your existing flashcard decks?
-          </p>
-          <button
-            onClick={() => navigate('/myflashcards')}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-200"
-          >
-            View My Flashcards
-          </button>
-        </div>
       </div>
     </div>
   );
