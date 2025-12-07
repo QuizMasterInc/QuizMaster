@@ -71,6 +71,184 @@
       ]
     },
     {
+      "collectionGroup": "custom_quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "metadata.isTeacherMade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamps.createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "custom_quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "metadata.isTeacherMade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.title",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "custom_quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "metadata.isTeacherMade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.title",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "custom_quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "metadata.isTeacherMade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.questionCount",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "custom_quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "metadata.isTeacherMade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.questionCount",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "custom_quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "metadata.isPublic",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.isTeacherMade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamps.updatedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "custom_quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "metadata.isPublic",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.isTeacherMade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamps.createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "custom_quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "metadata.isPublic",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.isTeacherMade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.title",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "custom_quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "metadata.isPublic",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.isTeacherMade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.title",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "custom_quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "metadata.isPublic",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.isTeacherMade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.questionCount",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "custom_quizzes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "metadata.isPublic",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.isTeacherMade",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "metadata.questionCount",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "flashcard_decks",
       "queryScope": "COLLECTION",
       "fields": [
