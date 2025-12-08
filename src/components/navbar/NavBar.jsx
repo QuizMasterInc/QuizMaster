@@ -172,6 +172,19 @@ export default function NavBar() {
                                 </li>
                                 <li>
                                     <NavLink
+                                        to="/classroom"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <School className="w-5 h-5 navbar-icon" />
+                                        Classroom
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
                                         to="/about"
                                         onClick={e => {
                                             handleClick(e);
