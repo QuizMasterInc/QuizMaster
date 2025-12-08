@@ -4,6 +4,7 @@
  */
 
 import { useNavigate } from 'react-router-dom';
+import FlashcardPreview from './FlashcardPreview';
 
 export default function FlashcardCard({ deck, onDelete, isDeleting }) {
   const navigate = useNavigate();
@@ -83,32 +84,9 @@ export default function FlashcardCard({ deck, onDelete, isDeleting }) {
             </div>
           )}
           
-          {/* Preview of Cards */}
-          {deck.cards && Object.keys(deck.cards).length > 0 && (
-            <div className="mt-4 text-left">
-              <div className="text-sm text-primary mb-2">
-                <strong>Preview:</strong>
-              </div>
-              <div className="max-h-32 overflow-y-auto text-xs">
-                {Object.entries(deck.cards).slice(0, 3).map(([cardId, card]) => (
-                  <div key={cardId} className="mb-2">
-                    <div className="text-primary">
-                      <span className="font-bold text-[var(--primary-400)]">Front:</span> {card.front}
-                    </div>
-                    <div className="text-primary">
-                      <span className="font-bold text-[var(--primary-400)]">Back:</span> {card.back}
-                    </div>
-                  </div>
-                ))}
-                {Object.keys(deck.cards).length > 3 && (
-                  <div className="text-center text-white/70 mt-2">
-                    ...and {Object.keys(deck.cards).length - 3} more cards
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
+          {/* Interactive Flashcard Preview */}
+          <FlashcardPreview cards={deck.cards} />
+          
           {/* Progress Tracking */}
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="space-y-3">

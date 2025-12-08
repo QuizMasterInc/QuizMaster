@@ -165,6 +165,7 @@ export const useStudySession = (deckId, userId) => {
         deck,
         currentCard,
         currentCardIndex,
+        setCurrentCardIndex, // Expose for preview mode navigation
         isFlipped,
         loading,
         error,
