@@ -38,11 +38,22 @@ export const getActiveSession = async (userId, deckId) => {
     const snapshot = await getDocs(q);
     if (snapshot.empty) return null;
 
-    const doc = snapshot.docs[0];
-    return { id: doc.id, ...doc.data() };
+    const sessionDoc = snapshot.docs[0];
+    return { id: sessionDoc.id, ...sessionDoc.data() };
 }
 
 export const recordCardRating = async (sessionId, cardId, rating) => {
+    // Validate parameters
+    if (!sessionId || sessionId === undefined) {
+        throw new Error(`Invalid sessionId: ${sessionId}`);
+    }
+    if (!cardId || cardId === undefined) {
+        throw new Error(`Invalid cardId: ${cardId}`);
+    }
+    if (!rating || !['easy', 'good', 'hard'].includes(rating)) {
+        throw new Error(`Invalid rating: ${rating}`);
+    }
+
     const sessionRef = doc(db, "study_sessions", sessionId);
     const sessionDoc = await getDoc(sessionRef);
     if (!sessionDoc.exists()) throw new Error("Session not found");
@@ -57,7 +68,11 @@ export const recordCardRating = async (sessionId, cardId, rating) => {
     const updatedRatings = [...sessionData.cardRatings, newRating];
     const stats = calculateStats(updatedRatings);
 
-    await updateDoc(sessionRef, {
+    // Optimistic update - return immediately, save in background
+    const updatedSession = { ...sessionData, cardRatings: updatedRatings, stats };
+    
+    // Non-blocking Firestore update
+    updateDoc(sessionRef, {
         cardRatings: updatedRatings,
         cardsStudied: updatedRatings.length,
         lastActivityAt: new Date().toISOString(),
@@ -65,9 +80,9 @@ export const recordCardRating = async (sessionId, cardId, rating) => {
         'stats.goodCount': stats.goodCount,
         'stats.hardCount': stats.hardCount,
         'stats.successRate': stats.successRate,
-    });
+    }).catch(err => console.error('Error saving card rating:', err));
 
-    return { ...sessionData, cardRatings: updatedRatings, stats };
+    return updatedSession;
 }
 
 export const updateSessionProgress = async (sessionId, currentCardIndex) => {
@@ -78,12 +93,18 @@ export const updateSessionProgress = async (sessionId, currentCardIndex) => {
     });
 };
 
-export const completeStudySession = async (sessionId, timeSpent) => {
+export const completeStudySession = async (sessionId, timeSpent, cardRatings = [], stats = {}) => {
     const sessionRef = doc(db, "study_sessions", sessionId);
     await updateDoc(sessionRef, {
         completedAt: new Date().toISOString(),
         isCompleted: true,
+        cardRatings,
+        cardsStudied: cardRatings.length,
         'stats.timeSpent': timeSpent,
+        'stats.easyCount': stats.easyCount || 0,
+        'stats.goodCount': stats.goodCount || 0,
+        'stats.hardCount': stats.hardCount || 0,
+        'stats.successRate': stats.successRate || 0,
         lastActivityAt: new Date().toISOString()
     });
 };

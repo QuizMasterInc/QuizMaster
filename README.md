@@ -222,7 +222,6 @@ npm run dev
 ```sh
 firebase emualators:start
 ```
-
 3. Build the Project
 ```sh
 npm run build

@@ -126,10 +126,10 @@ exports.grabAllCustomQuizzes = onRequest(async (req, res) => {
                     creatorName: quizData.creator?.username || '',
                     creatorVerified: quizData.creator?.verified || false,
 
-                    // Access control using indexed privacy field
-                    privacy: quizData.access?.visibility || 'public',
-                    isPublic: quizData.access?.visibility === 'public',
-                    quizPassword: quizData.access?.password || null,
+                    // Access control - read from metadata.isPublic per DATABASE_SCHEMA
+                    isPublic: quizData.metadata?.isPublic ?? true, // Default to public if not specified
+                    privacy: quizData.metadata?.isPublic === false ? 'private' : 'public',
+                    quizPassword: quizData.metadata?.password || null,
 
                     // Analytics using indexed stats
                     attempts: quizData.analytics?.stats?.attempts || 0,

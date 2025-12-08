@@ -74,42 +74,15 @@ exports.deleteCustomQuiz = onCall(async (request) => {
         resultsSnapshot.forEach(doc => batch.delete(doc.ref));
         await batch.commit();
 
-        // 3. Remove quizId from all users' recentActivity.quizIds and recalculate stats
-        const usersSnapshot = await admin.firestore().collection('users').where('recentActivity.quizIds', 'array-contains', quizId).get();
-        const userBatch = admin.firestore().batch();
-        for (const userDoc of usersSnapshot.docs) {
-            const userData = userDoc.data();
-            // Remove quizId from recentActivity.quizIds
-            const updatedQuizIds = (userData.recentActivity?.quizIds || []).filter(id => id !== quizId);
-            // Get all remaining custom quiz results for this user
-            const userResultsSnapshot = await admin.firestore().collection('quiz_results')
-                .where('userId', '==', userDoc.id)
-                .where('quizType', '==', 'custom')
-                .get();
-            let totalScore = 0;
-            let totalTaken = 0;
-            let lastTakenAt = null;
-            userResultsSnapshot.forEach(doc => {
-                const result = doc.data();
-                if (result.quizId !== quizId) {
-                    totalScore += result.percentage || 0;
-                    totalTaken += 1;
-                    const attemptDate = result.submittedAt?._seconds ? new Date(result.submittedAt._seconds * 1000) : null;
-                    if (attemptDate && (!lastTakenAt || attemptDate > lastTakenAt)) {
-                        lastTakenAt = attemptDate;
-                    }
-                }
-            });
-            const averageScore = totalTaken > 0 ? totalScore / totalTaken : 0;
-            userBatch.update(userDoc.ref, {
-                'recentActivity.quizIds': updatedQuizIds,
-                'stats.customQuizActivity.totalScore': totalScore,
-                'stats.customQuizActivity.totalTaken': totalTaken,
-                'stats.customQuizActivity.averageScore': averageScore,
-                'stats.customQuizActivity.lastTakenAt': lastTakenAt ? admin.firestore.Timestamp.fromDate(lastTakenAt) : null
+        // 3. Remove quizId from the creator's recentActivity.quizIds
+        const creatorDoc = await admin.firestore().collection('users').doc(userId).get();
+        if (creatorDoc.exists) {
+            const creatorData = creatorDoc.data();
+            const updatedQuizIds = (creatorData.recentActivity?.quizIds || []).filter(id => id !== quizId);
+            await admin.firestore().collection('users').doc(userId).update({
+                'recentActivity.quizIds': updatedQuizIds
             });
         }
-        await userBatch.commit();
 
         return { success: true, message: 'Quiz and related data deleted and cleaned up.' };
     } catch (error) {

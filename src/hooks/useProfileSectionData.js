@@ -28,8 +28,8 @@ export default function useProfileSectionData(userId) {
                 setAllQuizzes((quizzesData.result ? quizzesData.data : quizzesData) || []);
                 setAllResults(resultsData.attempts || []);
                 setDecks((decksData || []).filter(d => {
-                    const updated = d.updatedAt ? new Date(d.updatedAt).getTime() : 0;
-                    return Date.now() - updated <= SEVEN_DAYS_MS;
+                    const lastStudied = d.analytics?.stats?.lastStudiedAt ? new Date(d.analytics.stats.lastStudiedAt).getTime() : 0;
+                    return Date.now() - lastStudied <= SEVEN_DAYS_MS;
                 }));
                 setLoading(false);
             })
@@ -48,10 +48,21 @@ export default function useProfileSectionData(userId) {
         });
     }, [allResults]);
 
-    // Filter quizzes to those with recent attempts
+    // Filter quizzes to those with recent attempts (custom quizzes taken by user in last 7 days)
     const quizzes = useMemo(() => {
-        const recentQuizIds = new Set(results.map(r => r.quizId));
-        return allQuizzes.filter(q => recentQuizIds.has(q.uid));
+        const recentCustomResults = results.filter(r => r.quizType === 'custom');
+        const recentQuizIds = new Set(recentCustomResults.map(r => r.quizId));
+
+        return allQuizzes
+            .filter(q => recentQuizIds.has(q.uid))
+            .map(quiz => {
+                const quizResults = recentCustomResults.filter(r => r.quizId === quiz.uid);
+                const lastAttempt = quizResults.length > 0
+                    ? new Date(Math.max(...quizResults.map(r => r.submittedAt.getTime())))
+                    : null;
+                return { ...quiz, lastAttempt };
+            })
+            .sort((a, b) => (b.lastAttempt || 0) - (a.lastAttempt || 0));
     }, [allQuizzes, results]);
 
     // Calculate averages for custom quizzes
