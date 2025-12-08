@@ -4,12 +4,13 @@
  * Separates preview/search concerns from main study flow
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 export function useCardPreview(cards, currentCardIndex, setCurrentCardIndex) {
     const [searchTerm, setSearchTerm] = useState("");
     const [previewMode, setPreviewMode] = useState(false);
     const [studyPosition, setStudyPosition] = useState(0);
+    const [pendingJump, setPendingJump] = useState(null);
 
     // Filter cards based on search term
     const filteredResults = useMemo(() => {
@@ -23,12 +24,25 @@ export function useCardPreview(cards, currentCardIndex, setCurrentCardIndex) {
             );
     }, [searchTerm, cards]);
 
+    // Handle pending jump after search closes (fixes mobile issue)
+    useEffect(() => {
+        if (pendingJump !== null) {
+            // Clear search first
+            setSearchTerm("");
+            
+            // Then update state in next tick to ensure proper batching
+            setTimeout(() => {
+                setStudyPosition(currentCardIndex);
+                setPreviewMode(true);
+                setCurrentCardIndex(pendingJump);
+                setPendingJump(null);
+            }, 0);
+        }
+    }, [pendingJump, currentCardIndex, setCurrentCardIndex]);
+
     // Jump to a card in preview mode
     const handleJumpToCard = (index) => {
-        setStudyPosition(currentCardIndex);
-        setPreviewMode(true);
-        setCurrentCardIndex(index);
-        setSearchTerm("");
+        setPendingJump(index);
     };
 
     // Return to saved study position

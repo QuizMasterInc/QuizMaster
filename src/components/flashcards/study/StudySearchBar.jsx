@@ -47,6 +47,10 @@ export default function StudySearchBar({
                                 <button
                                     key={result.index}
                                     onClick={() => onJumpToCard(result.index)}
+                                    onTouchEnd={(e) => {
+                                        e.preventDefault();
+                                        onJumpToCard(result.index);
+                                    }}
                                     className="block w-full text-left px-4 py-2 hover:bg-[var(--accent)] hover:text-white transition-all"
                                 >
                                     <span className="font-semibold text-primary">

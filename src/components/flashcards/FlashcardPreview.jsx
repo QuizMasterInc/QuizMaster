@@ -1,14 +1,38 @@
 /**
  * FlashcardPreview Component
- * Interactive preview of flashcard deck with flip-on-hover
+ * Interactive preview of flashcard deck with flip-on-hover (desktop) or tap-to-flip (mobile)
  * Shows 1 card by default with "Show More" to expand
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function FlashcardPreview({ cards }) {
     const [showAll, setShowAll] = useState(false);
     const [hoveredIndex, setHoveredIndex] = useState(null);
+    const [flippedIndex, setFlippedIndex] = useState(null);
+    const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+    // Detect touch device on mount
+    useEffect(() => {
+        const checkTouch = () => {
+            return (
+                'ontouchstart' in window ||
+                navigator.maxTouchPoints > 0 ||
+                navigator.msMaxTouchPoints > 0
+            );
+        };
+        setIsTouchDevice(checkTouch());
+    }, []);
+
+    // Auto-flip back on mobile after 2 seconds
+    useEffect(() => {
+        if (isTouchDevice && flippedIndex !== null) {
+            const timer = setTimeout(() => {
+                setFlippedIndex(null);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [flippedIndex, isTouchDevice]);
 
     if (!cards || Object.keys(cards).length === 0) {
         return null;
@@ -16,6 +40,17 @@ export default function FlashcardPreview({ cards }) {
 
     const cardEntries = Object.entries(cards);
     const displayedCards = showAll ? cardEntries : cardEntries.slice(0, 1);
+
+    const handleCardInteraction = (index) => {
+        if (isTouchDevice) {
+            // Mobile: toggle flip state
+            setFlippedIndex(flippedIndex === index ? null : index);
+        }
+    };
+
+    const isFlipped = (index) => {
+        return isTouchDevice ? flippedIndex === index : hoveredIndex === index;
+    };
 
     return (
         <div className="mt-4">
@@ -28,12 +63,13 @@ export default function FlashcardPreview({ cards }) {
                     <div
                         key={cardId}
                         className="perspective-1000 cursor-pointer"
-                        onMouseEnter={() => setHoveredIndex(index)}
-                        onMouseLeave={() => setHoveredIndex(null)}
+                        onMouseEnter={() => !isTouchDevice && setHoveredIndex(index)}
+                        onMouseLeave={() => !isTouchDevice && setHoveredIndex(null)}
+                        onClick={() => handleCardInteraction(index)}
                     >
                         <div
                             className={`relative w-full h-32 transition-transform duration-500 transform-style-3d ${
-                                hoveredIndex === index ? 'rotate-y-180' : ''
+                                isFlipped(index) ? 'rotate-y-180' : ''
                             }`}
                         >
                             {/* Front of card */}
@@ -44,7 +80,7 @@ export default function FlashcardPreview({ cards }) {
                                         {card.front}
                                     </div>
                                     <div className="text-xs text-[var(--text-muted)] mt-2 italic">
-                                        Hover to see answer
+                                        {isTouchDevice ? 'Tap to see answer' : 'Hover to see answer'}
                                     </div>
                                 </div>
                             </div>
