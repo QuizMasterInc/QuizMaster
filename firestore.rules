@@ -102,6 +102,12 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Feedback collection
+    match /feedback/{feedbackId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
     // Block everything else by default
     match /{document=**} {
       allow read, write: if false;
