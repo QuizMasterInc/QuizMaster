@@ -141,6 +141,25 @@ async deleteCustomQuiz(quizId) {
   async getTeacherQuizzes(options = {}) {
     return this.call('getTeacherQuizzes', options, 'POST');
   }
+
+ // ===== FEEDBACK =====
+  async submitFeedback(message, rating) {
+    try {
+      const { getFunctions, httpsCallable } = await import("firebase/functions");
+      const { getApp } = await import("firebase/app");
+
+      const app = getApp();
+      const functions = getFunctions(app);
+      const submitFn = httpsCallable(functions, "submitFeedback");
+
+      const result = await submitFn({ message, rating });
+      return result.data;
+    } catch (error) {
+      console.error("[CloudFunctionsAPI] Error calling submitFeedback:", error);
+      throw error;
+    }
+  }
+
 }
 
 export default new CloudFunctionsAPI();
