@@ -22,6 +22,7 @@ import { QuizProvider } from './contexts/QuizContext';
 import { ResultsProvider } from './contexts/ResultsContext';
 import Dashboard from './components/dashboard/Dashboard'
 import ForgotPassword from './components/login/ForgotPassword'
+import CustomQuizPerformance from './components/profile/CustomQuizPerformance';
 import Profile from './pages/Profile.jsx'
 import PrivateRoute from './routes/PrivateRoute';
 import PrivateSigninRoute from './routes/PrivateSigninRoute'
@@ -38,6 +39,7 @@ import TypeOfQuiz from './pages/TypeOfQuiz';
 import Developer from './components/developer/AddDefaultQuestion';
 import AllCustomQuizzes from './components/quizselect/customquizselect/AllCustomQuizzes';
 import AllTeacherQuizzes from './components/quizselect/customquizselect/AllTeacherQuizzes';
+import MyQuiz from './components/quizselect/customquizselect/MyQuiz';
 import CustomQuizActivity from './components/quiz/CustomQuizActivity'
 import CustomQuizSettings from './components/customquiz/CustomQuizSettings';
 import { Footer } from './components/ui/index.jsx';
@@ -45,6 +47,7 @@ import Settings from './components/settings/Settings'
 import { CATEGORY_DESTINATIONS } from './constants/quizConstants.jsx';
 import { useAuth } from './contexts/AuthContext';
 import Presentation from './components/presentation/presentation';
+import Classroom from './pages/Classroom';
 
 function App() {
   const { user, loading, error } = useAuth();
@@ -59,7 +62,7 @@ function App() {
   }
 
   return (
-    <div className="App">
+    <div className="App pb-10">
       <AppProvider>
         <QuizProvider>
           <ResultsProvider>
@@ -189,9 +192,21 @@ function App() {
             </PrivateRoute>
           }/>
 
+          <Route path="/myquizzes" element={
+            <PrivateRoute>
+              <MyQuiz title="My Quizzes" dataSource="browseCustomQuizzes" showRefreshButton={true} />
+            </PrivateRoute>
+          }/>
+
           <Route path="/profile" element={
             <PrivateRoute>
               <Profile />
+            </PrivateRoute>
+          }/>
+
+          <Route path="/profile/custom-quizzes" element={
+            <PrivateRoute>
+              <CustomQuizPerformance />
             </PrivateRoute>
           }/>
 
@@ -218,6 +233,12 @@ function App() {
           }/>
 
           <Route path="/presentation" element={<Presentation />} />
+
+          <Route path="/classroom" element={
+            <PrivateRoute>
+              <Classroom />
+            </PrivateRoute>
+          }/>
 
           <Route path="*" element={<NotFound />} />
             </Routes>

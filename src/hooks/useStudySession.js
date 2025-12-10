@@ -20,6 +20,7 @@ export const useStudySession = (deckId, userId) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [startTime] = useState(Date.now());
+    const [localRatings, setLocalRatings] = useState([]); // Store ratings in memory
 
     // Initialize session
     useEffect(() => {
@@ -64,35 +65,61 @@ export const useStudySession = (deckId, userId) => {
         setIsFlipped(!isFlipped);
     };
 
-    // Handle card rating
+    // Handle card rating (all in memory - no database calls)
     const handleRating = async (rating) => {
-        if (!session || !deck) return null;
+        if (!deck) return null;
 
         try {
             const currentCard = getCardsArray()[currentCardIndex];
+            if (!currentCard) return null;
 
-            // Record rating
-            const updatedSession = await recordCardRating(
-                session.id,
-                currentCard.id,
-                rating
-            );
-            setSession(updatedSession);
+            // Store rating in memory only
+            const newRating = {
+                cardId: currentCard.id || `card_${currentCardIndex}`,
+                rating,
+                timestamp: new Date().toISOString()
+            };
+
+            const updatedRatings = [...localRatings, newRating];
+            setLocalRatings(updatedRatings);
 
             // Move to next card or complete session
             const nextIndex = currentCardIndex + 1;
 
             if (nextIndex < deck.cardCount) {
-                await updateSessionProgress(session.id, nextIndex);
+                // Just move to next card (instant - no DB calls)
                 setCurrentCardIndex(nextIndex);
                 setIsFlipped(false);
                 return { completed: false, nextIndex };
             } else {
-                // Complete session
+                // Last card - save everything to database now
                 const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-                await completeStudySession(session.id, timeSpent);
-                await flashcardService.updateDeckAnalytics(deckId);
-                return { completed: true, sessionId: session.id };
+                
+                // Calculate final stats
+                const easyCount = updatedRatings.filter(r => r.rating === 'easy').length;
+                const goodCount = updatedRatings.filter(r => r.rating === 'good').length;
+                const hardCount = updatedRatings.filter(r => r.rating === 'hard').length;
+                const successRate = updatedRatings.length > 0 
+                    ? ((easyCount + goodCount) / updatedRatings.length) * 100 
+                    : 0;
+
+                // Save all ratings at once
+                if (session?.id) {
+                    await completeStudySession(session.id, timeSpent, updatedRatings, {
+                        easyCount,
+                        goodCount,
+                        hardCount,
+                        successRate,
+                        timeSpent
+                    });
+                    
+                    // Update analytics in background
+                    flashcardService.updateDeckAnalytics(deckId).catch(err => 
+                        console.error('Error updating deck analytics:', err)
+                    );
+                }
+
+                return { completed: true, sessionId: session?.id };
             }
         } catch (err) {
             console.error('Error handling rating:', err);
@@ -101,15 +128,19 @@ export const useStudySession = (deckId, userId) => {
         }
     };
 
-    // Get cards as array
+    // Get cards as array (memoized to prevent recreating on every render)
     const getCardsArray = () => {
         if (!deck || !deck.cards) return [];
         
         // Handle both object and array formats
         if (Array.isArray(deck.cards)) {
-            return deck.cards;
+            return deck.cards.map((card, index) => ({
+                id: card.id || `card_${index}`,
+                ...card
+            }));
         }
         
+        // Convert object to array with proper IDs
         return Object.entries(deck.cards).map(([key, card]) => ({
             id: card.id || key,
             ...card
@@ -119,15 +150,28 @@ export const useStudySession = (deckId, userId) => {
     const cards = getCardsArray();
     const currentCard = cards[currentCardIndex];
 
+    // Calculate current stats from local ratings
+    const currentStats = {
+        easyCount: localRatings.filter(r => r.rating === 'easy').length,
+        goodCount: localRatings.filter(r => r.rating === 'good').length,
+        hardCount: localRatings.filter(r => r.rating === 'hard').length,
+        successRate: localRatings.length > 0 
+            ? ((localRatings.filter(r => r.rating === 'easy' || r.rating === 'good').length / localRatings.length) * 100)
+            : 0
+    };
+
     return {
         session,
         deck,
         currentCard,
         currentCardIndex,
+        setCurrentCardIndex, // Expose for preview mode navigation
         isFlipped,
         loading,
         error,
         cards,
+        stats: currentStats,
+        cardsStudied: localRatings.length,
         handleFlip,
         handleRating
     };

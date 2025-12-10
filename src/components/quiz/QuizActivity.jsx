@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { useCategory } from '../../contexts/AppContext';
@@ -9,258 +8,84 @@ import DoneModal from './DoneModal';
 import HelpModal from './HelpModal';
 import ProgressBar from './ProgressBar';
 import DownloadQuiz from './DownloadQuiz';
-import { shuffle } from '../../utils/shuffle';
-import { generateChoicesForQuestion } from '../../utils/generateChoicesForQuestion';
-import quizSubmissionService from '../../services/quiz/quizSubmissionService';
-import BackToTopButton from './BackToTopButton'; 
+import BackToTopButton from './BackToTopButton';
 
+// Custom Hooks
+import { useDefaultQuiz, useQuestionChoices } from '../../hooks/useQuizEngine';
+import { useQuizState } from '../../hooks/useQuizState';
+import { useQuizSubmission } from '../../hooks/useQuizSubmission';
+import { useQuizUI } from '../../hooks/useQuizUI';
 
 function QuizActivity() {
-  const {
-    category,
-    subcategories,
-    difficulty,
-    amount
-  } = useCategory();
+  const { category, subcategories, difficulty, amount } = useCategory();
   const { currentUser } = useAuth();
   const { refreshResults } = useResults();
   const navigate = useNavigate();
 
-  const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [completed, setCompleted] = useState(false);
-  const [helpActive, setHelpActive] = useState(false);
-  const [doneActive, setDoneActive] = useState(false);
-  const [answeredCount, setAnsweredCount] = useState(0);
-  const [correctCount, setCorrectCount] = useState(0);
-  const [quizId, setQuizId] = useState(null);
-  const [answerCount, setAnswerCount] = useState(4);
-  const [quizStartTime] = useState(Date.now());
-  const [submittingResults, setSubmittingResults] = useState(false);
-  const [userAnswers, setUserAnswers] = useState({});
-  const [showResults, setShowResults] = useState(false);
+  // Quiz data fetching
+  const { questions, setQuestions, loading } = useDefaultQuiz({
+    category,
+    subcategories,
+    difficulty,
+    amount
+  });
 
-  const recordCorrect = useCallback(
-    (isCorrect) => isCorrect && setCorrectCount((c) => c + 1),
-    []
-  );
+  // Quiz state management
+  const {
+    answeredCount,
+    correctCount,
+    userAnswers,
+    completed,
+    quizStartTime,
+    recordAnswered,
+    recordCorrect,
+    setUserAnswers,
+    setCompleted
+  } = useQuizState();
 
-  const recordAnswered = useCallback(
-    (firstInteraction) => firstInteraction && setAnsweredCount((c) => c + 1),
-    []
-  );
+  // Quiz submission
+  const { submittingResults, submitQuiz } = useQuizSubmission();
 
-  useEffect(() => {
-    async function fetchQuiz() {
-      setLoading(true);
-      try {
-        const url = `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabSubV2?category=${encodeURIComponent(
-          category.toLowerCase()
-        )}`;
+  // UI state
+  const {
+    helpActive,
+    doneActive,
+    answerCount,
+    showResults,
+    setHelpActive,
+    setDoneActive,
+    setAnswerCount,
+    viewDetailedResults,
+    useScrollToTop
+  } = useQuizUI();
 
-        const res = await fetch(url);
+  // Update question choices when answer count changes
+  useQuestionChoices(questions, setQuestions, answerCount);
 
-        if (!res.ok) {
-          console.error('API response error:', res.status, res.statusText);
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
+  // Scroll to top when quiz loads
+  useScrollToTop(loading, questions.length);
 
-        const data = await res.json();
-
-        let pool = [];
-        (subcategories.length ? subcategories : Object.keys(data)).forEach(
-          (sub) => {
-            if (data[sub]) {
-              pool = [...pool, ...data[sub]];
-            }
-          }
-        );
-
-        if (difficulty && difficulty > 0) {
-          pool = pool.filter((q) => Number(q.difficulty) === Number(difficulty));
-        }
-
-        pool = shuffle(pool).slice(0, amount);
-
-        if (pool.length === 0) {
-          console.warn('No questions available! Check if questions exist in database for:', {
-            category: category.toLowerCase(),
-            subcategories,
-            difficulty
-          });
-        }
-
-        const mapped = pool.map((row, index) => {
-          const raw = (row.type || 'Multiple').replace(/\s+/g, '').toLowerCase();
-          let tag;
-          if (raw === 'multipleanswer') tag = 'multiple';
-          else if (raw === 'fillintheblank') tag = 'fill';
-          else if (raw === 'draganddrop' || raw === 'drag') tag = 'drag';
-          else tag = 'single';
-
-          const correctAnswer = row.correct_answer ?? row.correct;
-          const questionId = row.questionId || `default_${btoa(row.question).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16)}`;
-
-          const originalOptions = [
-            row.option_1 ?? row.a,
-            row.option_2 ?? row.b,
-            row.option_3 ?? row.c,
-            row.option_4 ?? row.d,
-          ].filter(Boolean);
-          return {
-            questionId,
-            questionText: row.question,
-            text: row.question,
-            choices: generateChoicesForQuestion({ ...row, correctAnswer, type: tag, originalOptions }, 4),
-            correctAnswer: correctAnswer,
-            type: tag,
-            originalOptions,
-          };
-        });
-
-        setQuestions(mapped);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchQuiz();
-  }, [category, subcategories, difficulty, amount]);
-
-  // Update choices for current questions when answerCount changes
-  useEffect(() => {
-    if (questions.length === 0) return;
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((question) => {
-        return {
-          ...question,
-          choices: generateChoicesForQuestion(question, answerCount)
-        };
-      })
-    );
-  }, [answerCount]);
-
-  useEffect(() => {
-    if (!loading && questions.length > 0) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, [loading, questions.length]);
-
+  // Handle quiz submission
   const handleSubmit = async () => {
-    if (submittingResults || !currentUser) return;
-    
-    setSubmittingResults(true);
-    
-    // CALCULATE SCORE AND COLLECT ANSWERS
-    const calculateScoreAndAnswers = () => {
-      let score = 0;
-      const questionIds = [];
-      const userAnswers = {};
-      
-      // Get all Question components from refs and calculate their correctness
-      const questionElements = document.querySelectorAll('[data-question-index]');
-      
-      questions.forEach((question, index) => {
-        const qText = question.questionText ?? question.text ?? '';
-        const type = question.type?.toLowerCase();
-        const isFillBlank = type === 'fill';
-        const isMultipleAnswer = type === 'multiple';
-        const isDragAndDrop = type === 'drag';
-        
-        // Store question ID
-        questionIds.push(question.questionId);
-        
-        // Get the current answer from the DOM element
-        const questionElement = document.querySelector(`[data-question-index="${index}"]`);
-        if (!questionElement) {
-          userAnswers[index] = null;
-          return;
-        }
-        
-        let userAnswer = null;
-        let isCorrect = false;
-        
-        if (isFillBlank) {
-          const input = questionElement.querySelector('input[type="text"]');
-          if (input) {
-            userAnswer = input.value.trim();
-            const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
-            isCorrect = userAnswer.toLowerCase() === correctAnswer;
-          }
-        } else if (isMultipleAnswer) {
-          const checkboxes = questionElement.querySelectorAll('input[type="checkbox"]:checked');
-          const selectedTexts = Array.from(checkboxes).map(cb => 
-            cb.parentElement.querySelector('span').textContent.trim()
-          );
-          userAnswer = selectedTexts;
-          
-          const correctAnswers = String(question.correctAnswer)
-            .split('||')
-            .map(a => a.trim().toLowerCase());
-          
-          isCorrect = selectedTexts.length === correctAnswers.length &&
-                     selectedTexts.every(ans => correctAnswers.includes(ans.toLowerCase()));
-        } else if (isDragAndDrop) {
-          // Handle drag and drop - this is more complex, skipping for now
-          userAnswer = null;
-        } else {
-          // Regular multiple choice
-          const selectedButton = questionElement.querySelector('button.bg-accent, button[class*="bg-accent"]');
-          if (selectedButton) {
-            userAnswer = selectedButton.querySelector('span').textContent.trim();
-            const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
-            isCorrect = userAnswer.toLowerCase() === correctAnswer;
-          }
-        }
-        
-        userAnswers[index] = userAnswer;
-        
-        if (isCorrect) {
-          score++;
-        }
-      });
-      
-      return { score, questionIds, userAnswers };
-    };
-    
-    const { score: calculatedScore, questionIds, userAnswers } = calculateScoreAndAnswers();
-    
-    // Store user answers for DoneModal access
-    setUserAnswers(userAnswers);
-    
-    try {
-      // Calculate time spent in seconds
-      const timeSpent = Math.round((Date.now() - quizStartTime) / 1000);
-      
-      // Submit quiz results to backend using calculated score
-      await quizSubmissionService.submitQuizResults({
-        userId: currentUser.uid,
+    await submitQuiz({
+      currentUser,
+      questions,
+      setUserAnswers,
+      setCompleted,
+      refreshResults,
+      quizStartTime,
+      quizData: {
         category: category.toLowerCase(),
-        score: calculatedScore,
-        totalQuestions: questions.length,
-        amount: amount, // Number of questions requested
-        timeSpent,
         difficulty: difficulty || 3,
+        amount,
         quizType: 'default',
-        quizId: `${category.toLowerCase()}_${difficulty || 3}_${amount}`, // Generate deterministic quizId
-        questionIds,
-        userAnswers,
+        quizId: `${category.toLowerCase()}_${difficulty || 3}_${amount}`,
         sessionId: `quiz_${Date.now()}`
-      });
-      
-      // Refresh dashboard cache to show updated scores immediately
-      await refreshResults();
-      
-    } catch (error) {
-      console.error('Error submitting quiz results:', error);
-      // Still show results even if submission fails
-    } finally {
-      setSubmittingResults(false);
-      setCompleted(true);
-      setDoneActive(true);
-    }
+      }
+    });
+    
+    // Open done modal after submission
+    setDoneActive(true);
   };
 
   if (loading) {
@@ -501,12 +326,9 @@ function QuizActivity() {
           totalAmount={questions.length}
           questions={questions}
           userAnswers={userAnswers}
-          quizId={quizId}
+          quizId={null}
           isCustomQuiz={false}
-          onViewDetails={() => {
-            setShowResults(true);
-            setDoneActive(false);
-          }}
+          onViewDetails={viewDetailedResults}
           category={category}
           difficulty={difficulty}
           quizStartTime={quizStartTime}

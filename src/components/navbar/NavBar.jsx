@@ -133,6 +133,19 @@ export default function NavBar() {
                                 </li>
                                 <li>
                                     <NavLink
+                                        to="/myquizzes"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <Q className="w-5 h-5 navbar-icon" />
+                                        My Quizzes
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
                                         to="/browse-flashcards"
                                         onClick={e => {
                                             handleClick(e);
@@ -155,6 +168,19 @@ export default function NavBar() {
                                     >
                                         <Q className="w-5 h-5 navbar-icon" />
                                         Make Quiz
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
+                                        to="/classroom"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <School className="w-5 h-5 navbar-icon" />
+                                        Classroom
                                     </NavLink>
                                 </li>
                                 <li>
@@ -329,6 +355,10 @@ export default function NavBar() {
                                 <NavLink to="/myflashcards" onClick={handleClick} className="mobile-nav-item">
                                     <Scroll className="w-5 h-5" />
                                     My Flashcards
+                                </NavLink>
+                                <NavLink to="/myquizzes" onClick={handleClick} className="mobile-nav-item">
+                                    <Q className="w-5 h-5" />
+                                    My Quizzes
                                 </NavLink>
                                 <NavLink to="/browse-flashcards" onClick={handleClick} className="mobile-nav-item">
                                     <Book className="w-5 h-5" />

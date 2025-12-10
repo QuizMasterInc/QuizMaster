@@ -2,14 +2,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useStudySession } from '../../../hooks/useStudySession';
+import { useCardPreview } from '../../../hooks/useCardPreview';
+
 import StudyCard from './StudyCard';
 import StudyProgressBar from './StudyProgressBar';
 import RatingButtons from './RatingButtons';
 import StudyStats from './StudyStats';
+import StudySearchBar from './StudySearchBar';
 
 /**
  * StudyMode - Main study session container
- * Responsible for: Orchestrating study flow and navigation
+ * Orchestrates study flow with search/preview functionality
  */
 const StudyMode = () => {
     const { deckId } = useParams();
@@ -21,13 +24,28 @@ const StudyMode = () => {
         deck,
         currentCard,
         currentCardIndex,
+        setCurrentCardIndex,
         isFlipped,
         loading,
         error,
         cards,
+        stats,
+        cardsStudied,
         handleFlip,
         handleRating
     } = useStudySession(deckId, currentUser?.uid);
+
+    // Search and preview mode logic
+    const {
+        searchTerm,
+        setSearchTerm,
+        filteredResults,
+        clearSearch,
+        previewMode,
+        studyPosition,
+        handleJumpToCard,
+        handleReturnToStudy
+    } = useCardPreview(cards, currentCardIndex, setCurrentCardIndex);
 
     // Handle rating and navigation
     const onRatingClick = async (rating) => {
@@ -72,7 +90,6 @@ const StudyMode = () => {
         );
     }
 
-    // Missing data state
     if (!deck || !session || !currentCard) {
         return (
             <div className="dashboard-content">
@@ -94,7 +111,8 @@ const StudyMode = () => {
     return (
         <div className="dashboard-content">
             <div className="max-w-4xl mx-auto space-y-8">
-                {/* Header */}
+                
+                {/* HEADER */}
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl font-bold text-gradient-primary">{deck.title}</h1>
                     <button 
@@ -106,11 +124,25 @@ const StudyMode = () => {
                     </button>
                 </div>
 
+                {/* Search Bar with Preview Mode Indicator */}
+                <StudySearchBar
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    onClearSearch={clearSearch}
+                    filteredResults={filteredResults}
+                    onJumpToCard={handleJumpToCard}
+                    previewMode={previewMode}
+                    studyPosition={studyPosition}
+                    onReturnToStudy={handleReturnToStudy}
+                />
+
+                {/* Progress Bar */}
                 <StudyProgressBar 
                     currentIndex={currentCardIndex} 
                     total={cards.length} 
                 />
 
+                {/* FLASHCARD */}
                 <div className="space-y-6">
                     <StudyCard 
                         card={currentCard}
@@ -118,12 +150,21 @@ const StudyMode = () => {
                         onFlip={handleFlip}
                     />
 
-                    {isFlipped && (
+                    {/* Only show rating buttons when NOT in preview mode */}
+                    {isFlipped && !previewMode && (
                         <RatingButtons onRate={onRatingClick} />
+                    )}
+
+                    {/* Show message when in preview mode and card is flipped */}
+                    {isFlipped && previewMode && (
+                        <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
+                            <p className="text-secondary">Rating disabled in preview mode</p>
+                        </div>
                     )}
                 </div>
 
-                <StudyStats stats={session.stats} />
+                <StudyStats stats={stats} />
+
             </div>
         </div>
     );

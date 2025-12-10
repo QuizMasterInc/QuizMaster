@@ -1,14 +1,34 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import flashcardService from '../../services/flashcards/flashcardService';
+
+// Custom Hook
+import { useFlashcardFiltering } from '../../hooks/useFlashcardFiltering';
+
+// Components
+import FlashcardFilters from './FlashcardFilters';
+import FlashcardCard from './FlashcardCard';
+import FlashcardEmptyState from './FlashcardEmptyState';
 
 export default function MyFlashcards() {
   const { currentUser } = useAuth();
-  const navigate = useNavigate();
   const [flashcardDecks, setFlashcardDecks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Use custom filtering hook
+  const {
+    filteredDecks,
+    searchTerm,
+    setSearchTerm,
+    selectedCategory,
+    setSelectedCategory,
+    selectedDifficulty,
+    setSelectedDifficulty,
+    clearFilters,
+    hasActiveFilters
+  } = useFlashcardFiltering(flashcardDecks);
 
   useEffect(() => {
     if (currentUser) {
@@ -121,106 +141,40 @@ export default function MyFlashcards() {
             </Link>
           </div>
         ) : (
-          <div id="flashcardDecks" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
-            {flashcardDecks.map((deck, index) => (
-              <div key={index} className="w-full md:w-1/2 lg:w-1/3 p-5 text-center">
-                <div className="card rounded-lg shadow-lg hover:shadow-xl border border-accent h-full flex flex-col">
-                  <div className="p-6 flex-grow">
-                    <div className="text-2xl text-[var(--primary-500)] font-bold mb-3">{deck.title}</div>
-                    
-                    {/* Deck metadata */}
-                    <div className="space-y-2 mb-4">
-                      <div className="text-base text-secondary">
-                        <strong>Cards:</strong> {deck.cardCount}
-                      </div>
-                      <div className="text-sm text-secondary">
-                        <strong>Category:</strong> {deck.category}
-                      </div>
-                      <div className="text-sm text-secondary">
-                        <strong>Difficulty:</strong> {deck.difficulty === '1' ? 'Easy' : deck.difficulty === '2' ? 'Medium' : 'Hard'}
-                      </div>
-                      <div className="text-sm text-secondary">
-                        <strong>Visibility:</strong> {deck.isPublic ? 'Public' : 'Private'}
-                      </div>
-                    </div>
+          <>
+            {/* Search and Filter Controls */}
+            <FlashcardFilters
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+              selectedDifficulty={selectedDifficulty}
+              onDifficultyChange={setSelectedDifficulty}
+              totalDecks={flashcardDecks.length}
+              filteredCount={filteredDecks.length}
+              hasActiveFilters={hasActiveFilters}
+              onClearFilters={clearFilters}
+            />
 
-                    {/* Tags - centered and prominent */}
-                    {deck.tags && deck.tags.length > 0 && (
-                      <div className="flex flex-wrap justify-center gap-2 my-4">
-                        {deck.tags.map((tag, tagIndex) => (
-                          <span key={tagIndex} className="px-3 py-1 bg-[var(--primary-400)] text-white rounded-full text-sm font-medium">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {deck.description && (
-                      <div className="mb-4">
-                        <div className="text-sm text-[var(--primary-400)] mb-1"><strong>Description:</strong></div>
-                        <div className="text-sm text-primary">{deck.description}</div>
-                      </div>
-                    )}
-                    
-                    {/* Preview of first few cards */}
-                    {deck.cards && Object.keys(deck.cards).length > 0 && (
-                      <div className="mt-4 text-left">
-                        <div className="text-sm text-primary mb-2"><strong>Preview:</strong></div>
-                        <div className="max-h-32 overflow-y-auto text-xs">
-                          {Object.entries(deck.cards).slice(0, 3).map(([cardId, card], cardIndex) => (
-                            <div key={cardId} className="mb-2">
-                              <div className="text-primary">
-                                <span className="font-bold text-[var(--primary-400)]">Front:</span> {card.front}
-                              </div>
-                              <div className="text-primary">
-                                <span className="font-bold text-[var(--primary-400)]">Back:</span> {card.back}
-                              </div>
-                            </div>
-                          ))}
-                          {Object.keys(deck.cards).length > 3 && (
-                            <div className="text-center text-white/70 mt-2">
-                              ...and {Object.keys(deck.cards).length - 3} more cards
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Analytics if available */}
-                    {(deck.timesStudied > 0 || deck.averageScore > 0) && (
-                      <div className="mt-4 pt-4 border-t border-gray-200">
-                        <div className="text-sm text-secondary space-y-1">
-                          {deck.timesStudied > 0 && (
-                            <div><strong>Times Studied:</strong> {deck.timesStudied}</div>
-                          )}
-                          {deck.averageScore > 0 && (
-                            <div><strong>Average Score:</strong> {deck.averageScore}%</div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="p-4 border-t border-accent flex gap-2">
-                    <button
-                      className="flex-1 px-4 py-2 bg-[var(--primary-400)] hover:bg-[var(--primary-500)] text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
-                      disabled={loading}
-                      onClick={() => navigate(`/flashcards/study/${deck.id}`)}
-                    >
-                      Study
-                    </button>
-                    <button
-                      className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
-                      disabled={loading}
-                      onClick={() => handleDeleteDeck(deck.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+            <div id="flashcardDecks" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
+              {filteredDecks.length === 0 ? (
+                <FlashcardEmptyState
+                  hasActiveFilters={hasActiveFilters}
+                  searchTerm={searchTerm}
+                  onClearFilters={clearFilters}
+                />
+              ) : (
+                filteredDecks.map((deck, index) => (
+                  <FlashcardCard
+                    key={deck.id || index}
+                    deck={deck}
+                    onDelete={handleDeleteDeck}
+                    isDeleting={loading}
+                  />
+                ))
+              )}
+            </div>
+          </>
         )}
 
       </div>

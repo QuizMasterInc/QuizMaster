@@ -1,37 +1,43 @@
 /* Allows the User to make a deck of Flashcards */
-import { useState } from 'react';
+import { useState } from "react";
+import CSVUpload from "./CSVUpload";
 
 export default function CardCreation({ saveDeck, isLoading }) {
-  const [deckName, setDeckName] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('General');
-  const [difficulty, setDifficulty] = useState('2');
-  const [tags, setTags] = useState('');
+  const [deckName, setDeckName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("General");
+  const [difficulty, setDifficulty] = useState("2");
+  const [tags, setTags] = useState("");
   const [isPublic, setIsPublic] = useState(false);
-  const [front, setFront] = useState('');
-  const [back, setBack] = useState('');
+
+  const [front, setFront] = useState("");
+  const [back, setBack] = useState("");
+
   const [cards, setCards] = useState([]);
+
+  const [showManual, setShowManual] = useState(true);
+  const [showCSV, setShowCSV] = useState(false);
 
   const handleAddCard = () => {
     if (front.trim() && back.trim()) {
       setCards([...cards, { front, back }]);
-      setFront('');
-      setBack('');
+      setFront("");
+      setBack("");
     } else {
-      alert('Please fill in both the front and back of the flashcard.');
+      alert("Please fill in both the front and back of the flashcard.");
     }
   };
 
   const handleSaveDeck = async () => {
     if (!deckName.trim()) {
-      alert('Please enter a deck name.');
+      alert("Please enter a deck name.");
       return;
     }
     if (cards.length === 0) {
-      alert('Please add at least one card to the deck.');
+      alert("Please add at least one card to the deck.");
       return;
     }
-    
+
     const deckData = {
       name: deckName,
       description,
@@ -39,29 +45,35 @@ export default function CardCreation({ saveDeck, isLoading }) {
       difficulty,
       tags,
       isPublic,
-      cards
+      cards,
     };
-    
+
     await saveDeck(deckData);
-    
-    // Reset form on successful save
-    setDeckName('');
-    setDescription('');
-    setCategory('General');
-    setDifficulty('2');
-    setTags('');
+
+    setDeckName("");
+    setDescription("");
+    setCategory("General");
+    setDifficulty("2");
+    setTags("");
     setIsPublic(false);
     setCards([]);
+    setFront("");
+    setBack("");
   };
 
   const removeCard = (indexToRemove) => {
     setCards(cards.filter((_, index) => index !== indexToRemove));
   };
 
+  const handleCSVQuestionsAdded = (newCards) => {
+    setCards((prev) => [...prev, ...newCards]);
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto card border-2 border-accent">
-      <h1 className="text-3xl font-bold text-gradient-primary mb-6 text-center">Create a Flashcard Deck</h1>
+      <h1 className="text-3xl font-bold text-gradient-primary mb-6 text-center">
+        Create a Flashcard Deck
+      </h1>
 
       {/* Deck Information */}
       <div className="space-y-4 mb-6">
@@ -73,7 +85,7 @@ export default function CardCreation({ saveDeck, isLoading }) {
           disabled={isLoading}
           className="w-full p-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
         />
-        
+
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -139,53 +151,92 @@ export default function CardCreation({ saveDeck, isLoading }) {
         />
       </div>
 
-      {/* Card Creation Section */}
-      <div className="border-t pt-6">
-        <h2 className="text-xl font-semibold mb-4">Add Cards to Your Deck</h2>
-        <div className="space-y-4">
-          <input
-            type="text"
-            value={front}
-            onChange={(e) => setFront(e.target.value)}
-            placeholder="Front of card"
-            disabled={isLoading}
-            className="w-full p-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
-          />
-          <input
-            type="text"
-            value={back}
-            onChange={(e) => setBack(e.target.value)}
-            placeholder="Back of card"
-            disabled={isLoading}
-            className="w-full p-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
-          />
-          <div className="flex justify-center">
-            <button
-              onClick={handleAddCard}
+      {/* Accordion: Add Manually */}
+      <div className="border-t pt-4">
+        <button
+          type="button"
+          onClick={() => setShowManual((prev) => !prev)}
+          className="w-full flex justify-between items-center text-left py-3 px-2"
+        >
+          <span className="text-lg font-semibold">Add Cards Manually</span>
+          <span className="text-sm text-[var(--neutral-600)]">
+            {showManual ? "▲" : "▼"}
+          </span>
+        </button>
+
+        {showManual && (
+          <div className="space-y-4 pb-4">
+            <input
+              type="text"
+              value={front}
+              onChange={(e) => setFront(e.target.value)}
+              placeholder="Front of card"
               disabled={isLoading}
-              className="px-6 py-2 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent disabled:opacity-50 disabled:transform-none"
-            >
-              Add Card
-            </button>
+              className="w-full p-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
+            />
+            <input
+              type="text"
+              value={back}
+              onChange={(e) => setBack(e.target.value)}
+              placeholder="Back of card"
+              disabled={isLoading}
+              className="w-full p-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
+            />
+            <div className="flex justify-center">
+              <button
+                onClick={handleAddCard}
+                disabled={isLoading}
+                className="px-6 py-2 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent disabled:opacity-50 disabled:transform-none"
+              >
+                Add Card
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+      </div>
+
+      {/* Accordion: Upload CSV */}
+      <div className="border-t pt-4 mt-2">
+        <button
+          type="button"
+          onClick={() => setShowCSV((prev) => !prev)}
+          className="w-full flex justify-between items-center text-left py-3 px-2"
+        >
+          <span className="text-lg font-semibold">Upload Cards from CSV</span>
+          <span className="text-sm text-[var(--neutral-600)]">
+            {showCSV ? "▲" : "▼"}
+          </span>
+        </button>
+
+        {showCSV && (
+          <CSVUpload onQuestionsAdded={handleCSVQuestionsAdded} />
+        )}
       </div>
 
       {/* Cards Display */}
       {cards.length > 0 && (
         <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-4">Cards in Deck ({cards.length}):</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            Cards in Deck ({cards.length}):
+          </h2>
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {cards.map((card, index) => (
-              <div key={index} className="bg-[var(--neutral-100)] p-4 rounded-lg border flex justify-between items-start">
-                <div className="flex-1">
+              <div
+                key={index}
+                className="bg-[var(--neutral-100)] p-4 rounded-lg border flex justify-between items-start"
+              >
+                <div className="flex-1 whitespace-pre-line">
                   <div className="mb-2">
-                    <span className="font-semibold text-blue-600">Front:</span> 
-                    <span className="ml-2 text-[var(--neutral-600)]">{card.front}</span>
+                    <span className="font-semibold text-blue-600">Front:</span>
+                    <span className="ml-2 text-[var(--neutral-600)]">
+                      {card.front}
+                    </span>
                   </div>
                   <div>
-                    <span className="font-semibold text-green-600">Back:</span> 
-                    <span className="ml-2 text-[var(--neutral-600)]">{card.back}</span>
+                    <span className="font-semibold text-green-600">Back:</span>
+                    <span className="ml-2 text-[var(--neutral-600)]">
+                      {card.back}
+                    </span>
                   </div>
                 </div>
                 <button
@@ -207,7 +258,7 @@ export default function CardCreation({ saveDeck, isLoading }) {
         disabled={isLoading || cards.length === 0 || !deckName.trim()}
         className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? 'Creating Deck...' : 'Save Deck'}
+        {isLoading ? "Creating Deck..." : "Save Deck"}
       </button>
     </div>
   );

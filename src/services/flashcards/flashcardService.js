@@ -91,10 +91,8 @@ class FlashcardService {
             // Analytics (initialized)
             analytics: {
                 stats: {
-                    averageScore: 0,
                     timesStudied: 0,
-                    lastStudied: null,
-                    totalReviews: 0
+                    lastStudiedAt: null
                 }
             },
             

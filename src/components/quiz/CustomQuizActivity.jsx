@@ -1,5 +1,4 @@
 // CustomQuizActivity.jsx
-import { useCallback, useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import Question from './Question';
@@ -7,11 +6,14 @@ import DoneModal from './DoneModal';
 import HelpModal from './HelpModal';
 import ProgressBar from './ProgressBar';
 import BackToTop from './BackToTopButton';
-import { shuffle } from '../../utils/shuffle';
-import { generateChoicesForQuestion } from '../../utils/generateChoicesForQuestion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResults } from '../../contexts/ResultsContext';
-import quizSubmissionService from '../../services/quiz/quizSubmissionService';
+
+// Custom Hooks
+import { useCustomQuiz, useQuestionChoices } from '../../hooks/useQuizEngine';
+import { useQuizState } from '../../hooks/useQuizState';
+import { useQuizSubmission } from '../../hooks/useQuizSubmission';
+import { useQuizUI } from '../../hooks/useQuizUI';
 
 function CustomQuizActivity() {
   const { quizID } = useParams();
@@ -21,226 +23,65 @@ function CustomQuizActivity() {
   const { currentUser } = useAuth();
   const { refreshResults } = useResults();
 
-  const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [completed, setCompleted] = useState(false);
-  const [helpActive, setHelpActive] = useState(false);
-  const [doneActive, setDoneActive] = useState(false);
-  const [answeredCount, setAnsweredCount] = useState(0);
-  const [correctCount, setCorrectCount] = useState(0);
-  const [answerCount, setAnswerCount] = useState(4); // default max
-  const [quizStartTime] = useState(Date.now());
-  const [submittingResults, setSubmittingResults] = useState(false);
-  const [quizMetadata, setQuizMetadata] = useState(null);
-  const [userAnswers, setUserAnswers] = useState({});
-  const [showResults, setShowResults] = useState(false);
+  // Quiz data fetching
+  const { questions, setQuestions, quizMetadata, loading } = useCustomQuiz(quizID, password);
 
-  const recordCorrect = useCallback(
-    (isCorrect) => isCorrect && setCorrectCount((c) => c + 1),
-    []
-  );
+  // Quiz state management
+  const {
+    answeredCount,
+    correctCount,
+    userAnswers,
+    completed,
+    quizStartTime,
+    recordAnswered,
+    recordCorrect,
+    setUserAnswers,
+    setCompleted
+  } = useQuizState();
 
-  const recordAnswered = useCallback(
-    (firstInteraction) => firstInteraction && setAnsweredCount((c) => c + 1),
-    []
-  );
+  // Quiz submission
+  const { submittingResults, submitQuiz } = useQuizSubmission();
 
-  useEffect(() => {
-    async function fetchCustomQuiz() {
-      setLoading(true);
-      try {
-        const url = `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz?quizid=${quizID}${password ? `&password=${password}` : ''}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        const quiz = data.data;
+  // UI state
+  const {
+    helpActive,
+    doneActive,
+    answerCount,
+    showResults,
+    setHelpActive,
+    setDoneActive,
+    setAnswerCount,
+    viewDetailedResults,
+    useScrollToTop
+  } = useQuizUI();
 
-        // Handle both old flat structure and new nested structure
-        const questionsData = quiz.content?.questions || quiz.questions || {};
-        const metadata = quiz.metadata || {};
-        const settings = quiz.settings || {};
-
-        const selected = Object.keys(questionsData).map((questionKey, index) => {
-          const q = questionsData[questionKey];
-          const type = q.type || 'Multiple';
-          const tag =
-            type === 'DragAndDrop'
-              ? 'drag'
-              : type === 'FillInTheBlank'
-              ? 'fill'
-              : type === 'MultipleAnswer'
-              ? 'multiple'
-              : 'single';
-
-          const correctAnswer = q.correct_answer;
-          const originalOptions = [
-            q.option_1,
-            q.option_2,
-            q.option_3,
-            q.option_4,
-          ].filter(Boolean);
-          return {
-            questionId: `custom_${quizID}_${questionKey}`,
-            questionText: q.question,
-            text: q.question,
-            choices: generateChoicesForQuestion({ ...q, correctAnswer, type: tag, originalOptions }, 4),
-            correctAnswer: correctAnswer,
-            type: tag,
-            originalOptions,
-          };
-        });
-
-        setQuestions(selected);
-        
-        // Store quiz metadata and settings for result submission - handle both structures
-        setQuizMetadata({
-          category: metadata.category || quiz.category || 'custom',
-          difficulty: metadata.difficulty || quiz.difficulty || 3,
-          title: metadata.title || quiz.title || 'Custom Quiz'
-        });
-      } catch (error) {
-        console.error('Failed to fetch custom quiz:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchCustomQuiz();
-  }, [quizID, password]);
-
-  // Update choices for current questions when answerCount changes
-  useEffect(() => {
-    if (questions.length === 0) return;
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((question) => {
-        return {
-          ...question,
-          choices: generateChoicesForQuestion(question, answerCount)
-        };
-      })
-    );
-  }, [answerCount]);
+  // Update question choices when answer count changes
+  useQuestionChoices(questions, setQuestions, answerCount);
 
   // Scroll to top when quiz loads
-  useEffect(() => {
-    if (!loading && questions.length > 0) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, [loading, questions.length]);
+  useScrollToTop(loading, questions.length);
 
+  // Handle quiz submission
   const handleSubmit = async () => {
-    if (submittingResults || !currentUser) return;
-    
-    setSubmittingResults(true);
-    
-    // CALCULATE SCORE AND COLLECT ANSWERS
-    const calculateScoreAndAnswers = () => {
-      let score = 0;
-      const questionIds = [];
-      const userAnswers = {};
-      
-      // Get all Question components from refs and calculate their correctness
-      const questionElements = document.querySelectorAll('[data-question-index]');
-      
-      questions.forEach((question, index) => {
-        const qText = question.questionText ?? question.text ?? '';
-        const type = question.type?.toLowerCase();
-        const isFillBlank = type === 'fill';
-        const isMultipleAnswer = type === 'multiple';
-        const isDragAndDrop = type === 'drag';
-        
-        // Store question ID
-        questionIds.push(question.questionId);
-        
-        // Get the current answer from the DOM element
-        const questionElement = document.querySelector(`[data-question-index="${index}"]`);
-        if (!questionElement) {
-          userAnswers[index] = null;
-          return;
-        }
-        
-        let userAnswer = null;
-        let isCorrect = false;
-        
-        if (isFillBlank) {
-          const input = questionElement.querySelector('input[type="text"]');
-          if (input) {
-            userAnswer = input.value.trim();
-            const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
-            isCorrect = userAnswer.toLowerCase() === correctAnswer;
-          }
-        } else if (isMultipleAnswer) {
-          const checkboxes = questionElement.querySelectorAll('input[type="checkbox"]:checked');
-          const selectedTexts = Array.from(checkboxes).map(cb => 
-            cb.parentElement.querySelector('span').textContent.trim()
-          );
-          userAnswer = selectedTexts;
-          
-          const correctAnswers = String(question.correctAnswer)
-            .split('||')
-            .map(a => a.trim().toLowerCase());
-          
-          isCorrect = selectedTexts.length === correctAnswers.length &&
-                     selectedTexts.every(ans => correctAnswers.includes(ans.toLowerCase()));
-        } else if (isDragAndDrop) {
-          // Handle drag and drop - extract the dropped option
-          const dropZone = questionElement.querySelector('.border-dashed');
-          if (dropZone && dropZone.textContent && dropZone.textContent !== 'Drop your answer here') {
-            userAnswer = dropZone.textContent.trim();
-            const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
-            isCorrect = userAnswer.toLowerCase() === correctAnswer;
-          }
-        } else {
-          // Regular multiple choice
-          const selectedButton = questionElement.querySelector('button.bg-accent, button[class*="bg-accent"]');
-          if (selectedButton) {
-            userAnswer = selectedButton.querySelector('span').textContent.trim();
-            const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
-            isCorrect = userAnswer.toLowerCase() === correctAnswer;
-          }
-        }
-        
-        userAnswers[index] = userAnswer;
-        
-        if (isCorrect) {
-          score++;
-        }
-      });
-      
-      return { score, questionIds, userAnswers };
-    };
-    
-    const { score: calculatedScore, questionIds, userAnswers } = calculateScoreAndAnswers();
-    
-    // Store user answers for DoneModal access
-    setUserAnswers(userAnswers);
-    
-    try {
-      // Submit custom quiz results to backend using calculated score
-      await quizSubmissionService.submitQuizResults({
-        userId: currentUser.uid,
+    await submitQuiz({
+      currentUser,
+      questions,
+      setUserAnswers,
+      setCompleted,
+      refreshResults,
+      quizStartTime,
+      quizData: {
         category: quizMetadata?.category || 'custom',
-        score: calculatedScore,
-        totalQuestions: questions.length,
-        amount: questions.length, // For custom quizzes, amount equals total questions
         difficulty: quizMetadata?.difficulty || 3,
+        amount: questions.length,
         quizType: 'custom',
         quizId: quizID,
-        questionIds,
-        userAnswers,
         sessionId: `custom_quiz_${Date.now()}`
-      });
-      
-      // Refresh dashboard cache to show updated scores immediately
-      await refreshResults();
-      
-    } catch (error) {
-      console.error('Error submitting custom quiz results:', error);
-      // Still show results even if submission fails
-    } finally {
-      setSubmittingResults(false);
-      setCompleted(true);
-      setDoneActive(true);
-    }
+      }
+    });
+    
+    // Open done modal after submission
+    setDoneActive(true);
   };
 
   if (loading) {
@@ -479,10 +320,7 @@ function CustomQuizActivity() {
           userAnswers={userAnswers}
           quizId={quizID}
           isCustomQuiz={true}
-          onViewDetails={() => {
-            setShowResults(true);
-            setDoneActive(false);
-          }}
+          onViewDetails={viewDetailedResults}
           category={quizMetadata?.name || "Custom Quiz"}
           difficulty={quizMetadata?.difficulty}
           quizStartTime={quizStartTime}

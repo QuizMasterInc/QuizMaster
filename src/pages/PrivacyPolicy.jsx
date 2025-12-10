@@ -141,7 +141,7 @@ export default function PrivacyPolicy() {
             </p>
             <div className="bg-[var(--neutral-200)] rounded-lg p-4 border border-primary">
               <p className="text-lg text-black">
-                <strong>Email:</strong> privacy@quizmaster.com<br />
+                <strong>Email:</strong> Contact any of the current developers for QuizMaster <a className="text-blue-400" href="/contact">here</a><br />
                 <strong>Address:</strong> QuizMaster Inc.<br />
                 1 University Parkway, Romeoville, IL 60446
               </p>
