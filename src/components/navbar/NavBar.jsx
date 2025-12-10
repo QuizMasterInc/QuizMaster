@@ -172,6 +172,19 @@ export default function NavBar() {
                                 </li>
                                 <li>
                                     <NavLink
+                                        to="/classroom"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <School className="w-5 h-5 navbar-icon" />
+                                        Classroom
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
                                         to="/about"
                                         onClick={e => {
                                             handleClick(e);
@@ -194,6 +207,19 @@ export default function NavBar() {
                                     >
                                         <Email className="w-5 h-5 navbar-icon" />
                                         Contact Us
+                                    </NavLink>
+                                </li>
+                                <li>
+                                    <NavLink
+                                        to="/profile"
+                                        onClick={e => {
+                                            handleClick(e);
+                                            setDashboardOpen(false);
+                                        }}
+                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
+                                    >
+                                        <Profile className="w-5 h-5 navbar-icon" />
+                                        Profile
                                     </NavLink>
                                 </li>
                                 <li>
@@ -349,6 +375,10 @@ export default function NavBar() {
                                 <NavLink to="/contact" onClick={handleClick} className="mobile-nav-item">
                                     <Email className="w-5 h-5" />
                                     Contact Us
+                                </NavLink>
+                                <NavLink to="/Profile" onClick={handleClick} className="mobile-nav-item">
+                                    <Profile className="w-5 h-5" />
+                                    Profile
                                 </NavLink>
                                 <NavLink to="/settings" onClick={handleClick} className="mobile-nav-item">
                                     <Gear className="w-5 h-5" />

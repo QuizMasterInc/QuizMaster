@@ -47,6 +47,7 @@ import Settings from './components/settings/Settings'
 import { CATEGORY_DESTINATIONS } from './constants/quizConstants.jsx';
 import { useAuth } from './contexts/AuthContext';
 import Presentation from './components/presentation/presentation';
+import Classroom from './pages/Classroom';
 
 function App() {
   const { user, loading, error } = useAuth();
@@ -232,6 +233,12 @@ function App() {
           }/>
 
           <Route path="/presentation" element={<Presentation />} />
+
+          <Route path="/classroom" element={
+            <PrivateRoute>
+              <Classroom />
+            </PrivateRoute>
+          }/>
 
           <Route path="*" element={<NotFound />} />
             </Routes>

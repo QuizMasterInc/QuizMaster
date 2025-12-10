@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import flashcardService from '../../services/flashcards/flashcardService';
+import FlashcardPreview from './FlashcardPreview';
 
 export default function BrowsePublicFlashcards() {
   const navigate = useNavigate();
@@ -207,24 +208,8 @@ export default function BrowsePublicFlashcards() {
                       </div>
                     )}
                     
-                    {/* Preview of first card */}
-                    {deck.cards && Object.keys(deck.cards).length > 0 && (
-                      <div className="mt-4 text-left">
-                        <div className="text-sm text-[var(--text-primary)] mb-2"><strong>Preview:</strong></div>
-                        <div className="text-xs bg-[var(--bg-secondary)] p-3 rounded-lg border border-[var(--border)]">
-                          {Object.entries(deck.cards).slice(0, 1).map(([cardId, card]) => (
-                            <div key={cardId}>
-                              <div className="text-[var(--text-primary)] mb-1">
-                                <span className="font-bold text-[var(--accent)]">Front:</span> {card.front}
-                              </div>
-                              <div className="text-[var(--text-primary)]">
-                                <span className="font-bold text-[var(--accent)]">Back:</span> {card.back}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    {/* Interactive Flashcard Preview */}
+                    <FlashcardPreview cards={deck.cards} />
 
                     {/* Analytics */}
                     {deck.timesStudied > 0 && (

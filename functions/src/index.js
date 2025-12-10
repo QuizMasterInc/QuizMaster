@@ -8,8 +8,13 @@ const quizzes = require('./quizzes')
 const results = require('./results')
 const flashcards = require('./flashcards')
 const studySessions = require('./study_sessions')
+const feedback = require('./feedback')
 
 // Export all functions from modules
+
+// Feedback
+exports.submitFeedback = feedback.submitFeedback
+
 // Questions module
 exports.addDefaultQuestion = questions.addDefaultQuestion
 exports.grabSubV2 = questions.grabSubV2

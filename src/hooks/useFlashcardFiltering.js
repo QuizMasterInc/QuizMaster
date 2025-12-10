@@ -17,11 +17,23 @@ export function useFlashcardFiltering(decks) {
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(deck =>
-        deck.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        deck.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        deck.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
+      const lowerSearch = searchTerm.toLowerCase();
+      filtered = filtered.filter(deck => {
+        // Check title
+        if (deck.title?.toLowerCase().includes(lowerSearch)) return true;
+        
+        // Check description
+        if (deck.description?.toLowerCase().includes(lowerSearch)) return true;
+        
+        // Check tags (only if tags exist and is a non-empty array)
+        if (Array.isArray(deck.tags) && deck.tags.length > 0) {
+          return deck.tags.some(tag => 
+            tag && typeof tag === 'string' && tag.toLowerCase().includes(lowerSearch)
+          );
+        }
+        
+        return false;
+      });
     }
 
     // Category filter

@@ -1,11 +1,11 @@
 //This file handles UI for creating a custom quiz. Business logic is in quizService.
-import {useState, useEffect} from 'react'
-import { useNavigate } from "react-router-dom";
-import QuizQuestionsList from './QuizQuestionsList'
-import QuizCreation from './QuizCreation'
-import {useAuth} from '../../contexts/AuthContext'
-import quizCreationService from '../../services/quiz/quizCreationService'
-import quizRetrievalService from '../../services/quiz/quizRetrievalService'
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import QuizQuestionsList from './QuizQuestionsList';
+import QuizCreation from './QuizCreation';
+import { useAuth } from '../../contexts/AuthContext';
+import quizCreationService from '../../services/quiz/quizCreationService';
+import quizRetrievalService from '../../services/quiz/quizRetrievalService';
 
 export default function CustomQuiz () {
   const [quizData, setQuizData] = useState([])
@@ -89,9 +89,9 @@ export default function CustomQuiz () {
           console.error('Error refreshing quiz list:', error);
         }
         
-        // Show success message and navigate to quiz selection
+        // Show success message and navigate to the newly created quiz
         alert(`Quiz "${quizName}" created successfully!`);
-        navigate('/typeofquiz');
+        navigate(`/customquiz/settings/${response.quizID}`);
       }
 
     } catch (error) {

@@ -2,16 +2,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useStudySession } from '../../../hooks/useStudySession';
-import { useState, useMemo } from 'react';
+import { useCardPreview } from '../../../hooks/useCardPreview';
 
 import StudyCard from './StudyCard';
 import StudyProgressBar from './StudyProgressBar';
 import RatingButtons from './RatingButtons';
 import StudyStats from './StudyStats';
+import StudySearchBar from './StudySearchBar';
 
 /**
  * StudyMode - Main study session container
- * Now includes: Search bar for locating specific questions
+ * Orchestrates study flow with search/preview functionality
  */
 const StudyMode = () => {
     const { deckId } = useParams();
@@ -23,6 +24,7 @@ const StudyMode = () => {
         deck,
         currentCard,
         currentCardIndex,
+        setCurrentCardIndex,
         isFlipped,
         loading,
         error,
@@ -30,29 +32,20 @@ const StudyMode = () => {
         stats,
         cardsStudied,
         handleFlip,
-        handleRating,
-        setCurrentCardIndex // ← we NEED this to JUMP to a card
+        handleRating
     } = useStudySession(deckId, currentUser?.uid);
 
-    // -------------------------
-    // 🔎 SEARCH FEATURE ADDED
-    // -------------------------
-    const [searchTerm, setSearchTerm] = useState("");
-
-    // Filter cards based on search
-    const filteredResults = useMemo(() => {
-        if (!searchTerm.trim()) return [];
-        return cards
-            .map((c, index) => ({ ...c, index }))
-            .filter(c =>
-                c.question?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-    }, [searchTerm, cards]);
-
-    const handleJumpToCard = (index) => {
-        setCurrentCardIndex(index);
-        setSearchTerm("");
-    };
+    // Search and preview mode logic
+    const {
+        searchTerm,
+        setSearchTerm,
+        filteredResults,
+        clearSearch,
+        previewMode,
+        studyPosition,
+        handleJumpToCard,
+        handleReturnToStudy
+    } = useCardPreview(cards, currentCardIndex, setCurrentCardIndex);
 
     // Handle rating and navigation
     const onRatingClick = async (rating) => {
@@ -131,54 +124,19 @@ const StudyMode = () => {
                     </button>
                 </div>
 
-                {/* 🔎 SEARCH BAR */}
-                <div className="relative max-w-xl mx-auto">
-                    <input
-                        type="text"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search for a question..."
-                        className="w-full px-4 py-3 rounded-lg bg-input border border-accent text-primary focus:border-accent-hover transition-all"
-                    />
-                    
-                    {/* Clear button */}
-                    {searchTerm && (
-                        <button
-                            onClick={() => setSearchTerm("")}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-white"
-                        >
-                            ✕
-                        </button>
-                    )}
+                {/* Search Bar with Preview Mode Indicator */}
+                <StudySearchBar
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    onClearSearch={clearSearch}
+                    filteredResults={filteredResults}
+                    onJumpToCard={handleJumpToCard}
+                    previewMode={previewMode}
+                    studyPosition={studyPosition}
+                    onReturnToStudy={handleReturnToStudy}
+                />
 
-                    {/* Search Results Dropdown */}
-                    {searchTerm && (
-                        <div className="absolute w-full mt-2 bg-card border border-accent rounded-xl shadow-xl max-h-60 overflow-y-auto z-20">
-                            {filteredResults.length === 0 ? (
-                                <div className="p-4 text-secondary text-center">
-                                    No matching questions found.
-                                </div>
-                            ) : (
-                                filteredResults.map(result => (
-                                    <button
-                                        key={result.index}
-                                        onClick={() => handleJumpToCard(result.index)}
-                                        className="block w-full text-left px-4 py-2 hover:bg-[var(--accent)] hover:text-white transition-all"
-                                    >
-                                        <span className="font-semibold text-primary">
-                                            Question {result.index + 1}:
-                                        </span>{' '}
-                                        {result.question.length > 60
-                                            ? result.question.slice(0, 60) + "..."
-                                            : result.question}
-                                    </button>
-                                ))
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* PROGRESS BAR */}
+                {/* Progress Bar */}
                 <StudyProgressBar 
                     currentIndex={currentCardIndex} 
                     total={cards.length} 
@@ -192,8 +150,16 @@ const StudyMode = () => {
                         onFlip={handleFlip}
                     />
 
-                    {isFlipped && (
+                    {/* Only show rating buttons when NOT in preview mode */}
+                    {isFlipped && !previewMode && (
                         <RatingButtons onRate={onRatingClick} />
+                    )}
+
+                    {/* Show message when in preview mode and card is flipped */}
+                    {isFlipped && previewMode && (
+                        <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
+                            <p className="text-secondary">Rating disabled in preview mode</p>
+                        </div>
                     )}
                 </div>
 

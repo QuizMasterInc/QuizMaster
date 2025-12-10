@@ -1,8 +1,7 @@
-/**
- * Shared UI components for consistent design across the app
- */
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import FeedbackForm from '../feedback/FeedbackForm';
 
 // Reusable Button Component
 export const Button = ({
@@ -92,32 +91,42 @@ export const Card = ({
 // Reusable Footer Component
 export const Footer = () => {
   const appVersion = "1.0.0";
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   return (
-  <footer className="w-full fixed bottom-0 left-0 bg-gradient-to-r from-[#1a0533] via-[#220b47] to-[#100222] text-center py-6 text-sm text-gray-300 border-t border-purple-800 shadow-inner z-50">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p className="font-medium tracking-wide text-gray-400">
-            © 2025 <span className="text-purple-400 font-semibold">QuizMaster</span>. All rights reserved.
-          </p>
-          <div className="flex space-x-6 items-center">
-            <span className="text-gray-500">v{appVersion}</span>
-            <Link
-              to="/privacy-policy"
-              className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              to="/terms-of-service"
-              className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
-            >
-              Terms of Service
-            </Link>
+    <>
+      <footer className="w-full fixed bottom-0 left-0 bg-gradient-to-r from-[#1a0533] via-[#220b47] to-[#100222] text-center py-6 text-sm text-gray-300 border-t border-purple-800 shadow-inner z-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <p className="font-medium tracking-wide text-gray-400">
+              © 2025 <span className="text-purple-400 font-semibold">QuizMaster</span>. All rights reserved.
+            </p>
+            <div className="flex space-x-6 items-center">
+              <span className="text-gray-500">v{appVersion}</span>
+              <button
+                onClick={() => setFeedbackOpen(true)}
+                className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
+              >
+                Feedback
+              </button>
+              <Link
+                to="/privacy-policy"
+                className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                to="/terms-of-service"
+                className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
+              >
+                Terms of Service
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
-    </footer>
-  );
+      </footer>
 
+      <FeedbackForm isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
+    </>
+  );
 };
