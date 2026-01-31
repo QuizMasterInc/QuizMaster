@@ -1,11 +1,21 @@
 import { useState, useEffect } from 'react';
 
-function Question({ question, onAnswer, isCompleted, onAnswerChange, answerCount }) {
+function Question({
+  question,
+  questionIndex,
+  onAnswer,
+  isCompleted,
+  onAnswerChange,
+  answerCount,
+  onReviewAgain
+}) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
   const [inputAnswer, setInputAnswer] = useState('');
   const [droppedOption, setDroppedOption] = useState('');
   const [hasBeenCounted, setHasBeenCounted] = useState(false);
+  const [evaluatedCorrect, setEvaluatedCorrect] = useState(null); // null | true | false
+  const [markedForReview, setMarkedForReview] = useState(false);
 
   const qText = question.questionText ?? question.text ?? '';
 
@@ -50,7 +60,8 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange, answerCount
         }
       }
 
-      if (onAnswer) onAnswer(isCorrect);
+      setEvaluatedCorrect(isCorrect);
+      if (onAnswer) onAnswer(questionIndex, isCorrect);
     }
   }, [isCompleted]);
 
@@ -167,6 +178,38 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange, answerCount
               )
             )}
           </div>
+        )}
+      </div>
+
+      {/* Review Again controls */}
+      <div className="mt-6 flex flex-wrap gap-3">
+        {!isCompleted && (
+          <button
+            type="button"
+            onClick={() => {
+              setMarkedForReview(true);
+              if (onReviewAgain) onReviewAgain(questionIndex);
+            }}
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 ${
+              markedForReview
+                ? 'bg-accent-hover text-btn-primary border-accent'
+                : 'bg-accent hover:bg-accent-hover text-btn-primary border-accent'
+            }`}
+          >
+            {markedForReview ? 'Marked for Review' : 'Mark for Review'}
+          </button>
+        )}
+
+        {isCompleted && evaluatedCorrect === false && (
+          <button
+            type="button"
+            onClick={() => {
+              if (onReviewAgain) onReviewAgain(questionIndex);
+            }}
+            className="px-4 py-2 rounded-lg border border-accent bg-accent text-btn-primary shadow-md hover:opacity-90 transition-opacity duration-200"
+          >
+            Review Again
+          </button>
         )}
       </div>
     </div>

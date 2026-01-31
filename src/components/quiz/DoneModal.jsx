@@ -4,8 +4,53 @@ import { SquareX } from "../icons";
 import { Link } from "react-router-dom";
 import DownloadQuiz from "./DownloadQuiz";
 
-const DoneModal = ({ isActive, amountCorrect, totalAmount, active, questions = [], userAnswers = {}, quizId, isCustomQuiz = false, onViewDetails, category = "Quiz", difficulty, quizStartTime }) => {
+const DoneModal = ({
+    isActive,
+    amountCorrect,
+    totalAmount,
+    active,
+    questions = [],
+    userAnswers = {},
+    quizId,
+    isCustomQuiz = false,
+    onViewDetails,
+    onReviewAgain,
+    category = "Quiz",
+    difficulty,
+    quizStartTime
+}) => {
     const [showDetails, setShowDetails] = useState(false);
+
+    const getIncorrectIndexes = () => {
+        const incorrect = [];
+
+        questions.forEach((question, index) => {
+            const userAnswer = userAnswers[index];
+            if (!userAnswer) {
+                incorrect.push(index);
+                return;
+            }
+
+            const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
+            const userAns = Array.isArray(userAnswer)
+                ? userAnswer.map(a => String(a).toLowerCase().trim())
+                : [String(userAnswer).toLowerCase().trim()];
+
+            let isCorrect = false;
+            if (question.type === 'multiple') {
+                const correctAnswers = correctAnswer.split('||').map(a => a.trim().toLowerCase());
+                isCorrect = userAns.length === correctAnswers.length && userAns.every(ans => correctAnswers.includes(ans));
+            } else {
+                isCorrect = userAns[0] === correctAnswer;
+            }
+
+            if (!isCorrect) incorrect.push(index);
+        });
+
+        return incorrect;
+    };
+
+    const incorrectCount = getIncorrectIndexes().length;
 
     return (
         <Modal
@@ -95,6 +140,24 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, questions = [
                                         correctCount={amountCorrect}
                                         category={category}
                                     />
+
+                                    <button
+                                        type="button"
+                                        className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 ${
+                                            incorrectCount === 0
+                                                ? 'bg-neutral-400 border-neutral-400 text-white cursor-not-allowed'
+                                                : 'bg-accent hover:bg-accent-hover text-btn-primary border-accent'
+                                        }`}
+                                        disabled={incorrectCount === 0}
+                                        onClick={() => {
+                                            const incorrectIndexes = getIncorrectIndexes();
+                                            if (incorrectIndexes.length > 0 && onReviewAgain) {
+                                                onReviewAgain(incorrectIndexes);
+                                            }
+                                        }}
+                                    >
+                                        Review Incorrect Again
+                                    </button>
 
                                     <Link to="/typeofquiz">
                                         <button

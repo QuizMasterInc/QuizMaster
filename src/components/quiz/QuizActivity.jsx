@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { useCategory } from '../../contexts/AppContext';
@@ -40,7 +41,8 @@ function QuizActivity() {
     recordAnswered,
     recordCorrect,
     setUserAnswers,
-    setCompleted
+    setCompleted,
+    resetQuizState
   } = useQuizState();
 
   // Quiz submission
@@ -58,6 +60,46 @@ function QuizActivity() {
     viewDetailedResults,
     useScrollToTop
   } = useQuizUI();
+
+  // Review Again / Mark for Review (session-only)
+  const [reviewQueue, setReviewQueue] = useState([]); // stores question indexes
+  const [resultsByIndex, setResultsByIndex] = useState({}); // { [index]: true|false }
+
+  const enqueueReview = (index) => {
+    if (index === null || index === undefined) return;
+    setReviewQueue((prev) => (prev.includes(index) ? prev : [...prev, index]));
+  };
+
+  const handleAnswerResult = (index, isCorrect) => {
+    // Backward/defensive: ignore if the index isn't a number
+    if (typeof index !== 'number') return;
+
+    setResultsByIndex((prev) => ({
+      ...prev,
+      [index]: isCorrect
+    }));
+
+    // Preserve existing scoring behavior
+    if (typeof isCorrect === 'boolean') {
+      recordCorrect(isCorrect);
+    }
+  };
+
+  const scrollToQuestion = (index) => {
+    try {
+      const el = document.querySelector(`[data-question-index="${index}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } catch (_) {
+      // no-op
+    }
+  };
+
+  const goToNextReview = () => {
+    if (!reviewQueue || reviewQueue.length === 0) return;
+    scrollToQuestion(reviewQueue[0]);
+  };
 
   // Update question choices when answer count changes
   useQuestionChoices(questions, setQuestions, answerCount);
@@ -86,6 +128,33 @@ function QuizActivity() {
     
     // Open done modal after submission
     setDoneActive(true);
+  };
+
+  // Retry only incorrect questions (from DoneModal)
+  const handleReviewAgain = (incorrectIndexes) => {
+    if (!Array.isArray(incorrectIndexes) || incorrectIndexes.length === 0) return;
+
+    const reviewQuestions = incorrectIndexes
+      .map((i) => questions[i])
+      .filter(Boolean);
+
+    if (reviewQuestions.length === 0) return;
+
+    // Reset state for a fresh focused retry
+    if (typeof resetQuizState === 'function') {
+      resetQuizState();
+    } else {
+      // Fallback minimal reset
+      setUserAnswers({});
+      setCompleted(false);
+    }
+
+    setQuestions(reviewQuestions);
+
+    // Close modal and clear review tracking for the new attempt
+    setDoneActive(false);
+    setReviewQueue([]);
+    setResultsByIndex({});
   };
 
   if (loading) {
@@ -163,6 +232,24 @@ function QuizActivity() {
                 Correct answers:{' '}
                 <span className="font-medium text-accent">{correctCount}</span>
               </p>
+              <div className="mb-6">
+                <p className="text-lg text-secondary mb-3">
+                  Marked for review:{' '}
+                  <span className="font-medium text-accent">{reviewQueue.length}</span>
+                </p>
+                <button
+                  type="button"
+                  onClick={goToNextReview}
+                  className={`w-full px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 flex items-center justify-center gap-2 ${
+                    completed || reviewQueue.length === 0
+                      ? 'bg-neutral-400 border-neutral-400 text-white cursor-not-allowed'
+                      : 'bg-[var(--neutral-200)] text-black border-primary hover:bg-[var(--neutral-300)]'
+                  }`}
+                  disabled={completed || reviewQueue.length === 0}
+                >
+                  Go to next review question
+                </button>
+              </div>
               <button
                 onClick={() => {
                   // Give time for all recordCorrect calls to complete
@@ -200,10 +287,12 @@ function QuizActivity() {
             >
               <Question
                 question={q}
+                questionIndex={i}
                 isCompleted={completed}
-                onAnswer={recordCorrect}
+                onAnswer={handleAnswerResult}
                 onAnswerChange={recordAnswered}
                 answerCount={answerCount}
+                onReviewAgain={enqueueReview}
               />
             </div>
           ))}
@@ -329,6 +418,7 @@ function QuizActivity() {
           quizId={null}
           isCustomQuiz={false}
           onViewDetails={viewDetailedResults}
+          onReviewAgain={handleReviewAgain}
           category={category}
           difficulty={difficulty}
           quizStartTime={quizStartTime}
