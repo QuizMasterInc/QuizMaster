@@ -29,3 +29,4 @@ Here is our definition of done.
 - In production
 - Can be demoed
 - Everyone agrees that it meets the expectations outlined in the story 
+- At least one GitHub commit to the product branch with a commit message ‘Story [[STORY-NUMBER]] done.
