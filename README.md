@@ -33,6 +33,18 @@ Team Fun | Software Systems Capstone Project
 Our capstone project that allows users to take quizzes on a variety of different topics and create custom flashcard decks for enhanced learning.
 </h4>
 
+## Development Team (ElectricalSquirrels)
+<div>
+<h4>Salah Abdelmajid</h4>
+
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:salahjabdelmajid@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/salahmajid)
+</div>
+
+
+
+
+
+
 ## Development Team (Titanic Swim Team)
 <div>
 <h4>Rudra Patel</h4>
