@@ -119,3 +119,19 @@ const calculateStats = (cardRatings) => {
     
     return { easyCount, goodCount, hardCount, successRate };
 };
+
+export const getRecentSessions = async (userId, limitCount = 6) => {
+    if (!userId) return [];
+
+    const q = query(
+        collection(db, "study_sessions"),
+        where("userId", "==", userId),
+        orderBy("lastActivityAt", "desc"),
+        limit(limitCount)
+    );
+
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return [];
+
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}

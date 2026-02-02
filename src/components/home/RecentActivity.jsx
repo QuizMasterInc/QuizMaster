@@ -6,15 +6,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getRecentSessions } from '../../services/flashcards/studySession';
 import resultService from '../../services/quiz/resultService';
 
-/**
- * RecentActivity - Shows recent quizzes and flashcard sessions on Home
- * - merges quiz attempts (from ResultService) and study sessions
- * - sorts them by timestamp and displays up to `limit` items
- */
 const RecentActivity = ({ limit = 6 }) => {
   const { currentUser } = useAuth();
   const { allResults, loading: resultsLoading } = useResults();
   const [sessions, setSessions] = useState([]);
+  const [quizAttempts, setQuizAttempts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -45,42 +41,38 @@ const RecentActivity = ({ limit = 6 }) => {
     return () => { mounted = false; };
   }, [currentUser?.uid]);
 
-  // Builds quiz items from allResults cache 
-  const quizItems = useMemo(() => {
-    if (!allResults) return [];
-
-    const items = [];
-
-    
-    Object.keys(allResults).forEach(key => {
-      const val = allResults[key];
-
-      
-      if (Array.isArray(val.attempts) && val.attempts.length > 0) {
-        val.attempts.forEach(a => {
-          items.push({
-            type: 'quiz',
-            id: a.id || a.attemptId || `${a.quizId}_${a.submittedAt}`,
-            title: a.quizTitle || a.quizName || val.title || key,
-            timestamp: a.submittedAt || a.lastAttemptAt || a.startedAt || null,
-            meta: { score: a.score }
-          });
-        });
-      } else if (val.lastAttempt) {
-        items.push({
-          type: 'quiz',
-          id: val.lastAttempt.id || `${key}_last`,
-          title: val.lastAttempt.quizTitle || key,
-          timestamp: val.lastAttempt.submittedAt || val.lastAttempt.startedAt || null,
-          meta: { score: val.lastAttempt.score }
-        });
+  useEffect(() => {
+    let mounted = true;
+    async function loadAttempts() {
+      if (!currentUser?.uid) {
+        setQuizAttempts([]);
+        return;
       }
-    });
 
-    return items;
-  }, [allResults]);
+      try {
+        const data = await resultService.getUserAttempts(currentUser.uid, { limitCount: limit });
+        if (mounted) setQuizAttempts(data.attempts || []);
+      } catch (err) {
+        console.error('Error loading quiz attempts:', err);
+        if (mounted) setQuizAttempts([]);
+      }
+    }
 
-  
+    loadAttempts();
+
+    return () => { mounted = false; };
+  }, [currentUser?.uid, limit]);
+
+  const quizItems = useMemo(() => {
+    return (quizAttempts || []).map(a => ({
+      type: 'quiz',
+      id: a.id || a.attemptId || `${a.quizId}_${a.submittedAt}`,
+      title: a.quizTitle || a.quizName || a.quizId || 'Quiz',
+      timestamp: a.submittedAt || a.startedAt || null,
+      meta: { score: a.score }
+    }));
+  }, [quizAttempts]);
+
   const sessionItems = useMemo(() => {
     return sessions.map(s => ({
       type: 'study',
@@ -91,7 +83,6 @@ const RecentActivity = ({ limit = 6 }) => {
     }));
   }, [sessions]);
 
-  
   const merged = useMemo(() => {
     const all = [...quizItems, ...sessionItems]
       .filter(i => i.timestamp)

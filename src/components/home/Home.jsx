@@ -1,4 +1,5 @@
 import HeroSection from "./HeroSection";
+import RecentActivity from './RecentActivity';
 import { FaRocket, FaChartLine, FaPenFancy } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
