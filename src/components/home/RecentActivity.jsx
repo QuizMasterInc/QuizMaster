@@ -27,6 +27,7 @@ const RecentActivity = ({ limit = 6 }) => {
 
       try {
         const recentSessions = await getRecentSessions(currentUser.uid, 6);
+        console.log('[RecentActivity] fetched recentSessions:', recentSessions);
         if (mounted) setSessions(recentSessions || []);
       } catch (err) {
         console.error('Error loading recent sessions:', err);
@@ -51,6 +52,7 @@ const RecentActivity = ({ limit = 6 }) => {
 
       try {
         const data = await resultService.getUserAttempts(currentUser.uid, { limitCount: limit });
+        console.log('[RecentActivity] fetched quizAttempts response:', data);
         if (mounted) setQuizAttempts(data.attempts || []);
       } catch (err) {
         console.error('Error loading quiz attempts:', err);
