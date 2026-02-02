@@ -6,8 +6,11 @@ Salah Abdelmajid - Product Owner
 
 Joseph Chavez - Scrum Master
 
+Faiza Khan - Development Team
 
+Benjamin Campa - Development Team
 
+Adrian Salinas - Development Team
 
 
 ### Fall 2025 Team Roles
