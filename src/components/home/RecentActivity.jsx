@@ -86,9 +86,17 @@ const RecentActivity = ({ limit = 6 }) => {
   }, [sessions]);
 
   const merged = useMemo(() => {
+    const normalizeTs = (ts) => {
+      if (!ts) return null;
+      if (typeof ts === 'string') return new Date(ts);
+      if (ts.toDate && typeof ts.toDate === 'function') return ts.toDate();
+      if (ts._seconds) return new Date(ts._seconds * 1000 + (ts._nanoseconds || 0) / 1e6);
+      try { return new Date(ts); } catch (e) { return null; }
+    };
+
     const all = [...quizItems, ...sessionItems]
-      .filter(i => i.timestamp)
-      .map(i => ({ ...i, ts: new Date(i.timestamp).getTime() }))
+      .map(i => ({ ...i, ts: normalizeTs(i.timestamp)?.getTime() || 0 }))
+      .filter(i => i.ts > 0)
       .sort((a, b) => b.ts - a.ts)
       .slice(0, limit);
 
@@ -134,7 +142,7 @@ const RecentActivity = ({ limit = 6 }) => {
                 </div>
                 <div>
                   <div className="font-semibold">{item.title}</div>
-                  <div className="text-xs text-secondary">{new Date(item.timestamp).toLocaleString()}</div>
+                  <div className="text-xs text-secondary">{new Date(item.ts).toLocaleString()}</div>
                 </div>
               </div>
 
