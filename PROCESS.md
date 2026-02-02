@@ -1,6 +1,6 @@
 ### Overview
 
-The team plans to meet on Monday at 1PM every week in order to review the progress that has been made.
+The team plans to meet on Thursdays at 12PM every week in order to review the progress that has been made.
 
 We also plan on using our Discord server for consistent communication throughout each sprint nearly every day. 
 
@@ -29,3 +29,4 @@ Here is our definition of done.
 - In production
 - Can be demoed
 - Everyone agrees that it meets the expectations outlined in the story 
+- At least one GitHub commit to the product branch with a commit message ‘Story [[STORY-NUMBER]] done.
