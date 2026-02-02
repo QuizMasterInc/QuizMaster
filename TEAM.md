@@ -4,7 +4,7 @@ Scrum will be implemented by assigning the following roles: Product Owner, Scrum
 
 Salah Abdelmajid - Product Owner
 
-
+Joseph Chavez - Scrum Master
 
 
 
