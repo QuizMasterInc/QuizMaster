@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { CategoryStatsCard } from './CategoryStatsCard';
 import { Link } from 'react-router-dom';
 import { QUIZ_CATEGORIES, CATEGORY_ICONS } from '../../constants/quizConstants.jsx';
+import RecentActivity from '../home/RecentActivity';
 
 export default function Dashboard() {
   const { isGoogleAuth } = useAuth();
@@ -21,6 +22,7 @@ export default function Dashboard() {
             Track your scores, study smarter, and master knowledge like a pro.
           </p>
         </section>
+        <RecentActivity limit={6} />
 
         <section className="dashboard-section">
           <h2 className="text-3xl font-bold text-center text-gradient-primary mb-10">Your Quiz Scores</h2>
