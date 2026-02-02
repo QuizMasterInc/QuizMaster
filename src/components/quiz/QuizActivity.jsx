@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { useCategory } from '../../contexts/AppContext';
@@ -16,6 +16,7 @@ import { useDefaultQuiz, useQuestionChoices } from '../../hooks/useQuizEngine';
 import { useQuizState } from '../../hooks/useQuizState';
 import { useQuizSubmission } from '../../hooks/useQuizSubmission';
 import { useQuizUI } from '../../hooks/useQuizUI';
+import quizDraftService from '../../services/quiz/quizDraftService';
 
 function QuizActivity() {
   const { category, subcategories, difficulty, amount } = useCategory();
@@ -41,12 +42,13 @@ function QuizActivity() {
     recordAnswered,
     recordCorrect,
     setUserAnswers,
+    setAnsweredCount,
     setCompleted,
     resetQuizState
   } = useQuizState();
 
   // Quiz submission
-  const { submittingResults, submitQuiz } = useQuizSubmission();
+  const { submittingResults, submitQuiz, calculateScoreAndAnswers } = useQuizSubmission();
 
   // UI state
   const {
@@ -106,6 +108,39 @@ function QuizActivity() {
 
   // Scroll to top when quiz loads
   useScrollToTop(loading, questions.length);
+
+  // Try to restore draft on mount
+  useEffect(() => {
+    if (!currentUser) return;
+    try {
+      const draft = quizDraftService.loadDraft({ userId: currentUser.uid, quizId: null, category, difficulty, amount });
+      if (draft) {
+        // If draft contains questionIds but we already loaded questions from server, don't replace unless count matches
+        if (draft.questionIds && draft.questionIds.length === questions.length) {
+          // Restore user answers and answered count
+          if (draft.userAnswers) setUserAnswers(draft.userAnswers);
+          if (typeof draft.answeredCount === 'number') {
+            // setAnsweredCount is provided by the hook
+            if (typeof setAnsweredCount === 'function') setAnsweredCount(draft.answeredCount);
+          }
+          if (draft.quizStartTime) {
+            // No direct setter for quizStartTime; this is okay, we'll keep existing quizStartTime
+          }
+
+          // Notify user that a draft was restored
+          // Use a confirm so they can opt out
+          const resume = window.confirm('A saved quiz draft was found. Would you like to restore your progress?');
+          if (!resume) {
+            // if they decline, remove draft
+            quizDraftService.removeDraft({ userId: currentUser.uid, quizId: null, category, difficulty, amount });
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error restoring quiz draft:', err);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.uid]);
 
   // Handle quiz submission
   const handleSubmit = async () => {
@@ -250,6 +285,7 @@ function QuizActivity() {
                   Go to next review question
                 </button>
               </div>
+              <div className="space-y-3">
               <button
                 onClick={() => {
                   // Give time for all recordCorrect calls to complete
@@ -276,6 +312,40 @@ function QuizActivity() {
                   'Submit Quiz'
                 )}
               </button>
+              <button
+                onClick={async () => {
+                  try {
+                    // Capture current answers from the DOM using the helper
+                    const calc = calculateScoreAndAnswers(questions);
+                    const draft = {
+                      userId: currentUser?.uid,
+                      quizId: null,
+                      category,
+                      difficulty,
+                      amount,
+                      questionIds: calc.questionIds || questions.map(q => q.questionId),
+                      userAnswers: calc.userAnswers || {},
+                      answeredCount: answeredCount || 0,
+                      quizStartTime
+                    };
+
+                    const res = await quizDraftService.saveDraft(draft);
+                    if (res.success) {
+                      alert('Quiz progress saved locally. You can resume later from Home.');
+                    } else {
+                      alert('Failed to save draft: ' + (res.message || 'unknown'));
+                    }
+                  } catch (err) {
+                    console.error('Error saving quiz draft:', err);
+                    alert('Failed to save draft.');
+                  }
+                }}
+                className="w-full px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 flex items-center justify-center gap-2 bg-yellow-400 text-black border-yellow-500 hover:bg-yellow-500 hover:text-white"
+                disabled={!currentUser}
+              >
+                Save for later
+              </button>
+              </div>
             </div>
           </div>        {/* Questions */}
         <div className="space-y-8">

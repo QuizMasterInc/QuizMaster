@@ -9,6 +9,7 @@ import StudyProgressBar from './StudyProgressBar';
 import RatingButtons from './RatingButtons';
 import StudyStats from './StudyStats';
 import StudySearchBar from './StudySearchBar';
+import { updateSessionProgress } from '../../../services/flashcards/studySession';
 
 /**
  * StudyMode - Main study session container
@@ -115,13 +116,34 @@ const StudyMode = () => {
                 {/* HEADER */}
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl font-bold text-gradient-primary">{deck.title}</h1>
-                    <button 
-                        className="px-4 py-2 bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-text)] rounded-lg border border-[var(--border)] hover:bg-[var(--accent)] hover:text-white transition-all duration-200"
-                        onClick={() => navigate('/flashcards')}
-                        aria-label="Exit study mode"
-                    >
-                        ✕ Exit
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            className="px-4 py-2 bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-text)] rounded-lg border border-[var(--border)] hover:bg-[var(--accent)] hover:text-white transition-all duration-200"
+                            onClick={() => navigate('/flashcards')}
+                            aria-label="Exit study mode"
+                        >
+                            ✕ Exit
+                        </button>
+                        <button
+                            className="px-4 py-2 bg-yellow-400 text-black rounded-lg border border-yellow-500 hover:bg-yellow-500 hover:text-white transition-all duration-200"
+                            onClick={async () => {
+                                try {
+                                    if (!session?.id) {
+                                        alert('No active session to save.');
+                                        return;
+                                    }
+                                    await updateSessionProgress(session.id, currentCardIndex);
+                                    alert('Progress saved. You can resume this deck later from Home.');
+                                } catch (err) {
+                                    console.error('Error saving progress:', err);
+                                    alert('Failed to save progress. Please try again.');
+                                }
+                            }}
+                            aria-label="Save progress for later"
+                        >
+                            Save for later
+                        </button>
+                    </div>
                 </div>
 
                 {/* Search Bar with Preview Mode Indicator */}

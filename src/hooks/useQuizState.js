@@ -52,6 +52,7 @@ export const useQuizState = () => {
     recordAnswered,
     recordCorrect,
     setUserAnswers,
+    setAnsweredCount,
     setCompleted,
     resetQuizState,
   };

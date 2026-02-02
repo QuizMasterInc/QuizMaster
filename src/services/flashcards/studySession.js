@@ -123,15 +123,35 @@ const calculateStats = (cardRatings) => {
 export const getRecentSessions = async (userId, limitCount = 6) => {
     if (!userId) return [];
 
-    const q = query(
+    // Primary query: prefer ordering by lastActivityAt (most accurate for activity)
+    const primaryQ = query(
         collection(db, "study_sessions"),
         where("userId", "==", userId),
         orderBy("lastActivityAt", "desc"),
         limit(limitCount)
     );
 
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) return [];
+    const snapshot = await getDocs(primaryQ);
+
+    // If the returned docs exist but none include lastActivityAt (e.g. server-created sessions),
+    // fallback to ordering by startedAt so we still surface recent sessions.
+    const docsHaveLastActivity = snapshot.docs.some(d => {
+        const data = d.data();
+        return data && (data.lastActivityAt || data.lastActivityAt === 0);
+    });
+
+    if (snapshot.empty || !docsHaveLastActivity) {
+        const fallbackQ = query(
+            collection(db, "study_sessions"),
+            where("userId", "==", userId),
+            orderBy("startedAt", "desc"),
+            limit(limitCount)
+        );
+
+        const fallbackSnapshot = await getDocs(fallbackQ);
+        if (fallbackSnapshot.empty) return [];
+        return fallbackSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
 
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }

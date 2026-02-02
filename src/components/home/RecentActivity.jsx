@@ -5,14 +5,17 @@ import { useResults } from '../../contexts/ResultsContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { getRecentSessions } from '../../services/flashcards/studySession';
 import resultService from '../../services/quiz/resultService';
+import flashcardService from '../../services/flashcards/flashcardService';
 
 const RecentActivity = ({ limit = 6 }) => {
   const { currentUser } = useAuth();
   const { allResults, loading: resultsLoading } = useResults();
   const [sessions, setSessions] = useState([]);
+  const [deckTitles, setDeckTitles] = useState({});
   const [quizAttempts, setQuizAttempts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [debugOpen, setDebugOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -41,6 +44,40 @@ const RecentActivity = ({ limit = 6 }) => {
 
     return () => { mounted = false; };
   }, [currentUser?.uid]);
+
+  // Fetch deck titles for any sessions that only have a deckId
+  useEffect(() => {
+    let mounted = true;
+    async function loadDeckTitles() {
+      const missing = Array.from(new Set(sessions
+        .map(s => s.deckId)
+        .filter(Boolean)
+        .filter(id => !deckTitles[id])));
+
+      if (missing.length === 0) return;
+
+      try {
+        const results = await Promise.all(missing.map(id =>
+          flashcardService.getFlashcardDeck(id).catch(err => {
+            console.error('Error fetching deck for RecentActivity:', id, err);
+            return null;
+          })
+        ));
+
+        const map = {};
+        results.forEach((r, idx) => {
+          if (r && r.title) map[missing[idx]] = r.title;
+        });
+
+        if (mounted) setDeckTitles(prev => ({ ...prev, ...map }));
+      } catch (err) {
+        console.error('Error loading deck titles for recent sessions:', err);
+      }
+    }
+
+    loadDeckTitles();
+    return () => { mounted = false; };
+  }, [sessions, deckTitles]);
 
   useEffect(() => {
     let mounted = true;
@@ -79,7 +116,7 @@ const RecentActivity = ({ limit = 6 }) => {
     return sessions.map(s => ({
       type: 'study',
       id: s.id,
-      title: s.deckTitle || s.deckId || 'Flashcards',
+      title: deckTitles[s.deckId] || s.deckTitle || s.deckId || 'Flashcards',
       timestamp: s.lastActivityAt || s.startedAt || null,
       meta: { cardsStudied: s.cardsStudied, deckId: s.deckId }
     }));
@@ -118,6 +155,14 @@ const RecentActivity = ({ limit = 6 }) => {
     return (
       <div className="max-w-6xl mx-auto mt-8 px-4">
         <div className="card p-6 text-center">
+          <div className="mb-4 text-right">
+            <button onClick={() => setDebugOpen(v => !v)} className="text-sm underline">{debugOpen ? 'Hide debug' : 'Show debug'}</button>
+          </div>
+          {debugOpen && (
+            <div className="mb-4 p-3 bg-[var(--bg-secondary)] rounded text-xs overflow-auto max-h-48">
+              <pre className="whitespace-pre-wrap">{JSON.stringify({ sessions, quizAttempts }, null, 2)}</pre>
+            </div>
+          )}
           <h3 className="text-lg font-semibold">No recent activity</h3>
           <p className="text-sm text-secondary">Start a quiz or study some flashcards to see them here.</p>
           <div className="mt-4 flex justify-center gap-3">
@@ -134,6 +179,12 @@ const RecentActivity = ({ limit = 6 }) => {
       <div className="card p-6">
         <h3 className="text-xl font-bold mb-4">Recently</h3>
         <ul className="space-y-3">
+          {debugOpen && (
+            <li className="p-3">
+              <div className="mb-3 text-xs">Debug: fetched data</div>
+              <pre className="text-xs whitespace-pre-wrap max-h-48 overflow-auto">{JSON.stringify({ sessions, quizAttempts, merged }, null, 2)}</pre>
+            </li>
+          )}
           {merged.map(item => (
             <li key={item.id} className="flex items-center justify-between p-3 rounded-md hover:bg-[var(--bg-secondary)] transition">
               <div className="flex items-center gap-3">
