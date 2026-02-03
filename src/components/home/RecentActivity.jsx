@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react';
-import HeroSection from './HeroSection';
-import RecentActivity from './RecentActivity';
+import { useEffect, useMemo, useState } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
