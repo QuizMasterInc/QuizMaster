@@ -79,6 +79,15 @@ export default function NavBar() {
                 <span className="text-3xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">QuizMaster</span>
             </h1>
 
+            <NavLink
+                to="/poll"
+                onClick={handleClick}
+                className="hidden md:inline-flex ml-auto items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold shadow-md hover:shadow-lg transition-transform duration-200 hover:-translate-y-0.5"
+            >
+                <Q className="w-4 h-4" />
+                Take a Poll
+            </NavLink>
+
             {mobileMenuOpen && (
                 <>
                     <div className="drawer-overlay fixed inset-0 bg-black bg-opacity-40 z-40" onClick={() => setMobileMenuOpen(false)} />
@@ -89,6 +98,10 @@ export default function NavBar() {
                                     <NavLink to="/dashboard" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <Profile className="w-5 h-5" />
                                         Dashboard
+                                    </NavLink>
+                                    <NavLink to="/poll" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Q className="w-5 h-5" />
+                                        Take a Poll
                                     </NavLink>
                                     <NavLink to="/typeofquiz" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <School className="w-5 h-5" />
@@ -140,6 +153,10 @@ export default function NavBar() {
                                     <NavLink to="/" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <Profile className="w-5 h-5" />
                                         Home
+                                    </NavLink>
+                                    <NavLink to="/poll" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Q className="w-5 h-5" />
+                                        Take a Poll
                                     </NavLink>
                                     <NavLink to="/about" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <Info className="w-5 h-5" />

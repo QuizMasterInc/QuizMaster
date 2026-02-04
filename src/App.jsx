@@ -48,6 +48,7 @@ import { CATEGORY_DESTINATIONS } from './constants/quizConstants.jsx';
 import { useAuth } from './contexts/AuthContext';
 import Presentation from './components/presentation/presentation';
 import Classroom from './pages/Classroom';
+import Poll from './pages/Poll';
 
 function App() {
   const { user, loading, error } = useAuth();
@@ -84,6 +85,7 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/poll" element={<Poll />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/settings" element={

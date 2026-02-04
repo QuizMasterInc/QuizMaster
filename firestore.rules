@@ -108,6 +108,47 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
+    // Polls collection (live classroom polls)
+    match /polls/{pollId} {
+      // Anyone can read polls (needed for joining by code + live updates/results)
+      allow read: if true;
+
+      // Create requires auth so we can securely identify the poll creator/host.
+      // Students can still join/vote without being authenticated.
+      allow create: if request.auth != null
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.joinCode is string
+        && request.resource.data.question is string
+        && request.resource.data.options is list
+        && request.resource.data.votes is list
+        && request.resource.data.options.size() >= 2
+        && request.resource.data.options.size() <= 6
+        && request.resource.data.votes.size() == request.resource.data.options.size()
+        && request.resource.data.status in ['open', 'closed'];
+
+      // Updates:
+      // 1) Anyone may update ONLY the `votes` (and optional `updatedAt`) to support anonymous voting.
+      // 2) Only the creator/host may update `status` and `showLiveResults` (and optional `updatedAt`).
+      // In all cases, question/options/joinCode cannot be modified.
+      allow update: if (
+          // Anonymous voting path
+          request.resource.data.diff(resource.data).changedKeys().hasOnly(['votes', 'updatedAt'])
+          && request.resource.data.votes is list
+          && resource.data.options is list
+          && request.resource.data.votes.size() == resource.data.options.size()
+        )
+        || (
+          // Host controls path
+          request.auth != null
+          && resource.data.createdBy == request.auth.uid
+          && request.resource.data.diff(resource.data).changedKeys().hasOnly(['status', 'showLiveResults', 'updatedAt'])
+          && request.resource.data.status in ['open', 'closed']
+        );
+
+      // No deletes (keeps poll history stable; adjust later if needed)
+      allow delete: if false;
+    }
+
     // Block everything else by default
     match /{document=**} {
       allow read, write: if false;
