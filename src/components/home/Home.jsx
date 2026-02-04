@@ -1,5 +1,4 @@
 import HeroSection from "./HeroSection";
-import RecentActivity from './RecentActivity';
 import { FaRocket, FaChartLine, FaPenFancy } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -64,7 +63,6 @@ function Home() {
         <HeroSection isAuthenticated={isAuthenticated} />
       </div>
 
-      <RecentActivity limit={6} />
 
       <section ref={sectionRef} className="py-20 text-center px-4 relative z-10 animate-on-scroll">
         <h2 className="text-4xl font-bold mb-12 font-main text-gradient-primary">
