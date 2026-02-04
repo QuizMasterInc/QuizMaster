@@ -1,6 +1,6 @@
 ### Overview
 
-The team plans to meet on Monday at 1PM every week in order to review the progress that has been made.
+The team plans to meet on Thursdays at 12PM every week in order to review the progress that has been made.
 
 We also plan on using our Discord server for consistent communication throughout each sprint nearly every day. 
 
