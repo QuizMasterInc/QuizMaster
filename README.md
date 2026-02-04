@@ -33,7 +33,7 @@ Team Fun | Software Systems Capstone Project
 Our capstone project that allows users to take quizzes on a variety of different topics and create custom flashcard decks for enhanced learning.
 </h4>
 
-# Development Team (Electrical Squirrels Team)
+# Development Team (ElectricalSquirrels Team)
 <div>
 <h4>Benjamin Campa</h4>
 
