@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -48,14 +49,108 @@ const StudyMode = () => {
         handleReturnToStudy
     } = useCardPreview(cards, currentCardIndex, setCurrentCardIndex);
 
+    // --- Review Again (Hard-only) ---
+    const [difficultCardIds, setDifficultCardIds] = useState(() => new Set());
+    const [showCompletionPrompt, setShowCompletionPrompt] = useState(false);
+    const [isReviewingDifficult, setIsReviewingDifficult] = useState(false);
+    const [difficultIndices, setDifficultIndices] = useState([]);
+    const [difficultPtr, setDifficultPtr] = useState(0);
+
+    const difficultCount = difficultCardIds.size;
+
+    const markDifficult = (cardId) => {
+        if (!cardId) return;
+        setDifficultCardIds((prev) => {
+            const next = new Set(prev);
+            next.add(cardId);
+            return next;
+        });
+    };
+
+    const unmarkDifficult = (cardId) => {
+        if (!cardId) return;
+        setDifficultCardIds((prev) => {
+            if (!prev.has(cardId)) return prev;
+            const next = new Set(prev);
+            next.delete(cardId);
+            return next;
+        });
+    };
+
+    const buildDifficultIndices = useMemo(() => {
+        // Preserve original deck order
+        return (cards || []).reduce((acc, c, idx) => {
+            if (difficultCardIds.has(c?.id)) acc.push(idx);
+            return acc;
+        }, []);
+    }, [cards, difficultCardIds]);
+
+    const startDifficultReview = () => {
+        const idxs = buildDifficultIndices;
+        if (!idxs || idxs.length === 0) return;
+
+        // Exit preview/search mode
+        clearSearch();
+
+        setIsReviewingDifficult(true);
+        setDifficultIndices(idxs);
+        setDifficultPtr(0);
+        setShowCompletionPrompt(false);
+
+        // Jump to first difficult card
+        setCurrentCardIndex(idxs[0]);
+
+        // Ensure front side for a clean restart
+        if (isFlipped) handleFlip();
+    };
+
+    const goToResults = (sessionId) => {
+        navigate(`/flashcards/study/${deckId}/results`, {
+            state: { sessionId }
+        });
+    };
+
     // Handle rating and navigation
     const onRatingClick = async (rating) => {
+        // Hard-only difficulty tracking: Good/Easy do NOT qualify
+        if (rating === 'hard') {
+            markDifficult(currentCard?.id);
+        } else {
+            unmarkDifficult(currentCard?.id);
+        }
+
+        // If we're reviewing difficult cards, do NOT record again to the session.
+        // Just move through the difficult set.
+        if (isReviewingDifficult) {
+            const nextPtr = difficultPtr + 1;
+
+            // Flip back to front between cards
+            if (isFlipped) handleFlip();
+
+            if (nextPtr >= difficultIndices.length) {
+                // Finished difficult pass
+                setIsReviewingDifficult(false);
+                setDifficultIndices([]);
+                setDifficultPtr(0);
+                setShowCompletionPrompt(true);
+                return;
+            }
+
+            setDifficultPtr(nextPtr);
+            setCurrentCardIndex(difficultIndices[nextPtr]);
+            return;
+        }
+
+        // Normal flow uses the study session hook
         const result = await handleRating(rating);
-        
+
         if (result?.completed) {
-            navigate(`/flashcards/study/${deckId}/results`, {
-                state: { sessionId: result.sessionId }
-            });
+            // Offer Review Again if there are hard cards
+            if (difficultCardIds.size > 0) {
+                setShowCompletionPrompt(true);
+            } else {
+                goToResults(result.sessionId);
+            }
         }
     };
 
@@ -79,7 +174,7 @@ const StudyMode = () => {
                     <div className="card border-2 border-error text-center space-y-4">
                         <h2 className="text-2xl font-bold text-gradient-primary">Error Loading Study Session</h2>
                         <p className="text-secondary">{error}</p>
-                        <button 
+                        <button
                             onClick={() => navigate('/flashcards')}
                             className="btn btn-primary"
                         >
@@ -97,7 +192,7 @@ const StudyMode = () => {
                 <div className="max-w-md mx-auto mt-20">
                     <div className="card text-center space-y-4">
                         <h2 className="text-2xl font-bold text-gradient-primary">Study Session Not Found</h2>
-                        <button 
+                        <button
                             onClick={() => navigate('/flashcards')}
                             className="btn btn-primary"
                         >
@@ -109,10 +204,56 @@ const StudyMode = () => {
         );
     }
 
+    // Completion prompt: offer Review Again if hard cards exist
+    if (showCompletionPrompt) {
+        return (
+            <div className="dashboard-content">
+                <div className="max-w-2xl mx-auto mt-16">
+                    <div className="card text-center space-y-6">
+                        <h2 className="text-3xl font-bold text-gradient-primary">Session Complete 🎉</h2>
+                        <p className="text-secondary">
+                            {difficultCount > 0
+                                ? `You marked ${difficultCount} card${difficultCount === 1 ? '' : 's'} as Hard.`
+                                : 'No difficult cards were marked.'}
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            {difficultCount > 0 && (
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={startDifficultReview}
+                                >
+                                    Review Again
+                                </button>
+                            )}
+
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() => navigate('/flashcards')}
+                            >
+                                Back to Decks
+                            </button>
+
+                            <button
+                                type="button"
+                                className="btn btn-primary"
+                                onClick={() => goToResults(session?.id)}
+                            >
+                                View Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="dashboard-content">
             <div className="max-w-4xl mx-auto space-y-8">
-                
+
                 {/* HEADER */}
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl font-bold text-gradient-primary">{deck.title}</h1>
@@ -159,14 +300,14 @@ const StudyMode = () => {
                 />
 
                 {/* Progress Bar */}
-                <StudyProgressBar 
-                    currentIndex={currentCardIndex} 
-                    total={cards.length} 
+                <StudyProgressBar
+                    currentIndex={isReviewingDifficult ? difficultPtr : currentCardIndex}
+                    total={isReviewingDifficult ? (difficultIndices.length || 0) : (cards.length || 0)}
                 />
 
                 {/* FLASHCARD */}
                 <div className="space-y-6">
-                    <StudyCard 
+                    <StudyCard
                         card={currentCard}
                         isFlipped={isFlipped}
                         onFlip={handleFlip}
