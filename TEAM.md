@@ -16,6 +16,18 @@ Benjamin Campa - Development Team
 Adrian Salinas - Development Team
 
 
+### Spring 2026 Team Roles
+
+Adrian Salinas - Development Team
+
+Faiza Khan - Scrum Master
+
+Salah Abdelmajid - Product Owner
+
+Joseph Chavez - Development Team
+
+Benjamin Campa - Development Team
+
 ### Fall 2025 Team Roles
 
 Rudra Patel - Scrum Master
