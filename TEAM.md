@@ -1,18 +1,5 @@
 Scrum will be implemented by assigning the following roles: Product Owner, Scrum Master, and Development Members. Each new Sprint, there will be a new Product Owner and Scrum Master assigned. 
 
-## Spring 2026 Team Roles
-
-Salah Abdelmajid - Product Owner
-
-Joseph Chavez - Scrum Master
-
-Faiza Khan - Development Team
-
-Benjamin Campa - Development Team
-
-Adrian Salinas - Development Team
-
-
 ### Spring 2026 Team Roles
 
 Adrian Salinas - Development Team
