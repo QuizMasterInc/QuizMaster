@@ -32,7 +32,6 @@ const StudyMode = () => {
         error,
         cards,
         stats,
-        cardsStudied,
         handleFlip,
         handleRating
     } = useStudySession(deckId, currentUser?.uid);
@@ -49,7 +48,7 @@ const StudyMode = () => {
         handleReturnToStudy
     } = useCardPreview(cards, currentCardIndex, setCurrentCardIndex);
 
-    // --- Review Again (Hard-only) ---
+    // --- Review Again (Still Learning-only) ---
     const [difficultCardIds, setDifficultCardIds] = useState(() => new Set());
     const [showCompletionPrompt, setShowCompletionPrompt] = useState(false);
     const [isReviewingDifficult, setIsReviewingDifficult] = useState(false);
@@ -112,8 +111,8 @@ const StudyMode = () => {
 
     // Handle rating and navigation
     const onRatingClick = async (rating) => {
-        // Hard-only difficulty tracking: Good/Easy do NOT qualify
-        if (rating === 'hard') {
+        // Still Learning-only difficulty tracking: "Know" does NOT qualify
+        if (rating === 'still learning') {
             markDifficult(currentCard?.id);
         } else {
             unmarkDifficult(currentCard?.id);
@@ -145,7 +144,7 @@ const StudyMode = () => {
         const result = await handleRating(rating);
 
         if (result?.completed) {
-            // Offer Review Again if there are hard cards
+            // Offer Review Again if there are "still learning" cards
             if (difficultCardIds.size > 0) {
                 setShowCompletionPrompt(true);
             } else {
@@ -204,7 +203,7 @@ const StudyMode = () => {
         );
     }
 
-    // Completion prompt: offer Review Again if hard cards exist
+    // Completion prompt: offer Review Again if "still learning" cards exist
     if (showCompletionPrompt) {
         return (
             <div className="dashboard-content">
@@ -213,7 +212,7 @@ const StudyMode = () => {
                         <h2 className="text-3xl font-bold text-gradient-primary">Session Complete 🎉</h2>
                         <p className="text-secondary">
                             {difficultCount > 0
-                                ? `You marked ${difficultCount} card${difficultCount === 1 ? '' : 's'} as Hard.`
+                                ? `You marked ${difficultCount} card${difficultCount === 1 ? '' : 's'} as still learning.`
                                 : 'No difficult cards were marked.'}
                         </p>
 

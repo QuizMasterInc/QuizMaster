@@ -1,4 +1,4 @@
-import { db, timestamp } from "../firebase/firebaseService";
+import { db, timestamp} from "../firebase/firebaseService";
 import { collection, doc, addDoc, updateDoc, getDoc, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 
 export const createStudySession = async (userId, deckId) => {
@@ -14,9 +14,8 @@ export const createStudySession = async (userId, deckId) => {
         isCompleted: false,
         stats: {
             timeSpent: 0,
-            easyCount: 0,
-            goodCount: 0,
-            hardCount: 0,
+            knowCount: 0,
+            stillLearningCount: 0,
             successRate: 0
         }
     };
@@ -50,7 +49,7 @@ export const recordCardRating = async (sessionId, cardId, rating) => {
     if (!cardId || cardId === undefined) {
         throw new Error(`Invalid cardId: ${cardId}`);
     }
-    if (!rating || !['easy', 'good', 'hard'].includes(rating)) {
+    if (!rating || !['still learning', 'know'].includes(rating)) {
         throw new Error(`Invalid rating: ${rating}`);
     }
 
@@ -76,9 +75,8 @@ export const recordCardRating = async (sessionId, cardId, rating) => {
         cardRatings: updatedRatings,
         cardsStudied: updatedRatings.length,
         lastActivityAt: new Date().toISOString(),
-        'stats.easyCount': stats.easyCount,
-        'stats.goodCount': stats.goodCount,
-        'stats.hardCount': stats.hardCount,
+        'stats.knowCount': stats.knowCount,
+        'stats.stillLearningCount': stats.stillLearningCount,
         'stats.successRate': stats.successRate,
     }).catch(err => console.error('Error saving card rating:', err));
 
@@ -101,9 +99,8 @@ export const completeStudySession = async (sessionId, timeSpent, cardRatings = [
         cardRatings,
         cardsStudied: cardRatings.length,
         'stats.timeSpent': timeSpent,
-        'stats.easyCount': stats.easyCount || 0,
-        'stats.goodCount': stats.goodCount || 0,
-        'stats.hardCount': stats.hardCount || 0,
+        'stats.knowCount': stats.knowCount|| 0,
+        'stats.stillLearningCount': stats.stillLearningCount || 0,
         'stats.successRate': stats.successRate || 0,
         lastActivityAt: new Date().toISOString()
     });
@@ -111,13 +108,12 @@ export const completeStudySession = async (sessionId, timeSpent, cardRatings = [
 
 // Helper function to calculate statistics
 const calculateStats = (cardRatings) => {
-    const easyCount = cardRatings.filter(r => r.rating === 'easy').length;
-    const goodCount = cardRatings.filter(r => r.rating === 'good').length;
-    const hardCount = cardRatings.filter(r => r.rating === 'hard').length;
+    const knowCount = cardRatings.filter(r => r.rating === 'know').length;
+    const stillLearningCount = cardRatings.filter(r => r.rating === 'still learning').length;
     const total = cardRatings.length;
-    const successRate = total > 0 ? ((easyCount + goodCount) / total) * 100 : 0;
+    const successRate = total > 0 ? (knowCount / total) * 100 : 0;
     
-    return { easyCount, goodCount, hardCount, successRate };
+    return { knowCount, stillLearningCount, successRate };
 };
 
 export const getRecentSessions = async (userId, limitCount = 6) => {

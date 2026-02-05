@@ -21,7 +21,7 @@ Component for creating individual flashcards with a front (question) and back (a
 Complete study mode implementation with 6 components:
 - **StudyMode.jsx** - Main study interface, session management, and card navigation
 - **StudyCard.jsx** - Individual card display with flip animation
-- **RatingButtons.jsx** - Easy/Good/Hard rating buttons for spaced repetition
+- **RatingButtons.jsx** - "Still learning" or "Know" buttons
 - **StudyProgressBar.jsx** - Visual progress indicator
 - **StudyStats.jsx** - Real-time session statistics
 - **StudyResults.jsx** - Session completion summary and analytics

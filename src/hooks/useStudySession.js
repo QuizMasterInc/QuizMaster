@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import {
     createStudySession,
     getActiveSession,
-    recordCardRating,
-    updateSessionProgress,
     completeStudySession
 } from '../services/flashcards/studySession';
 import flashcardService from '../services/flashcards/flashcardService';
@@ -96,19 +94,17 @@ export const useStudySession = (deckId, userId) => {
                 const timeSpent = Math.floor((Date.now() - startTime) / 1000);
                 
                 // Calculate final stats
-                const easyCount = updatedRatings.filter(r => r.rating === 'easy').length;
-                const goodCount = updatedRatings.filter(r => r.rating === 'good').length;
-                const hardCount = updatedRatings.filter(r => r.rating === 'hard').length;
+                const knowCount = updatedRatings.filter(r => r.rating === 'know').length;
+                const stillLearningCount = updatedRatings.filter(r => r.rating === 'still learning').length;
                 const successRate = updatedRatings.length > 0 
-                    ? ((easyCount + goodCount) / updatedRatings.length) * 100 
+                    ? (knowCount / updatedRatings.length) * 100 
                     : 0;
 
                 // Save all ratings at once
                 if (session?.id) {
                     await completeStudySession(session.id, timeSpent, updatedRatings, {
-                        easyCount,
-                        goodCount,
-                        hardCount,
+                        knowCount,
+                        stillLearningCount,
                         successRate,
                         timeSpent
                     });
@@ -152,11 +148,10 @@ export const useStudySession = (deckId, userId) => {
 
     // Calculate current stats from local ratings
     const currentStats = {
-        easyCount: localRatings.filter(r => r.rating === 'easy').length,
-        goodCount: localRatings.filter(r => r.rating === 'good').length,
-        hardCount: localRatings.filter(r => r.rating === 'hard').length,
+        knowCount: localRatings.filter(r => r.rating === 'know').length,
+        stillLearningCount: localRatings.filter(r => r.rating === 'still learning').length,
         successRate: localRatings.length > 0 
-            ? ((localRatings.filter(r => r.rating === 'easy' || r.rating === 'good').length / localRatings.length) * 100)
+            ? ((localRatings.filter(r => r.rating === 'know').length / localRatings.length) * 100)
             : 0
     };
 

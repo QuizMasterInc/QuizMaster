@@ -105,8 +105,8 @@ const StudyResults = () => {
                         <div className="text-4xl">📈</div>
                         <h3 className="text-sm font-semibold text-secondary uppercase tracking-wide">Learning Progress</h3>
                         <div className="space-y-1">
-                            <p className="text-2xl font-bold text-[var(--success)]">{stats.easyCount} Mastered</p>
-                            <p className="text-sm text-[var(--text-muted)]">{stats.goodCount + stats.hardCount} Need Practice</p>
+                            <p className="text-2xl font-bold text-[var(--success)]">{stats.knowCount} Mastered</p>
+                            <p className="text-sm text-[var(--text-muted)]">{stats.stillLearningCount} Need Practice</p>
                         </div>
                     </div>
                 </div>
@@ -119,22 +119,17 @@ const StudyResults = () => {
                     <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border-l-4 border-[var(--primary-500)]">
                         <h3 className="font-semibold text-[var(--text-primary)] mb-2">💡 Study Recommendations</h3>
                         <div className="space-y-2 text-sm">
-                            {stats.hardCount > 0 && (
+                            {stats.stillLearningCount > 0 && (
                                 <p className="text-[var(--error)]">
-                                    • Review the {stats.hardCount} cards you rated as "difficult" - these need extra attention
+                                    • Review the {stats.stillLearningCount} card(s) you marked as "Still Learning"
                                 </p>
                             )}
-                            {stats.goodCount > 0 && (
-                                <p className="text-[var(--warning)]">
-                                    • Practice the {stats.goodCount} cards you rated as "good" more regularly to master them
-                                </p>
-                            )}
-                            {stats.easyCount === cardsStudied && (
+                            {stats.knowCount === cardsStudied && (
                                 <p className="text-[var(--success)]">
                                     • Excellent! All cards mastered. Try a harder deck for a challenge!
                                 </p>
                             )}
-                            {stats.hardCount === 0 && stats.goodCount === 0 && stats.easyCount < cardsStudied && (
+                            {stats.stillLearningCount === 0 && stats.knowCount < cardsStudied && (
                                 <p className="text-[var(--success)]">
                                     • Perfect session! Consider spaced repetition for long-term retention.
                                 </p>
@@ -143,53 +138,36 @@ const StudyResults = () => {
                     </div>
                     
                     <div className="space-y-4">
-                        {/* Easy Bar */}
+                        {/* Know Bar */}
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
                                 <span className="flex items-center gap-2 font-semibold">
                                     <span className="text-2xl">😊</span>
-                                    <span className="text-success">Mastered ({stats.easyCount})</span>
+                                    <span className="text-success">Mastered ({stats.knowCount})</span>
                                 </span>
-                                <span className="text-lg font-bold text-primary">{((stats.easyCount / cardsStudied) * 100).toFixed(0)}%</span>
+                                <span className="text-lg font-bold text-primary">{((stats.knowCount / cardsStudied) * 100).toFixed(0)}%</span>
                             </div>
                             <div className="w-full h-3 bg-[var(--neutral-200)] dark:bg-[var(--neutral-700)] rounded-full overflow-hidden">
                                 <div 
                                     className="h-full bg-[var(--success)] transition-all duration-500"
-                                    style={{ width: `${(stats.easyCount / cardsStudied) * 100}%` }}
+                                    style={{ width: `${(stats.knowCount / cardsStudied) * 100}%` }}
                                 />
                             </div>
                         </div>
 
-                        {/* Good Bar */}
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <span className="flex items-center gap-2 font-semibold">
-                                    <span className="text-2xl">👍</span>
-                                    <span className="text-warning">Needs Practice ({stats.goodCount})</span>
-                                </span>
-                                <span className="text-lg font-bold text-primary">{((stats.goodCount / cardsStudied) * 100).toFixed(0)}%</span>
-                            </div>
-                            <div className="w-full h-3 bg-[var(--neutral-200)] dark:bg-[var(--neutral-700)] rounded-full overflow-hidden">
-                                <div 
-                                    className="h-full bg-[var(--warning)] transition-all duration-500"
-                                    style={{ width: `${(stats.goodCount / cardsStudied) * 100}%` }}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Hard Bar */}
+                        {/* Still Learning Bar */}
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
                                 <span className="flex items-center gap-2 font-semibold">
                                     <span className="text-2xl">😰</span>
-                                    <span className="text-error">Difficult ({stats.hardCount})</span>
+                                    <span className="text-error">Difficult ({stats.stillLearningCount})</span>
                                 </span>
-                                <span className="text-lg font-bold text-primary">{((stats.hardCount / cardsStudied) * 100).toFixed(0)}%</span>
+                                <span className="text-lg font-bold text-primary">{((stats.stillLearningCount / cardsStudied) * 100).toFixed(0)}%</span>
                             </div>
                             <div className="w-full h-3 bg-[var(--neutral-200)] dark:bg-[var(--neutral-700)] rounded-full overflow-hidden">
                                 <div 
                                     className="h-full bg-[var(--error)] transition-all duration-500"
-                                    style={{ width: `${(stats.hardCount / cardsStudied) * 100}%` }}
+                                    style={{ width: `${(stats.stillLearningCount / cardsStudied) * 100}%` }}
                                 />
                             </div>
                         </div>
