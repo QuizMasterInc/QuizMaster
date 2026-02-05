@@ -4,7 +4,6 @@ import { ClipLoader } from 'react-spinners';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useStudySession } from '../../../hooks/useStudySession';
 import { useCardPreview } from '../../../hooks/useCardPreview';
-
 import StudyCard from './StudyCard';
 import StudyProgressBar from './StudyProgressBar';
 import RatingButtons from './RatingButtons';
@@ -118,10 +117,12 @@ const StudyMode = () => {
             unmarkDifficult(currentCard?.id);
         }
 
-        // If we're reviewing difficult cards, do NOT record again to the session.
-        // Just move through the difficult set.
+        // If we're reviewing difficult cards, update the rating and move through the set
         if (isReviewingDifficult) {
+            await handleRating(rating);
+
             const nextPtr = difficultPtr + 1;
+
 
             // Flip back to front between cards
             if (isFlipped) handleFlip();

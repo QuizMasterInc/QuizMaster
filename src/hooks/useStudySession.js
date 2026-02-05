@@ -78,7 +78,16 @@ export const useStudySession = (deckId, userId) => {
                 timestamp: new Date().toISOString()
             };
 
-            const updatedRatings = [...localRatings, newRating];
+            const existingIndex = localRatings.findIndex(r => r.cardId === newRating.cardId);
+
+            let updatedRatings;
+            if (existingIndex !== -1) {
+                updatedRatings = [...localRatings];
+                updatedRatings[existingIndex] = newRating;
+            } else {
+                updatedRatings = [...localRatings, newRating];
+            }
+
             setLocalRatings(updatedRatings);
 
             // Move to next card or complete session
