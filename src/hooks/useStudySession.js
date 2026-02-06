@@ -164,6 +164,21 @@ export const useStudySession = (deckId, userId) => {
             : 0
     };
 
+
+    const saveSession = async () => {
+        const timeSpent = Math.floor((Date.now() -startTime) / 1000);
+
+        if (session?.id){
+            await completeStudySession(session.id, timeSpent, localRatings, {
+                knowCount: currentStats.knowCount,
+                stillLearningCount: currentStats.stillLearningCount,
+                successRate: currentStats.successRate,
+                timeSpent
+            });
+        }
+        return session?.id;
+    }
+
     return {
         session,
         deck,
@@ -177,6 +192,7 @@ export const useStudySession = (deckId, userId) => {
         stats: currentStats,
         cardsStudied: localRatings.length,
         handleFlip,
-        handleRating
+        handleRating,
+        saveSession
     };
 };

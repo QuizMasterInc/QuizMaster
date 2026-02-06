@@ -32,7 +32,8 @@ const StudyMode = () => {
         cards,
         stats,
         handleFlip,
-        handleRating
+        handleRating,
+        saveSession
     } = useStudySession(deckId, currentUser?.uid);
 
     // Search and preview mode logic
@@ -102,7 +103,8 @@ const StudyMode = () => {
         if (isFlipped) handleFlip();
     };
 
-    const goToResults = (sessionId) => {
+    const goToResults = async (sessionId) => {
+        await saveSession(sessionId);
         navigate(`/flashcards/study/${deckId}/results`, {
             state: { sessionId }
         });
