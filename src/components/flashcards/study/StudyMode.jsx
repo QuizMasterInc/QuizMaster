@@ -48,6 +48,9 @@ const StudyMode = () => {
         handleReturnToStudy
     } = useCardPreview(cards, currentCardIndex, setCurrentCardIndex);
 
+
+    const [toggleState, setToggleState] = useState(false);
+
     // --- Review Again (Still Learning-only) ---
     const [difficultCardIds, setDifficultCardIds] = useState(() => new Set());
     const [showCompletionPrompt, setShowCompletionPrompt] = useState(false);
@@ -307,6 +310,11 @@ const StudyMode = () => {
                     total={isReviewingDifficult ? (difficultIndices.length || 0) : (cards.length || 0)}
                 />
 
+                {/* Toggle for tracking progress*/}
+                <button onClick={() => setToggleState(!toggleState)}>
+                    Track Progress: {toggleState ? "ON" : "OFF"}
+                </button>
+
                 {/* FLASHCARD */}
                 <div className="space-y-6">
                     <StudyCard
@@ -315,8 +323,8 @@ const StudyMode = () => {
                         onFlip={handleFlip}
                     />
 
-                    {/* Only show rating buttons when NOT in preview mode */}
-                    {isFlipped && !previewMode && (
+                    {/* Only show rating buttons when NOT in preview mode & when toggle for tracking is set to OFF */}
+                    {toggleState && isFlipped && !previewMode && (
                         <RatingButtons onRate={onRatingClick} />
                     )}
 
