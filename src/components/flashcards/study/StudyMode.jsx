@@ -108,7 +108,6 @@ const StudyMode = () => {
     };
 
     const goToResults = async (sessionId) => {
-        await saveSession(sessionId);
         navigate(`/flashcards/study/${deckId}/results`, {
             state: { sessionId }
         });
@@ -150,10 +149,10 @@ const StudyMode = () => {
 
         // Normal flow uses the study session hook
         const result = await handleRating(rating);
-        console.log('handleRating result: ', result)
+
         if (result?.completed) {
             // Offer Review Again if there are "still learning" cards
-            if (difficultCardIds.size > 0) {
+            if (difficultCardIds.size > 0 || rating === 'still learning') {
                 setShowCompletionPrompt(true);
             } else {
                 goToResults(result.sessionId);
@@ -350,8 +349,8 @@ const StudyMode = () => {
                         {!previewMode && (
                             toggleState ? (
                                 <RatingButtons onRate={onRatingClick} />
-                            ) :   (cards.length > 1) &&  (
-                                <NavButtons onPrevClick={handlePrevClick} onNextClick={handleNextClick} />
+                            ) :(
+                                <NavButtons onPrevClick={handlePrevClick} onNextClick={handleNextClick} disablePrev={currentCardIndex === 0} disableNext={currentCardIndex === cards.length - 1} />
                             )
                         )}
 
