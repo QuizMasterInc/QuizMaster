@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -10,6 +10,7 @@ import RatingButtons from './RatingButtons';
 import StudyStats from './StudyStats';
 import StudySearchBar from './StudySearchBar';
 import { updateSessionProgress } from '../../../services/flashcards/studySession';
+import NavButtons from './NavButtons';
 
 /**
  * StudyMode - Main study session container
@@ -48,7 +49,7 @@ const StudyMode = () => {
         handleReturnToStudy
     } = useCardPreview(cards, currentCardIndex, setCurrentCardIndex);
 
-
+    const buttonsRef = useRef(null);
     const [toggleState, setToggleState] = useState(false);
 
     // --- Review Again (Still Learning-only) ---
@@ -146,9 +147,10 @@ const StudyMode = () => {
             return;
         }
 
+
         // Normal flow uses the study session hook
         const result = await handleRating(rating);
-
+        console.log('handleRating result: ', result)
         if (result?.completed) {
             // Offer Review Again if there are "still learning" cards
             if (difficultCardIds.size > 0) {
@@ -159,6 +161,17 @@ const StudyMode = () => {
         }
     };
 
+    const handleNextClick = () => {
+        if (currentCardIndex < cards.length - 1) {
+            setCurrentCardIndex(currentCardIndex + 1)
+        }
+    }
+
+    const handlePrevClick = () => {
+        if (currentCardIndex > 0) {
+            setCurrentCardIndex(currentCardIndex - 1)
+        }
+    }
     // Loading state
     if (loading) {
         return (
@@ -193,8 +206,8 @@ const StudyMode = () => {
 
     if (!deck || !session || !currentCard) {
         return (
-            <div className="dashboard-content">
-                <div className="max-w-md mx-auto mt-20">
+            <div className="dashboard-content ">
+                <div className="max-w-4xl mx-auto space-y-4">
                     <div className="card text-center space-y-4">
                         <h2 className="text-2xl font-bold text-gradient-primary">Study Session Not Found</h2>
                         <button
@@ -311,10 +324,19 @@ const StudyMode = () => {
                 />
 
                 {/* Toggle for tracking progress*/}
-                <button onClick={() => setToggleState(!toggleState)}>
-                    Track Progress: {toggleState ? "ON" : "OFF"}
-                </button>
-
+                <label className="flex items-center gap-3 cursor-pointer">
+                    <span className="text-sm">Track Progress</span>
+                    <div
+                        onClick={() => setToggleState(!toggleState)}
+                        className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${toggleState ? 'bg-[var(--primary-400)]' : 'bg-gray-300'
+                            }`}
+                    >
+                        <div
+                            className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${toggleState ? 'translate-x-7' : 'translate-x-1'
+                                }`}
+                        />
+                    </div>
+                </label>
                 {/* FLASHCARD */}
                 <div className="space-y-6">
                     <StudyCard
@@ -324,10 +346,16 @@ const StudyMode = () => {
                     />
 
                     {/* Only show rating buttons when NOT in preview mode & when toggle for tracking is set to OFF */}
-                    {toggleState && isFlipped && !previewMode && (
-                        <RatingButtons onRate={onRatingClick} />
-                    )}
+                    <div ref={buttonsRef}>
+                        {!previewMode && (
+                            toggleState ? (
+                                <RatingButtons onRate={onRatingClick} />
+                            ) :   (cards.length > 1) &&  (
+                                <NavButtons onPrevClick={handlePrevClick} onNextClick={handleNextClick} />
+                            )
+                        )}
 
+                    </div>
                     {/* Show message when in preview mode and card is flipped */}
                     {isFlipped && previewMode && (
                         <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
@@ -336,7 +364,12 @@ const StudyMode = () => {
                     )}
                 </div>
 
-                <StudyStats stats={stats} />
+                {/* Only show if tracking progress is toggled to ON*/}
+                {toggleState && (
+
+                    <StudyStats stats={stats} />
+
+                )}
 
             </div>
         </div>
