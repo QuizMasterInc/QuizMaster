@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import FeedbackForm from '../feedback/FeedbackForm';
 
 // Reusable Button Component
@@ -44,18 +44,17 @@ export const Button = ({
 
 // Reusable Back Button Component
 export const BackButton = ({
-  to,
+  fallback = '/dashboard',
   children = 'Back',
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else if (to) {
-      navigate(to);
+    if (location.state?.from){
+      navigate(location.state.from);  
     } else {
-      navigate('/');
+      navigate(fallback);
     }
   };
 

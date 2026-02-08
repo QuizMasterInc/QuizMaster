@@ -3,11 +3,12 @@
  * Display single flashcard deck with metadata and actions
  */
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import FlashcardPreview from './FlashcardPreview';
 
 export default function FlashcardCard({ deck, onDelete, isDeleting }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const getDifficultyLabel = (difficulty) => {
     if (difficulty === '1') return 'Easy';
@@ -148,7 +149,7 @@ export default function FlashcardCard({ deck, onDelete, isDeleting }) {
           <button
             className="flex-1 px-4 py-2 bg-[var(--primary-400)] hover:bg-[var(--primary-500)] text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
             disabled={isDeleting}
-            onClick={() => navigate(`/flashcards/study/${deck.id}`)}
+            onClick={() => navigate(`/flashcards/study/${deck.id}`, { state: { from: location.pathname } })}
           >
             Study
           </button>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import flashcardService from '../../services/flashcards/flashcardService';
 import FlashcardPreview from './FlashcardPreview';
 
 export default function BrowsePublicFlashcards() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [flashcardDecks, setFlashcardDecks] = useState([]);
   const [categories, setCategories] = useState(['all']);
@@ -224,7 +225,7 @@ export default function BrowsePublicFlashcards() {
                   <div className="p-4 border-t border-[var(--border)]">
                     <button
                       className="w-full px-4 py-2 bg-[var(--btn-primary-bg)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
-                      onClick={() => navigate(`/flashcards/study/${deck.id}`)}
+                      onClick={() => navigate(`/flashcards/study/${deck.id}`, { state: {from: location.pathname}})}
                     >
                       Study This Deck
                     </button>

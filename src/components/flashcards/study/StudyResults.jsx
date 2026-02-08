@@ -19,18 +19,18 @@ const StudyResults = () => {
         const loadResults = async () => {
             try {
                 const sessionId = location.state?.sessionId;
-                
+
                 if (!sessionId) {
                     navigate(`/flashcards`);
                     return;
                 }
 
                 const sessionDoc = await getDoc(doc(db, 'study_sessions', sessionId));
-                
+
                 if (sessionDoc.exists()) {
                     setSessionData(sessionDoc.data());
                 }
-                
+
                 setLoading(false);
             } catch (error) {
                 console.error('Error loading results:', error);
@@ -58,8 +58,8 @@ const StudyResults = () => {
                 <div className="max-w-md mx-auto mt-20">
                     <div className="card text-center space-y-4">
                         <h2 className="text-2xl font-bold text-gradient-primary">Session Not Found</h2>
-                        <button 
-                            onClick={() => navigate('/flashcards')}
+                        <button
+                            onClick={() => navigate(location.state?.from || '/dashboard')}
                             className="btn btn-primary"
                         >
                             Back to Decks
@@ -114,7 +114,7 @@ const StudyResults = () => {
                 {/* Performance Breakdown */}
                 <div className="card p-8 space-y-6">
                     <h2 className="text-2xl font-bold text-gradient-primary text-center">Learning Insights</h2>
-                    
+
                     {/* Actionable Recommendations */}
                     <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border-l-4 border-[var(--primary-500)]">
                         <h3 className="font-semibold text-[var(--text-primary)] mb-2">💡 Study Recommendations</h3>
@@ -136,7 +136,7 @@ const StudyResults = () => {
                             )}
                         </div>
                     </div>
-                    
+
                     <div className="space-y-4">
                         {/* Know Bar */}
                         <div className="space-y-2">
@@ -148,7 +148,7 @@ const StudyResults = () => {
                                 <span className="text-lg font-bold text-primary">{((stats.knowCount / cardsStudied) * 100).toFixed(0)}%</span>
                             </div>
                             <div className="w-full h-3 bg-[var(--neutral-200)] dark:bg-[var(--neutral-700)] rounded-full overflow-hidden">
-                                <div 
+                                <div
                                     className="h-full bg-[var(--success)] transition-all duration-500"
                                     style={{ width: `${(stats.knowCount / cardsStudied) * 100}%` }}
                                 />
@@ -165,7 +165,7 @@ const StudyResults = () => {
                                 <span className="text-lg font-bold text-primary">{((stats.stillLearningCount / cardsStudied) * 100).toFixed(0)}%</span>
                             </div>
                             <div className="w-full h-3 bg-[var(--neutral-200)] dark:bg-[var(--neutral-700)] rounded-full overflow-hidden">
-                                <div 
+                                <div
                                     className="h-full bg-[var(--error)] transition-all duration-500"
                                     style={{ width: `${(stats.stillLearningCount / cardsStudied) * 100}%` }}
                                 />
@@ -176,15 +176,15 @@ const StudyResults = () => {
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                    <button 
+                    <button
                         className="px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
                         onClick={() => navigate(`/flashcards/study/${deckId}`)}
                     >
                         📖 Study Again
                     </button>
-                    <button 
+                    <button
                         className="px-8 py-3 bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-text)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
-                        onClick={() => navigate('/flashcards')}
+                        onClick={() => navigate(location.state?.from || '/dashboard')}
                     >
                         🏠 Back to Decks
                     </button>

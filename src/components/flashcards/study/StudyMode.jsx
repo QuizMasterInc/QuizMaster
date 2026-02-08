@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useStudySession } from '../../../hooks/useStudySession';
@@ -20,6 +20,7 @@ const StudyMode = () => {
     const { deckId } = useParams();
     const navigate = useNavigate();
     const { currentUser } = useAuth();
+    const location = useLocation();
 
     const {
         session,
@@ -109,7 +110,7 @@ const StudyMode = () => {
 
     const goToResults = async (sessionId) => {
         navigate(`/flashcards/study/${deckId}/results`, {
-            state: { sessionId }
+            state: { sessionId, from: location.state?.from }
         });
     };
 
@@ -192,7 +193,7 @@ const StudyMode = () => {
                         <h2 className="text-2xl font-bold text-gradient-primary">Error Loading Study Session</h2>
                         <p className="text-secondary">{error}</p>
                         <button
-                            onClick={() => navigate('/flashcards')}
+                            onClick={() => navigate(location.state?.from || '/dashboard')}
                             className="btn btn-primary"
                         >
                             Back to Decks
@@ -210,7 +211,7 @@ const StudyMode = () => {
                     <div className="card text-center space-y-4">
                         <h2 className="text-2xl font-bold text-gradient-primary">Study Session Not Found</h2>
                         <button
-                            onClick={() => navigate('/flashcards')}
+                            onClick={() => navigate(location.state?.from || '/dashboard')}
                             className="btn btn-primary"
                         >
                             Back to Decks
@@ -248,7 +249,7 @@ const StudyMode = () => {
                             <button
                                 type="button"
                                 className="btn btn-secondary"
-                                onClick={() => navigate('/flashcards')}
+                                onClick={() => navigate(location.state?.from || '/dashboard')}
                             >
                                 Back to Decks
                             </button>
@@ -277,10 +278,10 @@ const StudyMode = () => {
                     <div className="flex items-center gap-3">
                         <button
                             className="px-4 py-2 bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-text)] rounded-lg border border-[var(--border)] hover:bg-[var(--accent)] hover:text-white transition-all duration-200"
-                            onClick={() => navigate('/flashcards')}
-                            aria-label="Exit study mode"
+                            onClick={() => navigate(location.state?.from || '/dashboard')}
+                            aria-label="Back to Decks"
                         >
-                            ✕ Exit
+                            Back to Decks
                         </button>
                         <button
                             className="px-4 py-2 bg-yellow-400 text-black rounded-lg border border-yellow-500 hover:bg-yellow-500 hover:text-white transition-all duration-200"
