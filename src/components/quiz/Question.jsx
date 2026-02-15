@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Flag } from '../icons';
 
 function Question({
   question,
@@ -7,14 +8,14 @@ function Question({
   isCompleted,
   onAnswerChange,
   answerCount,
-  onReviewAgain
+  onReviewToggle
 }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
   const [inputAnswer, setInputAnswer] = useState('');
   const [droppedOption, setDroppedOption] = useState('');
   const [hasBeenCounted, setHasBeenCounted] = useState(false);
-  const [evaluatedCorrect, setEvaluatedCorrect] = useState(null); // null | true | false
+  const [evaluatedCorrect, setEvaluatedCorrect] = useState(null);
   const [markedForReview, setMarkedForReview] = useState(false);
 
   const qText = question.questionText ?? question.text ?? '';
@@ -91,6 +92,14 @@ function Question({
       );
     } else {
       setSelectedIndex(index);
+    }
+  };
+
+  const handleToggleReview = () => {
+    const newValue = !markedForReview;
+    setMarkedForReview(newValue);
+    if (onReviewToggle) {
+      onReviewToggle(questionIndex, newValue);
     }
   };
 
@@ -181,37 +190,23 @@ function Question({
         )}
       </div>
 
-      {/* Review Again controls */}
-      <div className="mt-6 flex flex-wrap gap-3">
-        {!isCompleted && (
+      {/* Mark for Review toggle */}
+      {!isCompleted && (
+        <div className="mt-6">
           <button
             type="button"
-            onClick={() => {
-              setMarkedForReview(true);
-              if (onReviewAgain) onReviewAgain(questionIndex);
-            }}
-            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 ${
+            onClick={handleToggleReview}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 border-2 ${
               markedForReview
-                ? 'bg-accent-hover text-btn-primary border-accent'
-                : 'bg-accent hover:bg-accent-hover text-btn-primary border-accent'
+                ? 'bg-yellow-500 border-yellow-500 text-black'
+                : 'bg-transparent border-gray-400 text-secondary hover:border-gray-500'
             }`}
           >
+            <Flag className={`w-4 h-4 ${markedForReview ? 'fill-black' : 'fill-current'}`} />
             {markedForReview ? 'Marked for Review' : 'Mark for Review'}
           </button>
-        )}
-
-        {isCompleted && evaluatedCorrect === false && (
-          <button
-            type="button"
-            onClick={() => {
-              if (onReviewAgain) onReviewAgain(questionIndex);
-            }}
-            className="px-4 py-2 rounded-lg border border-accent bg-accent text-btn-primary shadow-md hover:opacity-90 transition-opacity duration-200"
-          >
-            Review Again
-          </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

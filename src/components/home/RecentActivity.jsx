@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import { useResults } from '../../contexts/ResultsContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -17,6 +17,7 @@ const RecentActivity = ({ limit = 6 }) => {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     let mounted = true;
@@ -120,8 +121,8 @@ const RecentActivity = ({ limit = 6 }) => {
           <h3 className="text-lg font-semibold">No recent activity</h3>
           <p className="text-sm text-secondary">Start a quiz or study some flashcards to see them here.</p>
           <div className="mt-4 flex justify-center gap-3">
-            <button onClick={() => navigate('/typeofquiz')} className="btn btn-primary">Take a Quiz</button>
-            <button onClick={() => navigate('/flashcards')} className="btn btn-secondary">Study Flashcards</button>
+            <button onClick={() => navigate('/typeofquiz', { state: { from: location.pathname } })} className="btn btn-primary">Take a Quiz</button>
+            <button onClick={() => navigate('/flashcards', { state: { from: location.pathname } })} className="btn btn-secondary">Study Flashcards</button>
           </div>
         </div>
       </div>
@@ -148,7 +149,7 @@ const RecentActivity = ({ limit = 6 }) => {
               <div className="flex items-center gap-3">
                 {item.type === 'quiz' ? (
                   <>
-                    <button className="btn btn-outline" onClick={() => navigate(`/quizzes/quizstarted`, { state: { attemptId: item.id } })}>
+                    <button className="btn btn-outline" onClick={() => navigate(`/quizzes/quizstarted`, { state: { attemptId: item.id, from: location.pathname } })}>
                       View
                     </button>
                   </>
@@ -160,7 +161,7 @@ const RecentActivity = ({ limit = 6 }) => {
                         const proceed = window.confirm('Would you like to continue working on this deck?');
                         if (proceed) {
                           const deckId = item.meta?.deckId || (item.title === 'Flashcards' ? '' : item.title);
-                          navigate(`/flashcards/study/${deckId}`, { state: { sessionId: item.id } });
+                          navigate(`/flashcards/study/${deckId}`, { state: { sessionId: item.id, from: location.pathname } });
                         } else {
                           navigate('/home');
                         }

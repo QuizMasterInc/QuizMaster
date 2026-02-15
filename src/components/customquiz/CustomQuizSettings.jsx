@@ -35,10 +35,10 @@ function CustomQuizSettings() {
   }, [quizID]);
 
   const handleStartQuiz = () => {
-    // Navigate to quiz
     navigate(`/quizstarted/${quizID}`, {
       state: {
-        password
+        password,
+        from: location.pathname
       }
     });
   };
@@ -57,7 +57,7 @@ function CustomQuizSettings() {
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-secondary mb-4">Quiz not found</h2>
           <button
-            onClick={() => navigate('/allcustomquizzes')}
+            onClick={() => navigate('/allcustomquizzes', { state: { from: location.pathname } })}
             className="px-6 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium"
           >
             Back to Quizzes
@@ -76,7 +76,7 @@ function CustomQuizSettings() {
             Quiz Settings
           </h1>
           <div className="rounded-lg shadow-lg transition duration-200">
-            <BackButton to="/allcustomquizzes"/>
+            <BackButton />
           </div>
         </div>
 
