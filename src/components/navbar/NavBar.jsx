@@ -131,10 +131,6 @@ export default function NavBar() {
                                         <Info className="w-5 h-5" />
                                         About
                                     </NavLink>
-                                    <NavLink to="/contact" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
-                                        <Email className="w-5 h-5" />
-                                        Contact Us
-                                    </NavLink>
                                     <NavLink to="/Profile" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <Profile className="w-5 h-5" />
                                         Profile
@@ -161,10 +157,6 @@ export default function NavBar() {
                                     <NavLink to="/about" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <Info className="w-5 h-5" />
                                         About
-                                    </NavLink>
-                                    <NavLink to="/contact" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
-                                        <Email className="w-5 h-5" />
-                                        Contact Us
                                     </NavLink>
                                     <NavLink to="/settings" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <Gear className="w-5 h-5" />
