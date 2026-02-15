@@ -2,14 +2,14 @@ import { useEffect } from 'react';
 import { useCategory } from '../../contexts/AppContext';
 import { BackButton } from '../ui/index.jsx';
 import { Random } from '../icons/index.jsx';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
-// Inline QuizSelectButton component (was 21 lines, now inline)
-const QuizSelectButton = ({ category, icon, destination, selectCategory, allSubcategories }) => (
+// Inline QuizSelectButton component
+const QuizSelectButton = ({ category, icon, destination, selectCategory, allSubcategories, from }) => (
   <div className="card rounded-2xl shadow-xl hover:shadow-2xl border border-accent flex flex-col items-center justify-center p-6 h-[150px] transform transition-transform duration-200 hover:scale-105 cursor-pointer">
     <Link
       to={`/quizzes/${destination}`}
-      state={{ category }}
+      state={{ category, from }}
       className="flex flex-col items-center justify-center h-full w-full text-center"
       onClick={() => {
         selectCategory(category);
@@ -24,12 +24,12 @@ const QuizSelectButton = ({ category, icon, destination, selectCategory, allSubc
   </div>
 );
 
-// Inline RandomQuizButton component (was 25 lines, now inline)  
-const RandomQuizButton = ({ category, icon, allSubcategories, selectCategory }) => (
+// Inline RandomQuizButton component
+const RandomQuizButton = ({ category, icon, allSubcategories, selectCategory, from }) => (
   <div className="card rounded-2xl shadow-xl hover:shadow-2xl border border-accent flex flex-col items-center justify-center p-6 h-[150px] transform transition-transform duration-200 hover:scale-105 cursor-pointer">
     <Link
       to={`/quizzes/random`}
-      state={{ category }}
+      state={{ category, from }}
       className="flex flex-col items-center justify-center h-full w-full text-center"
       onClick={() => {
         selectCategory(category);
@@ -45,6 +45,7 @@ const RandomQuizButton = ({ category, icon, allSubcategories, selectCategory }) 
 );
 
 function SelectQuiz() {
+  const location = useLocation();
   const {
     quizCategories,
     icons,
@@ -67,7 +68,7 @@ function SelectQuiz() {
     <div className="bg-primary relative overflow-hidden py-20 px-6 min-h-screen">
 
       <div className="absolute top-6 right-6 z-20">
-        <BackButton to="/typeofquiz" />
+        <BackButton />
       </div>
 
       <div className="relative z-10">
@@ -85,6 +86,7 @@ function SelectQuiz() {
                 destination={destinations[index]}
                 selectCategory={selectCategory}
                 allSubcategories={allSubcategories}
+                from={location.pathname}
               />
             ))}
           </div>
@@ -95,12 +97,13 @@ function SelectQuiz() {
               icon={<Random />}
               allSubcategories={allSubcategories}
               selectCategory={selectCategory}
+              from={location.pathname}
             />
           </div>
 
           <p className="text-sm text-[var(--text-secondary)] mt-12">
             Not finding the quiz you're looking for?{' '}
-            <Link to="/contact" className="underline hover:text-blue-400">
+            <Link to="/contact" state={{ from: location.pathname }} className="underline hover:text-blue-400">
               Suggest a quiz
             </Link>
           </p>

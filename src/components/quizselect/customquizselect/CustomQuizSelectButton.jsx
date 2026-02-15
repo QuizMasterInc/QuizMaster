@@ -22,22 +22,20 @@
  *  - onDeleted: function      -> Callback invoked when the quiz is successfully deleted.
  */
 
-import {useState} from "react"
-import { Link, useNavigate } from "react-router-dom"; 
+import { useState } from "react"
+import { Link, useNavigate, useLocation } from "react-router-dom"; 
 import DeleteQuizButton from "./DeleteQuizButton";
 
-// Helper to format the creator line; falls back to a generic label if name is missing.
 const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, creator, creatorId, currentUserId, onDeleted}) => {
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("");
 
   function displayCreatorName() {
-    // Use the creator prop directly (it's already the display name from the backend)
     return "Created By: " + (creator || 'Anonymous User');
   }
 
-  // Helper to render user-defined tags, if any exist for this quiz.
   function displayTags(tags) {
       if (tags != undefined && tags.length > 0) {
           return "User Tag(s): " + tags
@@ -45,8 +43,6 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
       return;
   }
 
-  // Validate the entered password by calling the grabCustomQuiz HTTP Cloud Function.
-  // If the password is correct, navigate to the quiz settings screen with the password in state.
   const quizPasswordCheck = async (quizPasswordAttempt, quizPassword) => {
       if (!quizPasswordAttempt.trim()) {
           alert("Please enter a password!");
@@ -54,7 +50,6 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
       }
       
       try {
-          // Test password by attempting to fetch the quiz with the password
           const response = await fetch(
               `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz?quizid=${uid}&password=${encodeURIComponent(quizPasswordAttempt)}`
           );
@@ -71,9 +66,11 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
           const result = await response.json();
           
           if (result.result && result.status === 200) {
-              // Password correct, navigate to settings screen
               navigate('/customquiz/settings/' + uid, { 
-                state: { password: quizPasswordAttempt } 
+                state: { 
+                  password: quizPasswordAttempt,
+                  from: location.pathname
+                } 
               });
           } else if (result.requiresPassword) {
               alert("Incorrect password! Please try again.");
@@ -86,7 +83,6 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
       }
   }
 
-  // Keep local state in sync with the password input field.
   const handleQuizPasswordChange = (e) => {
       setQuizPasswordAttempt((prevQuizPassword) => {
         let newPassword = prevQuizPassword;
@@ -95,9 +91,6 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
       })
     }
 
-  // Render either a password-protected card (with input + Start button)
-  // or a direct link card when no password is required. In both cases,
-  // the DeleteQuizButton is rendered so owners can remove their quiz.
       return (<div className="w-1/2 p-5 text-center -sm:p-1">
           {quizPassword ? 
           <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
@@ -129,7 +122,7 @@ const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, c
           </div>
           :
           <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
-            <Link to={'/customquiz/settings/' + uid}>
+            <Link to={'/customquiz/settings/' + uid} state={{ from: location.pathname }}>
               <div className="text-2xl text-[var(--primary-500)]">{title}</div>
               <div className="text-base">{displayCreatorName()}</div>
               <div className="text-base">{displayTags(tags)}</div>
