@@ -11,9 +11,11 @@ export default function NavBar() {
     const navigate = useNavigate();
     const [dashboardOpen, setDashboardOpen] = useState(false);
     const [homeOpen, setHomeOpen] = useState(false);
+    const [profileOpen, setProfileOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const dashboardRef = useRef(null);
     const homeRef = useRef(null);
+    const profileRef = useRef(null);
     const drawerRef = useRef(null);
 
     useEffect(() => {
@@ -24,6 +26,9 @@ export default function NavBar() {
             if (homeOpen && homeRef.current && !homeRef.current.contains(event.target)) {
                 setHomeOpen(false);
             }
+            if (profileOpen && profileRef.current && !profileRef.current.contains(event.target)) {
+                setProfileOpen(false);
+            }
             if (mobileMenuOpen && drawerRef.current && !drawerRef.current.contains(event.target) && !event.target.closest('.hamburger-menu')) {
                 setMobileMenuOpen(false);
             }
@@ -32,7 +37,7 @@ export default function NavBar() {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [dashboardOpen, homeOpen]);
+    }, [dashboardOpen, homeOpen, mobileMenuOpen, profileOpen]);
 
     const handleClick = (e) => {
         if (location.pathname === "/quizstarted") {
@@ -89,13 +94,28 @@ export default function NavBar() {
             </NavLink>
 
             {currentUser && (
-                <button
-                    onClick={handleLogout}
-                    className="hidden md:inline-flex ml-4 items-center gap-2 px-4 py-2 rounded-full bg-red-500 text-white font-semibold shadow-md hover:shadow-lg transition-transform duration-200 hover:-translate-y-0.5"
-                >
-                    <SignIn className="w-4 h-4" />
-                    Logout
-                </button>
+                <div className="relative inline-flex ml-auto md:ml-4 z-50" ref={profileRef}>
+                    <button
+                        onClick={() => setProfileOpen(!profileOpen)}
+                        aria-haspopup="true"
+                        aria-expanded={profileOpen}
+                        aria-label="Open profile menu"
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/0 text-gray-800 dark:text-white border border-transparent dark:border-white/10 font-semibold shadow-sm hover:shadow-md transition-transform duration-150 hover:bg-gray-100 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        <Profile className="w-6 h-6 text-current" />
+                    </button>
+
+                    {profileOpen && (
+                        <div className="absolute right-0 mt-2 w-44 bg-white rounded-md shadow-lg py-1 z-50">
+                            <NavLink to="/Profile" onClick={() => setProfileOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Profile
+                            </NavLink>
+                            <button onClick={() => { setProfileOpen(false); handleLogout(); }} className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Logout
+                            </button>
+                        </div>
+                    )}
+                </div>
             )}
 
             {mobileMenuOpen && (
