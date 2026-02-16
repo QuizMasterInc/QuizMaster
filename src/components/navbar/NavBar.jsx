@@ -88,6 +88,16 @@ export default function NavBar() {
                 Take a Poll
             </NavLink>
 
+            {currentUser && (
+                <button
+                    onClick={handleLogout}
+                    className="hidden md:inline-flex ml-4 items-center gap-2 px-4 py-2 rounded-full bg-red-500 text-white font-semibold shadow-md hover:shadow-lg transition-transform duration-200 hover:-translate-y-0.5"
+                >
+                    <SignIn className="w-4 h-4" />
+                    Logout
+                </button>
+            )}
+
             {mobileMenuOpen && (
                 <>
                     <div className="drawer-overlay fixed inset-0 bg-black bg-opacity-40 z-40" onClick={() => setMobileMenuOpen(false)} />
@@ -139,10 +149,6 @@ export default function NavBar() {
                                         <Gear className="w-5 h-5" />
                                         Settings
                                     </NavLink>
-                                    <button onClick={() => { handleLogout(); }} className="mobile-nav-item text-left">
-                                        <SignIn className="w-5 h-5" />
-                                        Logout
-                                    </button>
                                 </>
                             ) : (
                                 <>
