@@ -157,14 +157,6 @@ export default function NavBar() {
                                         <Q className="w-5 h-5" />
                                         Make Quiz
                                     </NavLink>
-                                    <NavLink to="/about" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
-                                        <Info className="w-5 h-5" />
-                                        About
-                                    </NavLink>
-                                    <NavLink to="/Profile" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
-                                        <Profile className="w-5 h-5" />
-                                        Profile
-                                    </NavLink>
                                 </>
                             ) : (
                                 <>
@@ -175,10 +167,6 @@ export default function NavBar() {
                                     <NavLink to="/poll" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <Q className="w-5 h-5" />
                                         Take a Poll
-                                    </NavLink>
-                                    <NavLink to="/about" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
-                                        <Info className="w-5 h-5" />
-                                        About
                                     </NavLink>
                                     <NavLink to="/signin" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <SignIn className="w-5 h-5" />

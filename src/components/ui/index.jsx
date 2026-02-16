@@ -132,6 +132,12 @@ export const Footer = () => {
               >
                 Terms of Service
               </Link>
+              <Link
+                to="/about"
+                className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
+              >
+                About Us
+              </Link>
             </div>
           </div>
         </div>
