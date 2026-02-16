@@ -109,6 +109,12 @@ export const Footer = () => {
                 Feedback
               </button>
               <Link
+                to="/settings"
+                className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
+              >
+                Settings
+              </Link>
+              <Link
                 to="/contact"
                 className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
               >
