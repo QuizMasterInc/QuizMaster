@@ -6,6 +6,18 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import FlashcardPreview from './FlashcardPreview';
 
+const getCreatorLabel = (deck) => {
+  const username = deck?.creatorUsername || deck?.username;
+  if (typeof username === 'string' && username.trim()) {
+    return `@${username.replace(/^@/, '')}`;
+  }
+
+  const name = deck?.creatorName || deck?.creatorDisplayName || deck?.displayName;
+  if (typeof name === 'string' && name.trim()) return name;
+
+  return 'Unknown';
+};
+
 export default function FlashcardCard({ deck, onDelete, isDeleting }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,6 +64,9 @@ export default function FlashcardCard({ deck, onDelete, isDeleting }) {
             </div>
             <div className="text-sm text-secondary">
               <strong>Category:</strong> {deck.category}
+            </div>
+            <div className="text-sm text-secondary">
+              <strong>Created by:</strong> {getCreatorLabel(deck)}
             </div>
             <div className="text-sm text-secondary">
               <strong>Difficulty:</strong> {getDifficultyLabel(deck.difficulty)}

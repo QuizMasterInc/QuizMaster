@@ -17,6 +17,7 @@
  *  - uid: string              -> Quiz document ID used for navigation and API calls.
  *  - quizPassword: string?    -> If present, quiz is password-protected.
  *  - creator: string?         -> Display name of the quiz creator (from backend).
+ *  - creatorUsername: string?  -> Username/handle of the quiz creator (when available).
  *  - creatorId: string        -> UID of the quiz creator (used for delete permissions).
  *  - currentUserId: string    -> UID of the currently logged-in user.
  *  - onDeleted: function      -> Callback invoked when the quiz is successfully deleted.
@@ -26,21 +27,35 @@ import { useState } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"; 
 import DeleteQuizButton from "./DeleteQuizButton";
 
-const CustomQuizSelectButton = ({title, numQuestions, tags, uid, quizPassword, creator, creatorId, currentUserId, onDeleted}) => {
+const CustomQuizSelectButton = ({
+  title,
+  numQuestions,
+  tags,
+  uid,
+  quizPassword,
+  creator,
+  creatorUsername,
+  creatorId,
+  currentUserId,
+  onDeleted
+}) => {
 
   const navigate = useNavigate();
   const location = useLocation();
   const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("");
 
   function displayCreatorName() {
-    return "Created By: " + (creator || 'Anonymous User');
+    if (typeof creatorUsername === 'string' && creatorUsername.trim()) {
+      return "Created by: @" + creatorUsername.replace(/^@/, '');
+    }
+    return "Created by: " + (creator || 'Anonymous User');
   }
 
   function displayTags(tags) {
-      if (tags != undefined && tags.length > 0) {
-          return "User Tag(s): " + tags
-      }
-      return;
+    if (tags !== undefined && tags !== null && tags.length > 0) {
+      return "User Tag(s): " + tags;
+    }
+    return null;
   }
 
   const quizPasswordCheck = async (quizPasswordAttempt, quizPassword) => {

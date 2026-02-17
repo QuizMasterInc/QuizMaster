@@ -4,10 +4,12 @@ import useProfileSectionData from '../hooks/useProfileSectionData';
 import ProfileInfo from '../components/profile/ProfileInfo';
 import QuizAverages from '../components/profile/QuizAverages';
 import ActivityHistory from '../components/profile/ActivityHistory';
+import MyStudyMaterial from '../components/profile/MyStudyMaterial';
 
 const Profile = () => {
   const { user } = useAuth();
-  const { profile, quizzes, allQuizzes, results, decks, loading, error, quizAverages, overallStats } = useProfileSectionData(user?.uid);
+  const { profile, quizzes, results, decks, loading, error, quizAverages, overallStats } =
+    useProfileSectionData(user?.uid);
 
   if (loading) {
     return (
@@ -45,6 +47,11 @@ const Profile = () => {
           {/* Profile Info Section */}
           <div className="card mb-8">
             <ProfileInfo profile={profile} userId={user?.uid} />
+          </div>
+
+          {/* My Study Material Section */}
+          <div className="card mb-8">
+            <MyStudyMaterial decks={decks} quizzes={quizzes} />
           </div>
 
           {/* Quiz Performance Section */}
