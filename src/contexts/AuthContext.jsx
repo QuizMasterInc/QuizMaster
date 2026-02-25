@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import authService from '../services/auth/authService';
+import { ensureOAuthUsername, reserveUsername } from '../services/firebase/usernameService';
 
 const AuthContext = createContext(null);
 
@@ -114,6 +115,8 @@ export const AuthProvider = ({ children }) => {
             const result = await authService.signInWithGoogle();
             
             if (result && result.user) {
+                // Ensure OAuth users have a classroom-friendly username
+                await ensureOAuthUsername({ uid: result.user.uid });
                 return result;
             }
             
@@ -133,12 +136,16 @@ export const AuthProvider = ({ children }) => {
             const result = await authService.registerWithGoogle(additionalData);
             
             if (result && result.user && result.profile) {
+                // Assign an auto-generated classroom-friendly username if missing
+                await ensureOAuthUsername({ uid: result.user.uid });
+                const updatedProfile = await authService.getUserProfile(result.user.uid);
+
                 // Set state immediately - no need to wait for auth state listener
                 setUser(result.user);
-                setProfile(result.profile);
+                setProfile(updatedProfile || result.profile);
                 setIsGoogleAuth(true);
                 setLoading(false);
-                return result;
+                return { ...result, profile: updatedProfile || result.profile };
             }
             
             throw new Error('Registration completed but data not returned');
@@ -158,6 +165,8 @@ export const AuthProvider = ({ children }) => {
             const result = await authService.signInWithGitHub();
 
             if (result && result.user) {
+                // Ensure OAuth users have a classroom-friendly username
+                await ensureOAuthUsername({ uid: result.user.uid });
                 return result;
             }
 
@@ -175,10 +184,14 @@ export const AuthProvider = ({ children }) => {
             const result = await authService.registerWithGitHub(additionalData);
 
             if (result && result.user && result.profile) {
+                // Assign an auto-generated classroom-friendly username if missing
+                await ensureOAuthUsername({ uid: result.user.uid });
+                const updatedProfile = await authService.getUserProfile(result.user.uid);
+
                 setUser(result.user);
-                setProfile(result.profile);
+                setProfile(updatedProfile || result.profile);
                 setLoading(false);
-                return result;
+                return { ...result, profile: updatedProfile || result.profile };
             }
 
             throw new Error('Registration completed but data not returned');
@@ -201,16 +214,30 @@ export const AuthProvider = ({ children }) => {
             const result = await authService.register(userData);
             
             if (result && result.user) {
+                // Atomically reserve the chosen username (guarantees uniqueness)
+                if (userData?.username) {
+                    await reserveUsername({ uid: result.user.uid, username: userData.username });
+                }
+
+                // Refresh profile so username shows up immediately
+                const updatedProfile = await authService.getUserProfile(result.user.uid);
+
                 // Set the user and profile immediately after successful registration
                 setUser(result.user);
-                setProfile(result.profile);
+                setProfile(updatedProfile || result.profile);
                 setError(null);
                 setLoading(false);
+
+                return { ...result, profile: updatedProfile || result.profile };
             }
             
             return result;
         } catch (err) {
-            setError(err.message || 'Registration failed');
+            if (err?.message === 'USERNAME_TAKEN') {
+                setError('That username is already taken. Try another.');
+            } else {
+                setError(err.message || 'Registration failed');
+            }
             throw err;
         } finally {
             setIsRegistering(false);

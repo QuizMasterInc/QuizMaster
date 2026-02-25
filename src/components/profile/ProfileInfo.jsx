@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import AuthService from '../../services/auth/authService';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
+import {
+  changeUsername,
+  isUsernameAvailable,
+  isValidUsername,
+  normalizeUsername,
+} from '../../services/firebase/usernameService';
 
 const ProfileInfo = ({ profile, userId }) => {
   const { user } = useAuth();
-  
+
   const isOAuthUser = user?.providerData?.some(
     (provider) => provider.providerId === 'google.com' || provider.providerId === 'github.com'
   );
@@ -16,11 +22,38 @@ const ProfileInfo = ({ profile, userId }) => {
     firstName: profile?.profile?.firstName || '',
     lastName: profile?.profile?.lastName || '',
     email: profile?.email || '',
+    username: profile?.username || '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
+  // IMPORTANT: keep formData synced with profile when profile loads/updates
+  useEffect(() => {
+    if (!profile) return;
+    // Only sync when NOT editing, so we don't overwrite user's typing
+    if (isEditing) return;
+
+    setFormData({
+      firstName: profile?.profile?.firstName || '',
+      lastName: profile?.profile?.lastName || '',
+      email: profile?.email || '',
+      username: profile?.username || '',
+    });
+  }, [profile, isEditing]);
+
+  const [usernameStatus, setUsernameStatus] = useState({ state: 'idle', message: '' });
+  // state: idle | invalid | checking | available | taken | ok
+
+  const usernameTrimmed = (formData.username || '').trim();
+  const usernameLower = normalizeUsername(usernameTrimmed);
+  const originalUsernameLower = normalizeUsername(profile?.username || '');
+  const usernameUnchanged = usernameLower && usernameLower === originalUsernameLower;
+
+  const canSaveUsername =
+    !!usernameTrimmed &&
+    isValidUsername(usernameTrimmed) &&
+    (usernameUnchanged || usernameStatus.state === 'available' || usernameStatus.state === 'ok');
 
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -33,17 +66,58 @@ const ProfileInfo = ({ profile, userId }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
+  // Live (debounced) username availability check (only while editing)
+  useEffect(() => {
+    if (!isEditing) return;
+
+    if (!usernameTrimmed) {
+      setUsernameStatus({ state: 'invalid', message: 'Username is required.' });
+      return;
+    }
+
+    if (!isValidUsername(usernameTrimmed)) {
+      setUsernameStatus({ state: 'invalid', message: '3–24 chars, letters/numbers only.' });
+      return;
+    }
+
+    // If unchanged, it's OK
+    if (usernameUnchanged) {
+      setUsernameStatus({ state: 'ok', message: 'Current username ✅' });
+      return;
+    }
+
+    let cancelled = false;
+    setUsernameStatus({ state: 'checking', message: 'Checking availability…' });
+
+    const t = setTimeout(async () => {
+      try {
+        const ok = await isUsernameAvailable(usernameTrimmed);
+        if (cancelled) return;
+        if (ok) setUsernameStatus({ state: 'available', message: 'Username is available ✅' });
+        else setUsernameStatus({ state: 'taken', message: 'That username is taken ❌' });
+      } catch (e) {
+        if (cancelled) return;
+        setUsernameStatus({ state: 'checking', message: 'Could not check right now.' });
+      }
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [isEditing, usernameLower, usernameUnchanged, usernameTrimmed]);
+
   const handlePasswordInputChange = (e) => {
     const { name, value } = e.target;
-    setPasswordData(prev => ({
+    setPasswordData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -51,11 +125,27 @@ const ProfileInfo = ({ profile, userId }) => {
     setLoading(true);
     setError(null);
     try {
+      const uname = (formData.username || '').trim();
+      if (!isValidUsername(uname)) {
+        throw new Error('Username must be 3–24 characters and letters/numbers only.');
+      }
+
+      // If username changed, update it atomically in Firestore
+      if (normalizeUsername(uname) !== originalUsernameLower) {
+        await changeUsername({ uid: userId, username: uname });
+      }
+
+      // Your existing profile update call (keeps first/last/email updates)
       await AuthService.updateUserProfile(userId, formData);
+
       setIsEditing(false);
       window.location.reload();
     } catch (err) {
-      setError(err.message);
+      if (err?.message === 'USERNAME_TAKEN') {
+        setError('That username is already taken. Try another.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -100,6 +190,7 @@ const ProfileInfo = ({ profile, userId }) => {
       firstName: profile?.profile?.firstName || '',
       lastName: profile?.profile?.lastName || '',
       email: profile?.email || '',
+      username: profile?.username || '',
     });
     setIsEditing(false);
     setError(null);
@@ -170,33 +261,78 @@ const ProfileInfo = ({ profile, userId }) => {
               <p className="text-[var(--text-primary)]">{profile.profile?.lastName || 'Not set'}</p>
             )}
           </div>
-        </div>
 
-        <div>
-          <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
-            Email
-            {isOAuthUser && (
-              <span className="ml-2 text-xs text-[var(--text-muted)]">
-                (managed by {user?.providerData?.[0]?.providerId === 'google.com' ? 'Google' : 'GitHub'})
-              </span>
+          {/* Username fits nicely in the 2-column grid */}
+          <div>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+              Username
+            </label>
+
+            {isEditing ? (
+              <>
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  className="input-focus w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--accent)] bg-[var(--bg-secondary)] text-[var(--text-primary)]"
+                  placeholder="e.g. SourAppleMonkey24"
+                  autoComplete="username"
+                />
+                {usernameStatus.state !== 'idle' && (
+                  <div className="text-xs mt-1 text-[var(--text-muted)]">{usernameStatus.message}</div>
+                )}
+              </>
+            ) : (
+              <p className="text-[var(--text-primary)]">{profile.username || 'Not set'}</p>
             )}
-          </label>
-          {isEditing && isEmailPasswordUser ? (
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="input-focus w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--accent)] bg-[var(--bg-secondary)] text-[var(--text-primary)]"
-            />
-          ) : (
-            <p className="text-[var(--text-primary)]">{profile.email || 'Not set'}</p>
-          )}
+          </div>
+
+          {/* Email sits in the grid too */}
+          <div>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
+              Email
+              {isOAuthUser && (
+                <span className="ml-2 text-xs text-[var(--text-muted)]">
+                  (managed by {user?.providerData?.[0]?.providerId === 'google.com' ? 'Google' : 'GitHub'})
+                </span>
+              )}
+            </label>
+            {isEditing && isEmailPasswordUser ? (
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="input-focus w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--accent)] bg-[var(--bg-secondary)] text-[var(--text-primary)]"
+              />
+            ) : (
+              <p className="text-[var(--text-primary)]">{profile.email || 'Not set'}</p>
+            )}
+          </div>
         </div>
 
         <div className="text-sm text-[var(--text-muted)]">
-          <p>Member since: {profile.timestamps?.createdAt ? new Date(profile.timestamps.createdAt).toLocaleDateString() : 'Unknown'}</p>
-          <p>Last login: {profile.timestamps?.lastLoginAt ? new Date(profile.timestamps.lastLoginAt.toDate ? profile.timestamps.lastLoginAt.toDate() : profile.timestamps.lastLoginAt).toLocaleDateString() : 'Unknown'}</p>
+          <p>
+            Member since:{' '}
+            {profile.timestamps?.createdAt
+              ? new Date(
+                  profile.timestamps.createdAt.toDate
+                    ? profile.timestamps.createdAt.toDate()
+                    : profile.timestamps.createdAt
+                ).toLocaleDateString()
+              : 'Unknown'}
+          </p>
+          <p>
+            Last login:{' '}
+            {profile.timestamps?.lastLoginAt
+              ? new Date(
+                  profile.timestamps.lastLoginAt.toDate
+                    ? profile.timestamps.lastLoginAt.toDate()
+                    : profile.timestamps.lastLoginAt
+                ).toLocaleDateString()
+              : 'Unknown'}
+          </p>
         </div>
       </div>
 
@@ -204,7 +340,7 @@ const ProfileInfo = ({ profile, userId }) => {
         <div className="flex space-x-4 mt-6">
           <button
             onClick={handleSave}
-            disabled={loading}
+            disabled={loading || !canSaveUsername}
             className="px-4 py-2 bg-[var(--success)] hover:bg-green-600 disabled:bg-[var(--neutral-400)] text-white rounded-md transition-colors"
           >
             {loading ? 'Saving...' : 'Save Changes'}
