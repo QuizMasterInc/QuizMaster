@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   getDocs,
   onSnapshot,
   query,
@@ -89,8 +90,21 @@ export function subscribeToPoll(pollId, callback) {
   );
 }
 
-export async function submitVote(pollId, optionIndex) {
+export async function getUserVote(pollId, userId) {
+  if (!userId || !pollId) return null;
+  try {
+    const voteSnap = await getDoc(doc(db, POLLS_COLLECTION, pollId, "votes", userId));
+    if (!voteSnap.exists()) return null;
+    return { id: voteSnap.id, ...voteSnap.data() };
+  } catch (error) {
+    throw handleFirebaseError(error);
+  }
+}
+
+export async function submitVote(pollId, optionIndex, userId) {
+  if (!userId) throw handleFirebaseError(new Error("Sign in to vote."));
   const ref = doc(db, POLLS_COLLECTION, pollId);
+  const voteRef = doc(db, POLLS_COLLECTION, pollId, "votes", userId);
   try {
     await runTransaction(db, async (transaction) => {
       const snap = await transaction.get(ref);
@@ -101,34 +115,65 @@ export async function submitVote(pollId, optionIndex) {
       if (optionIndex == null || optionIndex < 0 || optionIndex >= data.votes.length) {
         throw new Error("Invalid poll option");
       }
+
+      const existingVote = await transaction.get(voteRef);
+      if (existingVote.exists()) throw new Error("You already voted.");
+
       const newVotes = [...data.votes];
       newVotes[optionIndex] = (newVotes[optionIndex] || 0) + 1;
+
       transaction.update(ref, { votes: newVotes, updatedAt: serverTimestamp() });
+      transaction.set(voteRef, {
+        optionIndex,
+        userId,
+        createdAt: serverTimestamp(),
+      });
     });
   } catch (error) {
     throw handleFirebaseError(error);
   }
 }
 
-export async function closePoll(pollId) {
+export async function closePoll(pollId, userId) {
+  if (!userId) throw handleFirebaseError(new Error("Only the creator can close the poll."));
   try {
-    await updateDoc(doc(db, POLLS_COLLECTION, pollId), { status: "closed", updatedAt: serverTimestamp() });
+    await runTransaction(db, async (transaction) => {
+      const ref = doc(db, POLLS_COLLECTION, pollId);
+      const snap = await transaction.get(ref);
+      if (!snap.exists()) throw new Error("Poll not found");
+      if (snap.data().createdBy !== userId) throw new Error("Only the creator can close this poll.");
+      transaction.update(ref, { status: "closed", updatedAt: serverTimestamp() });
+    });
   } catch (error) {
     throw handleFirebaseError(error);
   }
 }
 
-export async function openPoll(pollId) {
+export async function openPoll(pollId, userId) {
+  if (!userId) throw handleFirebaseError(new Error("Only the creator can reopen the poll."));
   try {
-    await updateDoc(doc(db, POLLS_COLLECTION, pollId), { status: "open", updatedAt: serverTimestamp() });
+    await runTransaction(db, async (transaction) => {
+      const ref = doc(db, POLLS_COLLECTION, pollId);
+      const snap = await transaction.get(ref);
+      if (!snap.exists()) throw new Error("Poll not found");
+      if (snap.data().createdBy !== userId) throw new Error("Only the creator can reopen this poll.");
+      transaction.update(ref, { status: "open", updatedAt: serverTimestamp() });
+    });
   } catch (error) {
     throw handleFirebaseError(error);
   }
 }
 
-export async function setShowLiveResults(pollId, showLiveResults) {
+export async function setShowLiveResults(pollId, showLiveResults, userId) {
+  if (!userId) throw handleFirebaseError(new Error("Only the creator can update visibility."));
   try {
-    await updateDoc(doc(db, POLLS_COLLECTION, pollId), { showLiveResults, updatedAt: serverTimestamp() });
+    await runTransaction(db, async (transaction) => {
+      const ref = doc(db, POLLS_COLLECTION, pollId);
+      const snap = await transaction.get(ref);
+      if (!snap.exists()) throw new Error("Poll not found");
+      if (snap.data().createdBy !== userId) throw new Error("Only the creator can update visibility.");
+      transaction.update(ref, { showLiveResults, updatedAt: serverTimestamp() });
+    });
   } catch (error) {
     throw handleFirebaseError(error);
   }

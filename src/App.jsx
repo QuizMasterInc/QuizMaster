@@ -48,7 +48,7 @@ import { CATEGORY_DESTINATIONS } from './constants/quizConstants.jsx';
 import { useAuth } from './contexts/AuthContext';
 import Presentation from './components/presentation/presentation';
 import Classroom from './pages/Classroom';
-import Poll from './pages/Poll';
+import Poll from './components/pollfeature/Poll.jsx';
 
 function App() {
   const { user, loading, error } = useAuth();

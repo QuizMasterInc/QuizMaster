@@ -110,6 +110,9 @@ export default function NavBar() {
                             <NavLink to="/Profile" onClick={() => setProfileOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Profile
                             </NavLink>
+                            <NavLink to="/settings" onClick={() => setProfileOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Setting
+                            </NavLink>
                             <button onClick={() => { setProfileOpen(false); handleLogout(); }} className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 Logout
                             </button>
@@ -129,10 +132,12 @@ export default function NavBar() {
                                         <Profile className="w-5 h-5" />
                                         Dashboard
                                     </NavLink>
+                                    {/* Commented out - Poll page button in main menu not needed currently. 
                                     <NavLink to="/poll" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <Q className="w-5 h-5" />
                                         Take a Poll
-                                    </NavLink>
+                                    </NavLink> 
+                                    */}
                                     <NavLink to="/typeofquiz" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <School className="w-5 h-5" />
                                         Take a Quiz!
