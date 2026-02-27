@@ -1,6 +1,11 @@
 // This is our information tab page that displays info to the user
 
+import { useState } from 'react';
+import flier from '../about/flier.png';
+
 export default function About() {
+  const [isFlierOpen, setIsFlierOpen] = useState(false);
+
   // Return JSX for the About component
   return (
     <div className="min-h-screen py-20 px-6 font-main bg-primary text-primary">
@@ -8,9 +13,47 @@ export default function About() {
         <h1 className="text-5xl font-bold text-center mb-4 font-main text-gradient-primary">
           About Us
         </h1>
-        <p className="text-xl text-center mb-16 text-secondary">
+        <p className="text-xl text-center mb-10 text-secondary">
           Welcome to QuizMaster, your platform for managing, taking, and creating quizzes!
         </p>
+
+        {/* Flyer dropdown */}
+        <div className="max-w-2xl mx-auto mb-16">
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => setIsFlierOpen((v) => !v)}
+              aria-expanded={isFlierOpen}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary hover:bg-card text-primary font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] border-2 border-accent"
+            >
+              <span className="text-gradient-primary">{isFlierOpen ? 'Hide Flyer' : 'View Flyer'}</span>
+              <span
+                className={`transition-transform duration-300 ${isFlierOpen ? 'rotate-180' : 'rotate-0'}`}
+                aria-hidden="true"
+              >
+                ▾
+              </span>
+            </button>
+          </div>
+
+          <div
+            className={`overflow-hidden transition-all duration-400 ease-out ${
+              isFlierOpen ? 'max-h-[2000px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'
+            }`}
+          >
+            <div className={`transform transition-transform duration-400 ${isFlierOpen ? 'scale-100' : 'scale-[0.98]'}`}>
+              <div className="relative mx-auto max-w-xl rounded-3xl bg-card border border-accent shadow-2xl p-2">
+                <img
+                  src={flier}
+                  alt="QuizMaster Flyer"
+                  loading="lazy"
+                  className="w-full max-h-[70vh] object-contain rounded-2xl"
+                />
+                <div className="absolute inset-0 rounded-3xl ring-2 ring-accent opacity-10 pointer-events-none" />
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Left Card - About QuizMaster */}
