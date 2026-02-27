@@ -43,7 +43,7 @@ export default function Dashboard() {
 
         <section className="flex flex-col sm:flex-row justify-center gap-6 pt-10">
           <Link to="/typeofquiz" state={{ from: location.pathname }} className="inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent">
-            Take Another Quiz
+            Take A Quiz
           </Link>
           <Link to="/flashcards" state={{ from: location.pathname }} className="inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent">
             Make Flashcards
