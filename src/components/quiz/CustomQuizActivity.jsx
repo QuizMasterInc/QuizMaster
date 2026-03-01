@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import Question from './Question';
@@ -8,7 +8,7 @@ import ProgressBar from './ProgressBar';
 import BackToTop from './BackToTopButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResults } from '../../contexts/ResultsContext';
-
+import quizDraftService from '../../services/quiz/quizDraftService';
 import { useCustomQuiz, useQuestionChoices } from '../../hooks/useQuizEngine';
 import { useQuizState } from '../../hooks/useQuizState';
 import { useQuizSubmission } from '../../hooks/useQuizSubmission';
@@ -33,9 +33,20 @@ function CustomQuizActivity() {
     recordAnswered,
     recordCorrect,
     setUserAnswers,
+    setAnsweredCount,
     setCompleted,
-    resetQuizState
-  } = useQuizState();
+    resetQuizState,
+    startSubmission
+  } = useQuizState({
+    userId: currentUser?.uid,
+    quizId: quizID,
+    quizType: 'custom',
+    quizTitle: quizMetadata?.name || quizMetadata?.title || 'Custom Quiz',
+    category: quizMetadata?.category || 'custom',
+    difficulty: quizMetadata?.difficulty,
+    amount: questions.length,
+    questions
+  });
 
   const { submittingResults, submitQuiz } = useQuizSubmission();
 
@@ -51,8 +62,33 @@ function CustomQuizActivity() {
     useScrollToTop
   } = useQuizUI();
 
+  const [draftLoaded, setDraftLoaded] = useState(false);
   const [reviewQueue, setReviewQueue] = useState([]);
   const [resultsByIndex, setResultsByIndex] = useState({});
+
+  // Load draft if resuming
+  useEffect(() => {
+    const loadDraftData = async () => {
+      if (!currentUser?.uid || !quizID || draftLoaded) return;
+      
+      try {
+        const draft = await quizDraftService.loadDraft({
+          userId: currentUser.uid,
+          quizId: quizID
+        });
+        
+        if (draft && draft.userAnswers) {
+          setUserAnswers(draft.userAnswers);
+          setAnsweredCount(Object.keys(draft.userAnswers).length);
+          setDraftLoaded(true);
+        }
+      } catch (err) {
+        console.error('Error loading draft:', err);
+      }
+    };
+    
+    loadDraftData();
+  }, [currentUser?.uid, quizID, draftLoaded, setUserAnswers, setAnsweredCount]);
 
   const handleReviewToggle = (index, isMarked) => {
     if (index === null || index === undefined) return;
@@ -64,27 +100,32 @@ function CustomQuizActivity() {
     }
   };
 
-  const handleAnswerResult = (index, isCorrect) => {
+  const handleAnswerResult = (index, isCorrect, answer) => {
     if (typeof index !== 'number') return;
 
-    setResultsByIndex((prev) => ({
-      ...prev,
-      [index]: isCorrect
-    }));
+    if (answer !== undefined && answer !== null) {
+      setUserAnswers((prev) => ({
+        ...prev,
+        [index]: answer
+      }));
+    }
 
-    if (typeof isCorrect === 'boolean') {
-      recordCorrect(isCorrect);
+    if (isCorrect !== null) {
+      setResultsByIndex((prev) => ({
+        ...prev,
+        [index]: isCorrect
+      }));
+
+      if (typeof isCorrect === 'boolean') {
+        recordCorrect(isCorrect);
+      }
     }
   };
 
   const scrollToQuestion = (index) => {
-    try {
-      const el = document.querySelector(`[data-question-index="${index}"]`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    } catch (_) {
-      // no-op
+    const el = document.querySelector(`[data-question-index="${index}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -97,6 +138,8 @@ function CustomQuizActivity() {
   useScrollToTop(loading, questions.length);
 
   const handleSubmit = async () => {
+    startSubmission();
+    
     await submitQuiz({
       currentUser,
       questions,
@@ -106,6 +149,7 @@ function CustomQuizActivity() {
       quizStartTime,
       quizData: {
         category: quizMetadata?.category || 'custom',
+        quizTitle: quizMetadata?.name || quizMetadata?.title || 'Custom Quiz',
         difficulty: quizMetadata?.difficulty || 3,
         amount: questions.length,
         quizType: 'custom',
@@ -126,15 +170,8 @@ function CustomQuizActivity() {
 
     if (reviewQuestions.length === 0) return;
 
-    if (typeof resetQuizState === 'function') {
-      resetQuizState();
-    } else {
-      setUserAnswers({});
-      setCompleted(false);
-    }
-
+    resetQuizState();
     setQuestions(reviewQuestions);
-
     setDoneActive(false);
     setReviewQueue([]);
     setResultsByIndex({});
@@ -270,6 +307,7 @@ function CustomQuizActivity() {
                   data-question-index={i}
                 >
                   <Question
+                    key={`${i}-${userAnswers[i] || 'empty'}`}
                     question={q}
                     questionIndex={i}
                     isCompleted={completed}
@@ -277,6 +315,7 @@ function CustomQuizActivity() {
                     onAnswerChange={recordAnswered}
                     answerCount={answerCount}
                     onReviewToggle={handleReviewToggle}
+                    savedAnswer={userAnswers[i]}
                   />
                 </div>
               ))}

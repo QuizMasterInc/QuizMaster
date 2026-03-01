@@ -8,13 +8,41 @@ function Question({
   isCompleted,
   onAnswerChange,
   answerCount,
-  onReviewToggle
+  onReviewToggle,
+  savedAnswer
 }) {
-  const [selectedIndex, setSelectedIndex] = useState(null);
-  const [selectedIndexes, setSelectedIndexes] = useState([]);
-  const [inputAnswer, setInputAnswer] = useState('');
-  const [droppedOption, setDroppedOption] = useState('');
-  const [hasBeenCounted, setHasBeenCounted] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(() => {
+    if (savedAnswer && question.choices && typeof savedAnswer === 'string') {
+      const idx = question.choices.findIndex(c => c === savedAnswer);
+      return idx >= 0 ? idx : null;
+    }
+    return null;
+  });
+
+  const [selectedIndexes, setSelectedIndexes] = useState(() => {
+    if (Array.isArray(savedAnswer) && question.choices) {
+      return savedAnswer
+        .map(ans => question.choices.findIndex(c => c === ans))
+        .filter(i => i >= 0);
+    }
+    return [];
+  });
+
+  const [inputAnswer, setInputAnswer] = useState(() => {
+    if (savedAnswer && typeof savedAnswer === 'string') {
+      return savedAnswer;
+    }
+    return '';
+  });
+
+  const [droppedOption, setDroppedOption] = useState(() => {
+    if (savedAnswer && typeof savedAnswer === 'string') {
+      return savedAnswer;
+    }
+    return '';
+  });
+
+  const [hasBeenCounted, setHasBeenCounted] = useState(!!savedAnswer);
   const [evaluatedCorrect, setEvaluatedCorrect] = useState(null);
   const [markedForReview, setMarkedForReview] = useState(false);
 
@@ -24,6 +52,27 @@ function Question({
   const isFillBlank = type === 'fill';
   const isMultipleAnswer = type === 'multiple';
   const isDragAndDrop = type === 'drag';
+
+  // Report answer to parent whenever it changes (for auto-save)
+  useEffect(() => {
+    if (isCompleted) return;
+    
+    let currentAnswer = null;
+    
+    if (isFillBlank) {
+      currentAnswer = inputAnswer.trim() || null;
+    } else if (isMultipleAnswer) {
+      currentAnswer = selectedIndexes.length > 0 ? selectedIndexes.map(i => question.choices[i]) : null;
+    } else if (isDragAndDrop) {
+      currentAnswer = droppedOption || null;
+    } else if (selectedIndex !== null) {
+      currentAnswer = question.choices[selectedIndex] || null;
+    }
+    
+    if (currentAnswer !== null && onAnswer) {
+      onAnswer(questionIndex, null, currentAnswer);
+    }
+  }, [inputAnswer, selectedIndexes, droppedOption, selectedIndex]);
 
   useEffect(() => {
     if (isCompleted) {
@@ -190,7 +239,6 @@ function Question({
         )}
       </div>
 
-      {/* Mark for Review toggle */}
       {!isCompleted && (
         <div className="mt-6">
           <button

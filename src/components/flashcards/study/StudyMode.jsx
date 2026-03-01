@@ -9,7 +9,6 @@ import StudyProgressBar from './StudyProgressBar';
 import RatingButtons from './RatingButtons';
 import StudyStats from './StudyStats';
 import StudySearchBar from './StudySearchBar';
-import { updateSessionProgress } from '../../../services/flashcards/studySession';
 import NavButtons from './NavButtons';
 
 /**
@@ -196,7 +195,7 @@ const StudyMode = () => {
                             onClick={() => navigate(location.state?.from || '/dashboard')}
                             className="btn btn-primary"
                         >
-                            Back to Decks
+                            Exit
                         </button>
                     </div>
                 </div>
@@ -214,7 +213,7 @@ const StudyMode = () => {
                             onClick={() => navigate(location.state?.from || '/dashboard')}
                             className="btn btn-primary"
                         >
-                            Back to Decks
+                            Exit
                         </button>
                     </div>
                 </div>
@@ -251,7 +250,7 @@ const StudyMode = () => {
                                 className="btn btn-secondary"
                                 onClick={() => navigate(location.state?.from || '/dashboard')}
                             >
-                                Back to Decks
+                                Exit
                             </button>
 
                             <button
@@ -279,28 +278,9 @@ const StudyMode = () => {
                         <button
                             className="px-4 py-2 bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-text)] rounded-lg border border-[var(--border)] hover:bg-[var(--accent)] hover:text-white transition-all duration-200"
                             onClick={() => navigate(location.state?.from || '/dashboard')}
-                            aria-label="Back to Decks"
+                            aria-label="Exit"
                         >
-                            Back to Decks
-                        </button>
-                        <button
-                            className="px-4 py-2 bg-yellow-400 text-black rounded-lg border border-yellow-500 hover:bg-yellow-500 hover:text-white transition-all duration-200"
-                            onClick={async () => {
-                                try {
-                                    if (!session?.id) {
-                                        alert('No active session to save.');
-                                        return;
-                                    }
-                                    await updateSessionProgress(session.id, currentCardIndex);
-                                    alert('Progress saved. You can resume this deck later from Home.');
-                                } catch (err) {
-                                    console.error('Error saving progress:', err);
-                                    alert('Failed to save progress. Please try again.');
-                                }
-                            }}
-                            aria-label="Save progress for later"
-                        >
-                            Save for later
+                            Exit
                         </button>
                     </div>
                 </div>

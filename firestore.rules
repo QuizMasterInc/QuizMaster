@@ -29,19 +29,19 @@ service cloud.firestore {
     }
 
     // Flashcard decks collection
-    match /flashcard_decks/{deckId} {
-      // Anyone can read public decks
-      allow read: if resource.data.metadata.isPublic == true ||
-        (request.auth != null && resource.data.creator.uid == request.auth.uid);
+      match /flashcard_decks/{deckId} {
+    // Anyone can read public decks, or creator can read their own
+    allow read: if resource.data.isPublic == true ||
+      (request.auth != null && resource.data.creatorId == request.auth.uid);
 
-      // Only authenticated users can create their own decks
-      allow create: if request.auth != null &&
-        request.resource.data.creator.uid == request.auth.uid;
+    // Only authenticated users can create their own decks
+    allow create: if request.auth != null &&
+      request.resource.data.creatorId == request.auth.uid;
 
-      // Only the creator can update/delete their own deck
-      allow update, delete: if request.auth != null &&
-        resource.data.creator.uid == request.auth.uid;
-    }
+    // Only the creator can update/delete their own deck
+    allow update, delete: if request.auth != null &&
+      resource.data.creatorId == request.auth.uid;
+}
 
     // Quiz results collection
     match /quiz_results/{resultId} {
@@ -86,6 +86,25 @@ service cloud.firestore {
         resource.data.userId == request.auth.uid;
 
       // Users can delete their own study sessions
+      allow delete: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+    }
+
+    // Quiz drafts collection (auto-save in-progress quizzes)
+    match /quiz_drafts/{draftId} {
+      // Users can only read their own drafts
+      allow read: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+
+      // Users can only create their own drafts
+      allow create: if request.auth != null &&
+        request.resource.data.userId == request.auth.uid;
+
+      // Users can only update their own drafts
+      allow update: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+
+      // Users can delete their own drafts
       allow delete: if request.auth != null &&
         resource.data.userId == request.auth.uid;
     }

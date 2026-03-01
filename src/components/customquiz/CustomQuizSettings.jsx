@@ -5,13 +5,17 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { BackButton } from '../ui/index.jsx';
+import { useAuth } from '../../contexts/AuthContext';
+import quizDraftService from '../../services/quiz/quizDraftService';
 
 function CustomQuizSettings() {
   const { quizID } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [quizData, setQuizData] = useState(null);
+  const [hasDraft, setHasDraft] = useState(false);
 
   const password = location.state?.password;
 
@@ -24,6 +28,15 @@ function CustomQuizSettings() {
         const quiz = data.data;
 
         setQuizData(quiz);
+
+        // Check if user has a draft for this quiz
+        if (currentUser?.uid) {
+          const draft = await quizDraftService.loadDraft({
+            userId: currentUser.uid,
+            quizId: quizID
+          });
+          setHasDraft(!!draft);
+        }
       } catch (error) {
         console.error('Failed to fetch quiz data:', error);
       } finally {
@@ -32,12 +45,13 @@ function CustomQuizSettings() {
     }
 
     fetchQuizData();
-  }, [quizID]);
+  }, [quizID, currentUser?.uid, password]);
 
   const handleStartQuiz = () => {
     navigate(`/quizstarted/${quizID}`, {
       state: {
         password,
+        resumeDraft: hasDraft,
         from: location.pathname
       }
     });
@@ -85,7 +99,7 @@ function CustomQuizSettings() {
             {quizData.metadata?.title || quizData.title || 'Custom Quiz'}
           </h2>
           <p className="text-secondary">
-            Ready to start your quiz?
+            {hasDraft ? 'You have an in-progress attempt.' : 'Ready to start your quiz?'}
           </p>
         </div>
 
@@ -98,7 +112,7 @@ function CustomQuizSettings() {
             onClick={handleStartQuiz}
             className="inline-block px-8 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
           >
-            Start Quiz
+            {hasDraft ? 'Resume Quiz' : 'Start Quiz'}
           </button>
         </div>
       </div>

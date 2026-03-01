@@ -40,7 +40,7 @@ export const useStudySession = (deckId, userId) => {
                     setCurrentCardIndex(activeSession.currentCardIndex);
                 } else {
                     // Create new session
-                    const newSession = await createStudySession(userId, deckId);
+                    const newSession = await createStudySession(userId, deckId, deckData.title);
                     setSession(newSession);
                     setCurrentCardIndex(0);
                 }

@@ -1,29 +1,27 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
-import { useResults } from '../../contexts/ResultsContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { getRecentSessions } from '../../services/flashcards/studySession';
+import quizDraftService from '../../services/quiz/quizDraftService';
 import resultService from '../../services/quiz/resultService';
 
-/**
- * RecentActivity - Shows recent quizzes and flashcard sessions on Home
- * - merges quiz attempts (from ResultService) and study sessions
- * - sorts them by timestamp and displays up to `limit` items
- */
 const RecentActivity = ({ limit = 6 }) => {
   const { currentUser } = useAuth();
-  const { allResults, loading: resultsLoading } = useResults();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const [quizDrafts, setQuizDrafts] = useState([]);
+  const [completedQuizzes, setCompletedQuizzes] = useState([]);
 
   useEffect(() => {
     let mounted = true;
     async function load() {
       if (!currentUser?.uid) {
         setSessions([]);
+        setQuizDrafts([]);
+        setCompletedQuizzes([]);
         setLoading(false);
         return;
       }
@@ -33,77 +31,96 @@ const RecentActivity = ({ limit = 6 }) => {
       try {
         const recentSessions = await getRecentSessions(currentUser.uid, 6);
         if (mounted) setSessions(recentSessions || []);
+          
+        const drafts = await quizDraftService.getUserDrafts(currentUser.uid, 6);
+        if (mounted) setQuizDrafts(drafts || []);
+
+        const quizData = await resultService.getUserAttempts(currentUser.uid, { limitCount: 6 });
+        if (mounted) setCompletedQuizzes(quizData.attempts || []);
       } catch (err) {
-        console.error('Error loading recent sessions:', err);
-        if (mounted) setSessions([]);
+        console.error('Error loading recent activity:', err);
+        if (mounted) {
+          setSessions([]);
+          setQuizDrafts([]);
+          setCompletedQuizzes([]);
+        }
       } finally {
         if (mounted) setLoading(false);
       }
     }
 
     load();
-
     return () => { mounted = false; };
   }, [currentUser?.uid]);
 
-  // Builds quiz items from allResults cache 
+  // Build quiz items - one per quizId, drafts take priority over completed
   const quizItems = useMemo(() => {
-    if (!allResults) return [];
+    const quizMap = new Map();
 
-    const items = [];
-
-    
-    Object.keys(allResults).forEach(key => {
-      const val = allResults[key];
-
-      
-      if (Array.isArray(val.attempts) && val.attempts.length > 0) {
-        val.attempts.forEach(a => {
-          items.push({
-            type: 'quiz',
-            id: a.id || a.attemptId || `${a.quizId}_${a.submittedAt}`,
-            title: a.quizTitle || a.quizName || val.title || key,
-            timestamp: a.submittedAt || a.lastAttemptAt || a.startedAt || null,
-            meta: { score: a.score }
-          });
-        });
-      } else if (val.lastAttempt) {
-        items.push({
-          type: 'quiz',
-          id: val.lastAttempt.id || `${key}_last`,
-          title: val.lastAttempt.quizTitle || key,
-          timestamp: val.lastAttempt.submittedAt || val.lastAttempt.startedAt || null,
-          meta: { score: val.lastAttempt.score }
-        });
-      }
+    // Add completed quizzes first
+    completedQuizzes.forEach(q => {
+      if (!q.quizId) return;
+      quizMap.set(q.quizId, {
+        type: 'completed',
+        id: q.id,
+        quizId: q.quizId,
+        title: q.quizTitle || q.category || 'Quiz',
+        timestamp: q.submittedAt,
+        meta: {
+          score: q.score,
+          totalQuestions: q.totalQuestions,
+          quizType: q.quizType
+        }
+      });
     });
 
-    return items;
-  }, [allResults]);
+    // Drafts override completed (if draft exists, show Resume instead of Take Again)
+    quizDrafts.forEach(d => {
+      if (!d.quizId) return;
+      quizMap.set(d.quizId, {
+        type: 'draft',
+        id: d.id,
+        quizId: d.quizId,
+        title: d.quizTitle || d.category || 'Quiz',
+        timestamp: d.updatedAt || d.createdAt,
+        meta: {
+          answeredCount: d.answeredCount || Object.keys(d.userAnswers || {}).length,
+          totalQuestions: d.amount || d.questions?.length || 0,
+          quizType: d.quizType
+        }
+      });
+    });
 
-  
+    return Array.from(quizMap.values());
+  }, [quizDrafts, completedQuizzes]);
+
+  // Flashcard sessions - one per deck
   const sessionItems = useMemo(() => {
-    return sessions.map(s => ({
-      type: 'study',
-      id: s.id,
-      title: s.deckTitle || s.deckId || 'Flashcards',
-      timestamp: s.lastActivityAt || s.startedAt || null,
-      meta: { cardsStudied: s.cardsStudied, deckId: s.deckId }
-    }));
+    const seenDecks = new Set();
+    return sessions
+      .filter(s => {
+        if (seenDecks.has(s.deckId)) return false;
+        seenDecks.add(s.deckId);
+        return true;
+      })
+      .map(s => ({
+        type: 'study',
+        id: s.id,
+        title: s.deckTitle || s.deckId || 'Flashcards',
+        timestamp: s.lastActivityAt || s.startedAt || null,
+        meta: { deckId: s.deckId }
+      }));
   }, [sessions]);
 
-  
+  // Merge and sort by timestamp
   const merged = useMemo(() => {
-    const all = [...quizItems, ...sessionItems]
+    return [...quizItems, ...sessionItems]
       .filter(i => i.timestamp)
-      .map(i => ({ ...i, ts: new Date(i.timestamp).getTime() }))
-      .sort((a, b) => b.ts - a.ts)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, limit);
-
-    return all;
   }, [quizItems, sessionItems, limit]);
 
-  if (loading || resultsLoading) {
+  if (loading) {
     return (
       <div className="max-w-6xl mx-auto mt-8 px-4">
         <div className="card p-6 flex items-center gap-4">
@@ -138,38 +155,59 @@ const RecentActivity = ({ limit = 6 }) => {
             <li key={item.id} className="flex items-center justify-between p-3 rounded-md hover:bg-[var(--bg-secondary)] transition">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 flex items-center justify-center rounded-md bg-[var(--neutral-100)]">
-                  {item.type === 'quiz' ? '🧠' : '📚'}
+                  {item.type === 'draft' ? '📌' : item.type === 'completed' ? '📄' : '📚'}
                 </div>
                 <div>
-                  <div className="font-semibold">{item.title}</div>
-                  <div className="text-xs text-secondary">{new Date(item.timestamp).toLocaleString()}</div>
+                  <div className="font-semibold">
+                    {item.title}
+                    {item.type === 'draft' && (
+                      <span className="ml-2 text-xs text-yellow-500">(In Progress)</span>
+                    )}
+                    {item.type === 'completed' && item.meta?.score !== undefined && (
+                      <span className="ml-2 text-xs text-green-500">
+                        ({item.meta.score}/{item.meta.totalQuestions})
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-secondary">
+                    {new Date(item.timestamp).toLocaleString()}
+                    {item.type === 'draft' && item.meta?.answeredCount > 0 && (
+                      <span className="ml-2">• {item.meta.answeredCount}/{item.meta.totalQuestions} answered</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                {item.type === 'quiz' ? (
-                  <>
-                    <button className="btn btn-outline" onClick={() => navigate(`/quizzes/quizstarted`, { state: { attemptId: item.id, from: location.pathname } })}>
-                      View
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => {
-                        const proceed = window.confirm('Would you like to continue working on this deck?');
-                        if (proceed) {
-                          const deckId = item.meta?.deckId || (item.title === 'Flashcards' ? '' : item.title);
-                          navigate(`/flashcards/study/${deckId}`, { state: { sessionId: item.id, from: location.pathname } });
-                        } else {
-                          navigate('/home');
-                        }
-                      }}
-                    >
-                      Resume
-                    </button>
-                  </>
+                {item.type === 'draft' && (
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => navigate(`/quizstarted/${item.quizId}`, { 
+                      state: { resumeDraft: true, from: location.pathname } 
+                    })}
+                  >
+                    Resume
+                  </button>
+                )}
+                {item.type === 'completed' && (
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => navigate(`/quizstarted/${item.quizId}`, { 
+                      state: { from: location.pathname } 
+                    })}
+                  >
+                    Take Again
+                  </button>
+                )}
+                {item.type === 'study' && (
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => navigate(`/flashcards/study/${item.meta.deckId}`, { 
+                      state: { from: location.pathname } 
+                    })}
+                  >
+                    Resume
+                  </button>
                 )}
               </div>
             </li>

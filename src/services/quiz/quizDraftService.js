@@ -1,60 +1,101 @@
 /**
- * quizDraftService - lightweight client-side draft storage for quiz progress
- * Currently uses localStorage for quick persistence. This is intentionally
- * small and replaceable with a backend API later (e.g. Firestore or Cloud Function).
+ * quizDraftService - Firebase-based draft storage for quiz progress
  */
 
-const DRAFT_PREFIX = 'quizDraft:';
+import { db } from '../firebase/firebaseService';
+import { 
+  collection, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  getDocs, 
+  deleteDoc, 
+  query, 
+  where, 
+  orderBy, 
+  limit 
+} from 'firebase/firestore';
 
-const buildKey = ({ userId, quizId, category, difficulty, amount }) => {
-  // Prefer explicit quizId when available, otherwise fall back to category/difficulty/amount
-  if (quizId) return `${DRAFT_PREFIX}${userId}:quiz:${quizId}`;
-  return `${DRAFT_PREFIX}${userId}:cat:${category || 'any'}:d:${difficulty || 'any'}:a:${amount || 'any'}`;
+const COLLECTION = 'quiz_drafts';
+
+const buildDraftId = ({ userId, quizId, category, difficulty, amount }) => {
+  if (quizId) return `${userId}_quiz_${quizId}`;
+  return `${userId}_cat_${category || 'any'}_d_${difficulty || 'any'}_a_${amount || 'any'}`;
 };
 
-const saveDraft = async ({ userId, quizId, category, difficulty, amount, questionIds, userAnswers, answeredCount, quizStartTime }) => {
+const saveDraft = async ({ 
+  userId, 
+  quizId, 
+  category, 
+  difficulty, 
+  amount, 
+  questionIds, 
+  userAnswers, 
+  answeredCount, 
+  quizStartTime,
+  quizType,
+  quizTitle,
+  questions
+}) => {
   if (!userId) return { success: false, message: 'Not signed in' };
 
-  const key = buildKey({ userId, quizId, category, difficulty, amount });
+  const draftId = buildDraftId({ userId, quizId, category, difficulty, amount });
+  
   const payload = {
-    createdAt: new Date().toISOString(),
+    id: draftId,
     userId,
     quizId: quizId || null,
+    quizType: quizType || 'default',
+    quizTitle: quizTitle || null,
     category: category || null,
     difficulty: difficulty || null,
     amount: amount || null,
-    questionIds: questionIds || null,
+    questionIds: questionIds || [],
+    questions: questions || [],
     userAnswers: userAnswers || {},
     answeredCount: answeredCount || 0,
     quizStartTime: quizStartTime || Date.now(),
-    savedAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
 
   try {
-    localStorage.setItem(key, JSON.stringify(payload));
-    return { success: true, key, payload };
+    const docRef = doc(db, COLLECTION, draftId);
+    await setDoc(docRef, payload, { merge: true });
+    return { success: true, draftId, payload };
   } catch (err) {
     console.error('Error saving quiz draft:', err);
     return { success: false, message: err.message };
   }
 };
 
-const loadDraft = ({ userId, quizId, category, difficulty, amount }) => {
-  const key = buildKey({ userId, quizId, category, difficulty, amount });
+const loadDraft = async ({ userId, quizId, category, difficulty, amount }) => {
+  if (!userId) return null;
+
+  const draftId = buildDraftId({ userId, quizId, category, difficulty, amount });
+  
   try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    return JSON.parse(raw);
+    const docRef = doc(db, COLLECTION, draftId);
+    const docSnap = await getDoc(docRef);
+    
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    }
+    return null;
   } catch (err) {
     console.error('Error loading quiz draft:', err);
     return null;
   }
 };
 
-const removeDraft = ({ userId, quizId, category, difficulty, amount }) => {
-  const key = buildKey({ userId, quizId, category, difficulty, amount });
+const removeDraft = async ({ userId, quizId, category, difficulty, amount }) => {
+  if (!userId) return false;
+
+  const draftId = buildDraftId({ userId, quizId, category, difficulty, amount });
+  
   try {
-    localStorage.removeItem(key);
+    const docRef = doc(db, COLLECTION, draftId);
+    await deleteDoc(docRef);
     return true;
   } catch (err) {
     console.error('Error removing quiz draft:', err);
@@ -62,8 +103,28 @@ const removeDraft = ({ userId, quizId, category, difficulty, amount }) => {
   }
 };
 
+const getUserDrafts = async (userId, limitCount = 6) => {
+  if (!userId) return [];
+
+  try {
+    const q = query(
+      collection(db, COLLECTION),
+      where('userId', '==', userId),
+      orderBy('updatedAt', 'desc'),
+      limit(limitCount)
+    );
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (err) {
+    console.error('Error fetching user drafts:', err);
+    return [];
+  }
+};
+
 export default {
   saveDraft,
   loadDraft,
-  removeDraft
+  removeDraft,
+  getUserDrafts
 };
