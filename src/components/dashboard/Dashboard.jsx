@@ -5,13 +5,11 @@
  */
 import { useAuth } from '../../contexts/AuthContext';
 // import { CategoryStatsCard } from './CategoryStatsCard';
-import { Link, useLocation } from 'react-router-dom';
 // import { QUIZ_CATEGORIES, CATEGORY_ICONS } from '../../constants/quizConstants.jsx';
 import RecentActivity from '../home/RecentActivity';
 
 export default function Dashboard() {
   const { isGoogleAuth } = useAuth();
-  const location = useLocation();
 
   return (
     <div className="dashboard-content">
@@ -40,20 +38,6 @@ export default function Dashboard() {
             ))}
           </div>
         </section> */}
-
-        <section className="flex flex-col sm:flex-row justify-center gap-6 pt-10">
-          <Link to="/typeofquiz" state={{ from: location.pathname }} className="inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent">
-            Take A Quiz
-          </Link>
-          <Link to="/flashcards" state={{ from: location.pathname }} className="inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent">
-            Make Flashcards
-          </Link>
-
-          <Link to="/profile" state={{ from: location.pathname }} className="inline-block px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent">
-            My Profile
-          </Link>
-
-        </section>
       </div>
     </div>
   );
