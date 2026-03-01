@@ -92,20 +92,12 @@ service cloud.firestore {
 
     // Quiz drafts collection (auto-save in-progress quizzes)
     match /quiz_drafts/{draftId} {
-      // Users can only read their own drafts
-      allow read: if request.auth != null &&
-        resource.data.userId == request.auth.uid;
-
-      // Users can only create their own drafts
+      allow read: if request.auth != null;
+    
       allow create: if request.auth != null &&
         request.resource.data.userId == request.auth.uid;
-
-      // Users can only update their own drafts
-      allow update: if request.auth != null &&
-        resource.data.userId == request.auth.uid;
-
-      // Users can delete their own drafts
-      allow delete: if request.auth != null &&
+    
+      allow update, delete: if request.auth != null &&
         resource.data.userId == request.auth.uid;
     }
 

@@ -6,6 +6,13 @@ import { getRecentSessions } from '../../services/flashcards/studySession';
 import quizDraftService from '../../services/quiz/quizDraftService';
 import resultService from '../../services/quiz/resultService';
 
+// Helper to convert Firestore timestamp or ISO string to milliseconds
+const toTimestamp = (ts) => {
+  if (!ts) return 0;
+  if (ts.seconds) return ts.seconds * 1000; // Firestore Timestamp
+  return new Date(ts).getTime(); // ISO string
+};
+
 const RecentActivity = ({ limit = 6 }) => {
   const { currentUser } = useAuth();
   const [sessions, setSessions] = useState([]);
@@ -57,21 +64,28 @@ const RecentActivity = ({ limit = 6 }) => {
   const quizItems = useMemo(() => {
     const quizMap = new Map();
 
-    // Add completed quizzes first
+    // Add completed quizzes - keep only the most recent per quizId
     completedQuizzes.forEach(q => {
       if (!q.quizId) return;
-      quizMap.set(q.quizId, {
-        type: 'completed',
-        id: q.id,
-        quizId: q.quizId,
-        title: q.quizTitle || q.category || 'Quiz',
-        timestamp: q.submittedAt,
-        meta: {
-          score: q.score,
-          totalQuestions: q.totalQuestions,
-          quizType: q.quizType
-        }
-      });
+      
+      const existing = quizMap.get(q.quizId);
+      const newTimestamp = toTimestamp(q.submittedAt);
+      const existingTimestamp = existing ? toTimestamp(existing.timestamp) : 0;
+      
+      if (!existing || newTimestamp > existingTimestamp) {
+        quizMap.set(q.quizId, {
+          type: 'completed',
+          id: q.id,
+          quizId: q.quizId,
+          title: q.quizTitle || q.category || 'Quiz',
+          timestamp: q.submittedAt,
+          meta: {
+            score: q.score,
+            totalQuestions: q.totalQuestions,
+            quizType: q.quizType
+          }
+        });
+      }
     });
 
     // Drafts override completed (if draft exists, show Resume instead of Take Again)
@@ -116,7 +130,7 @@ const RecentActivity = ({ limit = 6 }) => {
   const merged = useMemo(() => {
     return [...quizItems, ...sessionItems]
       .filter(i => i.timestamp)
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .sort((a, b) => toTimestamp(b.timestamp) - toTimestamp(a.timestamp))
       .slice(0, limit);
   }, [quizItems, sessionItems, limit]);
 
@@ -155,7 +169,7 @@ const RecentActivity = ({ limit = 6 }) => {
             <li key={item.id} className="flex items-center justify-between p-3 rounded-md hover:bg-[var(--bg-secondary)] transition">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 flex items-center justify-center rounded-md bg-[var(--neutral-100)]">
-                  {item.type === 'draft' ? '📌' : item.type === 'completed' ? '📄' : '📚'}
+                  {item.type === 'draft' ? '📝' : item.type === 'completed' ? '✅' : '📚'}
                 </div>
                 <div>
                   <div className="font-semibold">
@@ -170,7 +184,7 @@ const RecentActivity = ({ limit = 6 }) => {
                     )}
                   </div>
                   <div className="text-xs text-secondary">
-                    {new Date(item.timestamp).toLocaleString()}
+                    {new Date(toTimestamp(item.timestamp)).toLocaleString()}
                     {item.type === 'draft' && item.meta?.answeredCount > 0 && (
                       <span className="ml-2">• {item.meta.answeredCount}/{item.meta.totalQuestions} answered</span>
                     )}

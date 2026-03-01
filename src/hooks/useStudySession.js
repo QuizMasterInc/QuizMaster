@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import {
     createStudySession,
     getActiveSession,
-    completeStudySession
+    completeStudySession,
+    updateLastActivity
 } from '../services/flashcards/studySession';
 import flashcardService from '../services/flashcards/flashcardService';
 
 /**
  * useStudySession - Custom hook for managing study session state
- * Responsible for: Session lifecycle and state management
  */
 export const useStudySession = (deckId, userId) => {
     const [session, setSession] = useState(null);
@@ -18,28 +18,24 @@ export const useStudySession = (deckId, userId) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [startTime] = useState(Date.now());
-    const [localRatings, setLocalRatings] = useState([]); // Store ratings in memory
+    const [localRatings, setLocalRatings] = useState([]);
 
-    // Initialize session
     useEffect(() => {
         const initializeSession = async () => {
             try {
                 setLoading(true);
                 setError(null);
 
-                // Load deck
                 const deckData = await flashcardService.getFlashcardDeck(deckId);
                 setDeck(deckData);
 
-                // Check for existing session
                 const activeSession = await getActiveSession(userId, deckId);
 
                 if (activeSession) {
-                    // Resume existing session
+                    await updateLastActivity(activeSession.id);
                     setSession(activeSession);
                     setCurrentCardIndex(activeSession.currentCardIndex);
                 } else {
-                    // Create new session
                     const newSession = await createStudySession(userId, deckId, deckData.title);
                     setSession(newSession);
                     setCurrentCardIndex(0);
@@ -58,12 +54,10 @@ export const useStudySession = (deckId, userId) => {
         }
     }, [deckId, userId]);
 
-    // Handle card flip
     const handleFlip = () => {
         setIsFlipped(!isFlipped);
     };
 
-    // Handle card rating (all in memory - no database calls)
     const handleRating = async (rating) => {
         if (!deck) return null;
 
@@ -71,7 +65,6 @@ export const useStudySession = (deckId, userId) => {
             const currentCard = getCardsArray()[currentCardIndex];
             if (!currentCard) return null;
 
-            // Store rating in memory only
             const newRating = {
                 cardId: currentCard.id || `card_${currentCardIndex}`,
                 rating,
@@ -90,26 +83,21 @@ export const useStudySession = (deckId, userId) => {
 
             setLocalRatings(updatedRatings);
 
-            // Move to next card or complete session
             const nextIndex = currentCardIndex + 1;
 
             if (nextIndex < deck.cardCount) {
-                // Just move to next card (instant - no DB calls)
                 setCurrentCardIndex(nextIndex);
                 setIsFlipped(false);
                 return { completed: false, nextIndex };
             } else {
-                // Last card - save everything to database now
                 const timeSpent = Math.floor((Date.now() - startTime) / 1000);
                 
-                // Calculate final stats
                 const knowCount = updatedRatings.filter(r => r.rating === 'know').length;
                 const stillLearningCount = updatedRatings.filter(r => r.rating === 'still learning').length;
                 const successRate = updatedRatings.length > 0 
                     ? (knowCount / updatedRatings.length) * 100 
                     : 0;
 
-                // Save all ratings at once
                 if (session?.id) {
                     await completeStudySession(session.id, timeSpent, updatedRatings, {
                         knowCount,
@@ -118,7 +106,6 @@ export const useStudySession = (deckId, userId) => {
                         timeSpent
                     });
                     
-                    // Update analytics in background
                     flashcardService.updateDeckAnalytics(deckId).catch(err => 
                         console.error('Error updating deck analytics:', err)
                     );
@@ -133,11 +120,9 @@ export const useStudySession = (deckId, userId) => {
         }
     };
 
-    // Get cards as array (memoized to prevent recreating on every render)
     const getCardsArray = () => {
         if (!deck || !deck.cards) return [];
         
-        // Handle both object and array formats
         if (Array.isArray(deck.cards)) {
             return deck.cards.map((card, index) => ({
                 id: card.id || `card_${index}`,
@@ -145,7 +130,6 @@ export const useStudySession = (deckId, userId) => {
             }));
         }
         
-        // Convert object to array with proper IDs
         return Object.entries(deck.cards).map(([key, card]) => ({
             id: card.id || key,
             ...card
@@ -155,7 +139,6 @@ export const useStudySession = (deckId, userId) => {
     const cards = getCardsArray();
     const currentCard = cards[currentCardIndex];
 
-    // Calculate current stats from local ratings
     const currentStats = {
         knowCount: localRatings.filter(r => r.rating === 'know').length,
         stillLearningCount: localRatings.filter(r => r.rating === 'still learning').length,
@@ -164,11 +147,10 @@ export const useStudySession = (deckId, userId) => {
             : 0
     };
 
-
     const saveSession = async () => {
-        const timeSpent = Math.floor((Date.now() -startTime) / 1000);
+        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
 
-        if (session?.id){
+        if (session?.id) {
             await completeStudySession(session.id, timeSpent, localRatings, {
                 knowCount: currentStats.knowCount,
                 stillLearningCount: currentStats.stillLearningCount,
@@ -177,14 +159,14 @@ export const useStudySession = (deckId, userId) => {
             });
         }
         return session?.id;
-    }
+    };
 
     return {
         session,
         deck,
         currentCard,
         currentCardIndex,
-        setCurrentCardIndex, // Expose for preview mode navigation
+        setCurrentCardIndex,
         isFlipped,
         loading,
         error,

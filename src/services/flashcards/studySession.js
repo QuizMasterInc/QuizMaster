@@ -24,6 +24,12 @@ export const createStudySession = async (userId, deckId, deckTitle) => {
     const docRef = await addDoc(collection(db, "study_sessions"), sessionData);
     return { id: docRef.id, ...sessionData };
 };
+export const updateLastActivity = async (sessionId) => {
+    const sessionRef = doc(db, "study_sessions", sessionId);
+    await updateDoc(sessionRef, {
+        lastActivityAt: new Date().toISOString()
+    });
+};
 
 export const getActiveSession = async (userId, deckId) => {
     const q = query(
