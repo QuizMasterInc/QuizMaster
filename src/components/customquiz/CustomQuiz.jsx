@@ -8,7 +8,7 @@ import quizCreationService from '../../services/quiz/quizCreationService';
 import quizRetrievalService from '../../services/quiz/quizRetrievalService';
 import { toast } from 'react-toastify';
 
-export default function CustomQuiz () {
+export default function CustomQuiz() {
   const [quizData, setQuizData] = useState([])
   const [quizName, setQuizName] = useState("")
   const [privateQuizPassword, setPrivateQuizPassword] = useState("")
@@ -34,7 +34,7 @@ export default function CustomQuiz () {
         // Don't show alert here as it's not critical for quiz creation
       }
     }
-    
+
     if (currentUser?.uid) {
       fetchUserQuizzes();
     }
@@ -81,7 +81,7 @@ export default function CustomQuiz () {
         setQuizName("");
         setPrivateQuizPassword("");
         setQuizTags([]);
-        
+
         // Refresh the custom quizzes list to include the new quiz
         try {
           const updatedQuizzes = await quizRetrievalService.getCustomQuizzesByUser(currentUser.uid);
@@ -89,10 +89,12 @@ export default function CustomQuiz () {
         } catch (error) {
           console.error('Error refreshing quiz list:', error);
         }
-        
+
         // Show success message and navigate to the newly created quiz
         toast.success(`Quiz "${quizName}" created successfully!`);
-        navigate(`/customquiz/settings/${response.quizID}`);
+        navigate(`/customquiz/settings/${response.quizID}`, {
+          state: { password: privateQuizPassword }
+        });
       }
 
     } catch (error) {
@@ -123,10 +125,10 @@ export default function CustomQuiz () {
             </p>
           </div>
         </div>
-        
+
         {/* Main content container */}
         <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent space-y-6">
-          <QuizCreation 
+          <QuizCreation
             setQuizData={setQuizData}
             sendQuiz={sendQuiz}
             quizName={quizName}
@@ -141,11 +143,11 @@ export default function CustomQuiz () {
             setTeacherQuiz={setTeacherQuiz}
             isCreatingQuiz={isCreatingQuiz}
           />
-          <QuizQuestionsList 
-            quizData={quizData} 
-            setQuizData={setQuizData} 
+          <QuizQuestionsList
+            quizData={quizData}
+            setQuizData={setQuizData}
             handleDeleteQuestion={handleDeleteQuestion}
-          />  
+          />
         </div>
       </div>
     </div>
