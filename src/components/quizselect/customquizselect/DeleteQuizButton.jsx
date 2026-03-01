@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import cloudFunctionsAPI from "../../../services/api/cloudFunctions";
+import { toast } from 'react-toastify';
 
 /**
  * Delete button for a single custom quiz card.
@@ -43,7 +44,7 @@ const DeleteQuizButton = ({ quizId, creatorId, currentUserId, onDeleted }) => {
         }
     } catch (error) {
         console.error("Failed to delete quiz:", error);
-        alert("Error deleting quiz. Please try again.");
+        toast.error("Error deleting quiz. Please try again.");
     } finally {
       // Always clear the loading state, even if something failed.
         setLoading(false);

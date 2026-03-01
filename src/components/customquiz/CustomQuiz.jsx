@@ -6,6 +6,7 @@ import QuizCreation from './QuizCreation';
 import { useAuth } from '../../contexts/AuthContext';
 import quizCreationService from '../../services/quiz/quizCreationService';
 import quizRetrievalService from '../../services/quiz/quizRetrievalService';
+import { toast } from 'react-toastify';
 
 export default function CustomQuiz () {
   const [quizData, setQuizData] = useState([])
@@ -44,7 +45,7 @@ export default function CustomQuiz () {
     try {
       // Validate minimum quiz length
       if (quizData.length < 1) {
-        alert("You need to have at least one question in the quiz.");
+        toast.warn("You need to have at least one question in the quiz.");
         return;
       }
 
@@ -67,7 +68,7 @@ export default function CustomQuiz () {
       const validationResult = await quizCreationService.createValidatedQuizObject(quizInput);
 
       if (!validationResult.success) {
-        alert(validationResult.error);
+        toast.error(validationResult.error);
         return;
       }
 
@@ -90,13 +91,13 @@ export default function CustomQuiz () {
         }
         
         // Show success message and navigate to the newly created quiz
-        alert(`Quiz "${quizName}" created successfully!`);
+        toast.success(`Quiz "${quizName}" created successfully!`);
         navigate(`/customquiz/settings/${response.quizID}`);
       }
 
     } catch (error) {
       console.error("Error creating quiz:", error);
-      alert("Failed to create quiz. Please try again.");
+      toast.error("Failed to create quiz. Please try again.");
     } finally {
       setIsCreatingQuiz(false);
     }

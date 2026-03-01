@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { parseCSV, bulkUploadQuestions, downloadCSVTemplate } from '../../utils/csvUploader';
+import { toast } from 'react-toastify';
 
 const AddDefaultQuestion = () => {
   const { currentUser } = useAuth();
@@ -63,7 +64,7 @@ const AddDefaultQuestion = () => {
     // Validate difficulty is numeric
     const difficultyNum = parseInt(question.difficulty, 10);
     if (isNaN(difficultyNum) || difficultyNum < 1 || difficultyNum > 5) {
-      alert('Difficulty must be a number between 1 and 5');
+      toast.error('Difficulty must be a number between 1 and 5');
       return;
     }
 
@@ -97,14 +98,14 @@ const AddDefaultQuestion = () => {
       setSelectedFile(file);
       setUploadResults(null);
     } else {
-      alert('Please select a valid CSV file');
+      toast.warn('Please select a valid CSV file');
       event.target.value = '';
     }
   };
 
   const handleCSVUpload = async () => {
     if (!selectedFile) {
-      alert('Please select a CSV file first');
+      toast.warn('Please select a CSV file first');
       return;
     }
 
@@ -116,7 +117,7 @@ const AddDefaultQuestion = () => {
       const parseResult = await parseCSV(selectedFile);
 
       if (!parseResult.success) {
-        alert(`Error parsing CSV: ${parseResult.error}`);
+        toast.error(`Error parsing CSV: ${parseResult.error}`);
         setIsUploading(false);
         return;
       }
@@ -135,7 +136,7 @@ const AddDefaultQuestion = () => {
 
     } catch (error) {
       console.error('Upload error:', error);
-      alert(`Error: ${error.error || error.message}`);
+      toast.error(`Error: ${error.error || error.message}`);
     } finally {
       setIsUploading(false);
     }

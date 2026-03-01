@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import { validateCSVFile, parseCSVQuestions } from '../utils/csvParser';
+import { toast } from 'react-toastify';
 
 export const useCSVUpload = (onQuestionsAdded) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -31,7 +32,7 @@ export const useCSVUpload = (onQuestionsAdded) => {
 
   const handleCSVUpload = async () => {
     if (!selectedFile) {
-      alert('Please select a CSV file first');
+      toast.warn('Please select a CSV file first');
       return;
     }
 
@@ -60,7 +61,7 @@ export const useCSVUpload = (onQuestionsAdded) => {
         onQuestionsAdded(questions);
       }
 
-      alert(`Successfully added ${count} questions from CSV!`);
+      toast.success(`Successfully added ${count} questions from CSV!`);
 
       // Clear file input
       clearFileInput();
