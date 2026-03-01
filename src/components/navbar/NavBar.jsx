@@ -142,25 +142,25 @@ export default function NavBar() {
                                         <School className="w-5 h-5" />
                                         Take a Quiz!
                                     </NavLink>
-                                    <NavLink to="/flashcards" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
-                                        <Computer className="w-5 h-5" />
-                                        Make Flashcards
-                                    </NavLink>
-                                    <NavLink to="/myflashcards" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
-                                        <Scroll className="w-5 h-5" />
-                                        My Flashcards
-                                    </NavLink>
                                     <NavLink to="/myquizzes" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <Q className="w-5 h-5" />
                                         My Quizzes
+                                    </NavLink>
+                                    <NavLink to="/customquiz" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Q className="w-5 h-5" />
+                                        Make Quiz
                                     </NavLink>
                                     <NavLink to="/browse-flashcards" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <Book className="w-5 h-5" />
                                         Browse Flashcards
                                     </NavLink>
-                                    <NavLink to="/customquiz" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
-                                        <Q className="w-5 h-5" />
-                                        Make Quiz
+                                    <NavLink to="/myflashcards" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Scroll className="w-5 h-5" />
+                                        My Flashcards
+                                    </NavLink>
+                                    <NavLink to="/flashcards" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Computer className="w-5 h-5" />
+                                        Make Flashcards
                                     </NavLink>
                                 </>
                             ) : (
