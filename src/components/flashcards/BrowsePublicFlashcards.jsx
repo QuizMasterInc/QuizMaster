@@ -2,19 +2,21 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import flashcardService from '../../services/flashcards/flashcardService';
 import FlashcardPreview from './FlashcardPreview';
+import { fetchUsernamesByUids, isValidUsername } from '../../services/firebase/usernameService';
 
 /**
  * Helper to resolve creator label.
  * Priority:
- * 1. creatorUsername / username  → shown as @username
+ * 1. creatorUsername / username / creator.username  → shown as @username
  * 2. creatorName / displayName
  * 3. legacy creator.displayName
  * 4. Anonymous
  */
 const getCreatorLabel = (deck) => {
-  const username = deck?.creatorUsername || deck?.username;
-  if (typeof username === 'string' && username.trim()) {
-    return `@${username.replace(/^@/, '')}`;
+  const username = deck?.creatorUsername || deck?.username || deck?.creator?.username;
+  const cleaned = typeof username === 'string' ? username.trim().replace(/^@/, '') : '';
+  if (cleaned && isValidUsername(cleaned)) {
+    return `@${cleaned}`;
   }
 
   const name =
@@ -76,7 +78,42 @@ export default function BrowsePublicFlashcards() {
         limitCount: 50
       });
 
-      setFlashcardDecks(decks);
+      // Attach creator usernames for all viewers
+      const collectUid = (d) => d?.creator?.uid || d?.creatorId || d?.createdBy || d?.userId || null;
+      const uids = Array.from(new Set((decks || []).map(collectUid).filter(Boolean)));
+
+      let decksWithUsernames = decks || [];
+      if (uids.length > 0) {
+        try {
+          const usernameMap = await fetchUsernamesByUids(uids);
+          decksWithUsernames = (decks || []).map((d) => {
+            const uid = collectUid(d);
+            const uname = uid ? usernameMap[uid] : null;
+            const cleaned = uname ? String(uname).trim().replace(/^@/, '') : '';
+
+            return {
+              ...d,
+              // store as plain username (no @)
+              creatorUsername:
+                (cleaned && isValidUsername(cleaned) ? cleaned : null) ||
+                (typeof d?.creatorUsername === 'string' && isValidUsername(String(d.creatorUsername).trim().replace(/^@/, ''))
+                  ? String(d.creatorUsername).trim().replace(/^@/, '')
+                  : null) ||
+                (typeof d?.creator?.username === 'string' && isValidUsername(String(d.creator.username).trim().replace(/^@/, ''))
+                  ? String(d.creator.username).trim().replace(/^@/, '')
+                  : null) ||
+                (typeof d?.username === 'string' && isValidUsername(String(d.username).trim().replace(/^@/, ''))
+                  ? String(d.username).trim().replace(/^@/, '')
+                  : null),
+            };
+          });
+        } catch (e) {
+          console.warn('Username enrichment failed; continuing without usernames.', e);
+          decksWithUsernames = decks || [];
+        }
+      }
+
+      setFlashcardDecks(decksWithUsernames);
     } catch (error) {
       console.error('Error fetching public flashcards:', error);
       setError('Failed to load public flashcard decks');
