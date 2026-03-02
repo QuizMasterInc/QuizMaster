@@ -1,10 +1,11 @@
-import { db, timestamp} from "../firebase/firebaseService";
+import { db } from "../firebase/firebaseService";
 import { collection, doc, addDoc, updateDoc, getDoc, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 
-export const createStudySession = async (userId, deckId) => {
+export const createStudySession = async (userId, deckId, deckTitle) => {
     const sessionData = {
         userId,
         deckId,
+        deckTitle: deckTitle || 'Untitled Deck',
         startedAt: new Date().toISOString(),
         lastActivityAt: new Date().toISOString(),
         completedAt: null,
@@ -22,7 +23,13 @@ export const createStudySession = async (userId, deckId) => {
 
     const docRef = await addDoc(collection(db, "study_sessions"), sessionData);
     return { id: docRef.id, ...sessionData };
-}
+};
+export const updateLastActivity = async (sessionId) => {
+    const sessionRef = doc(db, "study_sessions", sessionId);
+    await updateDoc(sessionRef, {
+        lastActivityAt: new Date().toISOString()
+    });
+};
 
 export const getActiveSession = async (userId, deckId) => {
     const q = query(
@@ -39,14 +46,13 @@ export const getActiveSession = async (userId, deckId) => {
 
     const sessionDoc = snapshot.docs[0];
     return { id: sessionDoc.id, ...sessionDoc.data() };
-}
+};
 
 export const recordCardRating = async (sessionId, cardId, rating) => {
-    // Validate parameters
-    if (!sessionId || sessionId === undefined) {
+    if (!sessionId) {
         throw new Error(`Invalid sessionId: ${sessionId}`);
     }
-    if (!cardId || cardId === undefined) {
+    if (!cardId) {
         throw new Error(`Invalid cardId: ${cardId}`);
     }
     if (!rating || !['still learning', 'know'].includes(rating)) {
@@ -62,15 +68,13 @@ export const recordCardRating = async (sessionId, cardId, rating) => {
         cardId,
         rating, 
         timestamp: new Date().toISOString()
-    }
+    };
 
     const updatedRatings = [...sessionData.cardRatings, newRating];
     const stats = calculateStats(updatedRatings);
 
-    // Optimistic update - return immediately, save in background
     const updatedSession = { ...sessionData, cardRatings: updatedRatings, stats };
     
-    // Non-blocking Firestore update
     updateDoc(sessionRef, {
         cardRatings: updatedRatings,
         cardsStudied: updatedRatings.length,
@@ -81,14 +85,6 @@ export const recordCardRating = async (sessionId, cardId, rating) => {
     }).catch(err => console.error('Error saving card rating:', err));
 
     return updatedSession;
-}
-
-export const updateSessionProgress = async (sessionId, currentCardIndex) => {
-    const sessionRef = doc(db, "study_sessions", sessionId);
-    await updateDoc(sessionRef, {
-        currentCardIndex,
-        lastActivityAt: new Date().toISOString()
-    });
 };
 
 export const completeStudySession = async (sessionId, timeSpent, cardRatings = [], stats = {}) => {
@@ -99,14 +95,13 @@ export const completeStudySession = async (sessionId, timeSpent, cardRatings = [
         cardRatings,
         cardsStudied: cardRatings.length,
         'stats.timeSpent': timeSpent,
-        'stats.knowCount': stats.knowCount|| 0,
+        'stats.knowCount': stats.knowCount || 0,
         'stats.stillLearningCount': stats.stillLearningCount || 0,
         'stats.successRate': stats.successRate || 0,
         lastActivityAt: new Date().toISOString()
     });
 };
 
-// Helper function to calculate statistics
 const calculateStats = (cardRatings) => {
     const knowCount = cardRatings.filter(r => r.rating === 'know').length;
     const stillLearningCount = cardRatings.filter(r => r.rating === 'still learning').length;
@@ -119,7 +114,6 @@ const calculateStats = (cardRatings) => {
 export const getRecentSessions = async (userId, limitCount = 6) => {
     if (!userId) return [];
 
-    // Primary query: prefer ordering by lastActivityAt (most accurate for activity)
     const primaryQ = query(
         collection(db, "study_sessions"),
         where("userId", "==", userId),
@@ -129,14 +123,7 @@ export const getRecentSessions = async (userId, limitCount = 6) => {
 
     const snapshot = await getDocs(primaryQ);
 
-    // If the returned docs exist but none include lastActivityAt (e.g. server-created sessions),
-    // fallback to ordering by startedAt so we still surface recent sessions.
-    const docsHaveLastActivity = snapshot.docs.some(d => {
-        const data = d.data();
-        return data && (data.lastActivityAt || data.lastActivityAt === 0);
-    });
-
-    if (snapshot.empty || !docsHaveLastActivity) {
+    if (snapshot.empty) {
         const fallbackQ = query(
             collection(db, "study_sessions"),
             where("userId", "==", userId),
@@ -146,8 +133,34 @@ export const getRecentSessions = async (userId, limitCount = 6) => {
 
         const fallbackSnapshot = await getDocs(fallbackQ);
         if (fallbackSnapshot.empty) return [];
-        return fallbackSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        const sessions = fallbackSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return await addDeckTitles(sessions);
     }
 
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-}
+    const sessions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return await addDeckTitles(sessions);
+};
+
+const addDeckTitles = async (sessions) => {
+    const sessionsWithTitles = await Promise.all(
+        sessions.map(async (session) => {
+            if (session.deckTitle) return session;
+ 
+            try {
+                const deckRef = doc(db, "flashcard_decks", session.deckId);
+                const deckSnap = await getDoc(deckRef);
+                
+                if (deckSnap.exists()) {
+                    return { ...session, deckTitle: deckSnap.data().title };
+                }
+            } catch (err) {
+                console.error('Error fetching deck title:', err);
+            }
+            
+            return session;
+        })
+    );
+
+    return sessionsWithTitles;
+};

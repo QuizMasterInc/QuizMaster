@@ -27,7 +27,8 @@
     "react-icons": "^5.4.0",
     "react-modal": "^3.16.1",
     "react-spinners": "^0.13.8",
-    "react-toastify": "^11.0.5"
+    "react-toastify": "^11.0.5",
+    "sweetalert2": "^11.26.21"
   },
   "devDependencies": {
     "@babel/core": "^7.23.5",

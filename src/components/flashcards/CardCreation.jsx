@@ -1,6 +1,7 @@
 /* Allows the User to make a deck of Flashcards */
 import { useState } from "react";
 import CSVUpload from "./CSVUpload";
+import { toast } from 'react-toastify';
 
 export default function CardCreation({ saveDeck, isLoading }) {
   const [deckName, setDeckName] = useState("");
@@ -24,17 +25,17 @@ export default function CardCreation({ saveDeck, isLoading }) {
       setFront("");
       setBack("");
     } else {
-      alert("Please fill in both the front and back of the flashcard.");
+      toast.warn("Please fill in both the front and back of the flashcard.");
     }
   };
 
   const handleSaveDeck = async () => {
     if (!deckName.trim()) {
-      alert("Please enter a deck name.");
+      toast.warn("Please enter a deck name.");
       return;
     }
     if (cards.length === 0) {
-      alert("Please add at least one card to the deck.");
+      toast.warn("Please add at least one card to the deck.");
       return;
     }
 

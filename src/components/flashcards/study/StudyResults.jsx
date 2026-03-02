@@ -177,16 +177,16 @@ const StudyResults = () => {
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
                     <button
-                        className="px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
+                        className="min-w-[200px] px-8 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
                         onClick={() => navigate(`/flashcards/study/${deckId}`)}
                     >
                         📖 Study Again
                     </button>
                     <button
-                        className="px-8 py-3 bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-text)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
+                        className="min-w-[200px] px-8 py-3 bg-[var(--btn-secondary-bg)] text-[var(--btn-secondary-text)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
                         onClick={() => navigate(location.state?.from || '/dashboard')}
                     >
-                        🏠 Back to Decks
+                        🏠 Exit
                     </button>
                 </div>
             </div>

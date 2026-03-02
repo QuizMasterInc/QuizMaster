@@ -9,6 +9,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import DeleteQuizButton from "./DeleteQuizButton";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../services/firebase/firebaseService";
+import { toast } from 'react-toastify';
 
 const CustomQuizSelectButton = ({
   title,
@@ -80,7 +81,7 @@ const CustomQuizSelectButton = ({
 
   const quizPasswordCheck = async (attempt) => {
     if (!attempt.trim()) {
-      alert("Please enter a password!");
+      toast.warn("Please enter a password!");
       return;
     }
 
@@ -91,9 +92,9 @@ const CustomQuizSelectButton = ({
 
       if (!response.ok) {
         if (response.status === 401) {
-          alert("Incorrect password! Please try again.");
+          toast.error("Incorrect password! Please try again.");
         } else {
-          alert("Server error. Please try again later.");
+          toast.error("Server error. Please try again later.");
         }
         return;
       }
@@ -108,13 +109,13 @@ const CustomQuizSelectButton = ({
           }
         });
       } else if (result.requiresPassword) {
-        alert("Incorrect password! Please try again.");
+        toast.error("Incorrect password! Please try again.");
       } else {
-        alert("Error accessing quiz: " + (result.message || "Unknown error"));
+        toast.error("Error accessing quiz: " + (result.message || "Unknown error"));
       }
     } catch (error) {
       console.error('Password verification failed:', error);
-      alert("Network error. Please check your connection and try again.");
+      toast.error("Network error. Please check your connection and try again.");
     }
   }
 

@@ -40,15 +40,6 @@ export default function NavBar() {
     }, [dashboardOpen, homeOpen, mobileMenuOpen, profileOpen]);
 
     const handleClick = (e) => {
-        if (location.pathname === "/quizstarted") {
-            const confirmation = window.confirm(
-                "Are you sure you want to leave? You are on a page where navigation may lead to loss of unsaved data."
-            );
-            if (!confirmation) {
-                e.preventDefault();
-                return;
-            }
-        }
         window.scrollTo(0, 0);
         setMobileMenuOpen(false);
     };

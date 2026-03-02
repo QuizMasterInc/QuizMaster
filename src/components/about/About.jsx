@@ -14,7 +14,7 @@ export default function About() {
           About Us
         </h1>
         <p className="text-xl text-center mb-10 text-secondary">
-          Welcome to QuizMaster, your platform for managing, taking, and creating quizzes!
+          Welcome to QuizMaster, your all-in-one study platform for creating quizzes, flashcards, and mastering any subject!
         </p>
 
         {/* Flyer dropdown */}
@@ -62,9 +62,9 @@ export default function About() {
               What is QuizMaster?
             </h2>
             <p className="text-lg leading-7 mb-8 text-secondary">
-              QuizMaster is your interactive platform to test your knowledge, challenge yourself,
-              or create your own quizzes. Whether you're prepping for an exam or just having fun,
-              QuizMaster offers a way to sharpen your mind with a variety of quizzes.
+              QuizMaster is your interactive study platform designed to help you learn smarter, not harder.
+              Create custom quizzes, build flashcard decks, and track your progress — whether you're 
+              preparing for exams, learning new material, or helping others study.
             </p>
             
             <div className="border-t border-primary pt-6">
@@ -73,7 +73,7 @@ export default function About() {
               </h3>
               {/* List of features */}
               <ul className="space-y-4 text-base">
-                {/* Feature: Randomization */}
+                {/* Feature: Create Quizzes */}
                 <li className="flex gap-x-3 items-start">
                   <svg
                     className="h-6 w-5 flex-none text-accent mt-0.5"
@@ -87,9 +87,9 @@ export default function About() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-secondary">Randomization of multiple choice questions</span>
+                  <span className="text-secondary">Create and share custom quizzes with your classmates</span>
                 </li>
-                {/* Feature: Time Limit */}
+                {/* Feature: Flashcards */}
                 <li className="flex gap-x-3 items-start">
                   <svg
                     className="h-6 w-5 flex-none text-accent mt-0.5"
@@ -103,9 +103,9 @@ export default function About() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-secondary">Set customizable time limits</span>
+                  <span className="text-secondary">Build flashcard decks for quick and effective studying</span>
                 </li>
-                {/* Feature: Immediate Results */}
+                {/* Feature: Progress Tracking */}
                 <li className="flex gap-x-3 items-start">
                   <svg
                     className="h-6 w-5 flex-none text-accent mt-0.5"
@@ -119,9 +119,9 @@ export default function About() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-secondary">Immediate results and detailed feedback</span>
+                  <span className="text-secondary">Track your progress and pick up where you left off</span>
                 </li>
-                {/* Feature: Option to hide correct answers */}
+                {/* Feature: Auto-save */}
                 <li className="flex gap-x-3 items-start">
                   <svg
                     className="h-6 w-5 flex-none text-accent mt-0.5"
@@ -135,8 +135,9 @@ export default function About() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-secondary">Option to hide answers and reveal them later</span>
+                  <span className="text-secondary">Auto-save your quiz progress so you never lose your work</span>
                 </li>
+                {/* Feature: Browse Public Content */}
                 <li className="flex gap-x-3 items-start">
                   <svg
                     className="h-6 w-5 flex-none text-accent mt-0.5"
@@ -150,7 +151,7 @@ export default function About() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-secondary">Create and share custom quizzes</span>
+                  <span className="text-secondary">Browse and study from public quizzes and flashcard decks</span>
                 </li>
               </ul>
             </div>
@@ -169,19 +170,19 @@ export default function About() {
                 <span className="font-medium text-accent">Tailwind CSS</span> to deliver a fast, scalable, and modern experience.
               </p>
               <p className="text-lg leading-7 mb-6 text-secondary">
-                We use <span className="font-medium text-accent">Firestore</span> for real-time data storage and seamless quiz performance tracking, ensuring your progress is always saved and synchronized.
+                We use <span className="font-medium text-accent">Firestore</span> for real-time data storage and seamless progress tracking, ensuring your study sessions are always saved and synchronized across devices.
               </p>
               <p className="text-lg leading-7 text-secondary">
-                Create an account or log in to unlock the full QuizMaster experience and start your learning journey today!
+                Create an account or log in to unlock the full QuizMaster experience and start your study journey today!
               </p>
             </div>
 
             <div className="text-center mt-8">
-              <a
-                href="/register"
+              
+                <a href="/register"
                 className="inline-block px-8 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
               >
-                Get Started Today!
+                Start Studying Today!
               </a>
             </div>
           </div>

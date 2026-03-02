@@ -49,6 +49,8 @@ import { useAuth } from './contexts/AuthContext';
 import Presentation from './components/presentation/presentation';
 import Classroom from './pages/Classroom';
 import Poll from './components/pollfeature/Poll.jsx';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const { user, loading, error } = useAuth();
@@ -63,7 +65,7 @@ function App() {
   }
 
   return (
-    <div className="App pb-10">
+    <div className="App min-h-screen flex flex-col bg-primary">
       <AppProvider>
         <QuizProvider>
           <ResultsProvider>
@@ -249,6 +251,15 @@ function App() {
           </ResultsProvider>
         </QuizProvider>
       </AppProvider>
+        
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+      />
     </div>
   )
 }

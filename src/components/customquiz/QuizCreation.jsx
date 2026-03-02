@@ -17,6 +17,7 @@ import QuizSettingsForm from './forms/QuizSettingsForm';
 import CSVUploadSection from './forms/CSVUploadSection';
 import QuestionCreationForm from './forms/QuestionCreationForm';
 import DifficultySelector from './forms/DifficultySelector';
+import { toast } from 'react-toastify';
 
 // Simple collapsible wrapper with ▾ ▸ caret
 function CollapsibleSection({ title, subtitle, defaultOpen = true, children }) {
@@ -105,7 +106,7 @@ export default function QuizCreation({
       setLoading(true);
       return <Navigate to="/signin" />;
     } catch {
-      alert('Failed to logout');
+      toast.error('Failed to logout');
     }
     setLoading(false);
   };
@@ -113,7 +114,7 @@ export default function QuizCreation({
   // Add question to quiz
   const addCurrentQuestion = () => {
     if (!validateCurrentQuestion()) {
-      alert('Please fill out all inputs for the question.');
+      toast.warn('Please fill out all inputs for the question.');
       return;
     }
 

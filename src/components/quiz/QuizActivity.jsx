@@ -17,6 +17,7 @@ import { useQuizState } from '../../hooks/useQuizState';
 import { useQuizSubmission } from '../../hooks/useQuizSubmission';
 import { useQuizUI } from '../../hooks/useQuizUI';
 import quizDraftService from '../../services/quiz/quizDraftService';
+import { toast } from 'react-toastify';
 
 function QuizActivity() {
   const { category, subcategories, difficulty, amount } = useCategory();
@@ -318,13 +319,13 @@ function QuizActivity() {
 
                     const res = await quizDraftService.saveDraft(draft);
                     if (res.success) {
-                      alert('Quiz progress saved locally. You can resume later from Home.');
+                      toast.success('Quiz progress saved locally. You can resume later from Home.');
                     } else {
-                      alert('Failed to save draft: ' + (res.message || 'unknown'));
+                      toast.error('Failed to save draft: ' + (res.message || 'unknown'));
                     }
                   } catch (err) {
                     console.error('Error saving quiz draft:', err);
-                    alert('Failed to save draft.');
+                    toast.error('Failed to save draft.');
                   }
                 }}
                 className="w-full px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 flex items-center justify-center gap-2 bg-yellow-400 text-black border-yellow-500 hover:bg-yellow-500 hover:text-white"

@@ -51,8 +51,8 @@ export const BackButton = ({
   const location = useLocation();
 
   const handleBack = () => {
-    if (location.state?.from){
-      navigate(location.state.from);  
+    if (location.state?.from) {
+      navigate(location.state.from);
     } else {
       navigate(fallback);
     }
@@ -89,18 +89,18 @@ export const Card = ({
 
 // Reusable Footer Component
 export const Footer = () => {
-  const appVersion = "1.0.0";
+  const appVersion = "2.0.0";
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   return (
     <>
-      <footer className="w-full fixed bottom-0 left-0 bg-gradient-to-r from-[#1a0533] via-[#220b47] to-[#100222] text-center py-6 text-sm text-gray-300 border-t border-purple-800 shadow-inner z-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="font-medium tracking-wide text-gray-400">
+      <footer className="w-full fixed bottom-0 left-0 bg-gradient-to-r from-[#1a0533] via-[#220b47] to-[#100222] text-center py-3 text-sm text-gray-300 border-t border-purple-800 shadow-inner z-50">
+        <div className="w-full px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
+            <p className="font-medium tracking-wide text-gray-400 md:ml-24">
               © 2025 <span className="text-purple-400 font-semibold">QuizMaster</span>. All rights reserved.
             </p>
-            <div className="flex space-x-6 items-center">
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 items-center">
               <span className="text-gray-500">v{appVersion}</span>
               <button
                 onClick={() => setFeedbackOpen(true)}
@@ -109,16 +109,16 @@ export const Footer = () => {
                 Feedback
               </button>
               <Link
-                to="/settings"
-                className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
-              >
-                Settings
-              </Link>
-              <Link
                 to="/contact"
                 className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
               >
                 Contact Us
+              </Link>
+              <Link
+                to="/about"
+                className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
+              >
+                About Us
               </Link>
               <Link
                 to="/privacy-policy"
@@ -131,12 +131,6 @@ export const Footer = () => {
                 className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
               >
                 Terms of Service
-              </Link>
-              <Link
-                to="/about"
-                className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
-              >
-                About Us
               </Link>
             </div>
           </div>
