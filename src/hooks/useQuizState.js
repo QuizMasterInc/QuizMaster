@@ -7,6 +7,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import quizDraftService from '../services/quiz/quizDraftService';
+import { toast } from 'react-toastify';
 
 export const useQuizState = (quizConfig = {}) => {
   const [answeredCount, setAnsweredCount] = useState(0);
@@ -17,10 +18,15 @@ export const useQuizState = (quizConfig = {}) => {
   
   const configRef = useRef(quizConfig);
   const isSubmittingRef = useRef(false);
+  const userAnswersRef = useRef(userAnswers);
   
   useEffect(() => {
     configRef.current = quizConfig;
   }, [quizConfig]);
+
+  useEffect(() => {
+    userAnswersRef.current = userAnswers;
+  }, [userAnswers]);
 
   // Auto-save draft whenever userAnswers changes
   useEffect(() => {
@@ -51,6 +57,20 @@ export const useQuizState = (quizConfig = {}) => {
 
     return () => clearTimeout(saveTimer);
   }, [userAnswers, answeredCount, completed, quizStartTime]);
+
+  // Show toast when user leaves mid-quiz
+  useEffect(() => {
+    return () => {
+      const config = configRef.current;
+      const answers = userAnswersRef.current;
+
+      if (!config.userId || Object.keys(answers).length === 0 || isSubmittingRef.current) {
+        return;
+      }
+
+      toast.success('Quiz progress saved', { autoClose: 2000 });
+    };
+  }, []);
 
   const recordAnswered = useCallback(
     (firstInteraction) => firstInteraction && setAnsweredCount((c) => c + 1),

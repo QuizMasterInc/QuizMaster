@@ -3,6 +3,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import flashcardService from '../../services/flashcards/flashcardService';
 import { fetchUsernamesByUids } from '../../services/firebase/usernameService';
+import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
 
 // Custom Hook
 import { useFlashcardFiltering } from '../../hooks/useFlashcardFiltering';
@@ -100,9 +102,17 @@ export default function MyFlashcards() {
   };
 
   const handleDeleteDeck = async (deckId) => {
-    if (!window.confirm('Are you sure you want to delete this flashcard deck?')) {
-      return;
-    }
+    const result = await Swal.fire({
+      title: 'Delete Deck?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel'
+    });
+    if (!result.isConfirmed) return;
 
     try {
       setLoading(true);
@@ -112,6 +122,8 @@ export default function MyFlashcards() {
 
       // Remove from local state
       setFlashcardDecks((prevDecks) => prevDecks.filter((deck) => deck.id !== deckId));
+      
+      toast.success('Flashcard deck deleted successfully');
     } catch (error) {
       console.error('Error deleting flashcard deck:', error);
       setError('Failed to delete flashcard deck. Please try again.');
