@@ -7,7 +7,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import DeleteQuizButton from "./DeleteQuizButton";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import { db } from "../../../services/firebase/firebaseService";
 import { toast } from 'react-toastify';
 
@@ -28,28 +28,48 @@ const CustomQuizSelectButton = ({
   const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("");
   const [resolvedCreatorUsername, setResolvedCreatorUsername] = useState(null);
 
-  // If backend didn't include creatorUsername, fetch it from users/{creatorId}
+  // If backend didn't include creatorUsername, fetch it from the usernames registry (query by uid)
   useEffect(() => {
     let cancelled = false;
 
     async function run() {
       try {
+        // If the parent already provided a username, we don't need a query.
         const provided = typeof creatorUsername === 'string' ? creatorUsername.trim() : '';
-        if (provided) return;
+        if (provided) {
+          if (!cancelled) setResolvedCreatorUsername(null);
+          return;
+        }
 
         const uidToLookup = creatorId;
-        if (!uidToLookup) return;
-
-        const snap = await getDoc(doc(db, "users", uidToLookup));
-        if (!snap.exists() || cancelled) return;
-
-        const data = snap.data();
-        const uname = data?.username || data?.profile?.username;
-        if (!cancelled && typeof uname === 'string' && uname.trim()) {
-          setResolvedCreatorUsername(uname.trim());
+        if (!uidToLookup) {
+          if (!cancelled) setResolvedCreatorUsername(null);
+          return;
         }
+
+        // Query usernames where uid == creatorId (Option 1)
+        const q = query(
+          collection(db, "usernames"),
+          where("uid", "==", uidToLookup),
+          limit(1)
+        );
+
+        const snap = await getDocs(q);
+        if (cancelled) return;
+
+        if (snap.empty) {
+          setResolvedCreatorUsername(null);
+          return;
+        }
+
+        const docSnap = snap.docs[0];
+        const data = docSnap.data() || {};
+
+        // Prefer explicit username field; fall back to doc id (usually usernameLower)
+        const uname = (data.username || docSnap.id || "").toString().trim();
+        setResolvedCreatorUsername(uname ? uname : null);
       } catch (e) {
-        // ignore and fall back
+        if (!cancelled) setResolvedCreatorUsername(null);
       }
     }
 
@@ -61,15 +81,32 @@ const CustomQuizSelectButton = ({
 
   function displayCreatorName() {
     const effective = (
-      (typeof creatorUsername === 'string' && creatorUsername.trim() ? creatorUsername.trim() : '') ||
-      (typeof resolvedCreatorUsername === 'string' && resolvedCreatorUsername.trim() ? resolvedCreatorUsername.trim() : '')
+      (typeof resolvedCreatorUsername === 'string' && resolvedCreatorUsername.trim() ? resolvedCreatorUsername.trim() : '') ||
+      (typeof creatorUsername === 'string' && creatorUsername.trim() ? creatorUsername.trim() : '')
     );
 
+    // 1) Prefer resolved/provided username
     if (effective) {
       return "Created by: @" + effective.replace(/^@/, '');
     }
 
-    return "Created by: " + (creator || 'Anonymous User');
+    // 2) Fall back to creator object fields (and avoid rendering an object)
+    if (creator && typeof creator === 'object') {
+      const handle = typeof creator.handle === 'string' ? creator.handle.trim() : '';
+      if (handle) return "Created by: " + (handle.startsWith('@') ? handle : `@${handle}`);
+
+      const uname = typeof creator.username === 'string' ? creator.username.trim() : '';
+      if (uname) return "Created by: @" + uname.replace(/^@/, '');
+
+    }
+
+    // 3) If creator was a string, use it
+    if (typeof creator === 'string' && creator.trim()) {
+      return "Created by: " + creator.trim();
+    }
+
+    // 4) Last resort
+    return "Created by: Anonymous";
   }
 
   function displayTags(tagsValue) {
