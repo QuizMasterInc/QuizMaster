@@ -65,7 +65,7 @@ function App() {
   }
 
   return (
-    <div className="App pb-10">
+    <div className="App min-h-screen flex flex-col bg-primary">
       <AppProvider>
         <QuizProvider>
           <ResultsProvider>
