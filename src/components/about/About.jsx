@@ -14,7 +14,7 @@ export default function About() {
           About Us
         </h1>
         <p className="text-xl text-center mb-10 text-secondary">
-          Welcome to QuizMaster, your all-in-one study platform for creating quizzes, flashcards, and mastering any subject!
+          Welcome to QuizMaster, your platform for managing, taking, and creating quizzes!
         </p>
 
         {/* Flyer dropdown */}
