@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import cloudFunctionsAPI from "../../../services/api/cloudFunctions";
+import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 /**
  * Delete button for a single custom quiz card.
@@ -26,10 +28,17 @@ const DeleteQuizButton = ({ quizId, creatorId, currentUserId, onDeleted }) => {
 
     const handleDelete = async () => {
     // Ask for a final confirmation so deletes are intentional.
-    const confirmed = window.confirm(
-    "Are you sure you want to delete this quiz? This action cannot be undone."
-    );
-    if (!confirmed) return;
+    const result = await Swal.fire({
+        title: 'Delete Quiz?',
+        text: 'This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel'
+    });
+    if (!result.isConfirmed) return;
 
     // Perform the delete via the Cloud Function API and update local state.
     try {
@@ -41,9 +50,11 @@ const DeleteQuizButton = ({ quizId, creatorId, currentUserId, onDeleted }) => {
         if (onDeleted) {
         onDeleted(quizId);
         }
+        
+        toast.success('Quiz deleted successfully');
     } catch (error) {
         console.error("Failed to delete quiz:", error);
-        alert("Error deleting quiz. Please try again.");
+        toast.error("Error deleting quiz. Please try again.");
     } finally {
       // Always clear the loading state, even if something failed.
         setLoading(false);

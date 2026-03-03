@@ -72,6 +72,7 @@ exports.submitQuizResults = onRequest(async (req, res) => {
             const {
                 userId,
                 category,
+                quizTitle = null,
                 score,
                 totalQuestions,
                 difficulty = "3",
@@ -115,6 +116,7 @@ exports.submitQuizResults = onRequest(async (req, res) => {
             const quizResult = {
                 userId,
                 category: category.toLowerCase(),
+                quizTitle: quizTitle || null,
                 quizType,
                 score,
                 totalQuestions,

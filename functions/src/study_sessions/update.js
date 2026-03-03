@@ -35,7 +35,7 @@ exports.updateStudySession = onRequest(async (req, res) => {
             });
         }
 
-        const validRatings = ['easy', 'good', 'hard'];
+        const validRatings = ['know','still learning'];
         if (!validRatings.includes(rating)) {
             return res.status(400).json({
                 success: false,
@@ -71,9 +71,8 @@ exports.updateStudySession = onRequest(async (req, res) => {
             // Update progress counts
             const ratedCards = Object.values(cardRatings);
             const progress = {
-                easyCount: ratedCards.filter(r => r === 'easy').length,
-                goodCount: ratedCards.filter(r => r === 'good').length,
-                hardCount: ratedCards.filter(r => r === 'hard').length,
+                knowCount: ratedCards.filter(r => r === 'know').length,
+                stillLearningCount: ratedCards.filter(r => r === 'still learning').length,
                 percentComplete: Math.round((ratedCards.length / sessionData.totalCards) * 100)
             };
 

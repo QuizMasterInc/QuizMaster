@@ -1,11 +1,50 @@
 import { useState, useEffect } from 'react';
+import { Flag } from '../icons';
 
-function Question({ question, onAnswer, isCompleted, onAnswerChange, answerCount }) {
-  const [selectedIndex, setSelectedIndex] = useState(null);
-  const [selectedIndexes, setSelectedIndexes] = useState([]);
-  const [inputAnswer, setInputAnswer] = useState('');
-  const [droppedOption, setDroppedOption] = useState('');
-  const [hasBeenCounted, setHasBeenCounted] = useState(false);
+function Question({
+  question,
+  questionIndex,
+  onAnswer,
+  isCompleted,
+  onAnswerChange,
+  answerCount,
+  onReviewToggle,
+  savedAnswer
+}) {
+  const [selectedIndex, setSelectedIndex] = useState(() => {
+    if (savedAnswer && question.choices && typeof savedAnswer === 'string') {
+      const idx = question.choices.findIndex(c => c === savedAnswer);
+      return idx >= 0 ? idx : null;
+    }
+    return null;
+  });
+
+  const [selectedIndexes, setSelectedIndexes] = useState(() => {
+    if (Array.isArray(savedAnswer) && question.choices) {
+      return savedAnswer
+        .map(ans => question.choices.findIndex(c => c === ans))
+        .filter(i => i >= 0);
+    }
+    return [];
+  });
+
+  const [inputAnswer, setInputAnswer] = useState(() => {
+    if (savedAnswer && typeof savedAnswer === 'string') {
+      return savedAnswer;
+    }
+    return '';
+  });
+
+  const [droppedOption, setDroppedOption] = useState(() => {
+    if (savedAnswer && typeof savedAnswer === 'string') {
+      return savedAnswer;
+    }
+    return '';
+  });
+
+  const [hasBeenCounted, setHasBeenCounted] = useState(!!savedAnswer);
+  const [evaluatedCorrect, setEvaluatedCorrect] = useState(null);
+  const [markedForReview, setMarkedForReview] = useState(false);
 
   const qText = question.questionText ?? question.text ?? '';
 
@@ -13,6 +52,27 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange, answerCount
   const isFillBlank = type === 'fill';
   const isMultipleAnswer = type === 'multiple';
   const isDragAndDrop = type === 'drag';
+
+  // Report answer to parent whenever it changes (for auto-save)
+  useEffect(() => {
+    if (isCompleted) return;
+    
+    let currentAnswer = null;
+    
+    if (isFillBlank) {
+      currentAnswer = inputAnswer.trim() || null;
+    } else if (isMultipleAnswer) {
+      currentAnswer = selectedIndexes.length > 0 ? selectedIndexes.map(i => question.choices[i]) : null;
+    } else if (isDragAndDrop) {
+      currentAnswer = droppedOption || null;
+    } else if (selectedIndex !== null) {
+      currentAnswer = question.choices[selectedIndex] || null;
+    }
+    
+    if (currentAnswer !== null && onAnswer) {
+      onAnswer(questionIndex, null, currentAnswer);
+    }
+  }, [inputAnswer, selectedIndexes, droppedOption, selectedIndex]);
 
   useEffect(() => {
     if (isCompleted) {
@@ -50,7 +110,8 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange, answerCount
         }
       }
 
-      if (onAnswer) onAnswer(isCorrect);
+      setEvaluatedCorrect(isCorrect);
+      if (onAnswer) onAnswer(questionIndex, isCorrect);
     }
   }, [isCompleted]);
 
@@ -80,6 +141,14 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange, answerCount
       );
     } else {
       setSelectedIndex(index);
+    }
+  };
+
+  const handleToggleReview = () => {
+    const newValue = !markedForReview;
+    setMarkedForReview(newValue);
+    if (onReviewToggle) {
+      onReviewToggle(questionIndex, newValue);
     }
   };
 
@@ -169,6 +238,23 @@ function Question({ question, onAnswer, isCompleted, onAnswerChange, answerCount
           </div>
         )}
       </div>
+
+      {!isCompleted && (
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={handleToggleReview}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 border-2 ${
+              markedForReview
+                ? 'bg-yellow-500 border-yellow-500 text-black'
+                : 'bg-transparent border-gray-400 text-secondary hover:border-gray-500'
+            }`}
+          >
+            <Flag className={`w-4 h-4 ${markedForReview ? 'fill-black' : 'fill-current'}`} />
+            {markedForReview ? 'Marked for Review' : 'Mark for Review'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

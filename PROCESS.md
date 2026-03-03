@@ -1,10 +1,14 @@
 ### Overview
 
-The team plans to meet on Monday at 1PM every week in order to review the progress that has been made.
+The team plans to meet on Tuesdays before normal class hours (12PM) every week in order to review the progress that has been made.
 
 We also plan on using our Discord server for consistent communication throughout each sprint nearly every day. 
 
 The team uses an organized spreadsheet for management of the development of this project.
+
+### Recent Changes During Sprint 2
+
+During Sprint 2, the team focused on continuous improvement by enhancing both functionality and user experience within QuizMaster. Key updates included the implementation of a Recent Activity landing page displaying saved quiz progress, the addition of username creation and user profile functionality, and interface refinements such as improved navigation and more accessible button placement. Flashcard interactions were streamlined by replacing rating-based feedback with simplified knowledge indicators and adding options to review or retake quizzes. Additional enhancements included the integration of a survey questionnaire feature supported by backend and frontend connectivity, dynamic rendering, and randomized access code generation to support anonymous participation. These improvements demonstrate the team’s commitment to iterative refinement, usability optimization, and sustainable sprint execution.
 
 ### Plans for CI/CD
 
@@ -29,3 +33,4 @@ Here is our definition of done.
 - In production
 - Can be demoed
 - Everyone agrees that it meets the expectations outlined in the story 
+- At least one GitHub commit to the product branch with a commit message ‘Story [[STORY-NUMBER]] done.

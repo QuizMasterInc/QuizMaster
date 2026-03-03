@@ -1,4 +1,4 @@
-// CustomQuizActivity.jsx
+import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import Question from './Question';
@@ -8,8 +8,7 @@ import ProgressBar from './ProgressBar';
 import BackToTop from './BackToTopButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResults } from '../../contexts/ResultsContext';
-
-// Custom Hooks
+import quizDraftService from '../../services/quiz/quizDraftService';
 import { useCustomQuiz, useQuestionChoices } from '../../hooks/useQuizEngine';
 import { useQuizState } from '../../hooks/useQuizState';
 import { useQuizSubmission } from '../../hooks/useQuizSubmission';
@@ -23,10 +22,8 @@ function CustomQuizActivity() {
   const { currentUser } = useAuth();
   const { refreshResults } = useResults();
 
-  // Quiz data fetching
   const { questions, setQuestions, quizMetadata, loading } = useCustomQuiz(quizID, password);
 
-  // Quiz state management
   const {
     answeredCount,
     correctCount,
@@ -36,13 +33,23 @@ function CustomQuizActivity() {
     recordAnswered,
     recordCorrect,
     setUserAnswers,
-    setCompleted
-  } = useQuizState();
+    setAnsweredCount,
+    setCompleted,
+    resetQuizState,
+    startSubmission
+  } = useQuizState({
+    userId: currentUser?.uid,
+    quizId: quizID,
+    quizType: 'custom',
+    quizTitle: quizMetadata?.name || quizMetadata?.title || 'Custom Quiz',
+    category: quizMetadata?.category || 'custom',
+    difficulty: quizMetadata?.difficulty,
+    amount: questions.length,
+    questions
+  });
 
-  // Quiz submission
   const { submittingResults, submitQuiz } = useQuizSubmission();
 
-  // UI state
   const {
     helpActive,
     doneActive,
@@ -55,14 +62,84 @@ function CustomQuizActivity() {
     useScrollToTop
   } = useQuizUI();
 
-  // Update question choices when answer count changes
-  useQuestionChoices(questions, setQuestions, answerCount);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  const [reviewQueue, setReviewQueue] = useState([]);
+  const [resultsByIndex, setResultsByIndex] = useState({});
 
-  // Scroll to top when quiz loads
+  // Load draft if resuming
+  useEffect(() => {
+    const loadDraftData = async () => {
+      if (!currentUser?.uid || !quizID || draftLoaded) return;
+      
+      try {
+        const draft = await quizDraftService.loadDraft({
+          userId: currentUser.uid,
+          quizId: quizID
+        });
+        
+        if (draft && draft.userAnswers) {
+          setUserAnswers(draft.userAnswers);
+          setAnsweredCount(Object.keys(draft.userAnswers).length);
+          setDraftLoaded(true);
+        }
+      } catch (err) {
+        console.error('Error loading draft:', err);
+      }
+    };
+    
+    loadDraftData();
+  }, [currentUser?.uid, quizID, draftLoaded, setUserAnswers, setAnsweredCount]);
+
+  const handleReviewToggle = (index, isMarked) => {
+    if (index === null || index === undefined) return;
+    
+    if (isMarked) {
+      setReviewQueue((prev) => (prev.includes(index) ? prev : [...prev, index]));
+    } else {
+      setReviewQueue((prev) => prev.filter((i) => i !== index));
+    }
+  };
+
+  const handleAnswerResult = (index, isCorrect, answer) => {
+    if (typeof index !== 'number') return;
+
+    if (answer !== undefined && answer !== null) {
+      setUserAnswers((prev) => ({
+        ...prev,
+        [index]: answer
+      }));
+    }
+
+    if (isCorrect !== null) {
+      setResultsByIndex((prev) => ({
+        ...prev,
+        [index]: isCorrect
+      }));
+
+      if (typeof isCorrect === 'boolean') {
+        recordCorrect(isCorrect);
+      }
+    }
+  };
+
+  const scrollToQuestion = (index) => {
+    const el = document.querySelector(`[data-question-index="${index}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const goToNextReview = () => {
+    if (!reviewQueue || reviewQueue.length === 0) return;
+    scrollToQuestion(reviewQueue[0]);
+  };
+
+  useQuestionChoices(questions, setQuestions, answerCount);
   useScrollToTop(loading, questions.length);
 
-  // Handle quiz submission
   const handleSubmit = async () => {
+    startSubmission();
+    
     await submitQuiz({
       currentUser,
       questions,
@@ -72,6 +149,7 @@ function CustomQuizActivity() {
       quizStartTime,
       quizData: {
         category: quizMetadata?.category || 'custom',
+        quizTitle: quizMetadata?.name || quizMetadata?.title || 'Custom Quiz',
         difficulty: quizMetadata?.difficulty || 3,
         amount: questions.length,
         quizType: 'custom',
@@ -80,8 +158,23 @@ function CustomQuizActivity() {
       }
     });
     
-    // Open done modal after submission
     setDoneActive(true);
+  };
+
+  const handleReviewAgain = (incorrectIndexes) => {
+    if (!Array.isArray(incorrectIndexes) || incorrectIndexes.length === 0) return;
+
+    const reviewQuestions = incorrectIndexes
+      .map((i) => questions[i])
+      .filter(Boolean);
+
+    if (reviewQuestions.length === 0) return;
+
+    resetQuizState();
+    setQuestions(reviewQuestions);
+    setDoneActive(false);
+    setReviewQueue([]);
+    setResultsByIndex({});
   };
 
   if (loading) {
@@ -97,7 +190,6 @@ function CustomQuizActivity() {
       <div className="max-w-6xl mx-auto">
         {!showResults ? (
           <>
-            {/* Header */}
             <div className="mb-6">
               <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
                 <h1 className="text-4xl font-bold text-center mb-2 text-gradient-primary">
@@ -109,9 +201,7 @@ function CustomQuizActivity() {
               </div>
             </div>
 
-            {/* Settings + Submit row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              {/* Settings */}
               <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
                 <h2 className="text-2xl font-semibold mb-4 text-center text-gradient-primary">
                   Quiz Settings
@@ -142,7 +232,6 @@ function CustomQuizActivity() {
                 </button>
               </div>
 
-              {/* Progress + Submit */}
               <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
                 <h2 className="text-2xl font-semibold mb-4 text-center text-gradient-primary">
                   Quiz Progress
@@ -153,10 +242,28 @@ function CustomQuizActivity() {
                     {answeredCount} / {questions.length}
                   </span>
                 </p>
-                <p className="text-base text-secondary mb-4">
+                <p className="text-base text-secondary mb-2">
                   Correct answers:{' '}
                   <span className="font-medium text-accent">{correctCount}</span>
                 </p>
+                <div className="mb-4">
+                  <p className="text-base text-secondary mb-2">
+                    Marked for review:{' '}
+                    <span className="font-medium text-accent">{reviewQueue.length}</span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={goToNextReview}
+                    className={`w-full px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border-2 ${
+                      completed || reviewQueue.length === 0
+                        ? 'bg-neutral-400 border-neutral-400 text-white cursor-not-allowed'
+                        : 'bg-[var(--neutral-200)] text-black border-primary hover:bg-[var(--neutral-300)]'
+                    }`}
+                    disabled={completed || reviewQueue.length === 0}
+                  >
+                    Go to next review question
+                  </button>
+                </div>
                 <button
                   onClick={handleSubmit}
                   className={`w-full px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border flex items-center justify-center gap-2 ${
@@ -183,7 +290,6 @@ function CustomQuizActivity() {
               </div>
             </div>
 
-            {/* Progress Bar */}
             <div className="flex justify-center mb-6">
               <div className="bg-card rounded-2xl p-4 shadow-xl border border-accent max-w-xs flex items-center justify-center">
                 <ProgressBar
@@ -193,7 +299,6 @@ function CustomQuizActivity() {
               </div>
             </div>
 
-            {/* Questions */}
             <div className="space-y-8">
               {questions.map((q, i) => (
                 <div
@@ -202,20 +307,22 @@ function CustomQuizActivity() {
                   data-question-index={i}
                 >
                   <Question
+                    key={`${i}-${userAnswers[i] || 'empty'}`}
                     question={q}
+                    questionIndex={i}
                     isCompleted={completed}
-                    onAnswer={recordCorrect}
+                    onAnswer={handleAnswerResult}
                     onAnswerChange={recordAnswered}
                     answerCount={answerCount}
+                    onReviewToggle={handleReviewToggle}
+                    savedAnswer={userAnswers[i]}
                   />
                 </div>
               ))}
             </div>
           </>
         ) : (
-          /* Detailed Results View */
           <div className="space-y-8">
-            {/* Results Header */}
             <div className="mb-6">
               <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
                 <div className="flex items-center justify-between">
@@ -235,7 +342,6 @@ function CustomQuizActivity() {
               </div>
             </div>
 
-            {/* Detailed Results */}
             <div className="space-y-6">
               {questions.map((question, index) => {
                 const userAnswer = userAnswers[index];
@@ -301,7 +407,6 @@ function CustomQuizActivity() {
         )}
       </div>
 
-      {/* Modals */}
       {helpActive && (
         <HelpModal
           isActive={setHelpActive}
@@ -321,13 +426,14 @@ function CustomQuizActivity() {
           quizId={quizID}
           isCustomQuiz={true}
           onViewDetails={viewDetailedResults}
+          onReviewAgain={handleReviewAgain}
           category={quizMetadata?.name || "Custom Quiz"}
           difficulty={quizMetadata?.difficulty}
           quizStartTime={quizStartTime}
         />
       )}
 
-            <BackToTop />
+      <BackToTop />
     </div>
   );
 }

@@ -2,18 +2,18 @@
  * This parent component will allow users to navigate to the various quizzes
  * based on the quiz category
  */
-// Updated SelectSub.jsx
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useCategory } from '../../contexts/AppContext';
 import { BackButton } from '../ui/index.jsx';
 import StarRating from './DifficultyRating';
 import QuestionAmount from './QuestionAmount';
 
 function SelectSub() {
+  const location = useLocation();
   const {
     quizSubcategories,
-    availableSubcategories, // Use dynamic subcategories
+    availableSubcategories,
     category,
     toggleSubcategory,
     subcategories,
@@ -68,7 +68,7 @@ function SelectSub() {
             Category: <span className="text-gradient-primary">{category}</span>
           </h1>
           <div className="rounded-lg shadow-lg transition duration-200">
-            <BackButton to="/quizzes" />
+            <BackButton />
           </div>
         </div>
 
@@ -164,7 +164,7 @@ function SelectSub() {
             <div className="text-center">
               <Link
                 to="/quizzes/quizstarted"
-                state={{ category: 'Start', manualSetup }}
+                state={{ category: 'Start', manualSetup, from: location.pathname }}
               >
                 <button className="inline-block px-4 py-1 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent">
                   Start

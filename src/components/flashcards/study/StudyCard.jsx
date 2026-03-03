@@ -6,14 +6,14 @@ import PropTypes from 'prop-types';
 const StudyCard = ({ card, isFlipped, onFlip }) => {
     return (
         <div 
-            className={`relative w-full h-96 perspective-1000 cursor-pointer ${isFlipped ? 'flipped' : ''}`}
+            className={`relative w-full h-96 perspective-1000 cursor-pointer overflow-hidden ${isFlipped ? 'flipped' : ''}`}
             onClick={onFlip}
             role="button"
             tabIndex={0}
             onKeyPress={(e) => e.key === 'Enter' && onFlip()}
             aria-label={isFlipped ? 'Show question' : 'Show answer'}
         >
-            <div className={`card-content w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+            <div className={`card-content w-full h-full transition-transform duration-150 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
                 {/* Front of card */}
                 <div className="absolute w-full h-full backface-hidden">
                     <div className="card h-full flex flex-col items-center justify-center p-8 border-2 border-accent">
@@ -25,7 +25,7 @@ const StudyCard = ({ card, isFlipped, onFlip }) => {
                 
                 {/* Back of card */}
                 <div className="absolute w-full h-full backface-hidden rotate-y-180">
-                    <div className="card h-full flex flex-col items-center justify-center p-8 border-2 border-primary-400 bg-[var(--bg-primary)]">
+                    <div className="card h-full flex flex-col items-center justify-center p-8 border-2 border-accent bg-[var(--bg-primary)]">
                         <h2 className="text-xl font-bold text-gradient-primary mb-6">Answer</h2>
                         <p className="text-lg text-center text-primary leading-relaxed">{card.back}</p>
                     </div>

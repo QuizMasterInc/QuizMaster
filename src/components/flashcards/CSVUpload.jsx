@@ -10,12 +10,10 @@ export default function CSVUpload({ onQuestionsAdded }) {
     handleCSVUpload,
     clearFileInput,
   } = useCSVUpload((rows) => {
-    // rows come from csvParser as arrays:
-    // [question, option_1, option_2, option_3, option_4, correct_answer, type, explanation, difficulty]
-
+    // For flashcards, rows are expected to be [front, back].
     const flashcards = rows.map((row) => ({
       front: row[0] || "",
-      back: row[5] || "",
+      back: row[1] || "",
     }));
 
     onQuestionsAdded(flashcards);
@@ -71,7 +69,8 @@ export default function CSVUpload({ onQuestionsAdded }) {
       </div>
 
       <p className="mt-3 text-xs text-[var(--neutral-700)]">
-        CSV format: <code>question,option_1,option_2,option_3,option_4,correct_answer,difficulty</code>
+        CSV format: <code>front,back</code>. Each row in the file will create a
+        new flashcard.
       </p>
     </div>
   );

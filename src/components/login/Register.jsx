@@ -1,7 +1,12 @@
-import {useRef, useState, useEffect} from "react";
+import { useRef, useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleButton, GitHubButton } from "./OAuthButtons";
+import {
+  isValidUsername,
+  isUsernameAvailable,
+  normalizeUsername,
+} from "../../services/firebase/usernameService";
 
 export default function Register() {
   const firstNameRef = useRef()
@@ -13,6 +18,17 @@ export default function Register() {
   const {signup, googleRegister, githubRegister, isAuthenticated, loading: authLoading} = useAuth()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [username, setUsername] = useState("");
+  const [usernameStatus, setUsernameStatus] = useState({ state: "idle", message: "" });
+  // state: idle | invalid | checking | available | taken
+
+  const usernameTrimmed = (username || "").trim();
+  const usernameLower = normalizeUsername(usernameTrimmed);
+  const canSubmitUsername =
+    usernameTrimmed.length > 0 &&
+    isValidUsername(usernameTrimmed) &&
+    usernameStatus.state === "available";
+
   const navigate = useNavigate()
 
   // Redirect to dashboard if user is already authenticated
@@ -21,6 +37,39 @@ export default function Register() {
       navigate("/dashboard");
     }
   }, [isAuthenticated, authLoading, navigate]);
+
+  // Live (debounced) username availability check
+  useEffect(() => {
+    if (!usernameTrimmed) {
+      setUsernameStatus({ state: "idle", message: "" });
+      return;
+    }
+
+    if (!isValidUsername(usernameTrimmed)) {
+      setUsernameStatus({ state: "invalid", message: "3–24 chars, letters/numbers only." });
+      return;
+    }
+
+    let cancelled = false;
+    setUsernameStatus({ state: "checking", message: "Checking availability…" });
+
+    const t = setTimeout(async () => {
+      try {
+        const ok = await isUsernameAvailable(usernameTrimmed);
+        if (cancelled) return;
+        if (ok) setUsernameStatus({ state: "available", message: "Username is available ✅" });
+        else setUsernameStatus({ state: "taken", message: "That username is taken ❌" });
+      } catch (e) {
+        if (cancelled) return;
+        setUsernameStatus({ state: "checking", message: "Could not check right now." });
+      }
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [usernameLower]);
 
   // Function to detect system theme preference
   const getSystemTheme = () => {
@@ -35,6 +84,14 @@ export default function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault()
+
+    const uname = (username || "").trim();
+    if (!isValidUsername(uname)) {
+      return setError("Username must be 3–24 characters and letters/numbers only.");
+    }
+    if (usernameStatus.state !== "available") {
+      return setError("Please choose an available username.");
+    }
 
     if(passwordRef.current.value !== confirmPasswordRef.current.value){
       return setError("Passwords do not match.")
@@ -60,6 +117,7 @@ export default function Register() {
         firstName: firstNameRef.current.value.trim(),
         lastName: lastNameRef.current.value.trim(),
         title: titleRef.current.value.trim() || '',
+        username: uname,
         theme: getSystemTheme()
       }
       
@@ -194,6 +252,30 @@ export default function Register() {
             />
           </div>
           <div>
+            <label htmlFor="username" className="block text-left font-semibold mb-2 text-primary">
+              Username *
+            </label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              autoComplete="username"
+              required
+              className="w-full rounded-lg px-4 py-3 transition-all duration-200 border bg-input text-primary border-input input-focus"
+              placeholder="e.g., SourAppleMonkey24"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                if (error) setError("");
+              }}
+            />
+            {usernameStatus.state !== "idle" && (
+              <div className="text-sm mt-1 text-secondary">
+                {usernameStatus.message}
+              </div>
+            )}
+          </div>
+          <div>
             <label htmlFor="email-address" className="block text-left font-semibold mb-2 text-primary">
               Email address *
             </label>
@@ -242,7 +324,7 @@ export default function Register() {
           <div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !canSubmitUsername}
               className="w-full rounded-lg py-3 font-semibold transition-all duration-200 border-none cursor-pointer flex items-center justify-center bg-btn-primary text-btn-primary hover:bg-accent-hover btn-hover disabled:opacity-80 disabled:cursor-not-allowed"
             >
               {loading ? (

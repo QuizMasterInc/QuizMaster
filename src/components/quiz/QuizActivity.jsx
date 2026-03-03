@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import { useCategory } from '../../contexts/AppContext';
@@ -15,6 +16,8 @@ import { useDefaultQuiz, useQuestionChoices } from '../../hooks/useQuizEngine';
 import { useQuizState } from '../../hooks/useQuizState';
 import { useQuizSubmission } from '../../hooks/useQuizSubmission';
 import { useQuizUI } from '../../hooks/useQuizUI';
+import quizDraftService from '../../services/quiz/quizDraftService';
+import { toast } from 'react-toastify';
 
 function QuizActivity() {
   const { category, subcategories, difficulty, amount } = useCategory();
@@ -40,11 +43,13 @@ function QuizActivity() {
     recordAnswered,
     recordCorrect,
     setUserAnswers,
-    setCompleted
+    setAnsweredCount,
+    setCompleted,
+    resetQuizState
   } = useQuizState();
 
   // Quiz submission
-  const { submittingResults, submitQuiz } = useQuizSubmission();
+  const { submittingResults, submitQuiz, calculateScoreAndAnswers } = useQuizSubmission();
 
   // UI state
   const {
@@ -59,11 +64,77 @@ function QuizActivity() {
     useScrollToTop
   } = useQuizUI();
 
+  // Review Again / Mark for Review (session-only)
+  const [reviewQueue, setReviewQueue] = useState([]);
+  const [resultsByIndex, setResultsByIndex] = useState({});
+
+  const handleReviewToggle = (index, isMarked) => {
+    if (index === null || index === undefined) return;
+    
+    if (isMarked) {
+      setReviewQueue((prev) => (prev.includes(index) ? prev : [...prev, index]));
+    } else {
+      setReviewQueue((prev) => prev.filter((i) => i !== index));
+    }
+  };
+
+  const handleAnswerResult = (index, isCorrect) => {
+    if (typeof index !== 'number') return;
+
+    setResultsByIndex((prev) => ({
+      ...prev,
+      [index]: isCorrect
+    }));
+
+    if (typeof isCorrect === 'boolean') {
+      recordCorrect(isCorrect);
+    }
+  };
+
+  const scrollToQuestion = (index) => {
+    try {
+      const el = document.querySelector(`[data-question-index="${index}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } catch (_) {
+      // no-op
+    }
+  };
+
+  const goToNextReview = () => {
+    if (!reviewQueue || reviewQueue.length === 0) return;
+    scrollToQuestion(reviewQueue[0]);
+  };
+
   // Update question choices when answer count changes
   useQuestionChoices(questions, setQuestions, answerCount);
 
   // Scroll to top when quiz loads
   useScrollToTop(loading, questions.length);
+
+  // Try to restore draft on mount
+  useEffect(() => {
+    if (!currentUser) return;
+    try {
+      const draft = quizDraftService.loadDraft({ userId: currentUser.uid, quizId: null, category, difficulty, amount });
+      if (draft) {
+        if (draft.questionIds && draft.questionIds.length === questions.length) {
+          if (draft.userAnswers) setUserAnswers(draft.userAnswers);
+          if (typeof draft.answeredCount === 'number') {
+            if (typeof setAnsweredCount === 'function') setAnsweredCount(draft.answeredCount);
+          }
+
+          const resume = window.confirm('A saved quiz draft was found. Would you like to restore your progress?');
+          if (!resume) {
+            quizDraftService.removeDraft({ userId: currentUser.uid, quizId: null, category, difficulty, amount });
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error restoring quiz draft:', err);
+    }
+  }, [currentUser?.uid]);
 
   // Handle quiz submission
   const handleSubmit = async () => {
@@ -84,8 +155,31 @@ function QuizActivity() {
       }
     });
     
-    // Open done modal after submission
     setDoneActive(true);
+  };
+
+  // Retry only incorrect questions (from DoneModal)
+  const handleReviewAgain = (incorrectIndexes) => {
+    if (!Array.isArray(incorrectIndexes) || incorrectIndexes.length === 0) return;
+
+    const reviewQuestions = incorrectIndexes
+      .map((i) => questions[i])
+      .filter(Boolean);
+
+    if (reviewQuestions.length === 0) return;
+
+    if (typeof resetQuizState === 'function') {
+      resetQuizState();
+    } else {
+      setUserAnswers({});
+      setCompleted(false);
+    }
+
+    setQuestions(reviewQuestions);
+
+    setDoneActive(false);
+    setReviewQueue([]);
+    setResultsByIndex({});
   };
 
   if (loading) {
@@ -163,9 +257,27 @@ function QuizActivity() {
                 Correct answers:{' '}
                 <span className="font-medium text-accent">{correctCount}</span>
               </p>
+              <div className="mb-6">
+                <p className="text-lg text-secondary mb-3">
+                  Marked for review:{' '}
+                  <span className="font-medium text-accent">{reviewQueue.length}</span>
+                </p>
+                <button
+                  type="button"
+                  onClick={goToNextReview}
+                  className={`w-full px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 flex items-center justify-center gap-2 ${
+                    completed || reviewQueue.length === 0
+                      ? 'bg-neutral-400 border-neutral-400 text-white cursor-not-allowed'
+                      : 'bg-[var(--neutral-200)] text-black border-primary hover:bg-[var(--neutral-300)]'
+                  }`}
+                  disabled={completed || reviewQueue.length === 0}
+                >
+                  Go to next review question
+                </button>
+              </div>
+              <div className="space-y-3">
               <button
                 onClick={() => {
-                  // Give time for all recordCorrect calls to complete
                   setTimeout(handleSubmit, 200);
                 }}
                 className={`w-full px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 flex items-center justify-center gap-2 ${
@@ -189,121 +301,158 @@ function QuizActivity() {
                   'Submit Quiz'
                 )}
               </button>
-            </div>
-          </div>        {/* Questions */}
-        <div className="space-y-8">
-          {questions.map((q, i) => (
-            <div
-              key={i}
-              className="bg-card rounded-3xl p-8 shadow-xl border border-accent"
-              data-question-index={i}
-            >
-              <Question
-                question={q}
-                isCompleted={completed}
-                onAnswer={recordCorrect}
-                onAnswerChange={recordAnswered}
-                answerCount={answerCount}
-              />
-            </div>
-          ))}
-        </div>
-        </>
-      ) : (
-        /* Detailed Results View */
-        <div className="space-y-8">
-          {/* Results Header */}
-          <div className="mb-6">
-            <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
-              <div className="flex items-center justify-between">
-                <h1 className="text-4xl font-bold text-gradient-primary">
-                  Quiz Results
-                </h1>
-                <div className="flex gap-3">
-                  <DownloadQuiz
-                    questions={questions}
-                    userAnswers={userAnswers}
-                    correctCount={correctCount}
-                    category={category}
-                  />
-                  <button
-                    onClick={() => navigate('/dashboard')}
-                    className="px-4 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200"
-                  >
-                    Return to Dashboard
-                  </button>
-                </div>
+              <button
+                onClick={async () => {
+                  try {
+                    const calc = calculateScoreAndAnswers(questions);
+                    const draft = {
+                      userId: currentUser?.uid,
+                      quizId: null,
+                      category,
+                      difficulty,
+                      amount,
+                      questionIds: calc.questionIds || questions.map(q => q.questionId),
+                      userAnswers: calc.userAnswers || {},
+                      answeredCount: answeredCount || 0,
+                      quizStartTime
+                    };
+
+                    const res = await quizDraftService.saveDraft(draft);
+                    if (res.success) {
+                      toast.success('Quiz progress saved locally. You can resume later from Home.');
+                    } else {
+                      toast.error('Failed to save draft: ' + (res.message || 'unknown'));
+                    }
+                  } catch (err) {
+                    console.error('Error saving quiz draft:', err);
+                    toast.error('Failed to save draft.');
+                  }
+                }}
+                className="w-full px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 flex items-center justify-center gap-2 bg-yellow-400 text-black border-yellow-500 hover:bg-yellow-500 hover:text-white"
+                disabled={!currentUser}
+              >
+                Save for later
+              </button>
               </div>
-              <p className="text-lg text-secondary mt-2">
-                Review your answers below
-              </p>
             </div>
           </div>
-
-          {/* Detailed Results */}
-          <div className="space-y-6">
-            {questions.map((question, index) => {
-              const userAnswer = userAnswers[index];
-              const isCorrect = (() => {
-                if (!userAnswer) return false;
-                const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
-                const userAns = Array.isArray(userAnswer) 
-                  ? userAnswer.map(a => a.toLowerCase().trim())
-                  : [String(userAnswer).toLowerCase().trim()];
-                
-                if (question.type === 'multiple') {
-                  const correctAnswers = correctAnswer.split('||').map(a => a.trim().toLowerCase());
-                  return userAns.length === correctAnswers.length && 
-                         userAns.every(ans => correctAnswers.includes(ans));
-                } else {
-                  return userAns[0] === correctAnswer;
-                }
-              })();
-
-              return (
-                <div key={index} className={`p-6 rounded-xl border-2 bg-card ${isCorrect ? 'border-green-400' : 'border-red-400'}`}>
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-primary flex-1">
-                      Question {index + 1}: {question.questionText}
-                    </h3>
-                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${isCorrect ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
-                      {isCorrect ? 'Correct' : 'Incorrect'}
-                    </div>
+          
+          {/* Questions */}
+          <div className="space-y-8">
+            {questions.map((q, i) => (
+              <div
+                key={i}
+                className="bg-card rounded-3xl p-8 shadow-xl border border-accent"
+                data-question-index={i}
+              >
+                <Question
+                  question={q}
+                  questionIndex={i}
+                  isCompleted={completed}
+                  onAnswer={handleAnswerResult}
+                  onAnswerChange={recordAnswered}
+                  answerCount={answerCount}
+                  onReviewToggle={handleReviewToggle}
+                />
+              </div>
+            ))}
+          </div>
+          </>
+        ) : (
+          /* Detailed Results View */
+          <div className="space-y-8">
+            {/* Results Header */}
+            <div className="mb-6">
+              <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
+                <div className="flex items-center justify-between">
+                  <h1 className="text-4xl font-bold text-gradient-primary">
+                    Quiz Results
+                  </h1>
+                  <div className="flex gap-3">
+                    <DownloadQuiz
+                      questions={questions}
+                      userAnswers={userAnswers}
+                      correctCount={correctCount}
+                      category={category}
+                    />
+                    <button
+                      onClick={() => navigate('/dashboard')}
+                      className="px-4 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200"
+                    >
+                      Return to Dashboard
+                    </button>
                   </div>
+                </div>
+                <p className="text-lg text-secondary mt-2">
+                  Review your answers below
+                </p>
+              </div>
+            </div>
 
-                  <div className="space-y-2">
-                    <div>
-                      <span className="font-medium text-secondary">Your Answer: </span>
-                      <span className={isCorrect ? 'text-green-700' : 'text-red-700'}>
-                        {Array.isArray(userAnswer) ? userAnswer.join(', ') : (userAnswer || 'No answer')}
-                      </span>
+            {/* Detailed Results */}
+            <div className="space-y-6">
+              {questions.map((question, index) => {
+                const userAnswer = userAnswers[index];
+                const isCorrect = (() => {
+                  if (!userAnswer) return false;
+                  const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
+                  const userAns = Array.isArray(userAnswer) 
+                    ? userAnswer.map(a => a.toLowerCase().trim())
+                    : [String(userAnswer).toLowerCase().trim()];
+                  
+                  if (question.type === 'multiple') {
+                    const correctAnswers = correctAnswer.split('||').map(a => a.trim().toLowerCase());
+                    return userAns.length === correctAnswers.length && 
+                           userAns.every(ans => correctAnswers.includes(ans));
+                  } else {
+                    return userAns[0] === correctAnswer;
+                  }
+                })();
+
+                return (
+                  <div key={index} className={`p-6 rounded-xl border-2 bg-card ${isCorrect ? 'border-green-400' : 'border-red-400'}`}>
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-primary flex-1">
+                        Question {index + 1}: {question.questionText}
+                      </h3>
+                      <div className={`px-3 py-1 rounded-full text-sm font-medium ${isCorrect ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
+                        {isCorrect ? 'Correct' : 'Incorrect'}
+                      </div>
                     </div>
-                    {!isCorrect && (
+
+                    <div className="space-y-2">
                       <div>
-                        <span className="font-medium text-secondary">Correct Answer: </span>
-                        <span className="text-green-700">{question.correctAnswer}</span>
+                        <span className="font-medium text-secondary">Your Answer: </span>
+                        <span className={isCorrect ? 'text-green-700' : 'text-red-700'}>
+                          {Array.isArray(userAnswer) ? userAnswer.join(', ') : (userAnswer || 'No answer')}
+                        </span>
+                      </div>
+                      {!isCorrect && (
+                        <div>
+                          <span className="font-medium text-secondary">Correct Answer: </span>
+                          <span className="text-green-700">{question.correctAnswer}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {question.choices && question.choices.length > 0 && (
+                      <div className="mt-4">
+                        <span className="font-medium text-secondary">Options: </span>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {question.choices.map((choice, choiceIndex) => (
+                            <span key={choiceIndex} className="px-3 py-1 bg-[var(--bg-primary)] text-primary rounded border border-[var(--neutral-300)] text-sm">
+                              {choice}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
-
-                  {question.choices && question.choices.length > 0 && (
-                    <div className="mt-4">
-                      <span className="font-medium text-secondary">Options: </span>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {question.choices.map((choice, choiceIndex) => (
-                          <span key={choiceIndex} className="px-3 py-1 bg-[var(--bg-primary)] text-primary rounded border border-[var(--neutral-300)] text-sm">
-                            {choice}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
 
       {/* Top button */}
@@ -329,15 +478,14 @@ function QuizActivity() {
           quizId={null}
           isCustomQuiz={false}
           onViewDetails={viewDetailedResults}
+          onReviewAgain={handleReviewAgain}
           category={category}
           difficulty={difficulty}
           quizStartTime={quizStartTime}
         />
       )}
-
-
     </div>
   );
-
 }
+
 export default QuizActivity;

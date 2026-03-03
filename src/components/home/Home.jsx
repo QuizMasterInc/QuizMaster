@@ -63,6 +63,7 @@ function Home() {
         <HeroSection isAuthenticated={isAuthenticated} />
       </div>
 
+
       <section ref={sectionRef} className="py-20 text-center px-4 relative z-10 animate-on-scroll">
         <h2 className="text-4xl font-bold mb-12 font-main text-gradient-primary">
           What can you do?

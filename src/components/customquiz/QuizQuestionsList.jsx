@@ -1,5 +1,6 @@
 // This file handles the users custom quiz questions
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 export default function QuizQuestionsList({ quizData, setQuizData, handleDeleteQuestion }) {
   const [editQuestionChoice, setEditQuestionChoice] = useState(false);
@@ -42,7 +43,7 @@ export default function QuizQuestionsList({ quizData, setQuizData, handleDeleteQ
   const verifyQuestionChange = (quizData, index) => {
     for (let i = 0; i < 6; i++) {
       if (quizData[index][i] === '') {
-        alert('Please fill out all changes');
+        toast.warn('Please fill out all changes');
         return;
       }
     }

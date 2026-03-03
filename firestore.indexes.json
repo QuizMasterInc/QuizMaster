@@ -697,7 +697,7 @@
       ]
     },
     {
-      "collectionGroup": "flashcard_decks", 
+      "collectionGroup": "flashcard_decks",
       "fieldPath": "createdAt",
       "indexes": [
         {
@@ -735,6 +735,20 @@
         {
           "order": "DESCENDING",
           "queryScope": "COLLECTION"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "quiz_drafts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "updatedAt",
+          "order": "DESCENDING"
         }
       ]
     }

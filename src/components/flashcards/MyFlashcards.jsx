@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import flashcardService from '../../services/flashcards/flashcardService';
+import { fetchUsernamesByUids } from '../../services/firebase/usernameService';
+import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
 
 // Custom Hook
 import { useFlashcardFiltering } from '../../hooks/useFlashcardFiltering';
@@ -30,6 +33,19 @@ export default function MyFlashcards() {
     hasActiveFilters
   } = useFlashcardFiltering(flashcardDecks);
 
+  // Some older decks may not have creator.uid; derive it from common fields.
+  const deriveCreatorUid = (d) => {
+    return (
+      d?.creator?.uid ||
+      d?.creatorId ||
+      d?.createdBy ||
+      d?.userId ||
+      d?.ownerId ||
+      d?.uid ||
+      null
+    );
+  };
+
   useEffect(() => {
     if (currentUser) {
       fetchUserFlashcards();
@@ -42,10 +58,40 @@ export default function MyFlashcards() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const userDecks = await flashcardService.getUserFlashcardDecks(currentUser.uid);
-      const normalizedDecks = userDecks.map(deck => flashcardService.normalizeDeckData(deck));
-      setFlashcardDecks(normalizedDecks);
+      const normalizedDecks = userDecks.map((deck) => flashcardService.normalizeDeckData(deck));
+
+      // Ensure each deck has a creator uid we can resolve (fallback to current user for "My" decks)
+      const decksWithCreatorUid = (normalizedDecks || []).map((d) => {
+        const creatorUid = deriveCreatorUid(d) || currentUser?.uid;
+        return {
+          ...d,
+          creator: {
+            ...(d?.creator || {}),
+            uid: creatorUid,
+          },
+        };
+      });
+
+      // Look up usernames for all creator uids (helper chunks internally)
+      const uidsToLookup = Array.from(
+        new Set((decksWithCreatorUid || []).map((d) => d?.creator?.uid).filter(Boolean))
+      );
+
+      const usernameMap = uidsToLookup.length > 0 ? await fetchUsernamesByUids(uidsToLookup) : {};
+
+      // Attach creatorUsername (prefer existing, else map lookup)
+      const decksWithUsernames = (decksWithCreatorUid || []).map((d) => {
+        const uid = d?.creator?.uid;
+        const resolved = uid ? usernameMap[uid] : undefined;
+        return {
+          ...d,
+          creatorUsername: d?.creatorUsername || d?.username || d?.creator?.username || resolved,
+        };
+      });
+
+      setFlashcardDecks(decksWithUsernames);
     } catch (error) {
       console.error('Error fetching flashcard decks:', error);
       setError('Failed to load flashcard decks');
@@ -56,19 +102,28 @@ export default function MyFlashcards() {
   };
 
   const handleDeleteDeck = async (deckId) => {
-    if (!window.confirm('Are you sure you want to delete this flashcard deck?')) {
-      return;
-    }
+    const result = await Swal.fire({
+      title: 'Delete Deck?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel'
+    });
+    if (!result.isConfirmed) return;
 
     try {
       setLoading(true);
       setError(null);
-      
+
       await flashcardService.deleteFlashcardDeck(deckId, currentUser.uid);
-      
+
       // Remove from local state
-      setFlashcardDecks(prevDecks => prevDecks.filter(deck => deck.id !== deckId));
+      setFlashcardDecks((prevDecks) => prevDecks.filter((deck) => deck.id !== deckId));
       
+      toast.success('Flashcard deck deleted successfully');
     } catch (error) {
       console.error('Error deleting flashcard deck:', error);
       setError('Failed to delete flashcard deck. Please try again.');
@@ -79,7 +134,6 @@ export default function MyFlashcards() {
 
   return (
     <div className="min-h-screen bg-primary relative overflow-hidden py-20 px-6 text-[var(--text-primary)]">
-      
       <div className="relative z-10">
         <h1 className="text-4xl font-extrabold text-gradient-primary text-center mb-6 drop-shadow-lg">
           My Flashcard Decks
@@ -87,21 +141,19 @@ export default function MyFlashcards() {
 
         {error && (
           <div className="flex mt-5 justify-center items-center">
-            <div className="error-message font-medium">
-              {error}
-            </div>
+            <div className="error-message font-medium">{error}</div>
           </div>
         )}
 
         <div className="flex justify-center items-center gap-4 mb-8">
-          <Link 
-            to="/flashcards" 
+          <Link
+            to="/flashcards"
             className="inline-block px-6 py-3 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
           >
             Create New Deck
           </Link>
-          <Link 
-            to="/browse-flashcards" 
+          <Link
+            to="/browse-flashcards"
             className="inline-block px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
           >
             Browse Public Decks
@@ -109,7 +161,9 @@ export default function MyFlashcards() {
         </div>
 
         <p className="mt-6 text-center text-lg">
-          You have <span className="font-bold text-[var(--primary-400)]">{flashcardDecks.length}</span> flashcard deck{flashcardDecks.length !== 1 ? 's' : ''}
+          You have{' '}
+          <span className="font-bold text-[var(--primary-400)]">{flashcardDecks.length}</span>{' '}
+          flashcard deck{flashcardDecks.length !== 1 ? 's' : ''}
         </p>
 
         {loading ? (
@@ -121,8 +175,8 @@ export default function MyFlashcards() {
             <div className="text-center text-lg text-secondary mb-6">
               Please sign in to view your flashcard decks.
             </div>
-            <Link 
-              to="/login" 
+            <Link
+              to="/login"
               className="inline-block px-8 py-4 bg-[var(--primary-400)] hover:bg-[var(--primary-500)] text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               Sign In
@@ -133,8 +187,8 @@ export default function MyFlashcards() {
             <div className="text-center text-lg text-secondary mb-6">
               You haven't created any flashcard decks yet.
             </div>
-            <Link 
-              to="/flashcards" 
+            <Link
+              to="/flashcards"
               className="inline-block px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               Create Your First Deck
@@ -176,7 +230,6 @@ export default function MyFlashcards() {
             </div>
           </>
         )}
-
       </div>
     </div>
   );

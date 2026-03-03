@@ -1,11 +1,57 @@
 import { useState } from "react";
 import Modal from "react-modal";
 import { SquareX } from "../icons";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import DownloadQuiz from "./DownloadQuiz";
 
-const DoneModal = ({ isActive, amountCorrect, totalAmount, active, questions = [], userAnswers = {}, quizId, isCustomQuiz = false, onViewDetails, category = "Quiz", difficulty, quizStartTime }) => {
+const DoneModal = ({
+    isActive,
+    amountCorrect,
+    totalAmount,
+    active,
+    questions = [],
+    userAnswers = {},
+    quizId,
+    isCustomQuiz = false,
+    onViewDetails,
+    onReviewAgain,
+    category = "Quiz",
+    difficulty,
+    quizStartTime
+}) => {
     const [showDetails, setShowDetails] = useState(false);
+    const location = useLocation();
+
+    const getIncorrectIndexes = () => {
+        const incorrect = [];
+
+        questions.forEach((question, index) => {
+            const userAnswer = userAnswers[index];
+            if (!userAnswer) {
+                incorrect.push(index);
+                return;
+            }
+
+            const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
+            const userAns = Array.isArray(userAnswer)
+                ? userAnswer.map(a => String(a).toLowerCase().trim())
+                : [String(userAnswer).toLowerCase().trim()];
+
+            let isCorrect = false;
+            if (question.type === 'multiple') {
+                const correctAnswers = correctAnswer.split('||').map(a => a.trim().toLowerCase());
+                isCorrect = userAns.length === correctAnswers.length && userAns.every(ans => correctAnswers.includes(ans));
+            } else {
+                isCorrect = userAns[0] === correctAnswer;
+            }
+
+            if (!isCorrect) incorrect.push(index);
+        });
+
+        return incorrect;
+    };
+
+    const incorrectCount = getIncorrectIndexes().length;
 
     return (
         <Modal
@@ -96,7 +142,24 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, questions = [
                                         category={category}
                                     />
 
-                                    <Link to="/typeofquiz">
+                                    <button
+                                        type="button"
+                                        className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 ${incorrectCount === 0
+                                                ? 'bg-neutral-400 border-neutral-400 text-white cursor-not-allowed'
+                                                : 'bg-accent hover:bg-accent-hover text-btn-primary border-accent'
+                                            }`}
+                                        disabled={incorrectCount === 0}
+                                        onClick={() => {
+                                            const incorrectIndexes = getIncorrectIndexes();
+                                            if (incorrectIndexes.length > 0 && onReviewAgain) {
+                                                onReviewAgain(incorrectIndexes);
+                                            }
+                                        }}
+                                    >
+                                        Review Incorrect Again
+                                    </button>
+
+                                    <Link to="/typeofquiz" state={{ from: location.pathname }}>
                                         <button
                                             type="button"
                                             className="px-6 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
@@ -106,7 +169,7 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, questions = [
                                         </button>
                                     </Link>
 
-                                    <Link to="/dashboard">
+                                    <Link to="/dashboard" state={{ from: location.pathname }}>
                                         <button
                                             type="button"
                                             className="px-6 py-3 bg-[var(--neutral-200)] text-black rounded-lg font-medium transition-all duration-200 hover:bg-[var(--neutral-300)] hover:shadow-lg border border-primary"
@@ -126,14 +189,14 @@ const DoneModal = ({ isActive, amountCorrect, totalAmount, active, questions = [
                                         const isCorrect = (() => {
                                             if (!userAnswer) return false;
                                             const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
-                                            const userAns = Array.isArray(userAnswer) 
+                                            const userAns = Array.isArray(userAnswer)
                                                 ? userAnswer.map(a => a.toLowerCase().trim())
                                                 : [String(userAnswer).toLowerCase().trim()];
-                                            
+
                                             if (question.type === 'multiple') {
                                                 const correctAnswers = correctAnswer.split('||').map(a => a.trim().toLowerCase());
-                                                return userAns.length === correctAnswers.length && 
-                                                       userAns.every(ans => correctAnswers.includes(ans));
+                                                return userAns.length === correctAnswers.length &&
+                                                    userAns.every(ans => correctAnswers.includes(ans));
                                             } else {
                                                 return userAns[0] === correctAnswer;
                                             }

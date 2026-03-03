@@ -3,11 +3,24 @@
  * Display single flashcard deck with metadata and actions
  */
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import FlashcardPreview from './FlashcardPreview';
+
+const getCreatorLabel = (deck) => {
+  const username = deck?.creatorUsername || deck?.creator?.username || deck?.username;
+  if (typeof username === 'string' && username.trim()) {
+    return `@${username.replace(/^@/, '')}`;
+  }
+
+  const name = deck?.creatorName || deck?.creatorDisplayName || deck?.displayName;
+  if (typeof name === 'string' && name.trim()) return name;
+
+  return 'Unknown';
+};
 
 export default function FlashcardCard({ deck, onDelete, isDeleting }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const getDifficultyLabel = (difficulty) => {
     if (difficulty === '1') return 'Easy';
@@ -43,7 +56,7 @@ export default function FlashcardCard({ deck, onDelete, isDeleting }) {
           <div className="text-2xl text-[var(--primary-500)] font-bold mb-3">
             {deck.title}
           </div>
-          
+
           {/* Deck Metadata */}
           <div className="space-y-2 mb-4">
             <div className="text-base text-secondary">
@@ -51,6 +64,9 @@ export default function FlashcardCard({ deck, onDelete, isDeleting }) {
             </div>
             <div className="text-sm text-secondary">
               <strong>Category:</strong> {deck.category}
+            </div>
+            <div className="text-sm text-secondary">
+              <strong>Created by:</strong> {getCreatorLabel(deck)}
             </div>
             <div className="text-sm text-secondary">
               <strong>Difficulty:</strong> {getDifficultyLabel(deck.difficulty)}
@@ -64,8 +80,8 @@ export default function FlashcardCard({ deck, onDelete, isDeleting }) {
           {deck.tags && deck.tags.length > 0 && (
             <div className="flex flex-wrap justify-center gap-2 my-4">
               {deck.tags.map((tag, tagIndex) => (
-                <span 
-                  key={tagIndex} 
+                <span
+                  key={tagIndex}
                   className="px-3 py-1 bg-[var(--primary-400)] text-white rounded-full text-sm font-medium"
                 >
                   {tag}
@@ -83,28 +99,24 @@ export default function FlashcardCard({ deck, onDelete, isDeleting }) {
               <div className="text-sm text-primary">{deck.description}</div>
             </div>
           )}
-          
+
           {/* Interactive Flashcard Preview */}
           <FlashcardPreview cards={deck.cards} />
-          
+
           {/* Progress Tracking */}
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="space-y-3">
               {/* Deck Status */}
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm font-medium text-[var(--text-primary)]">
-                    Deck Status
-                  </span>
-                  <span className="text-xs text-[var(--text-muted)]">
-                    {deck.isPublic ? 'Public' : 'Private'}
-                  </span>
+                  <span className="text-sm font-medium text-[var(--text-primary)]">Deck Status</span>
+                  <span className="text-xs text-[var(--text-muted)]">{deck.isPublic ? 'Public' : 'Private'}</span>
                 </div>
                 <div className="w-full h-2 bg-[var(--neutral-200)] rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className={`h-full transition-all duration-500 ${
-                      deck.isPublic 
-                        ? 'bg-gradient-to-r from-green-400 to-green-600' 
+                      deck.isPublic
+                        ? 'bg-gradient-to-r from-green-400 to-green-600'
                         : 'bg-gradient-to-r from-[var(--primary-400)] to-[var(--primary-600)]'
                     }`}
                     style={{ width: '100%' }}
@@ -122,16 +134,11 @@ export default function FlashcardCard({ deck, onDelete, isDeleting }) {
               {/* Study Insights */}
               <div className="text-xs p-2 bg-[var(--bg-primary)] rounded border-l-2 border-[var(--primary-400)]">
                 <div className="space-y-1">
-                  {/* Difficulty-based insight */}
                   <div>{getDifficultyInsight(deck.difficulty)}</div>
-
-                  {/* Card count insight */}
                   <div className="text-[var(--text-muted)]">
                     {getStudyDuration(deck.cardCount)}
                     {deck.cardCount > 0 && ` • ~${Math.ceil(deck.cardCount * 0.5)} minute(s)`}
                   </div>
-
-                  {/* Popularity insight */}
                   {(deck.timesStudied || 0) > 0 && (
                     <div className="text-[var(--text-muted)]">
                       📚 Popular deck • Studied {deck.timesStudied} time{(deck.timesStudied || 0) !== 1 ? 's' : ''}
@@ -142,13 +149,13 @@ export default function FlashcardCard({ deck, onDelete, isDeleting }) {
             </div>
           </div>
         </div>
-        
+
         {/* Action Buttons */}
         <div className="p-4 border-t border-accent flex gap-2">
           <button
             className="flex-1 px-4 py-2 bg-[var(--primary-400)] hover:bg-[var(--primary-500)] text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
             disabled={isDeleting}
-            onClick={() => navigate(`/flashcards/study/${deck.id}`)}
+            onClick={() => navigate(`/flashcards/study/${deck.id}`, { state: { from: location.pathname } })}
           >
             Study
           </button>

@@ -11,9 +11,12 @@ export default function NavBar() {
     const navigate = useNavigate();
     const [dashboardOpen, setDashboardOpen] = useState(false);
     const [homeOpen, setHomeOpen] = useState(false);
+    const [profileOpen, setProfileOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const dashboardRef = useRef(null);
     const homeRef = useRef(null);
+    const profileRef = useRef(null);
+    const drawerRef = useRef(null);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -23,23 +26,20 @@ export default function NavBar() {
             if (homeOpen && homeRef.current && !homeRef.current.contains(event.target)) {
                 setHomeOpen(false);
             }
+            if (profileOpen && profileRef.current && !profileRef.current.contains(event.target)) {
+                setProfileOpen(false);
+            }
+            if (mobileMenuOpen && drawerRef.current && !drawerRef.current.contains(event.target) && !event.target.closest('.hamburger-menu')) {
+                setMobileMenuOpen(false);
+            }
         }
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [dashboardOpen, homeOpen]);
+    }, [dashboardOpen, homeOpen, mobileMenuOpen, profileOpen]);
 
     const handleClick = (e) => {
-        if (location.pathname === "/quizstarted") {
-            const confirmation = window.confirm(
-                "Are you sure you want to leave? You are on a page where navigation may lead to loss of unsaved data."
-            );
-            if (!confirmation) {
-                e.preventDefault();
-                return;
-            }
-        }
         window.scrollTo(0, 0);
         setMobileMenuOpen(false);
     };
@@ -61,6 +61,7 @@ export default function NavBar() {
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="hamburger-menu mr-4"
                 aria-label="Toggle Mobile Menu"
+                aria-expanded={mobileMenuOpen}
             >
                 {mobileMenuOpen ? <FaTimes className="w-6 h-6" /> : <FaBars className="w-6 h-6" />}
             </button>
@@ -69,352 +70,109 @@ export default function NavBar() {
                 <Q className="w-8 h-8 drop-shadow-lg navbar-logo" />
             </NavLink>
 
-            <div className="nav-links">
-                {currentUser && (
-                    <div className="relative group" ref={dashboardRef}>
-                        <div className="flex">
-                            <NavLink
-                                to="/dashboard"
-                                onClick={handleClick}
-                                className="flex items-center gap-2 font-semibold px-4 py-2 rounded-l navbar-link"
-                            >
-                                <Profile className="w-5 h-5 navbar-icon" />
-                                Dashboard
-                            </NavLink>
-                            <button
-                                onClick={() => setDashboardOpen((open) => !open)}
-                                type="button"
-                                className="px-2 py-2 rounded-r navbar-button"
-                                aria-label="Toggle Dashboard Dropdown"
-                            >
-                                <FaChevronDown className="navbar-arrow" />
-                            </button>
-                        </div>
-                        {dashboardOpen && (
-                            <ul className="absolute left-0 mt-2 w-48 rounded shadow-lg z-50 navbar-dropdown">
-                                <li>
-                                    <NavLink
-                                        to="/typeofquiz"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setDashboardOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <School className="w-5 h-5 navbar-icon" />
-                                        Take a Quiz!
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/flashcards"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setDashboardOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Computer className="w-5 h-5 navbar-icon" />
-                                        Make Flashcards
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/myflashcards"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setDashboardOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Scroll className="w-5 h-5 navbar-icon" />
-                                        My Flashcards
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/myquizzes"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setDashboardOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Q className="w-5 h-5 navbar-icon" />
-                                        My Quizzes
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/browse-flashcards"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setDashboardOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Book className="w-5 h-5 navbar-icon" />
-                                        Browse Flashcards
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/customquiz"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setDashboardOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Q className="w-5 h-5 navbar-icon" />
-                                        Make Quiz
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/classroom"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setDashboardOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <School className="w-5 h-5 navbar-icon" />
-                                        Classroom
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/about"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setDashboardOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Info className="w-5 h-5 navbar-icon" />
-                                        About
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/contact"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setDashboardOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Email className="w-5 h-5 navbar-icon" />
-                                        Contact Us
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/profile"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setDashboardOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Profile className="w-5 h-5 navbar-icon" />
-                                        Profile
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/settings"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setDashboardOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Gear className="w-5 h-5 navbar-icon" />
-                                        Settings
-                                    </NavLink>
-                                </li>
-                            </ul>
-                        )}
-                    </div>
-                )}
-
-                {!currentUser && (
-                    <div className="relative group ml-4" ref={homeRef}>
-                        <div className="flex">
-                            <NavLink
-                                to="/"
-                                onClick={handleClick}
-                                className="flex items-center gap-2 font-semibold px-4 py-2 rounded-l navbar-link"
-                            >
-                                <Profile className="w-5 h-5 navbar-icon" />
-                                Home
-                            </NavLink>
-                            <button
-                                onClick={() => setHomeOpen((open) => !open)}
-                                type="button"
-                                className="px-2 py-2 rounded-r navbar-button"
-                                aria-label="Toggle Home Dropdown"
-                            >
-                                <FaChevronDown className="navbar-arrow" />
-                            </button>
-                        </div>
-                        {homeOpen && (
-                            <ul className="absolute left-0 mt-2 w-48 rounded shadow-lg z-50 navbar-dropdown">
-                                <li>
-                                    <NavLink
-                                        to="/about"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setHomeOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Info className="w-5 h-5 navbar-icon" />
-                                        About
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/contact"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setHomeOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Email className="w-5 h-5 navbar-icon" />
-                                        Contact Us
-                                    </NavLink>
-                                </li>
-                                <li>
-                                    <NavLink
-                                        to="/settings"
-                                        onClick={e => {
-                                            handleClick(e);
-                                            setHomeOpen(false);
-                                        }}
-                                        className="flex items-center gap-2 px-4 py-2 navbar-dropdown-item"
-                                    >
-                                        <Gear className="w-5 h-5 navbar-icon" />
-                                        Settings
-                                    </NavLink>
-                                </li>
-                            </ul>
-                        )}
-                    </div>
-                )}
-
-
-                <div className="flex-1" />
-
-                <div className="pr-4">
-                    {currentUser ? (
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center gap-2 font-semibold px-4 py-2 rounded navbar-link"
-                        >
-                            <SignIn className="w-5 h-5 navbar-icon" />
-                            Logout
-                        </button>
-                    ) : (
-                        <NavLink
-                            to="/signin"
-                            onClick={handleClick}
-                            className="flex items-center gap-2 font-semibold px-4 py-2 rounded navbar-link"
-                        >
-                            <SignIn className="w-5 h-5 navbar-icon" />
-                            Sign In
-                        </NavLink>
-                    )}
-                </div>
-            </div>
 
             <h1 className="brand-title absolute left-1/2 transform -translate-x-1/2 sm:text-2xl font-extrabold">
                 <span className="text-3xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">QuizMaster</span>
             </h1>
 
-            {mobileMenuOpen && (
-                <div className="mobile-nav absolute top-full left-0 w-full navbar-bg shadow-lg z-50">
-                    <div className="flex flex-col p-4">
-                        {currentUser ? (
-                            <>
-                                <NavLink to="/dashboard" onClick={handleClick} className="mobile-nav-item">
-                                    <Profile className="w-5 h-5" />
-                                    Dashboard
-                                </NavLink>
-                                <NavLink to="/typeofquiz" onClick={handleClick} className="mobile-nav-item">
-                                    <School className="w-5 h-5" />
-                                    Take a Quiz!
-                                </NavLink>
-                                <NavLink to="/flashcards" onClick={handleClick} className="mobile-nav-item">
-                                    <Computer className="w-5 h-5" />
-                                    Make Flashcards
-                                </NavLink>
-                                <NavLink to="/myflashcards" onClick={handleClick} className="mobile-nav-item">
-                                    <Scroll className="w-5 h-5" />
-                                    My Flashcards
-                                </NavLink>
-                                <NavLink to="/myquizzes" onClick={handleClick} className="mobile-nav-item">
-                                    <Q className="w-5 h-5" />
-                                    My Quizzes
-                                </NavLink>
-                                <NavLink to="/browse-flashcards" onClick={handleClick} className="mobile-nav-item">
-                                    <Book className="w-5 h-5" />
-                                    Browse Flashcards
-                                </NavLink>
-                                <NavLink to="/customquiz" onClick={handleClick} className="mobile-nav-item">
-                                    <Q className="w-5 h-5" />
-                                    Make Quiz
-                                </NavLink>
-                                <NavLink to="/about" onClick={handleClick} className="mobile-nav-item">
-                                    <Info className="w-5 h-5" />
-                                    About
-                                </NavLink>
-                                <NavLink to="/contact" onClick={handleClick} className="mobile-nav-item">
-                                    <Email className="w-5 h-5" />
-                                    Contact Us
-                                </NavLink>
-                                <NavLink to="/Profile" onClick={handleClick} className="mobile-nav-item">
-                                    <Profile className="w-5 h-5" />
-                                    Profile
-                                </NavLink>
-                                <NavLink to="/settings" onClick={handleClick} className="mobile-nav-item">
-                                    <Gear className="w-5 h-5" />
-                                    Settings
-                                </NavLink>
-                                <button onClick={handleLogout} className="mobile-nav-item text-left">
-                                    <SignIn className="w-5 h-5" />
-                                    Logout
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <NavLink to="/" onClick={handleClick} className="mobile-nav-item">
-                                    <Profile className="w-5 h-5" />
-                                    Home
-                                </NavLink>
-                                <NavLink to="/about" onClick={handleClick} className="mobile-nav-item">
-                                    <Info className="w-5 h-5" />
-                                    About
-                                </NavLink>
-                                <NavLink to="/contact" onClick={handleClick} className="mobile-nav-item">
-                                    <Email className="w-5 h-5" />
-                                    Contact Us
-                                </NavLink>
-                                <NavLink to="/settings" onClick={handleClick} className="mobile-nav-item">
-                                    <Gear className="w-5 h-5" />
-                                    Settings
-                                </NavLink>
-                                <NavLink to="/signin" onClick={handleClick} className="mobile-nav-item">
-                                    <SignIn className="w-5 h-5" />
-                                    Sign In
-                                </NavLink>
-                            </>
-                        )}
-                    </div>
+            <NavLink
+                to="/poll"
+                onClick={handleClick}
+                className="hidden md:inline-flex ml-auto items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold shadow-md hover:shadow-lg transition-transform duration-200 hover:-translate-y-0.5"
+            >
+                <Q className="w-4 h-4" />
+                Take a Poll
+            </NavLink>
+
+            {currentUser && (
+                <div className="relative inline-flex ml-auto md:ml-4 z-50" ref={profileRef}>
+                    <button
+                        onClick={() => setProfileOpen(!profileOpen)}
+                        aria-haspopup="true"
+                        aria-expanded={profileOpen}
+                        aria-label="Open profile menu"
+                        className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white/0 text-gray-800 dark:text-white border border-transparent dark:border-white/10 font-semibold shadow-sm hover:shadow-md transition-transform duration-150 hover:bg-gray-100 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                        <Profile className="w-6 h-6 text-current" />
+                    </button>
+
+                    {profileOpen && (
+                        <div className="absolute right-0 mt-2 w-44 bg-white rounded-md shadow-lg py-1 z-50">
+                            <NavLink to="/Profile" onClick={() => setProfileOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Profile
+                            </NavLink>
+                            <NavLink to="/settings" onClick={() => setProfileOpen(false)} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Setting
+                            </NavLink>
+                            <button onClick={() => { setProfileOpen(false); handleLogout(); }} className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Logout
+                            </button>
+                        </div>
+                    )}
                 </div>
+            )}
+
+            {mobileMenuOpen && (
+                <>
+                    <div className="drawer-overlay fixed inset-0 bg-black bg-opacity-40 z-40" onClick={() => setMobileMenuOpen(false)} />
+                    <aside ref={drawerRef} className="side-drawer fixed top-0 left-0 bottom-0 w-64 max-w-full bg-white z-50 shadow-lg overflow-auto">
+                        <div className="p-4">
+                            {currentUser ? (
+                                <>
+                                    <NavLink to="/dashboard" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Profile className="w-5 h-5" />
+                                        Dashboard
+                                    </NavLink>
+                                    {/* Commented out - Poll page button in main menu not needed currently. 
+                                    <NavLink to="/poll" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Q className="w-5 h-5" />
+                                        Take a Poll
+                                    </NavLink> 
+                                    */}
+                                    <NavLink to="/typeofquiz" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <School className="w-5 h-5" />
+                                        Take a Quiz!
+                                    </NavLink>
+                                    <NavLink to="/myquizzes" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Q className="w-5 h-5" />
+                                        My Quizzes
+                                    </NavLink>
+                                    <NavLink to="/customquiz" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Q className="w-5 h-5" />
+                                        Make Quiz
+                                    </NavLink>
+                                    <NavLink to="/browse-flashcards" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Book className="w-5 h-5" />
+                                        Browse Flashcards
+                                    </NavLink>
+                                    <NavLink to="/myflashcards" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Scroll className="w-5 h-5" />
+                                        My Flashcards
+                                    </NavLink>
+                                    <NavLink to="/flashcards" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Computer className="w-5 h-5" />
+                                        Make Flashcards
+                                    </NavLink>
+                                </>
+                            ) : (
+                                <>
+                                    <NavLink to="/" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Profile className="w-5 h-5" />
+                                        Home
+                                    </NavLink>
+                                    <NavLink to="/poll" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <Q className="w-5 h-5" />
+                                        Take a Poll
+                                    </NavLink>
+                                    <NavLink to="/signin" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                        <SignIn className="w-5 h-5" />
+                                        Sign In
+                                    </NavLink>
+                                </>
+                            )}
+                        </div>
+                    </aside>
+                </>
             )}
         </nav>
     );

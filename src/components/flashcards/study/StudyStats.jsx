@@ -5,18 +5,14 @@ import PropTypes from 'prop-types';
  */
 const StudyStats = ({ stats }) => {
     return (
-        <div className="grid grid-cols-3 gap-4 mt-8">
-            <div className="card text-center p-4 border border-success">
-                <span className="block text-sm font-semibold text-secondary mb-1">Easy</span>
-                <span className="block text-3xl font-bold text-gradient-primary">{stats.easyCount}</span>
-            </div>
-            <div className="card text-center p-4 border border-warning">
-                <span className="block text-sm font-semibold text-secondary mb-1">Good</span>
-                <span className="block text-3xl font-bold text-gradient-primary">{stats.goodCount}</span>
-            </div>
+        <div className="grid grid-cols-2 gap-4 mt-8">
             <div className="card text-center p-4 border border-error">
-                <span className="block text-sm font-semibold text-secondary mb-1">Hard</span>
-                <span className="block text-3xl font-bold text-gradient-primary">{stats.hardCount}</span>
+                <span className="block text-sm font-semibold text-secondary mb-1">Still Learning</span>
+                <span className="block text-3xl font-bold text-gradient-primary">{stats.stillLearningCount}</span>
+            </div>
+            <div className="card text-center p-4 border border-success">
+                <span className="block text-sm font-semibold text-secondary mb-1">Know</span>
+                <span className="block text-3xl font-bold text-gradient-primary">{stats.knowCount}</span>
             </div>
         </div>
     );
@@ -24,9 +20,8 @@ const StudyStats = ({ stats }) => {
 
 StudyStats.propTypes = {
     stats: PropTypes.shape({
-        easyCount: PropTypes.number.isRequired,
-        goodCount: PropTypes.number.isRequired,
-        hardCount: PropTypes.number.isRequired,
+        knowCount: PropTypes.number.isRequired,
+        stillLearningCount: PropTypes.number.isRequired,
         successRate: PropTypes.number
     }).isRequired
 };

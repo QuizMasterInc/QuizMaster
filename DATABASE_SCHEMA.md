@@ -170,7 +170,7 @@
 	description: "string", // Used in UI display
 	category: "string", // Used for categorization
 	tags: "array", // Used for filtering (MIGRATED: converted from string to array)
-	difficulty: "easy | medium | hard", // Used for display
+	difficulty: "know | still learning", // Used for display
 	isPublic: "boolean", // Used for visibility control
 	allowCopying: "boolean", // Used in services
 
@@ -226,11 +226,11 @@
 	currentCardIndex: "number", // Index of current card (for resume)
 	cardsStudied: "number", // Count of cards reviewed in this session
 	
-	// CARD RATINGS (S79 Acceptance Criteria: Easy/Good/Hard tracking)
+	// CARD RATINGS (S79 Acceptance Criteria: know or still learning tracking)
 	cardRatings: [
 		{
 			cardId: "string", // Reference to card ID from deck
-			rating: "easy | good | hard", // User's rating
+			rating: "know | still learning", // User's rating
 			timestamp: "timestamp" // When rating was given
 		}
 	],
@@ -241,9 +241,8 @@
 	// SESSION STATISTICS (S79 Acceptance Criteria)
 	stats: {
 		timeSpent: "number", // Total seconds spent in session
-		easyCount: "number", // Number of "easy" ratings
-		goodCount: "number", // Number of "good" ratings
-		hardCount: "number", // Number of "hard" ratings
+		knowCount: "number", // Number of "know" ratings
+		stillLearningCount: "number", // Number of "still learning" ratings
 		successRate: "number" // Percentage (easy+good)/total * 100
 	}
 }

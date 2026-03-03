@@ -103,7 +103,7 @@ const Contact = () => (
 
             <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 mt-12">
                 <h2 className="text-gradient-primary text-4xl font-bold text-center mb-12">
-                    Fall 2025 Dream Team
+                    Spring 2026 Dream Team
                 </h2>
                 <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
                     <TeamMember
@@ -141,37 +141,39 @@ const Contact = () => (
                         email="josephrchavez1@lewisu.edu"
                         githubLink="https://github.com/Jchave2000"
                     />
-                    <TeamMember
-                        image={ben}
-                        name="Benjamin Eiler"
-                        group="TitanicSwimTeam Group"
-                        email="benjaminseiler@lewisu.edu"
-                        githubLink="https://github.com/beneiler"
-                    />
-                    <TeamMember
-                        image={rudra}
-                        name="Rudra Patel"
-                        group="TitanicSwimTeam Group"
-                        email="rudrappatel@lewisu.edu"
-                        githubLink="https://github.com/rpat9"
-                    />
-                    <TeamMember
-                        image={kolade}
-                        name="Kolade Idris"
-                        group="TitanicSwimTeam Group"
-                        email="koladeidris@lewisu.edu"
-                        githubLink="https://github.com/marskidris"
-                    />
-                    <TeamMember
-                        image={ethan}
-                        name="Ethan Myers"
-                        group="TitanicSwimTeam Group"
-                        email="ethanamyers@lewisu.edu"
-                        githubLink="https://github.com/ethanmy14"
-                    />
                 </div>
             </div>
 
+            <TeamSection title="Fall 2025 Team">
+                <TeamMember
+                    image={ben}
+                    name="Benjamin Eiler"
+                    group="TitanicSwimTeam Group"
+                    email="benjaminseiler@lewisu.edu"
+                    githubLink="https://github.com/beneiler"
+                />
+                <TeamMember
+                    image={rudra}
+                    name="Rudra Patel"
+                    group="TitanicSwimTeam Group"
+                    email="rudrappatel@lewisu.edu"
+                    githubLink="https://github.com/rpat9"
+                />
+                <TeamMember
+                    image={kolade}
+                    name="Kolade Idris"
+                    group="TitanicSwimTeam Group"
+                    email="koladeidris@lewisu.edu"
+                    githubLink="https://github.com/marskidris"
+                />
+                <TeamMember
+                    image={ethan}
+                    name="Ethan Myers"
+                    group="TitanicSwimTeam Group"
+                    email="ethanamyers@lewisu.edu"
+                    githubLink="https://github.com/ethanmy14"
+                />
+            </TeamSection>
 
             <TeamSection title="Spring 2025 Team">
                 <TeamMember

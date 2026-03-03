@@ -90,9 +90,8 @@ exports.createStudySession = onRequest(async (req, res) => {
                 currentCardIndex: 0,
                 cardRatings: {},
                 progress: {
-                    easyCount: 0,
-                    goodCount: 0,
-                    hardCount: 0,
+                    knowCount: 0,
+                    stillLearningCount: 0,
                     percentComplete: 0
                 }
             };
