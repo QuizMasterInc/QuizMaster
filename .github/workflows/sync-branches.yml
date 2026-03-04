@@ -4,6 +4,9 @@ on:
     types: [closed]
     branches:
       - production # Changed from 'prod'
+      
+permissions:
+  contents: write
 
 jobs:
   sync:
