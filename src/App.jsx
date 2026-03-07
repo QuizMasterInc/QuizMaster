@@ -31,6 +31,7 @@ import CustomQuiz from './components/customquiz/CustomQuiz.jsx';
 import DeckManager from './components/flashcards/DeckManager';
 import MyFlashcards from './components/flashcards/MyFlashcards';
 import BrowsePublicFlashcards from './components/flashcards/BrowsePublicFlashcards';
+import PublicUserPage from "./components/profile/PublicUserPage";
 import StudyMode from './components/flashcards/study/StudyMode';
 import StudyResults from './components/flashcards/study/StudyResults';
 import EditCustomQuiz from "./components/customquiz/EditCustomQuiz"
@@ -71,180 +72,182 @@ function App() {
           <ResultsProvider>
             <NavBar />
             <Routes>
-        {isAuthenticated ? (
-          <Route path="/" element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          } />
-        ) : (
-          <Route path="/" element={<Home />} />
-        )}          <Route path="/developer" element={
-            <DeveloperRoute>
-              <Developer />
-            </DeveloperRoute>
-          }/>
-          <Route path="/home" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/poll" element={<Poll />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/settings" element={
-              <Settings />
-          }/>
+              {isAuthenticated ? (
+                <Route path="/" element={
+                  <PrivateRoute>
+                    <Dashboard />
+                  </PrivateRoute>
+                } />
+              ) : (
+                <Route path="/" element={<Home />} />
+              )}
 
-          <Route path="/quizzes">
-            <Route index element={
-              <PrivateRoute>
-                <SelectQuiz />
-              </PrivateRoute>
-            }/>
-            <Route path="random" element={
-              <PrivateRoute>
-                <SelectSubCategory />
-              </PrivateRoute>
-            }/>
-            {CATEGORY_DESTINATIONS.map((destination, index) => (
-              <Route 
-                key={index} 
-                path={destination} 
-                element={
+              <Route path="/developer" element={
+                <DeveloperRoute>
+                  <Developer />
+                </DeveloperRoute>
+              }/>
+              <Route path="/home" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/poll" element={<Poll />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/settings" element={
+                <Settings />
+              }/>
+
+              <Route path="/quizzes">
+                <Route index element={
+                  <PrivateRoute>
+                    <SelectQuiz />
+                  </PrivateRoute>
+                }/>
+                <Route path="random" element={
                   <PrivateRoute>
                     <SelectSubCategory />
                   </PrivateRoute>
-                } 
-                caseSensitive
-              />
-            ))}
-            <Route path="quizstarted" element={
-              <PrivateRoute>
-                
-                  <QuizActivity />
-                
-              </PrivateRoute>
-            }/>
-          </Route>
+                }/>
+                {CATEGORY_DESTINATIONS.map((destination, index) => (
+                  <Route 
+                    key={index} 
+                    path={destination} 
+                    element={
+                      <PrivateRoute>
+                        <SelectSubCategory />
+                      </PrivateRoute>
+                    } 
+                    caseSensitive
+                  />
+                ))}
+                <Route path="quizstarted" element={
+                  <PrivateRoute>
+                    <QuizActivity />
+                  </PrivateRoute>
+                }/>
+              </Route>
 
-          <Route path="/customquiz/settings/:quizID" element={
-            <PrivateRoute>
-              <CustomQuizSettings />
-            </PrivateRoute>
-          }/>
+              <Route path="/customquiz/settings/:quizID" element={
+                <PrivateRoute>
+                  <CustomQuizSettings />
+                </PrivateRoute>
+              }/>
 
-          <Route index path="/quizstarted/:quizID" element={
-            <PrivateRoute>
-              
-                <CustomQuizActivity />
-             
-            </PrivateRoute>
-          }/>
+              <Route index path="/quizstarted/:quizID" element={
+                <PrivateRoute>
+                  <CustomQuizActivity />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/customquiz" element={
-            <PrivateRoute>
-              <CustomQuiz />
-            </PrivateRoute>
-          }/>
-          <Route index path="/customquiz/:quizID" element={
-            <PrivateRoute>
-              <EditCustomQuiz />
-            </PrivateRoute>
-          }/>
+              <Route path="/customquiz" element={
+                <PrivateRoute>
+                  <CustomQuiz />
+                </PrivateRoute>
+              }/>
+              <Route index path="/customquiz/:quizID" element={
+                <PrivateRoute>
+                  <EditCustomQuiz />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/flashcards" element={
-            <PrivateRoute>
-              <DeckManager />
-            </PrivateRoute>
-          }/>
+              <Route path="/flashcards" element={
+                <PrivateRoute>
+                  <DeckManager />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/myflashcards" element={
-            <PrivateRoute>
-              <MyFlashcards />
-            </PrivateRoute>
-          }/>
+              <Route path="/myflashcards" element={
+                <PrivateRoute>
+                  <MyFlashcards />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/browse-flashcards" element={
-            <BrowsePublicFlashcards />
-          }/>
+              <Route path="/browse-flashcards" element={
+                <BrowsePublicFlashcards />
+              }/>
 
-          <Route path="/flashcards/study/:deckId" element={
-            <PrivateRoute>
-              <StudyMode />
-            </PrivateRoute>
-          }/>
+              <Route path="/u/:username" element={
+                <PublicUserPage />
+              }/>
 
-          <Route path="/flashcards/study/:deckId/results" element={
-            <PrivateRoute>
-              <StudyResults />
-            </PrivateRoute>
-          }/>
+              <Route path="/flashcards/study/:deckId" element={
+                <PrivateRoute>
+                  <StudyMode />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/typeofquiz" element={
-            <PrivateRoute>
-              <TypeOfQuiz />
-            </PrivateRoute>
-          }/>
+              <Route path="/flashcards/study/:deckId/results" element={
+                <PrivateRoute>
+                  <StudyResults />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/allcustomquizzes" element={
-            <PrivateRoute>
-              <AllCustomQuizzes />
-            </PrivateRoute>
-          }/>
-          <Route path="/allteacherquizzes" element={
-            <PrivateRoute>
-              <AllTeacherQuizzes />
-            </PrivateRoute>
-          }/>
+              <Route path="/typeofquiz" element={
+                <PrivateRoute>
+                  <TypeOfQuiz />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/myquizzes" element={
-            <PrivateRoute>
-              <MyQuiz title="My Quizzes" dataSource="browseCustomQuizzes" showRefreshButton={true} />
-            </PrivateRoute>
-          }/>
+              <Route path="/allcustomquizzes" element={
+                <PrivateRoute>
+                  <AllCustomQuizzes />
+                </PrivateRoute>
+              }/>
+              <Route path="/allteacherquizzes" element={
+                <PrivateRoute>
+                  <AllTeacherQuizzes />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/profile" element={
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          }/>
+              <Route path="/myquizzes" element={
+                <PrivateRoute>
+                  <MyQuiz title="My Quizzes" dataSource="browseCustomQuizzes" showRefreshButton={true} />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/profile/custom-quizzes" element={
-            <PrivateRoute>
-              <CustomQuizPerformance />
-            </PrivateRoute>
-          }/>
+              <Route path="/profile" element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/signin" element={
-            <PrivateSigninRoute>
-              <Login />
-            </PrivateSigninRoute>
-          }/>
-          <Route path="/forgotpassword" element={
-            <PrivateSigninRoute>
-              <ForgotPassword />
-            </PrivateSigninRoute>
-          }/>
-          <Route path="/register" element={
-            <PrivateSigninRoute>
-              <Register />
-            </PrivateSigninRoute>
-          }/>
+              <Route path="/profile/custom-quizzes" element={
+                <PrivateRoute>
+                  <CustomQuizPerformance />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/dashboard" element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }/>
+              <Route path="/signin" element={
+                <PrivateSigninRoute>
+                  <Login />
+                </PrivateSigninRoute>
+              }/>
+              <Route path="/forgotpassword" element={
+                <PrivateSigninRoute>
+                  <ForgotPassword />
+                </PrivateSigninRoute>
+              }/>
+              <Route path="/register" element={
+                <PrivateSigninRoute>
+                  <Register />
+                </PrivateSigninRoute>
+              }/>
 
-          <Route path="/presentation" element={<Presentation />} />
+              <Route path="/dashboard" element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              }/>
 
-          <Route path="/classroom" element={
-            <PrivateRoute>
-              <Classroom />
-            </PrivateRoute>
-          }/>
+              <Route path="/presentation" element={<Presentation />} />
 
-          <Route path="*" element={<NotFound />} />
+              <Route path="/classroom" element={
+                <PrivateRoute>
+                  <Classroom />
+                </PrivateRoute>
+              }/>
+
+              <Route path="*" element={<NotFound />} />
             </Routes>
 
             <Footer />

@@ -7,6 +7,7 @@ const AllCustomQuizzes = () => {
       dataSource="browseCustomQuizzes"
       filters={["search", "privacy", "sort"]}
       showRefreshButton={true}
+      linkCreatorToProfile={true}
     />
   );
 };

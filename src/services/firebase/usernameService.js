@@ -8,7 +8,6 @@ import {
   collection,
   query,
   where,
-  documentId,
 } from "firebase/firestore";
 
 import { db } from "./firebaseService";
@@ -47,11 +46,20 @@ export async function fetchUsernamesByUids(uids) {
   for (let i = 0; i < unique.length; i += 10) chunks.push(unique.slice(i, i + 10));
 
   for (const group of chunks) {
-    const q = query(collection(db, "users"), where(documentId(), "in", group));
+    // Use the PUBLIC usernames registry (allowed by rules) to map uid -> username.
+    // usernames docs typically look like: { uid, username }
+    const q = query(collection(db, "usernames"), where("uid", "in", group));
     const snap = await getDocs(q);
+
     snap.forEach((d) => {
-      const data = d.data();
-      map[d.id] = data?.username || data?.profile?.username || "Anonymous";
+      const data = d.data() || {};
+      const uid = data?.uid;
+      const unameRaw = data?.username || d.id;
+      const uname = typeof unameRaw === "string" ? unameRaw.trim().replace(/^@/, "").toLowerCase() : "";
+
+      if (uid && uname) {
+        map[uid] = uname;
+      }
     });
   }
 
@@ -63,7 +71,8 @@ export async function reserveUsername({ uid, username }) {
   const usernameLower = normalizeUsername(username);
 
   if (!uid) throw new Error("Missing uid");
-  if (!isValidUsername(username)) {
+  // Validate the canonical (lowercased) username so case never causes mismatches.
+  if (!isValidUsername(usernameLower)) {
     throw new Error("Username must be 3-24 chars and letters/digits only.");
   }
 
@@ -80,13 +89,15 @@ export async function reserveUsername({ uid, username }) {
     // Reserve global username
     tx.set(unameRef, {
       uid,
-      username,
+      // Store the canonical lowercase username to match the document id.
+      username: usernameLower,
       createdAt: serverTimestamp(),
     });
 
     // Store on user profile too
     const userUpdate = {
-      username,
+      // Store the canonical lowercase username for consistent display/links.
+      username: usernameLower,
       usernameLower,
       updatedAt: serverTimestamp(),
     };
@@ -99,7 +110,7 @@ export async function reserveUsername({ uid, username }) {
     tx.set(userRef, userUpdate, { merge: true });
   });
 
-  return { username, usernameLower };
+  return { username: usernameLower, usernameLower };
 }
 
 // -------------------------
@@ -208,7 +219,8 @@ export async function changeUsername({ uid, username }) {
   const usernameLower = normalizeUsername(username);
 
   if (!uid) throw new Error("Missing uid");
-  if (!isValidUsername(username)) {
+  // Validate the canonical (lowercased) username so case never causes mismatches.
+  if (!isValidUsername(usernameLower)) {
     throw new Error("Username must be 3-24 chars and letters/digits only.");
   }
 
@@ -227,7 +239,8 @@ export async function changeUsername({ uid, username }) {
     if (!unameSnap.exists()) {
       tx.set(unameRef, {
         uid,
-        username,
+        // Store the canonical lowercase username to match the document id.
+        username: usernameLower,
         createdAt: serverTimestamp(),
       });
     }
@@ -236,7 +249,8 @@ export async function changeUsername({ uid, username }) {
     tx.set(
       userRef,
       {
-        username,
+        // Store the canonical lowercase username for consistent display/links.
+        username: usernameLower,
         usernameLower,
         updatedAt: serverTimestamp(),
       },
@@ -244,5 +258,5 @@ export async function changeUsername({ uid, username }) {
     );
   });
 
-  return { username, usernameLower };
+  return { username: usernameLower, usernameLower };
 }

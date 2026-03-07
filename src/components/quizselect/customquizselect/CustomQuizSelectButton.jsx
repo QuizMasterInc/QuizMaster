@@ -21,6 +21,7 @@ const CustomQuizSelectButton = ({
   creatorUsername,
   creatorId,
   currentUserId,
+  linkCreatorToProfile = false,
   onDeleted
 }) => {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ const CustomQuizSelectButton = ({
     };
   }, [creatorUsername, creatorId]);
 
-  function displayCreatorName() {
+  function getCreatorLabel() {
     const effective = (
       (typeof resolvedCreatorUsername === 'string' && resolvedCreatorUsername.trim() ? resolvedCreatorUsername.trim() : '') ||
       (typeof creatorUsername === 'string' && creatorUsername.trim() ? creatorUsername.trim() : '')
@@ -87,26 +88,58 @@ const CustomQuizSelectButton = ({
 
     // 1) Prefer resolved/provided username
     if (effective) {
-      return "Created by: @" + effective.replace(/^@/, '');
+      return "@" + effective.replace(/^@/, '');
     }
 
     // 2) Fall back to creator object fields (and avoid rendering an object)
     if (creator && typeof creator === 'object') {
       const handle = typeof creator.handle === 'string' ? creator.handle.trim() : '';
-      if (handle) return "Created by: " + (handle.startsWith('@') ? handle : `@${handle}`);
+      if (handle) return handle.startsWith('@') ? handle : `@${handle}`;
 
       const uname = typeof creator.username === 'string' ? creator.username.trim() : '';
-      if (uname) return "Created by: @" + uname.replace(/^@/, '');
-
+      if (uname) return "@" + uname.replace(/^@/, '');
     }
 
     // 3) If creator was a string, use it
     if (typeof creator === 'string' && creator.trim()) {
-      return "Created by: " + creator.trim();
+      return creator.trim();
     }
 
     // 4) Last resort
-    return "Created by: Anonymous";
+    return "Anonymous";
+  }
+
+  function getCreatorProfilePath() {
+    const creatorLabel = getCreatorLabel();
+    const username = typeof creatorLabel === 'string' ? creatorLabel.trim().replace(/^@/, '') : '';
+
+    if (username) {
+      return `/u/${username}`;
+    }
+
+    if (creatorId) {
+      return `/user/${creatorId}`;
+    }
+
+    return null;
+  }
+
+  function renderCreatorName() {
+    const creatorLabel = getCreatorLabel();
+    const creatorProfilePath = getCreatorProfilePath();
+
+    if (linkCreatorToProfile && creatorProfilePath) {
+      return (
+        <>
+          Created by:{" "}
+          <Link to={creatorProfilePath} className="text-[var(--primary-400)] hover:underline">
+            {creatorLabel}
+          </Link>
+        </>
+      );
+    }
+
+    return <>Created by: {creatorLabel}</>;
   }
 
   function displayTags(tagsValue) {
@@ -165,7 +198,7 @@ const CustomQuizSelectButton = ({
       {quizPassword ? (
         <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
           <div className="text-2xl text-[var(--primary-500)]">{title}</div>
-          <div className="text-base">{displayCreatorName()}</div>
+          <div className="text-base">{renderCreatorName()}</div>
           <div className="text-base">{displayTags(tags)}</div>
           <div className="text-base">Questions: {numQuestions}</div>
           <input
@@ -195,7 +228,20 @@ const CustomQuizSelectButton = ({
         <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
           <Link to={'/customquiz/settings/' + uid} state={{ from: location.pathname }}>
             <div className="text-2xl text-[var(--primary-500)]">{title}</div>
-            <div className="text-base">{displayCreatorName()}</div>
+          </Link>
+          <div className="text-base">
+            {linkCreatorToProfile && creatorId ? (
+              <>
+                Created by:{" "}
+                <Link to={getCreatorProfilePath()} className="text-[var(--primary-400)] hover:underline">
+                  {getCreatorLabel()}
+                </Link>
+              </>
+            ) : (
+              renderCreatorName()
+            )}
+          </div>
+          <Link to={'/customquiz/settings/' + uid} state={{ from: location.pathname }}>
             <div className="text-base">{displayTags(tags)}</div>
             <div className="text-base">Questions: {numQuestions}</div>
           </Link>

@@ -19,11 +19,7 @@ const getCreatorLabel = (deck) => {
     return `@${cleaned}`;
   }
 
-  const name =
-    deck?.creatorName ||
-    deck?.creatorDisplayName ||
-    deck?.displayName;
-
+  const name = deck?.creatorName || deck?.creatorDisplayName || deck?.displayName;
   if (typeof name === 'string' && name.trim()) {
     return name;
   }
@@ -55,14 +51,15 @@ export default function BrowsePublicFlashcards() {
 
   useEffect(() => {
     fetchPublicFlashcards();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const fetchCategories = async () => {
     try {
       const cats = await flashcardService.getPublicFlashcardCategories();
       setCategories(['all', ...cats]);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
     }
   };
 
@@ -79,43 +76,71 @@ export default function BrowsePublicFlashcards() {
       });
 
       // Attach creator usernames for all viewers
-      const collectUid = (d) => d?.creator?.uid || d?.creatorId || d?.createdBy || d?.userId || null;
+      // NOTE: flashcard docs have had several historical creator field shapes.
+      // Make UID collection resilient so enrichment actually runs.
+      const collectUid = (d) =>
+        d?.creator?.uid ||
+        d?.creatorId ||
+        d?.creatorID ||
+        d?.createdBy ||
+        d?.userId ||
+        d?.creator?.userId ||
+        d?.creator?.id ||
+        null;
+
+      // Always normalize any username already present on the doc (even if we can't look up by UID)
+      const normalizeUsername = (value) => {
+        const cleaned = value ? String(value).trim().replace(/^@/, '') : '';
+        return cleaned && isValidUsername(cleaned) ? cleaned : null;
+      };
+
       const uids = Array.from(new Set((decks || []).map(collectUid).filter(Boolean)));
 
-      let decksWithUsernames = decks || [];
+      // First pass: preserve any username already present on the deck doc
+      let decksWithUsernames = (decks || []).map((d) => {
+        const existing =
+          normalizeUsername(d?.creatorUsername) ||
+          normalizeUsername(d?.creator?.username) ||
+          normalizeUsername(d?.username);
+
+        return {
+          ...d,
+          // store as plain username (no @)
+          creatorUsername: existing,
+          // Mirror onto nested creator.username too (helps other components that read creator.username)
+          creator: d?.creator ? { ...d.creator, username: existing || d.creator.username } : d?.creator
+        };
+      });
+
+      // Second pass: lookup usernames by UID (preferred)
       if (uids.length > 0) {
         try {
           const usernameMap = await fetchUsernamesByUids(uids);
-          decksWithUsernames = (decks || []).map((d) => {
+
+          decksWithUsernames = decksWithUsernames.map((d) => {
             const uid = collectUid(d);
-            const uname = uid ? usernameMap[uid] : null;
-            const cleaned = uname ? String(uname).trim().replace(/^@/, '') : '';
+            const lookedUp = uid ? normalizeUsername(usernameMap?.[uid]) : null;
+
+            const finalUsername =
+              lookedUp ||
+              normalizeUsername(d?.creatorUsername) ||
+              normalizeUsername(d?.creator?.username) ||
+              normalizeUsername(d?.username);
 
             return {
               ...d,
-              // store as plain username (no @)
-              creatorUsername:
-                (cleaned && isValidUsername(cleaned) ? cleaned : null) ||
-                (typeof d?.creatorUsername === 'string' && isValidUsername(String(d.creatorUsername).trim().replace(/^@/, ''))
-                  ? String(d.creatorUsername).trim().replace(/^@/, '')
-                  : null) ||
-                (typeof d?.creator?.username === 'string' && isValidUsername(String(d.creator.username).trim().replace(/^@/, ''))
-                  ? String(d.creator.username).trim().replace(/^@/, '')
-                  : null) ||
-                (typeof d?.username === 'string' && isValidUsername(String(d.username).trim().replace(/^@/, ''))
-                  ? String(d.username).trim().replace(/^@/, '')
-                  : null),
+              creatorUsername: finalUsername,
+              creator: d?.creator ? { ...d.creator, username: finalUsername || d.creator.username } : d?.creator
             };
           });
         } catch (e) {
           console.warn('Username enrichment failed; continuing without usernames.', e);
-          decksWithUsernames = decks || [];
         }
       }
 
       setFlashcardDecks(decksWithUsernames);
-    } catch (error) {
-      console.error('Error fetching public flashcards:', error);
+    } catch (err) {
+      console.error('Error fetching public flashcards:', err);
       setError('Failed to load public flashcard decks');
       setFlashcardDecks([]);
     } finally {
@@ -148,25 +173,19 @@ export default function BrowsePublicFlashcards() {
 
         {error && (
           <div className="flex mt-5 justify-center items-center">
-            <div className="error-message font-medium">
-              {error}
-            </div>
+            <div className="error-message font-medium">{error}</div>
           </div>
         )}
 
         <p className="mt-6 text-center text-lg">
           Found{' '}
-          <span className="font-bold text-[var(--accent)]">
-            {flashcardDecks.length}
-          </span>{' '}
+          <span className="font-bold text-[var(--accent)]">{flashcardDecks.length}</span>{' '}
           public deck{flashcardDecks.length !== 1 ? 's' : ''}
         </p>
 
         {loading ? (
           <div className="flex justify-center items-center mt-10">
-            <div className="text-gradient-primary text-lg">
-              Loading public flashcard decks...
-            </div>
+            <div className="text-gradient-primary text-lg">Loading public flashcard decks...</div>
           </div>
         ) : flashcardDecks.length === 0 ? (
           <div className="flex flex-col items-center mt-10 p-8">
@@ -175,25 +194,26 @@ export default function BrowsePublicFlashcards() {
             </div>
           </div>
         ) : (
-          <div
-            id="flashcardDecks"
-            className="flex flex-wrap justify-center gap-8 mt-14 px-6"
-          >
+          <div id="flashcardDecks" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
             {flashcardDecks.map((deck, index) => (
-              <div
-                key={deck.id || index}
-                className="w-full md:w-1/2 lg:w-1/3 p-5 text-center"
-              >
+              <div key={deck.id || index} className="w-full md:w-1/2 lg:w-1/3 p-5 text-center">
                 <div className="card rounded-lg shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col">
                   <div className="p-6 flex-grow">
-                    <div className="text-2xl text-[var(--accent)] font-bold mb-3">
-                      {deck.title}
-                    </div>
+                    <div className="text-2xl text-[var(--accent)] font-bold mb-3">{deck.title}</div>
 
                     {/* Creator line */}
                     <div className="text-sm text-[var(--text-secondary)] mb-3">
                       <strong>Created by:</strong>{' '}
-                      {getCreatorLabel(deck)}
+                      {deck?.creatorUsername && isValidUsername(deck.creatorUsername) ? (
+                        <Link
+                          to={`/u/${deck.creatorUsername}`}
+                          className="text-[var(--accent)] hover:underline"
+                        >
+                          @{deck.creatorUsername}
+                        </Link>
+                      ) : (
+                        <span>{getCreatorLabel(deck)}</span>
+                      )}
                     </div>
 
                     <div className="space-y-2 mb-4">
@@ -205,11 +225,7 @@ export default function BrowsePublicFlashcards() {
                       </div>
                       <div className="text-sm text-[var(--text-secondary)]">
                         <strong>Difficulty:</strong>{' '}
-                        {deck.difficulty === '1'
-                          ? 'Easy'
-                          : deck.difficulty === '2'
-                          ? 'Medium'
-                          : 'Hard'}
+                        {deck.difficulty === '1' ? 'Easy' : deck.difficulty === '2' ? 'Medium' : 'Hard'}
                       </div>
                     </div>
 
@@ -231,9 +247,7 @@ export default function BrowsePublicFlashcards() {
                         <div className="text-sm text-[var(--accent)] mb-1">
                           <strong>Description:</strong>
                         </div>
-                        <div className="text-sm text-[var(--text-primary)]">
-                          {deck.description}
-                        </div>
+                        <div className="text-sm text-[var(--text-primary)]">{deck.description}</div>
                       </div>
                     )}
 
@@ -242,8 +256,7 @@ export default function BrowsePublicFlashcards() {
                     {deck.timesStudied > 0 && (
                       <div className="mt-4 pt-4 border-t border-[var(--border)]">
                         <div className="text-sm text-[var(--text-secondary)]">
-                          <strong>Times Studied:</strong>{' '}
-                          {deck.timesStudied}
+                          <strong>Times Studied:</strong> {deck.timesStudied}
                         </div>
                       </div>
                     )}
