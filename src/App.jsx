@@ -31,6 +31,7 @@ import CustomQuiz from './components/customquiz/CustomQuiz.jsx';
 import DeckManager from './components/flashcards/DeckManager';
 import MyFlashcards from './components/flashcards/MyFlashcards';
 import BrowsePublicFlashcards from './components/flashcards/BrowsePublicFlashcards';
+import EditFlashcardDeck from './components/flashcards/EditFlashcardDeck';
 import PublicUserPage from "./components/profile/PublicUserPage";
 import StudyMode from './components/flashcards/study/StudyMode';
 import StudyResults from './components/flashcards/study/StudyResults';
@@ -153,6 +154,12 @@ function App() {
               <Route path="/flashcards" element={
                 <PrivateRoute>
                   <DeckManager />
+                </PrivateRoute>
+              }/>
+
+              <Route path="/flashcards/edit/:deckId" element={
+                <PrivateRoute>
+                  <EditFlashcardDeck />
                 </PrivateRoute>
               }/>
 

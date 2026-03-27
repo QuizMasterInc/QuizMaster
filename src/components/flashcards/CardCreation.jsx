@@ -1,9 +1,9 @@
 /* Allows the User to make a deck of Flashcards */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CSVUpload from "./CSVUpload";
 import { toast } from 'react-toastify';
 
-export default function CardCreation({ saveDeck, isLoading }) {
+export default function CardCreation({ saveDeck, isLoading, initialData }) {
   const [deckName, setDeckName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("General");
@@ -16,12 +16,36 @@ export default function CardCreation({ saveDeck, isLoading }) {
 
   const [cards, setCards] = useState([]);
 
+  const [editingIndex, setEditingIndex] = useState(-1);
+
   const [showManual, setShowManual] = useState(true);
   const [showCSV, setShowCSV] = useState(false);
 
+  // Pre-fill form if initialData is provided (Edit Mode)
+  useEffect(() => {
+    if (initialData) {
+      setDeckName(initialData.title || "");
+      setDescription(initialData.description || "");
+      setCategory(initialData.category || "General");
+      setDifficulty(initialData.difficulty || "2");
+      setTags(Array.isArray(initialData.tags) ? initialData.tags.join(', ') : (initialData.tags || ""));
+      setIsPublic(initialData.isPublic || false);
+      // Ensure cards are set correctly
+      setCards(initialData.cards || []);
+    }
+  }, [initialData]);
+
   const handleAddCard = () => {
     if (front.trim() && back.trim()) {
-      setCards([...cards, { front, back }]);
+      if (editingIndex >= 0) {
+        const updatedCards = [...cards];
+        updatedCards[editingIndex] = { ...updatedCards[editingIndex], front, back };
+        setCards(updatedCards);
+        setEditingIndex(-1);
+        toast.success("Card updated!");
+      } else {
+        setCards([...cards, { front, back }]);
+      }
       setFront("");
       setBack("");
     } else {
@@ -51,19 +75,39 @@ export default function CardCreation({ saveDeck, isLoading }) {
 
     await saveDeck(deckData);
 
-    setDeckName("");
-    setDescription("");
-    setCategory("General");
-    setDifficulty("2");
-    setTags("");
-    setIsPublic(false);
-    setCards([]);
-    setFront("");
-    setBack("");
+    // Only reset form if we are NOT in edit mode (creating a new deck)
+    if (!initialData) {
+      setDeckName("");
+      setDescription("");
+      setCategory("General");
+      setDifficulty("2");
+      setTags("");
+      setIsPublic(false);
+      setCards([]);
+      setFront("");
+      setBack("");
+      setEditingIndex(-1);
+    }
   };
 
   const removeCard = (indexToRemove) => {
     setCards(cards.filter((_, index) => index !== indexToRemove));
+    if (indexToRemove === editingIndex) {
+      setFront("");
+      setBack("");
+      setEditingIndex(-1);
+    } else if (indexToRemove < editingIndex) {
+      setEditingIndex(editingIndex - 1);
+    }
+  };
+
+  const handleEditCard = (index) => {
+    const card = cards[index];
+    setFront(card.front);
+    setBack(card.back);
+    setEditingIndex(index);
+    setShowManual(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCSVQuestionsAdded = (newCards) => {
@@ -183,14 +227,27 @@ export default function CardCreation({ saveDeck, isLoading }) {
               disabled={isLoading}
               className="w-full p-4 rounded-lg bg-[var(--neutral-200)] placeholder-[var(--neutral-600)] text-black focus:outline-[var(--primary-400)] focus:ring-2 disabled:opacity-50"
             />
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-2">
               <button
                 onClick={handleAddCard}
                 disabled={isLoading}
                 className="px-6 py-2 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent disabled:opacity-50 disabled:transform-none"
               >
-                Add Card
+                {editingIndex >= 0 ? "Update Card" : "Add Card"}
               </button>
+              {editingIndex >= 0 && (
+                <button
+                  onClick={() => {
+                    setFront("");
+                    setBack("");
+                    setEditingIndex(-1);
+                  }}
+                  disabled={isLoading}
+                  className="px-6 py-2 bg-gray-500 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl border-2 border-accent disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -240,13 +297,22 @@ export default function CardCreation({ saveDeck, isLoading }) {
                     </span>
                   </div>
                 </div>
-                <button
-                  onClick={() => removeCard(index)}
-                  disabled={isLoading}
-                  className="ml-4 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
-                >
-                  Remove
-                </button>
+                <div className="flex flex-col gap-2 ml-4">
+                  <button
+                    onClick={() => handleEditCard(index)}
+                    disabled={isLoading}
+                    className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors disabled:opacity-50"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => removeCard(index)}
+                    disabled={isLoading}
+                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             ))}
           </div>

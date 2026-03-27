@@ -160,6 +160,13 @@ export default function FlashcardCard({ deck, onDelete, isDeleting }) {
             Study
           </button>
           <button
+            className="flex-1 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
+            disabled={isDeleting}
+            onClick={() => navigate(`/flashcards/edit/${deck.id}`)}
+          >
+            Edit
+          </button>
+          <button
             className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50"
             disabled={isDeleting}
             onClick={() => onDelete(deck.id)}

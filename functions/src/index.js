@@ -47,6 +47,7 @@ exports.deleteQuizResult = results.deleteQuizResult
 exports.addCustomFlashcardDeck = flashcards.addCustomFlashcardDeck
 exports.getUserFlashcardDecks = flashcards.getUserFlashcardDecks
 exports.getFlashcardDeck = flashcards.getFlashcardDeck
+exports.updateFlashcardDeck = flashcards.updateFlashcardDeck
 exports.deleteFlashcardDeck = flashcards.deleteFlashcardDeck
 exports.updateFlashcardDeckAnalytics = flashcards.updateFlashcardDeckAnalytics
 exports.browsePublicFlashcards = flashcards.browsePublicFlashcards
