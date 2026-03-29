@@ -4,6 +4,7 @@
  */
 import { useAuth } from '../../contexts/AuthContext';
 import RecentActivity from '../home/RecentActivity';
+import Recommended from '../home/Recommended';
 
 export default function Dashboard() {
   const { isGoogleAuth } = useAuth();
@@ -20,6 +21,8 @@ export default function Dashboard() {
           </p>
         </section>
         <RecentActivity limit={6} />
+        <Recommended limit={3} />
+
       </div>
     </div>
   );
