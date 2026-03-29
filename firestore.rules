@@ -164,9 +164,9 @@ service cloud.firestore {
         allow create: if request.auth != null
           && request.auth.uid == userId
           && get(/databases/$(database)/documents/polls/$(pollId)).data.status == 'open'
-          && request.resource.data.optionIndex is int
-          && request.resource.data.optionIndex >= 0
-          && request.resource.data.optionIndex < get(/databases/$(database)/documents/polls/$(pollId)).data.options.size();
+          && request.resource.data.optionIndexes is list
+          && request.resource.data.optionIndexes.size() > 0
+          && request.resource.data.optionIndexes.size() <= get(/databases/$(database)/documents/polls/$(pollId)).data.options.size();
         // Prevent rewrites (one vote per uid)
         allow update, delete: if false;
       }

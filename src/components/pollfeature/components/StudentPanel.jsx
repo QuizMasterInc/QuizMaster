@@ -38,11 +38,18 @@ isFetchingVote,
 onReset,
 }) {
 const pollOpen = poll?.status === "open";
+const toggleOption = (index) => {
+setSelected((prev) =>
+prev.includes(index)
+? prev.filter((i) => i !== index)
+: [...prev, index]
+);
+};
 return (
 <div className="rounded-2xl border border-accent bg-primary/60 p-6 shadow-sm">
     <h2 className="text-xl font-semibold text-gradient-primary">Take a poll</h2>
     <p className="text-secondary mt-2">
-    Join with the code, sign in, pick one option, submit once per account. Results appear when the poll is closed or live results are enabled.
+    Join with the code, sign in, pick one or more options, submit once per account. Results appear when the poll is closed or live results are enabled.
     </p>
 
     <div className="mt-4 space-y-3">
@@ -82,14 +89,14 @@ return (
 
         <div className="grid sm:grid-cols-2 gap-3 mt-4">
         {options.map((opt, idx) => {
-            const isSelected = selected === idx;
+            const isSelected = selected.includes(idx);
             const disabled =
             hasSubmitted || !pollOpen || !currentPollId || !opt;
             return (
             <button
                 key={idx}
                 disabled={disabled}
-                onClick={() => setSelected(idx)}
+                onClick={() => toggleOption(idx)}
                 className={`text-left rounded-2xl border border-primary bg-secondary p-4 shadow-sm transition-all duration-200 ${
                 isSelected ? "ring-2 ring-offset-2 ring-accent" : ""
                 } ${
@@ -102,11 +109,21 @@ return (
                 <span className="text-lg font-semibold text-primary">
                     {opt}
                 </span>
-                {isSelected && (
+                <div className="flex items-center gap-2">
+                    <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggleOption(idx)}
+                    onClick={(e) => e.stopPropagation()}
+                    disabled={disabled}
+                    className="h-4 w-4 accent-blue-500"
+                    />
+                    {isSelected && (
                     <span className="text-xs font-semibold text-accent bg-accent/10 px-3 py-1 rounded-full">
-                    Selected
+                        Selected
                     </span>
-                )}
+                    )}
+                </div>
                 </div>
                 <p className="text-secondary mt-1 text-sm">
                 {hasSubmitted
@@ -126,12 +143,12 @@ return (
             disabled={
             hasSubmitted ||
             !pollOpen ||
-            selected === null ||
+            selected.length === 0 ||
             !currentPollId ||
             isFetchingVote
             }
             className={`px-5 py-2 rounded-full font-semibold shadow-md transition ${
-            hasSubmitted || !pollOpen || selected === null || !currentPollId || isFetchingVote
+            hasSubmitted || !pollOpen || selected.length === 0 || !currentPollId || isFetchingVote
                 ? "bg-secondary text-secondary border border-primary cursor-not-allowed"
                 : "bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:-translate-y-0.5"
             }`}

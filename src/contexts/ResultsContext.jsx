@@ -25,8 +25,10 @@ export const ResultsProvider = ({ children }) => {
   // Fetch all results once
   useEffect(() => {
     async function fetchAllResults() {
-      if (!currentUser?.uid) {
+      // Skip fetching results for anonymous users (no profile / backend data)
+      if (!currentUser?.uid || currentUser.isAnonymous) {
         setLoading(false);
+        setAllResults({});
         return;
       }
 
@@ -72,7 +74,7 @@ export const ResultsProvider = ({ children }) => {
   const refreshResults = async () => {
     resultService.clearResultsCache();
     
-    if (currentUser?.uid) {
+    if (currentUser?.uid && !currentUser.isAnonymous) {
       try {
         setLoading(true);
         setError(null);

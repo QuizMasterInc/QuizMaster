@@ -95,13 +95,22 @@ export async function getUserVote(pollId, userId) {
   try {
     const voteSnap = await getDoc(doc(db, POLLS_COLLECTION, pollId, "votes", userId));
     if (!voteSnap.exists()) return null;
-    return { id: voteSnap.id, ...voteSnap.data() };
+    const voteData = voteSnap.data();
+    return {
+      id: voteSnap.id,
+      ...voteData,
+      optionIndexes: Array.isArray(voteData.optionIndexes)
+        ? voteData.optionIndexes
+        : voteData.optionIndex != null
+          ? [voteData.optionIndex]
+          : [],
+    };
   } catch (error) {
     throw handleFirebaseError(error);
   }
 }
 
-export async function submitVote(pollId, optionIndex, userId) {
+export async function submitVote(pollId, optionIndexes, userId) {
   if (!userId) throw handleFirebaseError(new Error("Sign in to vote."));
   const ref = doc(db, POLLS_COLLECTION, pollId);
   const voteRef = doc(db, POLLS_COLLECTION, pollId, "votes", userId);
@@ -112,7 +121,11 @@ export async function submitVote(pollId, optionIndex, userId) {
       const data = snap.data();
       if (data.status !== "open") throw new Error("Poll is closed");
       if (!Array.isArray(data.votes)) throw new Error("Invalid poll data");
-      if (optionIndex == null || optionIndex < 0 || optionIndex >= data.votes.length) {
+      if (
+        !Array.isArray(optionIndexes) ||
+        optionIndexes.length === 0 ||
+        optionIndexes.some((optionIndex) => optionIndex == null || optionIndex < 0 || optionIndex >= data.votes.length)
+      ) {
         throw new Error("Invalid poll option");
       }
 
@@ -120,11 +133,13 @@ export async function submitVote(pollId, optionIndex, userId) {
       if (existingVote.exists()) throw new Error("You already voted.");
 
       const newVotes = [...data.votes];
-      newVotes[optionIndex] = (newVotes[optionIndex] || 0) + 1;
+      optionIndexes.forEach((i) => {
+        newVotes[i] = (newVotes[i] || 0) + 1;
+      });
 
       transaction.update(ref, { votes: newVotes, updatedAt: serverTimestamp() });
       transaction.set(voteRef, {
-        optionIndex,
+        optionIndexes,
         userId,
         createdAt: serverTimestamp(),
       });

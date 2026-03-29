@@ -52,10 +52,26 @@ import Classroom from './pages/Classroom';
 import Poll from './components/pollfeature/Poll.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useEffect } from "react";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 
 function App() {
   const { user, loading, error } = useAuth();
-  const isAuthenticated = !!user;
+  const isAuthenticated = user && !user.isAnonymous;
+
+  useEffect(() => {
+    const auth = getAuth();
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        signInAnonymously(auth).catch((error) => {
+          console.error("Anonymous sign-in failed:", error);
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   if (loading) {
     return (
