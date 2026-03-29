@@ -37,7 +37,6 @@ import StudyMode from './components/flashcards/study/StudyMode';
 import StudyResults from './components/flashcards/study/StudyResults';
 import EditCustomQuiz from "./components/customquiz/EditCustomQuiz"
 import SelectSubCategory from './components/quizselect/SelectSubCategory';
-import TypeOfQuiz from './pages/TypeOfQuiz';
 import Developer from './components/developer/AddDefaultQuestion';
 import AllCustomQuizzes from './components/quizselect/customquizselect/AllCustomQuizzes';
 import AllTeacherQuizzes from './components/quizselect/customquizselect/AllTeacherQuizzes';
@@ -186,12 +185,6 @@ function App() {
               <Route path="/flashcards/study/:deckId/results" element={
                 <PrivateRoute>
                   <StudyResults />
-                </PrivateRoute>
-              }/>
-
-              <Route path="/typeofquiz" element={
-                <PrivateRoute>
-                  <TypeOfQuiz />
                 </PrivateRoute>
               }/>
 
