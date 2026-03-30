@@ -3,12 +3,9 @@ const {onRequest, onCall} = require('firebase-functions/v2/https')
 const admin = require('firebase-admin')
 const cors = require("cors")({origin: true})
 
-/**
- * This will grab a custom quiz by id
- */
 exports.grabCustomQuiz = onRequest(async (req, res) => {
     cors(req, res, async () => {
-        const  uid  = req.query.quizid
+        const uid = req.query.quizid
 
         if (!uid) {
             return res.status(401).json({
@@ -27,18 +24,47 @@ exports.grabCustomQuiz = onRequest(async (req, res) => {
             }
             const quizData = quiz.data();
 
-            // Check if quiz requires password verification (new schema only)
             const requiresPassword = quizData.metadata?.hasPassword;
-            const providedPassword = req.query.password || req.body?.password;
 
             if (requiresPassword) {
-                const correctPassword = quizData.metadata.password;
-                if (!providedPassword || providedPassword !== correctPassword) {
-                    return res.status(401).json({
-                        result: false,
-                        message: "Password required",
-                        requiresPassword: true
-                    });
+                let requestingUid = null;
+                const authHeader = req.headers.authorization;
+                if (authHeader && authHeader.startsWith('Bearer ')) {
+                    try {
+                        const idToken = authHeader.split('Bearer ')[1];
+                        const decoded = await admin.auth().verifyIdToken(idToken);
+                        requestingUid = decoded.uid;
+                    } catch (authErr) {
+                        console.warn('Failed to verify auth token:', authErr.message);
+                    }
+                }
+
+                const isCreator = requestingUid && quizData.creator?.uid === requestingUid;
+                const isAllowedUser = requestingUid &&
+                    Array.isArray(quizData.metadata?.allowedUsers) &&
+                    quizData.metadata.allowedUsers.includes(requestingUid);
+
+                if (!isCreator && !isAllowedUser) {
+                    const providedPassword = req.query.password || req.body?.password;
+                    const correctPassword = quizData.metadata.password;
+
+                    if (!providedPassword || providedPassword !== correctPassword) {
+                        return res.status(401).json({
+                            result: false,
+                            message: "Password required",
+                            requiresPassword: true
+                        });
+                    }
+
+                    if (requestingUid) {
+                        try {
+                            await admin.firestore().collection('custom_quizzes').doc(uid).update({
+                                'metadata.allowedUsers': admin.firestore.FieldValue.arrayUnion(requestingUid)
+                            });
+                        } catch (updateErr) {
+                            console.error('Failed to add user to allowedUsers:', updateErr.message);
+                        }
+                    }
                 }
             }
 
@@ -61,12 +87,9 @@ exports.grabCustomQuiz = onRequest(async (req, res) => {
     });
 });
 
-// grabs all custom quizzes for the Take A Quiz -> User-Made Quizzes page
-// OPTIMIZED VERSION using Firestore indexes for better performance
 exports.grabAllCustomQuizzes = onRequest(async (req, res) => {
     cors(req, res, async () => {
         try {
-            // Parse query parameters for optimized filtering
             const {
                 limit = 100,
                 privacy = 'all',
@@ -77,15 +100,12 @@ exports.grabAllCustomQuizzes = onRequest(async (req, res) => {
 
             let query = admin.firestore().collection('custom_quizzes');
 
-            // Exclude teacher-made quizzes from general browsing
             query = query.where('metadata.isTeacherMade', '==', false);
             if (useIndexes && privacy !== 'all') {
-                // Filter by metadata.isPublic field
                 const isPublic = privacy === 'public';
                 query = query.where('metadata.isPublic', '==', isPublic);
             }
 
-            // Apply sorting using indexed fields
             if (sortBy === 'newest') {
                 query = query.orderBy('timestamps.updatedAt', 'desc');
             } else if (sortBy === 'oldest') {
@@ -93,11 +113,9 @@ exports.grabAllCustomQuizzes = onRequest(async (req, res) => {
             } else if (sortBy === 'title') {
                 query = query.orderBy('metadata.title', 'asc');
             } else {
-                // Default to newest
                 query = query.orderBy('timestamps.updatedAt', 'desc');
             }
 
-            // Apply limit for pagination
             query = query.limit(parseInt(limit));
 
             const quizSnapshot = await query.get();
@@ -106,51 +124,40 @@ exports.grabAllCustomQuizzes = onRequest(async (req, res) => {
             quizSnapshot.forEach(doc => {
                 const quizData = doc.data();
 
-                // Only flatten fields that are actually needed (for efficiency)
                 const flattenedQuiz = {
                     uid: doc.id,
 
-                    // Core metadata using indexed fields
                     title: quizData.metadata?.title || 'Untitled Quiz',
                     description: quizData.metadata?.description || '',
                     category: quizData.metadata?.category || 'General',
                     tags: quizData.metadata?.tags || [],
                     difficulty: quizData.metadata?.difficulty || '3',
 
-                    // Content info - check new location first
                     numQuestions: quizData.metadata?.questionCount || quizData.content?.totalQuestions || 0,
                     questionCount: quizData.metadata?.questionCount || quizData.content?.totalQuestions || 0,
 
-                    // Creator info from nested structure
                     creator: quizData.creator?.userId || 'Unknown',
                     creatorName: quizData.creator?.username || '',
                     creatorVerified: quizData.creator?.verified || false,
 
-                    // Access control - read from metadata.isPublic per DATABASE_SCHEMA
-                    isPublic: quizData.metadata?.isPublic ?? true, // Default to public if not specified
+                    isPublic: quizData.metadata?.isPublic ?? true,
                     privacy: quizData.metadata?.isPublic === false ? 'private' : 'public',
                     quizPassword: quizData.metadata?.password || null,
 
-                    // Analytics using indexed stats
                     attempts: quizData.analytics?.stats?.attempts || 0,
                     averageScore: quizData.analytics?.stats?.averageScore || 0,
                     completions: quizData.analytics?.stats?.completions || 0,
 
-                    // Timestamps using indexed date fields
                     createdAt: quizData.timestamps?.createdAt,
                     updatedAt: quizData.timestamps?.updatedAt,
                     lastAttemptAt: quizData.timestamps?.lastAttemptAt,
 
-                    // Moderation status
                     status: quizData.moderation?.status || 'active',
                     isActive: quizData.moderation?.status === 'active'
                 };
 
                 allQuizzes.push(flattenedQuiz);
             });
-
-            // Additional sorting is no longer needed since we use indexed orderBy
-            // The results are already sorted by the database using indexes
 
             return res.json({
                 result: true,
@@ -182,9 +189,6 @@ exports.grabAllCustomQuizzes = onRequest(async (req, res) => {
     })
 })
 
-/**
- * Get ALL quiz results for a user in a single call
- */
 exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
     cors(req, res, async () => {
         const dataType = req.get('content-type')
@@ -197,7 +201,6 @@ exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
             }
 
             try {
-                // EFFICIENT: Query new schema only - creator.uid with nested timestamps
                 const customQuizzesQuery = await admin.firestore()
                     .collection('custom_quizzes')
                     .where('creator.uid', '==', uid)
@@ -205,7 +208,7 @@ exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
                     .get()
 
                 if (customQuizzesQuery.empty) {
-                    res.set('Cache-Control', 'public, max-age=300') // 5 minute cache
+                    res.set('Cache-Control', 'public, max-age=300')
                     return res.json({
                         success: true,
                         data: [],
@@ -214,7 +217,7 @@ exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
                 }
 
                 if (customQuizzesQuery.empty) {
-                    res.set('Cache-Control', 'public, max-age=300') // 5 minute cache
+                    res.set('Cache-Control', 'public, max-age=300')
                     return res.json({
                         success: true,
                         data: [],
@@ -222,12 +225,10 @@ exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
                     })
                 }
 
-                // Convert to array format expected by frontend - NEW SCHEMA ONLY
                 const customQuizzes = []
                 customQuizzesQuery.forEach(doc => {
                     const quizData = doc.data()
 
-                    // New nested schema structure only
                     const flattenedQuiz = {
                         uid: doc.id,
                         title: quizData.metadata.title,
@@ -237,23 +238,20 @@ exports.grabUserCustomQuizzesV2 = onRequest(async (req, res) => {
                         isPublic: quizData.metadata.isPublic,
                         hasPassword: quizData.metadata.hasPassword,
 
-                        // Creator info from nested structure
                         creator: quizData.creator.uid,
                         creatorName: quizData.creator.displayName,
                         creatorRole: quizData.creator.role,
 
-                        // Questions and password from nested structure
                         questions: quizData.content.questions,
                         quizPassword: quizData.metadata.password,
 
-                        // Timestamps from nested structure
                         createdAt: quizData.timestamps.createdAt,
                         updatedAt: quizData.timestamps.updatedAt
                     }
 
                     customQuizzes.push(flattenedQuiz)
                 })
-                res.set('Cache-Control', 'public, max-age=600') // 10 minute cache
+                res.set('Cache-Control', 'public, max-age=600')
                 res.json({
                     success: true,
                     data: customQuizzes,
