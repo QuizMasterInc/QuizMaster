@@ -7,9 +7,6 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-/**
- * Create a new flashcard deck
- */
 exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
   cors(req, res, async () => {
     const dataType = req.get('content-type');
@@ -137,9 +134,6 @@ exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
   });
 });
 
-/**
- * Get flashcard decks by user
- */
 exports.getUserFlashcardDecks = onRequest(async (req, res) => {
   cors(req, res, async () => {
     const userId = req.query.userId || req.body?.userId;
@@ -189,9 +183,6 @@ exports.getUserFlashcardDecks = onRequest(async (req, res) => {
   });
 });
 
-/**
- * Get a specific flashcard deck by ID
- */
 exports.getFlashcardDeck = onRequest(async (req, res) => {
   cors(req, res, async () => {
     const deckId = req.query.deckId || req.body?.deckId;
@@ -237,9 +228,6 @@ exports.getFlashcardDeck = onRequest(async (req, res) => {
   });
 });
 
-/**
- * Delete a flashcard deck
- */
 exports.deleteFlashcardDeck = onRequest(async (req, res) => {
   cors(req, res, async () => {
     const deckId = req.query.deckId || req.body?.deckId;
@@ -279,6 +267,13 @@ exports.deleteFlashcardDeck = onRequest(async (req, res) => {
         updatedAt: new Date().toISOString(),
       });
 
+      const sessionsSnapshot = await admin.firestore().collection('study_sessions').where('deckId', '==', deckId).get();
+      if (!sessionsSnapshot.empty) {
+        const sessionsBatch = admin.firestore().batch();
+        sessionsSnapshot.forEach(doc => sessionsBatch.delete(doc.ref));
+        await sessionsBatch.commit();
+      }
+
       try {
         const user = admin.firestore().collection('users').doc(userId);
         await user.update({
@@ -306,9 +301,6 @@ exports.deleteFlashcardDeck = onRequest(async (req, res) => {
   });
 });
 
-/**
- * Update an existing flashcard deck
- */
 exports.updateFlashcardDeck = onRequest(async (req, res) => {
   cors(req, res, async () => {
     const contentType = req.get('content-type');
@@ -415,9 +407,6 @@ exports.updateFlashcardDeck = onRequest(async (req, res) => {
   });
 });
 
-/**
- * Update flashcard deck analytics after study session
- */
 exports.updateFlashcardDeckAnalytics = onRequest(async (req, res) => {
   cors(req, res, async () => {
     const deckId = req.query.deckId || req.body?.deckId;
@@ -467,10 +456,6 @@ exports.updateFlashcardDeckAnalytics = onRequest(async (req, res) => {
   });
 });
 
-/**
- * Browse public flashcard decks
- * GET /browsePublicFlashcards?category=Science&difficulty=1&sortBy=recent&limit=50
- */
 exports.browsePublicFlashcards = onRequest(async (req, res) => {
   cors(req, res, async () => {
     if (req.method !== 'GET') {
@@ -529,10 +514,6 @@ exports.browsePublicFlashcards = onRequest(async (req, res) => {
   });
 });
 
-/**
- * Get unique categories from flashcard decks
- * GET /getFlashcardCategories
- */
 exports.getFlashcardCategories = onRequest(async (req, res) => {
   cors(req, res, async () => {
     if (req.method !== 'GET') {
