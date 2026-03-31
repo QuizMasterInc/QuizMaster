@@ -89,7 +89,7 @@ export const Card = ({
 
 // Reusable Footer Component
 export const Footer = () => {
-  const appVersion = "2.0.0";
+  const appVersion = "2.1.0";
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   return (
