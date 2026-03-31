@@ -1,14 +1,9 @@
-/**
- * CustomQuizSelectButton
- * ----------------------
- * Renders a card + button UI for a single custom quiz in the "User-Made Quizzes" list.
- */
-
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import DeleteQuizButton from "./DeleteQuizButton";
 import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import { db } from "../../../services/firebase/firebaseService";
+import { useAuth } from "../../../contexts/AuthContext";
 import { toast } from 'react-toastify';
 
 const CustomQuizSelectButton = ({
@@ -21,20 +16,22 @@ const CustomQuizSelectButton = ({
   creatorUsername,
   creatorId,
   currentUserId,
+  linkCreatorToProfile = false,
   onDeleted
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { currentUser } = useAuth();
   const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("");
   const [resolvedCreatorUsername, setResolvedCreatorUsername] = useState(null);
 
-  // If backend didn't include creatorUsername, fetch it from the usernames registry (query by uid)
+  const isCreator = currentUserId && creatorId && currentUserId === creatorId;
+
   useEffect(() => {
     let cancelled = false;
 
     async function run() {
       try {
-        // If the parent already provided a username, we don't need a query.
         const provided = typeof creatorUsername === 'string' ? creatorUsername.trim() : '';
         if (provided) {
           if (!cancelled) setResolvedCreatorUsername(null);
@@ -47,7 +44,6 @@ const CustomQuizSelectButton = ({
           return;
         }
 
-        // Query usernames where uid == creatorId (Option 1)
         const q = query(
           collection(db, "usernames"),
           where("uid", "==", uidToLookup),
@@ -65,7 +61,6 @@ const CustomQuizSelectButton = ({
         const docSnap = snap.docs[0];
         const data = docSnap.data() || {};
 
-        // Prefer explicit username field; fall back to doc id (usually usernameLower)
         const uname = (data.username || docSnap.id || "").toString().trim();
         setResolvedCreatorUsername(uname ? uname : null);
       } catch (e) {
@@ -79,34 +74,62 @@ const CustomQuizSelectButton = ({
     };
   }, [creatorUsername, creatorId]);
 
-  function displayCreatorName() {
+  function getCreatorLabel() {
     const effective = (
       (typeof resolvedCreatorUsername === 'string' && resolvedCreatorUsername.trim() ? resolvedCreatorUsername.trim() : '') ||
       (typeof creatorUsername === 'string' && creatorUsername.trim() ? creatorUsername.trim() : '')
     );
 
-    // 1) Prefer resolved/provided username
     if (effective) {
-      return "Created by: @" + effective.replace(/^@/, '');
+      return "@" + effective.replace(/^@/, '');
     }
 
-    // 2) Fall back to creator object fields (and avoid rendering an object)
     if (creator && typeof creator === 'object') {
       const handle = typeof creator.handle === 'string' ? creator.handle.trim() : '';
-      if (handle) return "Created by: " + (handle.startsWith('@') ? handle : `@${handle}`);
+      if (handle) return handle.startsWith('@') ? handle : `@${handle}`;
 
       const uname = typeof creator.username === 'string' ? creator.username.trim() : '';
-      if (uname) return "Created by: @" + uname.replace(/^@/, '');
-
+      if (uname) return "@" + uname.replace(/^@/, '');
     }
 
-    // 3) If creator was a string, use it
     if (typeof creator === 'string' && creator.trim()) {
-      return "Created by: " + creator.trim();
+      return creator.trim();
     }
 
-    // 4) Last resort
-    return "Created by: Anonymous";
+    return "Anonymous";
+  }
+
+  function getCreatorProfilePath() {
+    const creatorLabel = getCreatorLabel();
+    const username = typeof creatorLabel === 'string' ? creatorLabel.trim().replace(/^@/, '') : '';
+
+    if (username) {
+      return `/u/${username}`;
+    }
+
+    if (creatorId) {
+      return `/user/${creatorId}`;
+    }
+
+    return null;
+  }
+
+  function renderCreatorName() {
+    const creatorLabel = getCreatorLabel();
+    const creatorProfilePath = getCreatorProfilePath();
+
+    if (linkCreatorToProfile && creatorProfilePath) {
+      return (
+        <>
+          Created by:{" "}
+          <Link to={creatorProfilePath} className="text-[var(--primary-400)] hover:underline">
+            {creatorLabel}
+          </Link>
+        </>
+      );
+    }
+
+    return <>Created by: {creatorLabel}</>;
   }
 
   function displayTags(tagsValue) {
@@ -123,8 +146,19 @@ const CustomQuizSelectButton = ({
     }
 
     try {
+      const headers = {};
+      if (currentUser) {
+        try {
+          const token = await currentUser.getIdToken();
+          headers['Authorization'] = `Bearer ${token}`;
+        } catch (tokenErr) {
+          console.warn('Failed to get auth token:', tokenErr.message);
+        }
+      }
+
       const response = await fetch(
-        `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz?quizid=${uid}&password=${encodeURIComponent(attempt)}`
+        `https://us-central1-quizmaster-c66a2.cloudfunctions.net/grabCustomQuiz?quizid=${uid}&password=${encodeURIComponent(attempt)}`,
+        { headers }
       );
 
       if (!response.ok) {
@@ -156,20 +190,27 @@ const CustomQuizSelectButton = ({
     }
   }
 
+  const handleCreatorStart = () => {
+    navigate('/customquiz/settings/' + uid, {
+      state: { from: location.pathname }
+    });
+  };
+
   const handleQuizPasswordChange = (e) => {
     setQuizPasswordAttempt(e.target.value);
   }
 
   return (
     <div className="w-1/2 p-5 text-center -sm:p-1">
-      {quizPassword ? (
+      {quizPassword && !isCreator ? (
         <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
           <div className="text-2xl text-[var(--primary-500)]">{title}</div>
-          <div className="text-base">{displayCreatorName()}</div>
+          <div className="text-base">{renderCreatorName()}</div>
           <div className="text-base">{displayTags(tags)}</div>
           <div className="text-base">Questions: {numQuestions}</div>
           <input
             type="text"
+            autoComplete="off"
             placeholder='Enter Quiz Password'
             className='text-xl text-black mb-4 bg-gray-300 rounded-md w-full p-1'
             id="quizPasswordAttempt"
@@ -193,12 +234,44 @@ const CustomQuizSelectButton = ({
         </div>
       ) : (
         <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
-          <Link to={'/customquiz/settings/' + uid} state={{ from: location.pathname }}>
-            <div className="text-2xl text-[var(--primary-500)]">{title}</div>
-            <div className="text-base">{displayCreatorName()}</div>
-            <div className="text-base">{displayTags(tags)}</div>
-            <div className="text-base">Questions: {numQuestions}</div>
-          </Link>
+          {quizPassword && isCreator ? (
+            <>
+              <div className="text-2xl text-[var(--primary-500)] cursor-pointer" onClick={handleCreatorStart}>{title}</div>
+              <div className="text-base">{renderCreatorName()}</div>
+              <div className="text-base">{displayTags(tags)}</div>
+              <div className="text-base">Questions: {numQuestions}</div>
+              <div>
+                <button
+                  className="inline-block px-4 py-1 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
+                  onClick={handleCreatorStart}
+                >
+                  Start
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <Link to={'/customquiz/settings/' + uid} state={{ from: location.pathname }}>
+                <div className="text-2xl text-[var(--primary-500)]">{title}</div>
+              </Link>
+              <div className="text-base">
+                {linkCreatorToProfile && creatorId ? (
+                  <>
+                    Created by:{" "}
+                    <Link to={getCreatorProfilePath()} className="text-[var(--primary-400)] hover:underline">
+                      {getCreatorLabel()}
+                    </Link>
+                  </>
+                ) : (
+                  renderCreatorName()
+                )}
+              </div>
+              <Link to={'/customquiz/settings/' + uid} state={{ from: location.pathname }}>
+                <div className="text-base">{displayTags(tags)}</div>
+                <div className="text-base">Questions: {numQuestions}</div>
+              </Link>
+            </>
+          )}
           <DeleteQuizButton
             quizId={uid}
             creatorId={creatorId}

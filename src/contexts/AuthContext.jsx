@@ -35,11 +35,18 @@ export const AuthProvider = ({ children }) => {
                         const isGoogle = firebaseUser.providerData[0]?.providerId === 'google.com';
                         setIsGoogleAuth(isGoogle);
                         
-                        // Fetch user profile
+                        // Handle anonymous users (no profile in Firestore)
+                        if (firebaseUser.isAnonymous) {
+                            setUser(firebaseUser);
+                            setProfile(null);
+                            setError(null);
+                            return;
+                        }
+
+                        // Fetch user profile for real users
                         const userProfile = await authService.getUserProfile(firebaseUser.uid);
-                        
+
                         if (!userProfile) {
-                            // This shouldn't happen with our new flow, but safety check
                             console.error('User authenticated but no profile found');
                             await authService.signOut();
                             setError('Account data not found. Please try signing in again.');
@@ -47,7 +54,7 @@ export const AuthProvider = ({ children }) => {
                             setProfile(null);
                             return;
                         }
-                        
+
                         // Success - set user and profile
                         setUser(firebaseUser);
                         setProfile(userProfile);
@@ -276,7 +283,7 @@ export const AuthProvider = ({ children }) => {
         error,
         isGoogleAuth,
         authInitialized,
-        isAuthenticated: !!user,
+        isAuthenticated: user && !user.isAnonymous,
         googleLogin,
         googleRegister,
         githubLogin,

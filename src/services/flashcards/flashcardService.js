@@ -213,6 +213,25 @@ class FlashcardService {
     }
 
     /**
+     * Update an existing flashcard deck
+     * @param {Object} deckData - The deck data including deckId and updates
+     * @returns {Promise<Object>} - API response
+     */
+    async updateFlashcardDeck(deckData) {
+        try {
+            if (!deckData.deckId) {
+                throw new Error('Deck ID is required for update');
+            }
+            
+            // Use unified CloudFunctionsAPI which handles the base URL and error parsing
+            return await cloudFunctionsAPI.updateFlashcardDeck(deckData);
+        } catch (error) {
+            console.error('Error updating flashcard deck:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Update deck analytics after study session
      * @param {string} deckId - Deck ID
      * @returns {Promise<void>}

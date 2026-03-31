@@ -74,7 +74,15 @@ exports.deleteCustomQuiz = onCall(async (request) => {
         resultsSnapshot.forEach(doc => batch.delete(doc.ref));
         await batch.commit();
 
-        // 3. Remove quizId from the creator's recentActivity.quizIds
+        // 3. Delete all quiz drafts for this quiz
+        const draftsSnapshot = await admin.firestore().collection('quiz_drafts').where('quizId', '==', quizId).get();
+        if (!draftsSnapshot.empty) {
+            const draftsBatch = admin.firestore().batch();
+            draftsSnapshot.forEach(doc => draftsBatch.delete(doc.ref));
+            await draftsBatch.commit();
+        }
+
+        // 4. Remove quizId from the creator's recentActivity.quizIds
         const creatorDoc = await admin.firestore().collection('users').doc(userId).get();
         if (creatorDoc.exists) {
             const creatorData = creatorDoc.data();

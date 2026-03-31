@@ -129,7 +129,7 @@ export default function NavBar() {
                                         Take a Poll
                                     </NavLink> 
                                     */}
-                                    <NavLink to="/typeofquiz" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
+                                    <NavLink to="/allcustomquizzes" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <School className="w-5 h-5" />
                                         Take a Quiz!
                                     </NavLink>

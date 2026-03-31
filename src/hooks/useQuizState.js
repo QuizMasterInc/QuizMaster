@@ -1,10 +1,3 @@
-/**
- * useQuizState Hook
- * 
- * Manages quiz state including progress tracking, user answers, and completion status
- * Auto-saves progress to Firebase on every answer
- */
-
 import { useState, useCallback, useEffect, useRef } from 'react';
 import quizDraftService from '../services/quiz/quizDraftService';
 import { toast } from 'react-toastify';
@@ -28,11 +21,16 @@ export const useQuizState = (quizConfig = {}) => {
     userAnswersRef.current = userAnswers;
   }, [userAnswers]);
 
-  // Auto-save draft whenever userAnswers changes
   useEffect(() => {
     const config = configRef.current;
 
-    if (!config.userId || Object.keys(userAnswers).length === 0 || completed || isSubmittingRef.current) {
+    if (
+      !config.userId ||
+      !config.amount ||
+      Object.keys(userAnswers).length === 0 ||
+      completed ||
+      isSubmittingRef.current
+    ) {
       return;
     }
 
@@ -58,13 +56,12 @@ export const useQuizState = (quizConfig = {}) => {
     return () => clearTimeout(saveTimer);
   }, [userAnswers, answeredCount, completed, quizStartTime]);
 
-  // Show toast when user leaves mid-quiz
   useEffect(() => {
     return () => {
       const config = configRef.current;
       const answers = userAnswersRef.current;
 
-      if (!config.userId || Object.keys(answers).length === 0 || isSubmittingRef.current) {
+      if (!config.userId || !config.amount || Object.keys(answers).length === 0 || isSubmittingRef.current) {
         return;
       }
 

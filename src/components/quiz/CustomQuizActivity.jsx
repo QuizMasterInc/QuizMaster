@@ -22,7 +22,7 @@ function CustomQuizActivity() {
   const { currentUser } = useAuth();
   const { refreshResults } = useResults();
 
-  const { questions, setQuestions, quizMetadata, loading } = useCustomQuiz(quizID, password);
+  const { questions, setQuestions, quizMetadata, loading, error, needsPassword, retryWithPassword } = useCustomQuiz(quizID, password);
 
   const {
     answeredCount,
@@ -65,8 +65,19 @@ function CustomQuizActivity() {
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [reviewQueue, setReviewQueue] = useState([]);
   const [resultsByIndex, setResultsByIndex] = useState({});
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
-  // Load draft if resuming
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    if (!passwordInput.trim()) {
+      setPasswordError('Please enter a password');
+      return;
+    }
+    setPasswordError('');
+    retryWithPassword(passwordInput.trim());
+  };
+
   useEffect(() => {
     const loadDraftData = async () => {
       if (!currentUser?.uid || !quizID || draftLoaded) return;
@@ -181,6 +192,73 @@ function CustomQuizActivity() {
     return (
       <div className="min-h-screen py-20 px-6 bg-primary text-primary flex justify-center items-center">
         <ScaleLoader color="var(--accent)" />
+      </div>
+    );
+  }
+
+  if (needsPassword) {
+    return (
+      <div className="min-h-screen py-20 px-6 bg-primary text-primary flex justify-center items-center">
+        <div className="bg-card rounded-2xl p-8 shadow-xl border border-accent max-w-md w-full">
+          <h2 className="text-2xl font-bold text-center mb-2 text-gradient-primary">
+            Password Required
+          </h2>
+          <p className="text-sm text-secondary text-center mb-6">
+            This quiz is private. Enter the password to continue.
+          </p>
+          <div>
+            <input
+              type="text"
+              autoComplete="off"
+              value={passwordInput}
+              onChange={(e) => {
+                setPasswordInput(e.target.value);
+                setPasswordError('');
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handlePasswordSubmit(e);
+              }}
+              placeholder="Enter quiz password"
+              className="w-full px-4 py-3 rounded-lg bg-input text-primary border border-accent mb-3 focus:outline-none focus:ring-2 focus:ring-[var(--primary-400)]"
+              autoFocus
+            />
+            {passwordError && (
+              <p className="text-red-500 text-sm mb-3">{passwordError}</p>
+            )}
+            {error && (
+              <p className="text-red-500 text-sm mb-3">{error}</p>
+            )}
+            <button
+              onClick={handlePasswordSubmit}
+              className="w-full px-6 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+            >
+              Submit
+            </button>
+            <button
+              onClick={() => navigate(-1)}
+              className="w-full mt-3 px-6 py-3 bg-transparent border border-accent text-secondary rounded-lg font-medium transition-all duration-200 hover:bg-[var(--bg-secondary)]"
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen py-20 px-6 bg-primary text-primary flex justify-center items-center">
+        <div className="bg-card rounded-2xl p-8 shadow-xl border border-accent max-w-md w-full text-center">
+          <h2 className="text-2xl font-bold mb-2 text-red-500">Failed to Load Quiz</h2>
+          <p className="text-sm text-secondary mb-6">{error}</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200"
+          >
+            Go Back
+          </button>
+        </div>
       </div>
     );
   }

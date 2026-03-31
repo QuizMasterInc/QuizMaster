@@ -97,6 +97,10 @@ class CloudFunctionsAPI {
     return this.call('updateCustomQuiz', { quizId, quizData });
   }
 
+  async updateFlashcardDeck(deckData) {
+    return this.call('updateFlashcardDeck', deckData);
+  }
+
 async deleteCustomQuiz(quizId) {
   try {
     const { getFunctions, httpsCallable } = await import("firebase/functions");

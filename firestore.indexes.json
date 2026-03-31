@@ -267,6 +267,20 @@
       ]
     },
     {
+      "collectionGroup": "quiz_drafts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "updatedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "quiz_results",
       "queryScope": "COLLECTION",
       "fields": [
@@ -739,16 +753,30 @@
       ]
     },
     {
-      "collectionGroup": "quiz_drafts",
-      "queryScope": "COLLECTION",
-      "fields": [
+      "collectionGroup": "quiz_results",
+      "fieldPath": "submittedAt",
+      "indexes": [
         {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
         },
         {
-          "fieldPath": "updatedAt",
-          "order": "DESCENDING"
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "quiz_results",
+      "fieldPath": "percentage",
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION"
+        },
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION"
         }
       ]
     }

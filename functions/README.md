@@ -17,8 +17,8 @@ functions/src/
 ├── results/
 │   └── index.js          # Quiz results and statistics functions (2 functions)
 ├── flashcards/
-│   └── index.js          # Flashcard deck management functions (10 functions)
-│                         # - 4 CRUD functions
+│   └── index.js          # Flashcard deck management functions (11 functions)
+│                         # - 5 CRUD functions
 │                         # - 2 browse/discovery functions
 │                         # - 4 study session functions (S79)
 └── study/
@@ -156,6 +156,11 @@ Functions for flashcard deck management, public browsing, and study sessions (S7
 ##### `getFlashcardDeck`
 - **Purpose**: Get a specific flashcard deck by ID
 - **Method**: POST with `{ deckId: "id" }`
+- **Module**: `flashcards/index.js`
+
+##### `updateFlashcardDeck`
+- **Purpose**: Update an existing flashcard deck (title, cards, visibility)
+- **Method**: POST with `{ deckId, userId, ...updates }`
 - **Module**: `flashcards/index.js`
 
 ##### `deleteFlashcardDeck`

@@ -11,8 +11,10 @@ import {
   subscribeToPoll,
 } from "../../services/polls/pollService";
 import CreatePollPanel from "./components/CreatePollPanel.jsx";
+import PollQuestionSection from "./components/PollQuestionSection.jsx";
 import StudentPanel from "./components/StudentPanel.jsx";
 import ResultsSection from "./components/ResultSection.jsx";
+import VotingSection from "./components/VotingSection.jsx";
 
 /**
  * ============================================================
@@ -87,7 +89,7 @@ export default function Poll() {
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [studentJoinCode, setStudentJoinCode] = useState("");
-  const [studentSelection, setStudentSelection] = useState(null);
+  const [studentSelection, setStudentSelection] = useState([]);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isFetchingVote, setIsFetchingVote] = useState(false);
 
@@ -173,7 +175,7 @@ export default function Poll() {
       setCurrentPollId(id);
       setJoinCode(code);
       setHasSubmitted(false);
-      setStudentSelection(null);
+      setStudentSelection([]);
       setStudentJoinCode(code);
       setInfoMessage("Poll started. Share the join code with participants.");
       attachListener(id);
@@ -205,11 +207,14 @@ export default function Poll() {
       setCurrentPollId(found.id);
       // Do not set joinCode here; joinCode is a creator-only value.
       setHasSubmitted(false);
-      setStudentSelection(null);
+      setStudentSelection([]);
       if (currentUser?.uid) {
         setIsFetchingVote(true);
         getUserVote(found.id, currentUser.uid)
-          .then((vote) => setHasSubmitted(!!vote))
+          .then((vote) => {
+            setHasSubmitted(!!vote);
+            setStudentSelection(vote?.optionIndexes || []);
+          })
           .catch((err) => setStudentError(err.message || "Unable to verify vote."))
           .finally(() => setIsFetchingVote(false));
       }
@@ -222,7 +227,7 @@ export default function Poll() {
   };
 
   const handleSubmitVote = async () => {
-    if (!currentPollId || studentSelection === null) return;
+    if (!currentPollId || studentSelection.length === 0) return;
     if (!currentUser?.uid) {
       setStudentError("Please sign in to vote.");
       return;
@@ -272,7 +277,7 @@ export default function Poll() {
     setCurrentPollId(null);
     setJoinCode("");
     setStudentJoinCode("");
-    setStudentSelection(null);
+    setStudentSelection([]);
     setHasSubmitted(false);
     setStudentError("");
     setTeacherError("");
@@ -286,75 +291,70 @@ export default function Poll() {
 
   return (
     <div className="min-h-screen bg-primary text-primary px-6 py-16">
-      <div className="max-w-5xl mx-auto bg-card border border-primary rounded-3xl shadow-xl p-10">
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-gradient-primary mt-2">
-              Polls
-            </h1>
-            <p className="text-lg text-secondary mt-3 max-w-3xl">
-              Create a live poll, share a code, collect one vote per participant, and reveal results instantly or when you close the poll.
-            </p>
-          </div>
-          <div className="text-sm bg-secondary text-secondary border border-primary px-4 py-2 rounded-full">
-            {currentPollId ? `Total votes: ${totalVotes}` : "No active poll"}
-          </div>
-        </div>
+      <div className="max-w-6xl mx-auto">
+        <PollQuestionSection
+          pollQuestion={pollQuestion}
+          currentPollId={currentPollId}
+          totalVotes={totalVotes}
+          status={pollData?.status}
+        />
 
         {infoMessage && (
-          <div className="mt-4 p-3 rounded-xl border border-primary text-sm text-primary bg-secondary">
+          <div className="mt-6 p-3 rounded-xl border border-primary text-sm text-primary bg-secondary">
             {infoMessage}
           </div>
         )}
 
-        <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-6 mt-10">
-          <CreatePollPanel
-            isCreator={isCreator}
-            isSignedIn={!!currentUser?.uid}
-            question={teacherQuestion}
-            options={teacherOptions}
-            setQuestion={setTeacherQuestion}
-            setOptions={setTeacherOptions}
-            onStart={handleStartPoll}
-            onClose={handleClosePoll}
-            onOpen={handleOpenPoll}
-            onToggleLive={handleToggleLiveResults}
-            poll={pollData}
-            joinCode={joinCode}
-            isCreating={isCreating}
-            error={teacherError}
-            onReset={handleReset}
-          />
+        <div className="mt-8 space-y-8">
+          <VotingSection>
+            <CreatePollPanel
+              isCreator={isCreator}
+              isSignedIn={!!currentUser?.uid}
+              question={teacherQuestion}
+              options={teacherOptions}
+              setQuestion={setTeacherQuestion}
+              setOptions={setTeacherOptions}
+              onStart={handleStartPoll}
+              onClose={handleClosePoll}
+              onOpen={handleOpenPoll}
+              onToggleLive={handleToggleLiveResults}
+              poll={pollData}
+              joinCode={joinCode}
+              isCreating={isCreating}
+              error={teacherError}
+              onReset={handleReset}
+            />
 
-          <StudentPanel
-            joinCodeInput={studentJoinCode}
-            setJoinCodeInput={setStudentJoinCode}
-            onJoin={handleJoinPoll}
-            isJoining={isJoining}
-            poll={pollData}
-            totalVotes={totalVotes}
+            <StudentPanel
+              joinCodeInput={studentJoinCode}
+              setJoinCodeInput={setStudentJoinCode}
+              onJoin={handleJoinPoll}
+              isJoining={isJoining}
+              poll={pollData}
+              totalVotes={totalVotes}
+              options={pollOptions}
+              votes={votes}
+              selected={studentSelection}
+              setSelected={setStudentSelection}
+              hasSubmitted={hasSubmitted}
+              resultsVisible={resultsVisible}
+              onSubmit={handleSubmitVote}
+              error={studentError}
+              currentPollId={currentPollId}
+              isFetchingVote={isFetchingVote}
+              onReset={handleReset}
+            />
+          </VotingSection>
+
+          <ResultsSection
+            pollQuestion={pollQuestion}
             options={pollOptions}
             votes={votes}
-            selected={studentSelection}
-            setSelected={setStudentSelection}
-            hasSubmitted={hasSubmitted}
+            totalVotes={totalVotes}
             resultsVisible={resultsVisible}
-            onSubmit={handleSubmitVote}
-            error={studentError}
-            currentPollId={currentPollId}
-            isFetchingVote={isFetchingVote}
-            onReset={handleReset}
+            status={pollData?.status}
           />
         </div>
-
-        <ResultsSection
-          pollQuestion={pollQuestion}
-          options={pollOptions}
-          votes={votes}
-          totalVotes={totalVotes}
-          resultsVisible={resultsVisible}
-          status={pollData?.status}
-        />
       </div>
     </div>
   );

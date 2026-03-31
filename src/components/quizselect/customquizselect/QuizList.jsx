@@ -67,7 +67,8 @@ const QuizList = ({
   dataSource = "browseCustomQuizzes",
   filters: enabledFilters = ["search", "privacy", "sort"],
   showRefreshButton = true,
-  className = ""
+  className = "",
+  linkCreatorToProfile = false,
 }) => {
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -282,7 +283,6 @@ const QuizList = ({
                   tags={Array.isArray(quizData.tags) ? quizData.tags.join(", ") : quizData.tags}
                   uid={quizData.id}
                   quizPassword={quizData.password}
-                  // ✅ Pass the enriched username directly (Option 1)
                   creatorUsername={
                     (typeof quiz?.creatorUsername === "string" && quiz.creatorUsername.trim())
                       ? quiz.creatorUsername.trim()
@@ -303,6 +303,7 @@ const QuizList = ({
                   isPrivate={quizData.isPrivate}
                   creatorId={creatorId}
                   currentUserId={currentUser?.uid}
+                  linkCreatorToProfile={linkCreatorToProfile}
                   onDeleted={handleQuizDeleted}
                 />
               );

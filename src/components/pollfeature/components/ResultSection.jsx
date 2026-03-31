@@ -30,15 +30,18 @@ resultsVisible,
 status,
 }) {
 return (
-<div className="mt-10 space-y-5">
-    <div className="flex items-center justify-between">
+<section className="rounded-[2rem] border border-accent/30 bg-secondary/70 p-6 shadow-inner sm:p-8">
+    <div className="flex items-start justify-between gap-4 border-b border-primary pb-5">
     <div>
-        <p className="text-xs uppercase tracking-[0.25em] text-secondary font-semibold">
-        Live question
+        <p className="text-xs uppercase tracking-[0.25em] text-accent font-semibold">
+        Results
         </p>
-        <h3 className="text-2xl font-bold text-gradient-primary mt-1">
-        {pollQuestion}
+        <h3 className="text-2xl font-bold text-primary mt-2">
+        Current standings
         </h3>
+        <p className="text-sm text-secondary mt-2">
+        {pollQuestion || "Results will appear here once a poll question is available."}
+        </p>
     </div>
     <p className="text-sm text-secondary">
         {resultsVisible
@@ -47,6 +50,7 @@ return (
     </p>
     </div>
 
+    <div className="mt-6 space-y-5">
     {resultsVisible ? (
     options.map((opt, idx) => {
         const count = votes[idx] || 0;
@@ -75,6 +79,7 @@ return (
         Results are hidden while the poll is {status || "idle"}. They will appear once the poll closes or live results are enabled.
     </div>
     )}
-</div>
+    </div>
+</section>
 );
 }
