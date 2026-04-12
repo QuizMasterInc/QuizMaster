@@ -9,6 +9,13 @@ import flashcardService from '../services/flashcards/flashcardService';
  
 /**
  * useStudySession - Custom hook for managing study session state
+ * 
+ * Track Progress behavior:
+ * - ON:  Ratings UI shown, stats visible, progress persisted to Firestore on every card change
+ * - OFF: NavButtons shown, stats hidden, progress stops being persisted
+ * - On mount: position and ratings are ALWAYS restored if they exist, regardless of toggle state
+ * - Toggling off mid-session pauses persistence but keeps your place
+ * - Toggling back on resumes persistence from wherever you are
  */
 export const useStudySession = (deckId, userId) => {
     const [session, setSession] = useState(null);
@@ -40,21 +47,19 @@ export const useStudySession = (deckId, userId) => {
                     await updateLastActivity(activeSession.id);
                     setSession(activeSession);
  
-                    const wasTracking = activeSession.trackProgress ?? false;
-                    setTrackProgress(wasTracking);
+                    // Restore toggle state
+                    setTrackProgress(activeSession.trackProgress ?? false);
  
-                    if (wasTracking) {
-                        // Restore card position
-                        if (activeSession.lastCardIndex != null) {
-                            setCurrentCardIndex(activeSession.lastCardIndex);
-                        }
- 
-                        // Restore ratings so stats pick up where they left off
-                        if (Array.isArray(activeSession.cardRatings) && activeSession.cardRatings.length > 0) {
-                            setLocalRatings(activeSession.cardRatings);
-                        }
+                    // Always restore position if it exists, regardless of toggle state
+                    if (activeSession.lastCardIndex != null) {
+                        setCurrentCardIndex(activeSession.lastCardIndex);
                     } else {
                         setCurrentCardIndex(0);
+                    }
+ 
+                    // Always restore ratings if they exist
+                    if (Array.isArray(activeSession.cardRatings) && activeSession.cardRatings.length > 0) {
+                        setLocalRatings(activeSession.cardRatings);
                     }
                 } else {
                     const newSession = await createStudySession(userId, deckId, deckData.title);
@@ -76,7 +81,7 @@ export const useStudySession = (deckId, userId) => {
         }
     }, [deckId, userId]);
  
-    // Persist card index, ratings, and stats whenever the card changes and tracking is on
+    // Persist card index, ratings, and stats whenever the card changes — only if tracking is on
     useEffect(() => {
         if (!session?.id || !trackProgress) return;
  
@@ -116,7 +121,7 @@ export const useStudySession = (deckId, userId) => {
                         ? (knowCount / ratings.length) * 100
                         : 0;
  
-                    // Start tracking — save current position, ratings, and stats
+                    // Resume tracking — save current position, ratings, and stats
                     await updateLastActivity(session.id, {
                         trackProgress: true,
                         lastCardIndex: currentCardIndex,
@@ -127,8 +132,7 @@ export const useStudySession = (deckId, userId) => {
                         'stats.successRate': successRate
                     });
                 } else {
-                    // Stop tracking — just flip the flag, keep data intact
-                    // Data is preserved so toggling back on can resume seamlessly
+                    // Pause tracking — just flip the flag, keep all data intact
                     await updateLastActivity(session.id, {
                         trackProgress: false
                     });

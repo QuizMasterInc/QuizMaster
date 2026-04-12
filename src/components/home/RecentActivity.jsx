@@ -95,13 +95,13 @@ const RecentActivity = ({ limit = 6 }) => {
       setLoading(true);
  
       try {
-        const recentSessions = await getRecentSessions(currentUser.uid, 6);
+        const recentSessions = await getRecentSessions(currentUser.uid, limit);
         if (mounted) setSessions(recentSessions || []);
  
-        const drafts = await quizDraftService.getUserDrafts(currentUser.uid, 6);
+        const drafts = await quizDraftService.getUserDrafts(currentUser.uid, limit);
         if (mounted) setQuizDrafts(drafts || []);
  
-        const quizData = await resultService.getUserAttempts(currentUser.uid, { limitCount: 6 });
+        const quizData = await resultService.getUserAttempts(currentUser.uid, { limitCount: limit });
         if (mounted) setCompletedQuizzes(quizData.attempts || []);
       } catch (err) {
         console.error('Error loading recent activity:', err);
@@ -117,7 +117,7 @@ const RecentActivity = ({ limit = 6 }) => {
  
     load();
     return () => { mounted = false; };
-  }, [currentUser?.uid]);
+  }, [currentUser?.uid, limit]);
  
   // Check scrollability after data loads
   useEffect(() => {
