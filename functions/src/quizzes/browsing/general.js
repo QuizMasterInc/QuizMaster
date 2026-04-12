@@ -11,101 +11,110 @@ exports.browseCustomQuizzesOptimized = onRequest(async (req, res) => {
                 searchTerm = '',
                 sortBy = 'newest',
                 privacy = 'all',
-                limit = 50
+                limit = 50,
+                currentUserId = null
             } = req.method === 'POST' ? req.body : req.query;
 
-            console.log('Query params:', { searchTerm, sortBy, privacy, limit });
+            console.log('Query params:', { searchTerm, sortBy, privacy, limit, currentUserId });
 
-            let query = admin.firestore().collection('custom_quizzes');
+            const collectionRef = admin.firestore().collection('custom_quizzes');
             const indexesUsed = {};
 
-            // Exclude teacher-made quizzes from general browsing
-            query = query.where('metadata.isTeacherMade', '==', false);
+            const applySort = (query) => {
+                if (sortBy === 'newest') {
+                    indexesUsed.sortNewest = true;
+                    return query.orderBy('timestamps.updatedAt', 'desc');
+                }
+                if (sortBy === 'oldest') {
+                    indexesUsed.sortOldest = true;
+                    return query.orderBy('timestamps.createdAt', 'asc');
+                }
+                if (sortBy === 'title') {
+                    indexesUsed.sortTitleAZ = true;
+                    return query.orderBy('metadata.title', 'asc');
+                }
+                if (sortBy === 'titleReverse') {
+                    indexesUsed.sortTitleZA = true;
+                    return query.orderBy('metadata.title', 'desc');
+                }
+                if (sortBy === 'shortest') {
+                    indexesUsed.sortShortest = true;
+                    return query.orderBy('metadata.questionCount', 'asc');
+                }
+                if (sortBy === 'longest') {
+                    indexesUsed.sortLongest = true;
+                    return query.orderBy('metadata.questionCount', 'desc');
+                }
+                indexesUsed.sortDefault = true;
+                return query.orderBy('timestamps.updatedAt', 'desc');
+            };
 
-            // Handle privacy filtering using your actual schema field: metadata.isPublic
+            const baseQuery = collectionRef.where('metadata.isTeacherMade', '==', false);
+            const queries = [];
+
             if (privacy === 'public') {
-                query = query.where('metadata.isPublic', '==', true);
+                queries.push(baseQuery.where('metadata.isPublic', '==', true));
                 indexesUsed.privacyFilter = 'public';
                 console.log('Filtering for public quizzes only (metadata.isPublic == true)');
             } else if (privacy === 'private') {
-                query = query.where('metadata.isPublic', '==', false);
+                if (currentUserId) {
+                    queries.push(
+                        baseQuery
+                            .where('creator.uid', '==', currentUserId)
+                            .where('metadata.isPublic', '==', false)
+                    );
+                }
                 indexesUsed.privacyFilter = 'private';
-                console.log('Filtering for private quizzes only (metadata.isPublic == false)');
+                console.log('Filtering for private quizzes only (current user only)');
             } else {
-                console.log('Showing all quizzes (no privacy filter)');
-            }
+                queries.push(baseQuery.where('metadata.isPublic', '==', true));
 
-            // Handle sorting - using your ACTUAL schema fields
-            if (sortBy === 'newest') {
-                query = query.orderBy('timestamps.updatedAt', 'desc');
-                indexesUsed.sortNewest = true;
-            } else if (sortBy === 'oldest') {
-                query = query.orderBy('timestamps.createdAt', 'asc');
-                indexesUsed.sortOldest = true;
-            } else if (sortBy === 'title') {
-                query = query.orderBy('metadata.title', 'asc');
-                indexesUsed.sortTitleAZ = true;
-            } else if (sortBy === 'titleReverse') {
-                query = query.orderBy('metadata.title', 'desc');
-                indexesUsed.sortTitleZA = true;
-            } else if (sortBy === 'shortest') {
-                query = query.orderBy('metadata.questionCount', 'asc');
-                indexesUsed.sortShortest = true;
-            } else if (sortBy === 'longest') {
-                query = query.orderBy('metadata.questionCount', 'desc');
-                indexesUsed.sortLongest = true;
-            } else {
-                // Default to newest
-                query = query.orderBy('timestamps.updatedAt', 'desc');
-                indexesUsed.sortDefault = true;
-            }
-
-            // Apply limit
-            query = query.limit(parseInt(limit));
-
-            console.log('Executing query with indexes:', indexesUsed);
-            const querySnapshot = await query.get();
-            console.log('Query successful, got', querySnapshot.size, 'documents');
-
-            const results = [];
-
-            querySnapshot.forEach(doc => {
-                const data = doc.data();
-
-                // Filter by search term if provided (client-side filtering)
-                if (searchTerm && searchTerm.trim()) {
-                    const title = (data.metadata?.title || '').toLowerCase();
-                    const tags = (data.metadata?.tags || '').toLowerCase();
-                    const searchLower = searchTerm.toLowerCase();
-
-                    if (!title.includes(searchLower) && !tags.includes(searchLower)) {
-                        return; // Skip this quiz
-                    }
+                if (currentUserId) {
+                    queries.push(
+                        baseQuery
+                            .where('creator.uid', '==', currentUserId)
+                            .where('metadata.isPublic', '==', false)
+                    );
                 }
 
-                // Map your actual schema to what the UI expects
-                const quiz = {
-                    id: doc.id,
+                indexesUsed.privacyFilter = currentUserId ? 'allPublicAndOwnPrivate' : 'allPublicOnly';
+                console.log('Showing public quizzes and current user private quizzes when available');
+            }
 
-                    // Core quiz info using actual schema
+            const querySnapshots = await Promise.all(
+                queries.map((q) => applySort(q).limit(parseInt(limit)).get())
+            );
+
+            const results = [];
+            const seenIds = new Set();
+
+            querySnapshots.forEach((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    if (seenIds.has(doc.id)) return;
+                    seenIds.add(doc.id);
+
+                    const data = doc.data();
+                    results.push({ id: doc.id, data });
+                });
+            });
+
+            const normalizeResult = ({ id, data }) => {
+                return {
+                    id,
                     title: data.metadata?.title || 'Untitled Quiz',
                     numQuestions: data.metadata?.questionCount || 0,
                     tags: data.metadata?.tags || '',
-                    creator: data.creator?.displayName || data.creator?.username || 'Anonymous User', // Use display name, not UID!
+                    creator: data.creator?.displayName || data.creator?.username || 'Anonymous User',
                     quizPassword: data.metadata?.hasPassword ? 'protected' : null,
-
-                    // Password information for frontend
                     hasPassword: data.metadata?.hasPassword || false,
-                    password: data.metadata?.password || null, // Password stored in metadata
-
-                    // Additional fields for AllCustomQuizzes mapping with correct schema
+                    password: data.metadata?.password || null,
                     metadata: {
                         title: data.metadata?.title || 'Untitled Quiz',
                         tags: data.metadata?.tags ? [data.metadata.tags] : [],
                         isPublic: data.metadata?.isPublic || false,
                         questionCount: data.metadata?.questionCount || 0,
                         hasPassword: data.metadata?.hasPassword || false,
-                        password: data.metadata?.password || null // Password stored in metadata
+                        password: data.metadata?.password || null
                     },
                     content: {
                         totalQuestions: data.metadata?.questionCount || 0
@@ -121,29 +130,62 @@ exports.browseCustomQuizzesOptimized = onRequest(async (req, res) => {
                         createdAt: data.timestamps?.createdAt,
                         updatedAt: data.timestamps?.updatedAt
                     },
-
-                    // Legacy fields for backward compatibility
-                    uid: doc.id,
+                    uid: id,
                     creatorID: data.creator?.uid || 'Unknown',
                     questionCount: data.metadata?.questionCount || 0,
                     isPrivate: !data.metadata?.isPublic,
-
-                    // Password information for frontend
-                    hasPassword: data.metadata?.hasPassword || false,
-                    password: data.metadata?.password ? 'protected' : null
+                    quizTaken: data.analytics?.stats?.attempts || 0
                 };
+            };
 
-                results.push(quiz);
-            });
+            const normalized = results
+                .map(normalizeResult)
+                .filter((quiz) => {
+                    if (searchTerm && searchTerm.trim()) {
+                        const lowerSearch = searchTerm.toLowerCase();
+                        const titleMatch = (quiz.title || '').toLowerCase().includes(lowerSearch);
+                        const tagMatch = Array.isArray(quiz.metadata?.tags)
+                            ? quiz.metadata.tags.some((tag) => tag.toLowerCase().includes(lowerSearch))
+                            : false;
+                        return titleMatch || tagMatch;
+                    }
+                    return true;
+                });
 
-            console.log('Processed', results.length, 'documents successfully');
+            const sortResults = (quizArray) => {
+                return quizArray.sort((a, b) => {
+                    if (sortBy === 'newest') {
+                        return (new Date(b.timestamps.updatedAt).getTime() || 0) - (new Date(a.timestamps.updatedAt).getTime() || 0);
+                    }
+                    if (sortBy === 'oldest') {
+                        return (new Date(a.timestamps.createdAt).getTime() || 0) - (new Date(b.timestamps.createdAt).getTime() || 0);
+                    }
+                    if (sortBy === 'title') {
+                        return (a.title || '').localeCompare(b.title || '');
+                    }
+                    if (sortBy === 'titleReverse') {
+                        return (b.title || '').localeCompare(a.title || '');
+                    }
+                    if (sortBy === 'shortest') {
+                        return (a.numQuestions || 0) - (b.numQuestions || 0);
+                    }
+                    if (sortBy === 'longest') {
+                        return (b.numQuestions || 0) - (a.numQuestions || 0);
+                    }
+                    return (new Date(b.timestamps.updatedAt).getTime() || 0) - (new Date(a.timestamps.updatedAt).getTime() || 0);
+                });
+            };
+
+            const finalResults = sortResults(normalized).slice(0, parseInt(limit));
+
+            console.log('Processed', finalResults.length, 'documents successfully');
 
             return res.json({
                 success: true,
-                quizzes: results, // Use 'quizzes' key to match AllCustomQuizzes expectation
-                data: results,
+                quizzes: finalResults,
+                data: finalResults,
                 meta: {
-                    count: results.length,
+                    count: finalResults.length,
                     searchTerm,
                     sortBy,
                     privacy,
