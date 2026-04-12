@@ -20,8 +20,8 @@ export default function Dashboard() {
             Track your scores, study smarter, and master knowledge like a pro.
           </p>
         </section>
-        <RecentActivity limit={6} />
-        <Recommended limit={3} />
+        <RecentActivity limit={8} />
+        <Recommended limit={6} />
 
       </div>
     </div>

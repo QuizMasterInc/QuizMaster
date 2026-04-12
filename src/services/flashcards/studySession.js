@@ -1,6 +1,6 @@
 import { db } from "../firebase/firebaseService";
 import { collection, doc, addDoc, updateDoc, getDoc, query, where, getDocs, orderBy, limit } from "firebase/firestore";
-
+ 
 export const createStudySession = async (userId, deckId, deckTitle) => {
     const sessionData = {
         userId,
@@ -13,6 +13,8 @@ export const createStudySession = async (userId, deckId, deckTitle) => {
         cardsStudied: 0,
         cardRatings: [],
         isCompleted: false,
+        trackProgress: false,
+        lastCardIndex: null,
         stats: {
             timeSpent: 0,
             knowCount: 0,
@@ -20,17 +22,19 @@ export const createStudySession = async (userId, deckId, deckTitle) => {
             successRate: 0
         }
     };
-
+ 
     const docRef = await addDoc(collection(db, "study_sessions"), sessionData);
     return { id: docRef.id, ...sessionData };
 };
-export const updateLastActivity = async (sessionId) => {
+ 
+export const updateLastActivity = async (sessionId, extraFields = {}) => {
     const sessionRef = doc(db, "study_sessions", sessionId);
     await updateDoc(sessionRef, {
-        lastActivityAt: new Date().toISOString()
+        lastActivityAt: new Date().toISOString(),
+        ...extraFields
     });
 };
-
+ 
 export const getActiveSession = async (userId, deckId) => {
     const q = query(
         collection(db, "study_sessions"),
@@ -40,14 +44,14 @@ export const getActiveSession = async (userId, deckId) => {
         orderBy("startedAt", "desc"),
         limit(1)
     );
-
+ 
     const snapshot = await getDocs(q);
     if (snapshot.empty) return null;
-
+ 
     const sessionDoc = snapshot.docs[0];
     return { id: sessionDoc.id, ...sessionDoc.data() };
 };
-
+ 
 export const recordCardRating = async (sessionId, cardId, rating) => {
     if (!sessionId) {
         throw new Error(`Invalid sessionId: ${sessionId}`);
@@ -58,21 +62,21 @@ export const recordCardRating = async (sessionId, cardId, rating) => {
     if (!rating || !['still learning', 'know'].includes(rating)) {
         throw new Error(`Invalid rating: ${rating}`);
     }
-
+ 
     const sessionRef = doc(db, "study_sessions", sessionId);
     const sessionDoc = await getDoc(sessionRef);
     if (!sessionDoc.exists()) throw new Error("Session not found");
-
+ 
     const sessionData = sessionDoc.data();
     const newRating = {
         cardId,
         rating, 
         timestamp: new Date().toISOString()
     };
-
+ 
     const updatedRatings = [...sessionData.cardRatings, newRating];
     const stats = calculateStats(updatedRatings);
-
+ 
     const updatedSession = { ...sessionData, cardRatings: updatedRatings, stats };
     
     updateDoc(sessionRef, {
@@ -83,10 +87,10 @@ export const recordCardRating = async (sessionId, cardId, rating) => {
         'stats.stillLearningCount': stats.stillLearningCount,
         'stats.successRate': stats.successRate,
     }).catch(err => console.error('Error saving card rating:', err));
-
+ 
     return updatedSession;
 };
-
+ 
 export const completeStudySession = async (sessionId, timeSpent, cardRatings = [], stats = {}) => {
     const sessionRef = doc(db, "study_sessions", sessionId);
     await updateDoc(sessionRef, {
@@ -101,7 +105,7 @@ export const completeStudySession = async (sessionId, timeSpent, cardRatings = [
         lastActivityAt: new Date().toISOString()
     });
 };
-
+ 
 const calculateStats = (cardRatings) => {
     const knowCount = cardRatings.filter(r => r.rating === 'know').length;
     const stillLearningCount = cardRatings.filter(r => r.rating === 'still learning').length;
@@ -110,19 +114,19 @@ const calculateStats = (cardRatings) => {
     
     return { knowCount, stillLearningCount, successRate };
 };
-
+ 
 export const getRecentSessions = async (userId, limitCount = 6) => {
     if (!userId) return [];
-
+ 
     const primaryQ = query(
         collection(db, "study_sessions"),
         where("userId", "==", userId),
         orderBy("lastActivityAt", "desc"),
         limit(limitCount)
     );
-
+ 
     const snapshot = await getDocs(primaryQ);
-
+ 
     if (snapshot.empty) {
         const fallbackQ = query(
             collection(db, "study_sessions"),
@@ -130,18 +134,18 @@ export const getRecentSessions = async (userId, limitCount = 6) => {
             orderBy("startedAt", "desc"),
             limit(limitCount)
         );
-
+ 
         const fallbackSnapshot = await getDocs(fallbackQ);
         if (fallbackSnapshot.empty) return [];
         
         const sessions = fallbackSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return await addDeckTitles(sessions);
     }
-
+ 
     const sessions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     return await addDeckTitles(sessions);
 };
-
+ 
 const addDeckTitles = async (sessions) => {
     const sessionsWithTitles = await Promise.all(
         sessions.map(async (session) => {
@@ -161,6 +165,7 @@ const addDeckTitles = async (sessions) => {
             return session;
         })
     );
-
+ 
     return sessionsWithTitles;
 };
+ 
