@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import michael from "../../assets/michael.webp"
 import max from "../../assets/max.webp"
 import faiza from "../../assets/faiza.jpg"
 import anthony from "../../assets/anthony.webp"
@@ -141,6 +142,13 @@ const Contact = () => (
                         email="josephrchavez1@lewisu.edu"
                         githubLink="https://github.com/Jchave2000"
                     />
+					<TeamMember
+						image={michael}
+						name="Michael Analitis"
+						group="TheNullPointers Group"
+						email="michaeltanalitis@lewisu.edu"
+						githubLink="https://github.com/m-analitis"
+					/>
                 </div>
             </div>
 
