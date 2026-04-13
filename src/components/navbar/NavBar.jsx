@@ -9,6 +9,7 @@ export default function NavBar() {
     const { currentUser, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
+    const isAuthenticated = Boolean(currentUser?.uid || currentUser?.email);
     const [dashboardOpen, setDashboardOpen] = useState(false);
     const [homeOpen, setHomeOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
@@ -38,6 +39,12 @@ export default function NavBar() {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [dashboardOpen, homeOpen, mobileMenuOpen, profileOpen]);
+
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setProfileOpen(false);
+        }
+    }, [isAuthenticated]);
 
     const handleClick = (e) => {
         window.scrollTo(0, 0);
@@ -84,7 +91,7 @@ export default function NavBar() {
                 Take a Poll
             </NavLink>
 
-            {currentUser && (
+            {isAuthenticated && (
                 <div className="relative inline-flex ml-auto md:ml-4 z-50" ref={profileRef}>
                     <button
                         onClick={() => setProfileOpen(!profileOpen)}
@@ -117,7 +124,7 @@ export default function NavBar() {
                     <div className="drawer-overlay fixed inset-0 bg-black bg-opacity-40 z-40" onClick={() => setMobileMenuOpen(false)} />
                     <aside ref={drawerRef} className="side-drawer fixed top-0 left-0 bottom-0 w-64 max-w-full bg-white z-50 shadow-lg overflow-auto">
                         <div className="p-4">
-                            {currentUser ? (
+                            {isAuthenticated ? (
                                 <>
                                     <NavLink to="/dashboard" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <Profile className="w-5 h-5" />

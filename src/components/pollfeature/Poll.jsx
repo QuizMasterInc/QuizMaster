@@ -22,7 +22,7 @@ import VotingSection from "./components/VotingSection.jsx";
  * ============================================================
  *
  * This file acts as the orchestration layer for the Poll feature.
- * It is NOT just a UI component — it is the state controller and
+ * It is NOT just  UI component — it is the state controller and
  * coordination hub between:
  *
  *   - Firebase Authentication (via useAuth)
@@ -292,12 +292,12 @@ export default function Poll() {
   return (
     <div className="min-h-screen bg-primary text-primary px-6 py-16">
       <div className="max-w-6xl mx-auto">
-        <PollQuestionSection
+        {/* <PollQuestionSection
           pollQuestion={pollQuestion}
           currentPollId={currentPollId}
           totalVotes={totalVotes}
           status={pollData?.status}
-        />
+        /> */}
 
         {infoMessage && (
           <div className="mt-6 p-3 rounded-xl border border-primary text-sm text-primary bg-secondary">
@@ -345,6 +345,13 @@ export default function Poll() {
               onReset={handleReset}
             />
           </VotingSection>
+          
+        {/* <PollQuestionSection
+          pollQuestion={pollQuestion}
+          currentPollId={currentPollId}
+          totalVotes={totalVotes}
+          status={pollData?.status}
+        /> */}
 
           <ResultsSection
             pollQuestion={pollQuestion}

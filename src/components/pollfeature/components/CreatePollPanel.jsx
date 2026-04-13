@@ -1,4 +1,3 @@
-
 /**
  * ============================================================
  * CreatePollPanel.jsx
@@ -68,19 +67,22 @@ return (
         {poll?.status ? poll.status.toUpperCase() : "IDLE"}
     </span>
     </div>
-    <p className="text-secondary mt-2">
-    Create a poll, share the join code, and manage visibility. Options: 2–6. {" "}
+    <p className="text-secondary mt-2 leading-relaxed">
+    Create a poll, share the join code, and manage visibility.
+    <br />
+    Options: 2–6. {" "}
     {!isSignedIn && (
         <span className="text-accent font-semibold">Sign in required to start a poll.</span>
     )}
     </p>
 
-    <div className="mt-4 space-y-3">
-    <label className="text-sm font-semibold text-secondary block">Question</label>
+    <div className="mt-6 space-y-4">
+    <label className="text-sm font-bold text-secondary block">Enter Poll Question Below</label>
     <input
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
-        className="w-full px-4 py-2 rounded-xl border border-input bg-input text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+        placeholder="e.g. What is your favorite color?"
+        className="w-full px-4 py-3 rounded-xl border border-input bg-input text-primary placeholder:text-secondary/60 focus:outline-none focus:ring-2 focus:ring-accent"
     />
 
     <div className="space-y-2">
