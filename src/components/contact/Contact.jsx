@@ -149,6 +149,13 @@ const Contact = () => (
 						email="michaeltanalitis@lewisu.edu"
 						githubLink="https://github.com/m-analitis"
 					/>
+                    <TeamMember
+						image={coltin}
+						name="Coltin Rogge"
+						group="TheNullPointers Group"
+						email="coltinwrogge@lewisu.edu"
+						githubLink="https://github.com/coltin14"
+					/>
                 </div>
             </div>
 
