@@ -36,6 +36,28 @@ class FlashcardService {
         );
     }
 
+    normalizeEditableCards(cards) {
+        if (Array.isArray(cards)) {
+            return cards.map((card, index) => ({
+                id: card?.id || `card_${index + 1}`,
+                front: card?.front || '',
+                back: card?.back || '',
+                type: card?.type || 'basic'
+            }));
+        }
+
+        if (cards && typeof cards === 'object') {
+            return Object.values(cards).map((card, index) => ({
+                id: card?.id || `card_${index + 1}`,
+                front: card?.front || '',
+                back: card?.back || '',
+                type: card?.type || 'basic'
+            }));
+        }
+
+        return [];
+    }
+
     validateDeckContentForProfanity({ deckName, description, tags, cards }) {
         const deckValidation = validateNoProfanity([
             {
@@ -167,6 +189,63 @@ class FlashcardService {
         };
 
         return { success: true, deckObject };
+    }
+
+    createValidatedDeckUpdateObject(deckInput, existingDeck = {}) {
+        const {
+            deckName,
+            cards,
+            tags,
+            isPublic,
+            category,
+            difficulty,
+            description
+        } = deckInput;
+
+        const normalizedCards = this.normalizeEditableCards(cards);
+
+        if (!this.validateDeckName(deckName)) {
+            return {
+                success: false,
+                error: 'Please enter a valid deck name.'
+            };
+        }
+
+        if (!this.validateCards(normalizedCards)) {
+            return {
+                success: false,
+                error: 'Please add at least one card with both front and back content.'
+            };
+        }
+
+        const profanityValidation = this.validateDeckContentForProfanity({
+            deckName,
+            description,
+            tags,
+            cards: normalizedCards
+        });
+
+        if (!profanityValidation.valid) {
+            return {
+                success: false,
+                error: profanityValidation.error
+            };
+        }
+
+        return {
+            success: true,
+            deckObject: {
+                title: deckName.trim(),
+                description: description || '',
+                category: category || existingDeck.category || 'General',
+                difficulty: difficulty || existingDeck.difficulty || '2',
+                tags: this.normalizeTags(tags),
+                isPublic: Boolean(isPublic),
+                allowCopying: existingDeck.allowCopying ?? true,
+                cards: normalizedCards,
+                cardCount: normalizedCards.length
+            }
+        };
     }
 
     /**
@@ -367,6 +446,7 @@ class FlashcardService {
      */
     normalizeDeckData(deck) {
         if (!deck) return null;
+        const normalizedCards = this.normalizeEditableCards(deck.cards);
         
         return {
             // Basic info
@@ -375,14 +455,12 @@ class FlashcardService {
             description: sanitizeProfanity(deck.description || ''),
             
             // Content info
-            cardCount: deck.cardCount || (deck.cards ? Object.keys(deck.cards).length : 0),
-            cards: Array.isArray(deck.cards)
-                ? deck.cards.map(card => ({
+            cardCount: deck.cardCount || normalizedCards.length,
+            cards: normalizedCards.map(card => ({
                     ...card,
                     front: sanitizeProfanity(card?.front || ''),
                     back: sanitizeProfanity(card?.back || '')
-                }))
-                : (deck.cards || {}),
+                })),
             category: deck.category || 'General',
             difficulty: deck.difficulty || '2',
             
@@ -393,7 +471,7 @@ class FlashcardService {
                     : deck.tags.map(tag => sanitizeProfanity(tag))) : [],
             
             // Creator info
-            creatorId: deck.creatorId || '',
+            creatorId: deck.creatorId || deck.creator?.uid || deck.createdBy || deck.userId || deck.ownerId || '',
             
             // Access info
             isPublic: deck.isPublic || false,
