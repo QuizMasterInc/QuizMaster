@@ -27,10 +27,7 @@ export default function useProfileSectionData(userId) {
                 setProfile(profileData);
                 setAllQuizzes((quizzesData.result ? quizzesData.data : quizzesData) || []);
                 setAllResults(resultsData.attempts || []);
-                setDecks((decksData || []).filter(d => {
-                    const lastStudied = d.analytics?.stats?.lastStudiedAt ? new Date(d.analytics.stats.lastStudiedAt).getTime() : 0;
-                    return Date.now() - lastStudied <= SEVEN_DAYS_MS;
-                }));
+                setDecks(decksData || []);
                 setLoading(false);
             })
             .catch((err) => {
@@ -48,8 +45,45 @@ export default function useProfileSectionData(userId) {
         });
     }, [allResults]);
 
+    const createdQuizzes = useMemo(() => {
+        const ownedQuizzes = allQuizzes.filter((quiz) => {
+            const creatorUid =
+                quiz?.creator?.uid ||
+                quiz?.creator?.userId ||
+                quiz?.creatorId ||
+                quiz?.creatorID ||
+                quiz?.createdBy ||
+                quiz?.userId ||
+                null;
+
+            return creatorUid === userId;
+        });
+
+        return ownedQuizzes.sort((a, b) => {
+            const getSortTime = (quiz) => {
+                const value =
+                    quiz?.timestamps?.updatedAt ||
+                    quiz?.timestamps?.createdAt ||
+                    quiz?.metadata?.updatedAt ||
+                    quiz?.metadata?.createdAt ||
+                    quiz?.updatedAt ||
+                    quiz?.createdAt ||
+                    null;
+
+                if (!value) return 0;
+                if (typeof value?.toMillis === 'function') return value.toMillis();
+                if (value instanceof Date) return value.getTime();
+
+                const parsed = new Date(value).getTime();
+                return Number.isNaN(parsed) ? 0 : parsed;
+            };
+
+            return getSortTime(b) - getSortTime(a);
+        });
+    }, [allQuizzes, userId]);
+
     // Filter quizzes to those with recent attempts (custom quizzes taken by user in last 7 days)
-    const quizzes = useMemo(() => {
+    const recentQuizzes = useMemo(() => {
         const recentCustomResults = results.filter(r => r.quizType === 'custom');
         const recentQuizIds = new Set(recentCustomResults.map(r => r.quizId));
 
@@ -128,5 +162,16 @@ export default function useProfileSectionData(userId) {
         };
     }, [results]);
 
-    return { profile, quizzes, allQuizzes, results, decks, loading, error, quizAverages, overallStats };
+    return {
+        profile,
+        quizzes: createdQuizzes,
+        recentQuizzes,
+        allQuizzes,
+        results,
+        decks,
+        loading,
+        error,
+        quizAverages,
+        overallStats
+    };
 }
