@@ -12,6 +12,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db, handleFirebaseError } from "../firebase/firebaseService";
+import { sanitizeProfanity, validateNoProfanity } from "../../utils/profanityFilter";
 
 const POLLS_COLLECTION = "polls";
 
@@ -40,6 +41,24 @@ export async function createPoll({ question, options, createdBy }) {
     if (!Array.isArray(options) || options.length < 2 || options.length > 6) {
       throw new Error("Poll options must be an array with 2 to 6 choices.");
     }
+
+    const profanityValidation = validateNoProfanity([
+      {
+        label: "Poll question",
+        value: question,
+        message: "Poll question cannot include profanity.",
+      },
+      ...options.map((option, index) => ({
+        label: `Poll option ${index + 1}`,
+        value: option,
+        message: `Poll option ${index + 1} cannot include profanity.`,
+      })),
+    ]);
+
+    if (!profanityValidation.valid) {
+      throw new Error(profanityValidation.error);
+    }
+
     const joinCode = await ensureUniqueJoinCode();
     const votes = options.map(() => 0);
 
@@ -79,6 +98,16 @@ export function subscribeToPoll(pollId, callback) {
     (snap) => {
       if (snap.exists()) {
         callback({ id: snap.id, data: snap.data() });
+        callback({
+          id: snap.id,
+          data: {
+            ...snap.data(),
+            question: sanitizeProfanity(snap.data()?.question || ""),
+            options: Array.isArray(snap.data()?.options)
+              ? snap.data().options.map((option) => sanitizeProfanity(option))
+              : [],
+          },
+        });
       } else {
         callback(null);
       }

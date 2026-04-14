@@ -4,6 +4,7 @@
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/firebaseService';
 import cloudFunctionsAPI from '../api/cloudFunctions';
+import { validateNoProfanity } from '../../utils/profanityFilter';
 
 class QuizCreationService {
     constructor() {
@@ -26,6 +27,63 @@ class QuizCreationService {
      */
     validateQuizPassword(password) {
         return !!(password && password.trim());
+    }
+
+    validateQuizContentForProfanity({ quizName, quizTags, privateQuizPassword, quizData }) {
+        const quizLevelValidation = validateNoProfanity([
+            {
+                label: 'Quiz title',
+                value: quizName,
+                message: 'Quiz title cannot include profanity.'
+            },
+            {
+                label: 'Quiz tags',
+                value: this.normalizeTags(quizTags),
+                message: 'Quiz tags cannot include profanity.'
+            },
+            {
+                label: 'Quiz password',
+                value: privateQuizPassword,
+                message: 'Quiz password cannot include profanity.'
+            }
+        ]);
+
+        if (!quizLevelValidation.valid) {
+            return quizLevelValidation;
+        }
+
+        for (let index = 0; index < (quizData || []).length; index += 1) {
+            const questionDetailsArray = quizData[index] || [];
+            const questionNumber = index + 1;
+            const questionValidation = validateNoProfanity([
+                {
+                    label: `Question ${questionNumber}`,
+                    value: questionDetailsArray[0],
+                    message: `Question ${questionNumber} cannot include profanity.`
+                },
+                {
+                    label: `Question ${questionNumber} explanation`,
+                    value: questionDetailsArray[7],
+                    message: `Question ${questionNumber} explanation cannot include profanity.`
+                },
+                {
+                    label: `Question ${questionNumber} correct answer`,
+                    value: questionDetailsArray[5],
+                    message: `Question ${questionNumber} correct answer cannot include profanity.`
+                },
+                ...questionDetailsArray.slice(1, 5).map((choice, choiceIndex) => ({
+                    label: `Question ${questionNumber} option ${choiceIndex + 1}`,
+                    value: choice,
+                    message: `Question ${questionNumber} option ${choiceIndex + 1} cannot include profanity.`
+                }))
+            ]);
+
+            if (!questionValidation.valid) {
+                return questionValidation;
+            }
+        }
+
+        return { valid: true };
     }
 
     /**
@@ -227,6 +285,20 @@ class QuizCreationService {
             return {
                 success: false,
                 error: "Please enter a valid password for private quiz."
+            };
+        }
+
+        const profanityValidation = this.validateQuizContentForProfanity({
+            quizName,
+            quizTags,
+            privateQuizPassword,
+            quizData
+        });
+
+        if (!profanityValidation.valid) {
+            return {
+                success: false,
+                error: profanityValidation.error
             };
         }
 

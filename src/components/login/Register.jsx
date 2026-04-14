@@ -7,6 +7,7 @@ import {
   isUsernameAvailable,
   normalizeUsername,
 } from "../../services/firebase/usernameService";
+import { containsProfanity } from "../../utils/profanityFilter";
 
 export default function Register() {
   const firstNameRef = useRef()
@@ -46,7 +47,7 @@ export default function Register() {
     }
 
     if (!isValidUsername(usernameTrimmed)) {
-      setUsernameStatus({ state: "invalid", message: "3–24 chars, letters/numbers only." });
+      setUsernameStatus({ state: "invalid", message: "3-24 chars, letters/numbers only, and no profanity." });
       return;
     }
 
@@ -87,7 +88,7 @@ export default function Register() {
 
     const uname = (username || "").trim();
     if (!isValidUsername(uname)) {
-      return setError("Username must be 3–24 characters and letters/numbers only.");
+      return setError("Username must be 3-24 characters, letters/numbers only, and free of profanity.");
     }
     if (usernameStatus.state !== "available") {
       return setError("Please choose an available username.");
@@ -102,8 +103,16 @@ export default function Register() {
       return setError("First name is required.")
     }
 
+    if (containsProfanity(firstNameRef.current.value.trim())) {
+      return setError("First name cannot include profanity.")
+    }
+
     if (!lastNameRef.current.value.trim()) {
       return setError("Last name is required.")
+    }
+
+    if (containsProfanity(lastNameRef.current.value.trim())) {
+      return setError("Last name cannot include profanity.")
     }
 
     try {

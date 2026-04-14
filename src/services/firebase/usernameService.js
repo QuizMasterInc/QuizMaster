@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "./firebaseService";
+import { containsProfanity } from "../../utils/profanityFilter";
 
 // -------------------------
 // Username rules
@@ -24,7 +25,7 @@ export function normalizeUsername(name) {
 export function isValidUsername(name) {
   const trimmed = (name || "").trim();
   if (trimmed.length < 3 || trimmed.length > 24) return false;
-  return /^[A-Za-z0-9]+$/.test(trimmed);
+  return /^[A-Za-z0-9]+$/.test(trimmed) && !containsProfanity(trimmed);
 }
 
 // Quick check (non-atomic). Use reserveUsername()/changeUsername() for the real lock.
@@ -73,7 +74,7 @@ export async function reserveUsername({ uid, username }) {
   if (!uid) throw new Error("Missing uid");
   // Validate the canonical (lowercased) username so case never causes mismatches.
   if (!isValidUsername(usernameLower)) {
-    throw new Error("Username must be 3-24 chars and letters/digits only.");
+    throw new Error("Username must be 3-24 chars, letters/digits only, and free of profanity.");
   }
 
   const unameRef = doc(db, "usernames", usernameLower);
@@ -221,7 +222,7 @@ export async function changeUsername({ uid, username }) {
   if (!uid) throw new Error("Missing uid");
   // Validate the canonical (lowercased) username so case never causes mismatches.
   if (!isValidUsername(usernameLower)) {
-    throw new Error("Username must be 3-24 chars and letters/digits only.");
+    throw new Error("Username must be 3-24 chars, letters/digits only, and free of profanity.");
   }
 
   const unameRef = doc(db, "usernames", usernameLower);

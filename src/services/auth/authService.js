@@ -7,6 +7,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db, handleFirebaseError, withRetry, timestamp } from '../firebase/firebaseService';
+import { validateNoProfanity } from '../../utils/profanityFilter';
 
 class AuthService {
     constructor() {
@@ -181,6 +182,26 @@ class AuthService {
         };
     }
 
+    validateProfileText(updates = {}) {
+        return validateNoProfanity([
+            {
+                label: 'First name',
+                value: updates.firstName,
+                message: 'First name cannot include profanity.'
+            },
+            {
+                label: 'Last name',
+                value: updates.lastName,
+                message: 'Last name cannot include profanity.'
+            },
+            {
+                label: 'Display name',
+                value: updates.displayName,
+                message: 'Display name cannot include profanity.'
+            }
+        ]);
+    }
+
     /**
      * Register a new user
      * @param {Object} userData - User registration data
@@ -196,6 +217,11 @@ class AuthService {
 
         if (password.length < 6) {
             throw new Error('Password must be at least 6 characters long');
+        }
+
+        const profanityValidation = this.validateProfileText(userData);
+        if (!profanityValidation.valid) {
+            throw new Error(profanityValidation.error);
         }
 
         try {
@@ -649,6 +675,11 @@ class AuthService {
      */
     async updateUserProfile(uid, updates) {
         try {
+            const profanityValidation = this.validateProfileText(updates);
+            if (!profanityValidation.valid) {
+                throw new Error(profanityValidation.error);
+            }
+
             const profileUpdates = {
                 profile: {
                     firstName: updates.firstName,
@@ -796,6 +827,11 @@ class AuthService {
                 throw new Error('New passwords do not match');
             }
 
+            const profanityValidation = this.validateProfileText({ displayName });
+            if (!profanityValidation.valid) {
+                throw new Error(profanityValidation.error);
+            }
+
             // Re-authenticate user if password changes are needed
             if (newPassword || (newEmail && newEmail !== user.email)) {
                 if (!currentPassword) {
@@ -877,6 +913,11 @@ class AuthService {
             const user = auth.currentUser;
             if (!user) {
                 throw new Error('No user is currently signed in');
+            }
+
+            const profanityValidation = this.validateProfileText({ displayName: newDisplayName });
+            if (!profanityValidation.valid) {
+                throw new Error(profanityValidation.error);
             }
 
             await updateProfile(user, { displayName: newDisplayName });

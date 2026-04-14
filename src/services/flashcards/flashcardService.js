@@ -2,6 +2,7 @@
  * Flashcard service - handles all flashcard deck operations
  */
 import cloudFunctionsAPI from '../api/cloudFunctions';
+import { sanitizeProfanity, validateNoProfanity } from '../../utils/profanityFilter';
 
 class FlashcardService {
     constructor() {
@@ -35,6 +36,52 @@ class FlashcardService {
         );
     }
 
+    validateDeckContentForProfanity({ deckName, description, tags, cards }) {
+        const deckValidation = validateNoProfanity([
+            {
+                label: 'Deck name',
+                value: deckName,
+                message: 'Deck name cannot include profanity.'
+            },
+            {
+                label: 'Deck description',
+                value: description,
+                message: 'Deck description cannot include profanity.'
+            },
+            {
+                label: 'Deck tags',
+                value: this.normalizeTags(tags),
+                message: 'Deck tags cannot include profanity.'
+            }
+        ]);
+
+        if (!deckValidation.valid) {
+            return deckValidation;
+        }
+
+        for (let index = 0; index < (cards || []).length; index += 1) {
+            const card = cards[index] || {};
+            const cardValidation = validateNoProfanity([
+                {
+                    label: `Card ${index + 1} front`,
+                    value: card.front,
+                    message: `Card ${index + 1} front cannot include profanity.`
+                },
+                {
+                    label: `Card ${index + 1} back`,
+                    value: card.back,
+                    message: `Card ${index + 1} back cannot include profanity.`
+                }
+            ]);
+
+            if (!cardValidation.valid) {
+                return cardValidation;
+            }
+        }
+
+        return { valid: true };
+    }
+
     /**
      * Create validated flashcard deck object
      * @param {Object} deckInput - Deck creation data
@@ -64,6 +111,20 @@ class FlashcardService {
             return { 
                 success: false, 
                 error: "Please add at least one card with both front and back content." 
+            };
+        }
+
+        const profanityValidation = this.validateDeckContentForProfanity({
+            deckName,
+            description,
+            tags,
+            cards
+        });
+
+        if (!profanityValidation.valid) {
+            return {
+                success: false,
+                error: profanityValidation.error
             };
         }
 
@@ -310,18 +371,26 @@ class FlashcardService {
         return {
             // Basic info
             id: deck.id,
-            title: deck.title || deck.name || 'Untitled Deck',
-            description: deck.description || '',
+            title: sanitizeProfanity(deck.title || deck.name || 'Untitled Deck'),
+            description: sanitizeProfanity(deck.description || ''),
             
             // Content info
             cardCount: deck.cardCount || (deck.cards ? Object.keys(deck.cards).length : 0),
-            cards: deck.cards || {},
+            cards: Array.isArray(deck.cards)
+                ? deck.cards.map(card => ({
+                    ...card,
+                    front: sanitizeProfanity(card?.front || ''),
+                    back: sanitizeProfanity(card?.back || '')
+                }))
+                : (deck.cards || {}),
             category: deck.category || 'General',
             difficulty: deck.difficulty || '2',
             
             // Tags handling
             tags: deck.tags ? 
-                  (typeof deck.tags === 'string' ? deck.tags.split(',').map(t => t.trim()) : deck.tags) : [],
+                  (typeof deck.tags === 'string'
+                    ? deck.tags.split(',').map(t => sanitizeProfanity(t.trim()))
+                    : deck.tags.map(tag => sanitizeProfanity(tag))) : [],
             
             // Creator info
             creatorId: deck.creatorId || '',
