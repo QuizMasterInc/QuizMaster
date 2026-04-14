@@ -34,4 +34,11 @@ describe("profanityFilter", () => {
     expect(result.valid).toBe(false);
     expect(result.error).toBe("Quiz title cannot include profanity.");
   });
+
+  test("detects profanity inside username-style strings", () => {
+    expect(containsProfanity("fuck123")).toBe(true);
+    expect(containsProfanity("cabron99")).toBe(true);
+    expect(containsProfanity("nigger77")).toBe(true);
+    expect(containsProfanity("StudyBuddy24")).toBe(false);
+  });
 });

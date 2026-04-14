@@ -3,6 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { GoogleButton, GitHubButton } from "./OAuthButtons";
 import {
+  getUsernameValidationMessage,
   isValidUsername,
   isUsernameAvailable,
   normalizeUsername,
@@ -46,8 +47,9 @@ export default function Register() {
       return;
     }
 
-    if (!isValidUsername(usernameTrimmed)) {
-      setUsernameStatus({ state: "invalid", message: "3-24 chars, letters/numbers only, and no profanity." });
+    const validationMessage = getUsernameValidationMessage(usernameTrimmed);
+    if (validationMessage) {
+      setUsernameStatus({ state: "invalid", message: validationMessage });
       return;
     }
 
@@ -87,8 +89,9 @@ export default function Register() {
     e.preventDefault()
 
     const uname = (username || "").trim();
-    if (!isValidUsername(uname)) {
-      return setError("Username must be 3-24 characters, letters/numbers only, and free of profanity.");
+    const validationMessage = getUsernameValidationMessage(uname);
+    if (validationMessage) {
+      return setError(validationMessage);
     }
     if (usernameStatus.state !== "available") {
       return setError("Please choose an available username.");
