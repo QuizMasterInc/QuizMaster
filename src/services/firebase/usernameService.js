@@ -11,6 +11,30 @@ import {
 } from "firebase/firestore";
 
 import { db } from "./firebaseService";
+import { containsProfanity } from "../../utils/profanityFilter";
+
+export function isUsernameProfane(name) {
+  const normalized = normalizeUsername(name).replace(/[^a-z0-9]/g, "");
+  return containsProfanity(normalized);
+}
+
+export function getUsernameValidationMessage(name) {
+  const trimmed = (name || "").trim();
+
+  if (trimmed.length < 3 || trimmed.length > 24) {
+    return "Username must be 3-24 characters. Please change the username.";
+  }
+
+  if (!/^[A-Za-z0-9]+$/.test(trimmed)) {
+    return "Username can only use letters and numbers. Please change the username.";
+  }
+
+  if (isUsernameProfane(trimmed)) {
+    return "That username is not allowed. Please change the username.";
+  }
+
+  return "";
+}
 
 // -------------------------
 // Username rules
@@ -23,8 +47,7 @@ export function normalizeUsername(name) {
 // 3-24 chars
 export function isValidUsername(name) {
   const trimmed = (name || "").trim();
-  if (trimmed.length < 3 || trimmed.length > 24) return false;
-  return /^[A-Za-z0-9]+$/.test(trimmed);
+  return !getUsernameValidationMessage(trimmed);
 }
 
 // Quick check (non-atomic). Use reserveUsername()/changeUsername() for the real lock.
@@ -73,7 +96,7 @@ export async function reserveUsername({ uid, username }) {
   if (!uid) throw new Error("Missing uid");
   // Validate the canonical (lowercased) username so case never causes mismatches.
   if (!isValidUsername(usernameLower)) {
-    throw new Error("Username must be 3-24 chars and letters/digits only.");
+    throw new Error(getUsernameValidationMessage(usernameLower) || "That username is not allowed. Please change the username.");
   }
 
   const unameRef = doc(db, "usernames", usernameLower);
@@ -221,7 +244,7 @@ export async function changeUsername({ uid, username }) {
   if (!uid) throw new Error("Missing uid");
   // Validate the canonical (lowercased) username so case never causes mismatches.
   if (!isValidUsername(usernameLower)) {
-    throw new Error("Username must be 3-24 chars and letters/digits only.");
+    throw new Error(getUsernameValidationMessage(usernameLower) || "That username is not allowed. Please change the username.");
   }
 
   const unameRef = doc(db, "usernames", usernameLower);

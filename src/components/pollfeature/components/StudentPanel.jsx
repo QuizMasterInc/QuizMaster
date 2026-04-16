@@ -49,29 +49,40 @@ return (
 <div className="rounded-2xl border border-accent bg-primary/60 p-6 shadow-sm">
     <h2 className="text-xl font-semibold text-gradient-primary">Take a poll</h2>
     <p className="text-secondary mt-2">
-    Join with the code, sign in, pick one or more options, submit once per account. Results appear when the poll is closed or live results are enabled.
+    Join with the code, pick one or more options, and submit. 
     </p>
+    <div className="mt-4 h-px w-full bg-accent/70" />
 
+    {!poll ? (
     <div className="mt-4 space-y-3">
-    <label className="text-sm font-semibold text-secondary block">Join code</label>
-    <input
-        value={joinCodeInput}
-        onChange={(e) => setJoinCodeInput(e.target.value)}
-        placeholder="e.g. 482193"
-        className="w-full px-4 py-2 rounded-xl border border-input bg-input text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-    />
-    <button
-        onClick={onJoin}
-        disabled={isJoining}
-        className={`w-full px-4 py-2 rounded-full font-semibold shadow-md transition ${
-        isJoining
-            ? "bg-secondary text-secondary border border-primary cursor-wait"
-            : "bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:-translate-y-0.5"
-        }`}
-    >
-        {isJoining ? "Joining..." : "Join poll"}
-    </button>
+        <label className="text-sm font-semibold text-secondary block">Join code</label>
+        <input
+            value={joinCodeInput}
+            onChange={(e) => setJoinCodeInput(e.target.value)}
+            placeholder="e.g. 482193"
+            className="w-full px-4 py-2 rounded-xl border border-input bg-input text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+        />
+        <button
+            onClick={onJoin}
+            disabled={isJoining}
+            className={`w-full px-4 py-2 rounded-full font-semibold shadow-md transition ${
+            isJoining
+                ? "bg-secondary text-secondary border border-primary cursor-wait"
+                : "bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:-translate-y-0.5"
+            }`}
+        >
+            {isJoining ? "Joining..." : "Join poll"}
+        </button>
+        
     </div>
+   ) : (
+    <div className="mt-4">
+        <p className="text-base font-bold text-primary">Question</p>
+        <p className="mt-2 text-lg font-semibold text-primary">
+        {poll.question || "Untitled poll"}
+        </p>
+    </div>
+    )}
 
     {poll && (
     <div className="mt-6">

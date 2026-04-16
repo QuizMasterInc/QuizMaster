@@ -93,14 +93,9 @@ const QuizList = ({
       let result;
 
       if (dataSource === "browseCustomQuizzes") {
-        // IMPORTANT:
-        // Firestore rules can't "partially" allow a mixed query.
-        // If we ask for "all", the server may include private quizzes owned by other users -> permission error.
-        // So, treat "all" as "public" for browsing.
-        const privacySafe =
-          (filters.privacy || "all").toLowerCase() === "all"
-            ? "public"
-            : (filters.privacy || "public").toLowerCase();
+        // Pass through all privacy values so the backend can include public quizzes
+        // plus the current user's own private quizzes when allowed.
+        const privacySafe = (filters.privacy || "all").toLowerCase();
 
         // AllCustomQuizzes logic
         const options = {

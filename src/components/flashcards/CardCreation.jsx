@@ -4,6 +4,7 @@ import CSVUpload from "./CSVUpload";
 import { toast } from 'react-toastify';
 
 export default function CardCreation({ saveDeck, isLoading, initialData }) {
+  const isEditMode = Boolean(initialData);
   const [deckName, setDeckName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("General");
@@ -117,7 +118,7 @@ export default function CardCreation({ saveDeck, isLoading, initialData }) {
   return (
     <div className="w-full max-w-4xl mx-auto card border-2 border-accent">
       <h1 className="text-3xl font-bold text-gradient-primary mb-6 text-center">
-        Create a Flashcard Deck
+        {isEditMode ? "Edit Flashcard Deck" : "Create a Flashcard Deck"}
       </h1>
 
       {/* Deck Information */}
@@ -325,7 +326,7 @@ export default function CardCreation({ saveDeck, isLoading, initialData }) {
         disabled={isLoading || cards.length === 0 || !deckName.trim()}
         className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? "Creating Deck..." : "Save Deck"}
+        {isLoading ? (isEditMode ? "Saving Changes..." : "Creating Deck...") : (isEditMode ? "Save Changes" : "Save Deck")}
       </button>
     </div>
   );

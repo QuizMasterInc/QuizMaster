@@ -13,6 +13,15 @@ export default function EditFlashcardDeck() {
   const [deck, setDeck] = useState(null);
   const [error, setError] = useState(null);
 
+  const resolveDeckOwnerId = (deckData) => (
+    deckData?.creatorId ||
+    deckData?.creator?.uid ||
+    deckData?.createdBy ||
+    deckData?.userId ||
+    deckData?.ownerId ||
+    null
+  );
+
   useEffect(() => {
     async function fetchDeck() {
       if (!deckId || !currentUser) return;
@@ -30,7 +39,8 @@ export default function EditFlashcardDeck() {
             setError("Deck not found");
         } else {
             // Simple authorization check
-            if (deckData.creatorId && deckData.creatorId !== currentUser.uid) {
+            const ownerId = resolveDeckOwnerId(deckData);
+            if (ownerId && ownerId !== currentUser.uid) {
                 toast.error("You do not have permission to edit this deck.");
                 navigate("/myflashcards");
                 return;
@@ -50,16 +60,25 @@ export default function EditFlashcardDeck() {
   const handleUpdate = async (deckData) => {
     try {
         setLoading(true);
-        const updatePayload = {
-            deckId: deckId,
-            userId: currentUser.uid,
-            title: deckData.name,
+        const validationResult = flashcardService.createValidatedDeckUpdateObject({
+            deckName: deckData.name,
             description: deckData.description,
             cards: deckData.cards,
             category: deckData.category,
             difficulty: deckData.difficulty,
             tags: deckData.tags,
             isPublic: deckData.isPublic
+        }, deck);
+
+        if (!validationResult.success) {
+            toast.error(validationResult.error);
+            return;
+        }
+
+        const updatePayload = {
+            deckId,
+            userId: currentUser.uid,
+            ...validationResult.deckObject
         };
 
         // Call service to update
@@ -85,7 +104,7 @@ export default function EditFlashcardDeck() {
   return (
     <div className="relative min-h-screen py-16 px-4 md:px-20 overflow-hidden bg-primary">
       <div className="relative z-10 p-6">
-         <CardCreation saveDeck={handleUpdate} isLoading={loading} initialData={deck} />
+         <CardCreation saveDeck={handleUpdate} isLoading={loading} initialData={flashcardService.normalizeDeckData(deck)} />
       </div>
     </div>
   );

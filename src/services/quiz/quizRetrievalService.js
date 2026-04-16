@@ -3,6 +3,7 @@
  */
 import { handleFirebaseError } from '../firebase/firebaseService';
 import cloudFunctionsAPI from '../api/cloudFunctions';
+import { sanitizeProfanity } from '../../utils/profanityFilter';
 
 class QuizRetrievalService {
   constructor() {
@@ -188,14 +189,14 @@ class QuizRetrievalService {
 
     return {
       id: quiz.uid || quiz.id,
-      title: quiz.title || quiz.metadata?.title || 'Untitled Quiz',
+      title: sanitizeProfanity(quiz.title || quiz.metadata?.title || 'Untitled Quiz'),
       numQuestions: quiz.numQuestions || quiz.metadata?.questionCount || quiz.questionCount || 0,
 
       tags: Array.isArray(quiz.tags)
-        ? quiz.tags
+        ? quiz.tags.map(tag => sanitizeProfanity(tag))
         : Array.isArray(quiz.metadata?.tags)
-          ? quiz.metadata.tags
-          : (quiz.tags || quiz.metadata?.tags ? [quiz.tags || quiz.metadata?.tags] : []),
+          ? quiz.metadata.tags.map(tag => sanitizeProfanity(tag))
+          : (quiz.tags || quiz.metadata?.tags ? [sanitizeProfanity(quiz.tags || quiz.metadata?.tags)] : []),
 
       password: quiz.quizPassword || quiz.password || null,
 
@@ -208,7 +209,7 @@ class QuizRetrievalService {
           quiz.creatorID ||
           quiz.userId ||
           null,
-        displayName: quiz.creator?.displayName || quiz.creator?.name || quiz.creatorName || 'Anonymous User',
+        displayName: sanitizeProfanity(quiz.creator?.displayName || quiz.creator?.name || quiz.creatorName || 'Anonymous User'),
         username: quiz.creator?.username || quiz.creatorUsername || quiz.username || null
       },
 

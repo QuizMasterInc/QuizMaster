@@ -8,14 +8,11 @@ export default function PollQuestionSection({
 
   return (
     <section className="rounded-[2rem] border border-accent/40 bg-gradient-to-br from-primary via-primary to-secondary/60 px-6 py-12 text-center shadow-xl">
-      <p className="text-xs font-semibold uppercase tracking-[0.35em] text-accent">
-        Live Poll
-      </p>
-      <h1 className="mt-5 text-4xl font-extrabold leading-tight text-gradient-primary sm:text-5xl lg:text-6xl">
-        {hasQuestion ? pollQuestion : "Create a poll or join one to start voting."}
+      <h1 className="mt-5 text-4xl font-extrabold leading-tight text-gradient-primary sm:text-6xl lg:text-3xl">
+        Poll Question
       </h1>
       <p className="mx-auto mt-4 max-w-3xl text-base text-secondary sm:text-lg">
-        The question stays front and center, the voting tools stay focused in the middle, and results remain clearly separated below.
+        {hasQuestion ? pollQuestion : "Once a poll has been started, the question will appear here."}
       </p>
 
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm">

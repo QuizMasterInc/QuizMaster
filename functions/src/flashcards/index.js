@@ -7,6 +7,17 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
+function resolveDeckOwnerId(deckData = {}) {
+  return (
+    deckData.creatorId ||
+    deckData.creator?.uid ||
+    deckData.createdBy ||
+    deckData.userId ||
+    deckData.ownerId ||
+    null
+  );
+}
+
 exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
   cors(req, res, async () => {
     const dataType = req.get('content-type');
@@ -228,7 +239,7 @@ exports.getFlashcardDeck = onRequest(async (req, res) => {
   });
 });
 
-exports.deleteFlashcardDeck = onRequest(async (req, res) => {
+exports.deleteFlashcardDeck = onRequest({invoker: 'public'}, async (req, res) => {
   cors(req, res, async () => {
     const deckId = req.query.deckId || req.body?.deckId;
     const userId = req.query.userId || req.body?.userId;
@@ -254,7 +265,9 @@ exports.deleteFlashcardDeck = onRequest(async (req, res) => {
 
       const deckData = deckDoc.data();
 
-      if (deckData.creatorId !== userId) {
+      const ownerId = resolveDeckOwnerId(deckData);
+
+      if (ownerId !== userId) {
         return res.json({
           status: 403,
           success: false,
@@ -301,7 +314,7 @@ exports.deleteFlashcardDeck = onRequest(async (req, res) => {
   });
 });
 
-exports.updateFlashcardDeck = onRequest(async (req, res) => {
+exports.updateFlashcardDeck = onRequest({invoker: 'public'}, async (req, res) => {
   cors(req, res, async () => {
     const contentType = req.get('content-type');
     const data =
@@ -345,7 +358,9 @@ exports.updateFlashcardDeck = onRequest(async (req, res) => {
 
       const deckData = deckDoc.data();
 
-      if (deckData.creatorId !== userId) {
+      const ownerId = resolveDeckOwnerId(deckData);
+
+      if (ownerId !== userId) {
         return res.json({
           status: 403,
           success: false,

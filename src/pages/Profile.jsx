@@ -3,12 +3,12 @@ import { useAuth } from '../contexts/AuthContext';
 import useProfileSectionData from '../hooks/useProfileSectionData';
 import ProfileInfo from '../components/profile/ProfileInfo';
 import QuizAverages from '../components/profile/QuizAverages';
-import ActivityHistory from '../components/profile/ActivityHistory';
 import MyStudyMaterial from '../components/profile/MyStudyMaterial';
+import RecentStudyActivity from '../components/profile/RecentStudyActivity';
 
 const Profile = () => {
   const { user } = useAuth();
-  const { profile, quizzes, results, decks, loading, error, quizAverages, overallStats } =
+  const { profile, quizzes, decks, loading, error, quizAverages, overallStats } =
     useProfileSectionData(user?.uid);
 
   if (loading) {
@@ -54,15 +54,16 @@ const Profile = () => {
             <MyStudyMaterial decks={decks} quizzes={quizzes} />
           </div>
 
+          {/* Recent Activity Section */}
+          <div className="card mb-8">
+            <RecentStudyActivity decks={decks} quizzes={quizzes} />
+          </div>
+
           {/* Quiz Performance Section */}
           <div className="card mb-8">
             <QuizAverages quizAverages={quizAverages} overallStats={overallStats} loading={loading} />
           </div>
 
-          {/* Activity History Section */}
-          <div className="card">
-            <ActivityHistory quizzes={quizzes} decks={decks} results={results} />
-          </div>
         </div>
       </div>
     </div>

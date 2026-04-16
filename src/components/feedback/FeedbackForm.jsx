@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import CloudFunctionsAPI from '../../services/api/cloudFunctions';
+import { containsProfanity } from '../../utils/profanityFilter';
 
 const FeedbackForm = ({ isOpen, onClose }) => {
     const [message, setMessage] = useState('');
@@ -14,6 +15,12 @@ const FeedbackForm = ({ isOpen, onClose }) => {
         e.preventDefault();
         setLoading(true);
         setError('');
+
+        if (containsProfanity(message)) {
+            setError('Please keep your feedback respectful.');
+            setLoading(false);
+            return;
+        }
 
         try {
             await CloudFunctionsAPI.submitFeedback(message, rating);
