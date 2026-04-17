@@ -72,7 +72,7 @@ const getMessageSender = (message) =>
 const statusButtonClass = (isActive) =>
   isActive
     ? 'bg-purple-600 text-white border-purple-500'
-    : 'bg-transparent text-secondary border-white/10 hover:border-purple-400 hover:text-white';
+    : 'bg-card text-primary border-primary hover:border-purple-400 hover:text-primary';
 
 const SupportDashboard = () => {
   const { user } = useAuth();
@@ -379,11 +379,11 @@ const SupportDashboard = () => {
           </div>
         </section>
 
-        <div className="card space-y-6">
+        <div className="card space-y-6 border border-primary bg-card text-primary shadow-lg">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h2 className="text-2xl font-bold">Support Tickets</h2>
-              <p className="text-sm text-secondary mt-1">
+              <p className="mt-1 text-sm text-secondary">
                 Total Tickets: {filteredTickets.length}
                 {filteredTickets.length !== tickets.length ? ` of ${tickets.length}` : ''}
               </p>
@@ -395,13 +395,13 @@ const SupportDashboard = () => {
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Search title, user, email, or message"
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-purple-500"
+                className="rounded-xl border border-primary bg-card px-4 py-3 text-sm text-primary outline-none transition placeholder:text-secondary shadow-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-400/30"
               />
 
               <select
                 value={statusFilter}
                 onChange={(event) => setStatusFilter(event.target.value)}
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-purple-500"
+                className="rounded-xl border border-primary bg-card px-4 py-3 text-sm text-primary outline-none transition shadow-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-400/30"
               >
                 <option value="all">All Statuses</option>
                 <option value="open">Open</option>
@@ -412,7 +412,7 @@ const SupportDashboard = () => {
               <select
                 value={spamFilter}
                 onChange={(event) => setSpamFilter(event.target.value)}
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-purple-500"
+                className="rounded-xl border border-primary bg-card px-4 py-3 text-sm text-primary outline-none transition shadow-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-400/30"
               >
                 <option value="all">All Tickets</option>
                 <option value="active">Active Tickets</option>
@@ -423,7 +423,7 @@ const SupportDashboard = () => {
               <select
                 value={categoryFilter}
                 onChange={(event) => setCategoryFilter(event.target.value)}
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-purple-500"
+                className="rounded-xl border border-primary bg-card px-4 py-3 text-sm text-primary outline-none transition shadow-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-400/30"
               >
                 {categories.map((category) => (
                   <option key={category} value={category}>
@@ -454,7 +454,7 @@ const SupportDashboard = () => {
                       className={`w-full rounded-xl border p-5 text-left transition ${
                         isSelected
                           ? 'border-purple-500 bg-purple-500/10 shadow-lg'
-                          : 'border-white/10 bg-white/5 hover:border-purple-400 hover:bg-white/10'
+                          : 'border-primary bg-card shadow-sm hover:border-purple-400 hover:bg-[var(--bg-secondary)]'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -463,7 +463,7 @@ const SupportDashboard = () => {
                             {getTicketTitle(ticket)}
                           </h3>
                           <div className="space-y-1">
-                            <p className="text-sm text-secondary truncate">
+                            <p className="truncate text-sm text-secondary">
                               {getTicketSubmitter(ticket)}
                             </p>
                             {getTicketUsername(ticket) && (
@@ -494,10 +494,10 @@ const SupportDashboard = () => {
                       </div>
 
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <span className="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs text-secondary">
+                        <span className="inline-flex rounded-full border border-primary px-3 py-1 text-xs text-secondary bg-[var(--bg-secondary)]">
                           {ticketCategory}
                         </span>
-                        <span className="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs text-secondary">
+                        <span className="inline-flex rounded-full border border-primary px-3 py-1 text-xs text-secondary bg-[var(--bg-secondary)]">
                           {formatDate(ticket.createdAt)}
                         </span>
                       </div>
@@ -511,14 +511,14 @@ const SupportDashboard = () => {
               </div>
 
               {selectedTicket ? (
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-6">
+                <div className="rounded-2xl border border-primary bg-card p-6 space-y-6 text-primary shadow-lg">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="space-y-3 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="text-2xl font-bold break-words">
                           {getTicketTitle(selectedTicket)}
                         </h3>
-                        <span className="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs text-secondary">
+                        <span className="inline-flex rounded-full border border-primary bg-[var(--bg-secondary)] px-3 py-1 text-xs text-secondary">
                           {getTicketCategory(selectedTicket)}
                         </span>
                       </div>
@@ -575,8 +575,8 @@ const SupportDashboard = () => {
                         onClick={() => updateTicketSpamStatus(selectedTicket.id, true)}
                         className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
                           isTicketSpam(selectedTicket)
-                            ? 'border-red-400 bg-red-500/20 text-red-200'
-                            : 'border-white/10 text-secondary hover:border-red-400 hover:text-white'
+                            ? 'border-red-400 bg-red-500/20 text-red-600'
+                            : 'border-primary bg-card text-primary hover:border-red-400 hover:text-red-600 hover:bg-[var(--bg-secondary)]'
                         }`}
                       >
                         Mark Spam
@@ -586,8 +586,8 @@ const SupportDashboard = () => {
                         onClick={() => updateTicketSpamStatus(selectedTicket.id, false)}
                         className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
                           !isTicketSpam(selectedTicket)
-                            ? 'border-green-400 bg-green-500/20 text-green-200'
-                            : 'border-white/10 text-secondary hover:border-green-400 hover:text-white'
+                            ? 'border-green-400 text-green-300 bg-transparent'
+                            : 'border-primary bg-card text-primary hover:border-green-400 hover:text-green-700 hover:bg-[var(--bg-secondary)]'
                         }`}
                       >
                         Not Spam
@@ -604,9 +604,9 @@ const SupportDashboard = () => {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <div className="rounded-xl border border-primary bg-[var(--bg-secondary)] p-4">
                     <p className="text-sm font-medium mb-2">Original Issue</p>
-                    <p className="text-secondary whitespace-pre-wrap">
+                    <p className="whitespace-pre-wrap text-primary">
                       {getTicketPreview(selectedTicket)}
                     </p>
                   </div>
@@ -617,13 +617,13 @@ const SupportDashboard = () => {
                       <button
                         type="button"
                         onClick={() => fetchMessages(selectedTicket.id, true)}
-                        className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-secondary transition hover:border-purple-400 hover:text-white"
+                        className="rounded-xl border border-primary bg-card px-4 py-2 text-sm font-semibold text-primary transition hover:border-purple-400 hover:bg-[var(--bg-secondary)]"
                       >
                         {refreshingMessages ? 'Refreshing...' : 'Refresh'}
                       </button>
                     </div>
 
-                    <div className="max-h-[420px] overflow-y-auto space-y-3 rounded-xl border border-white/10 bg-black/20 p-4">
+                    <div className="max-h-[420px] overflow-y-auto space-y-3 rounded-xl border border-primary bg-[var(--bg-secondary)] p-4">
                       {selectedMessages.length === 0 ? (
                         <div className="text-sm text-secondary">
                           No chat messages yet for this ticket.
@@ -638,7 +638,7 @@ const SupportDashboard = () => {
                               className={`rounded-xl p-4 ${
                                 isAdminMessage
                                   ? 'border border-purple-500/30 bg-purple-500/10'
-                                  : 'border border-white/10 bg-white/5'
+                                  : 'border border-primary bg-card'
                               }`}
                             >
                               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -650,7 +650,7 @@ const SupportDashboard = () => {
                                   {formatDate(message.createdAt)}
                                 </p>
                               </div>
-                              <p className="mt-2 whitespace-pre-wrap text-secondary">
+                              <p className="mt-2 whitespace-pre-wrap text-primary">
                                 {getMessageBody(message) || 'No message content.'}
                               </p>
                             </div>
@@ -661,13 +661,13 @@ const SupportDashboard = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <label className="block text-sm font-medium">Reply to Ticket</label>
+                    <label className="block text-sm font-medium text-primary">Reply to Ticket</label>
                     <textarea
                       value={replyText}
                       onChange={(event) => setReplyText(event.target.value)}
                       rows={5}
                       placeholder="Type your response here..."
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-purple-500"
+                      className="w-full rounded-xl border border-primary bg-card px-4 py-3 text-sm text-primary outline-none transition placeholder:text-secondary focus:border-purple-500 focus:ring-2 focus:ring-purple-400/30"
                     />
                     <div className="flex justify-end">
                       <button
@@ -682,7 +682,7 @@ const SupportDashboard = () => {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center text-secondary">
+                <div className="rounded-2xl border border-primary bg-card p-10 text-center text-secondary shadow-lg">
                   Select a ticket to view its issue details and conversation.
                 </div>
               )}

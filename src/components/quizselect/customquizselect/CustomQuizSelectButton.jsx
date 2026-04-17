@@ -289,11 +289,11 @@ const CustomQuizSelectButton = ({
         </button>
 
         {showPasswordManager ? (
-          <div className="mt-3 p-4 rounded-xl bg-[rgba(20,20,28,0.95)] border border-[var(--primary-400)] text-white shadow-lg backdrop-blur-sm">
+          <div className="mt-4 rounded-2xl border border-primary bg-[var(--bg-secondary)] p-4 text-primary shadow-lg">
             {!isEditingPassword ? (
               <>
-                <div className="text-sm font-semibold">Quiz Password</div>
-                <div className="mt-2 text-base break-all">
+                <div className="text-sm font-semibold text-primary">Quiz Password</div>
+                <div className="mt-2 text-base break-all text-primary">
                   {storedQuizPassword
                     ? (showStoredPassword ? storedQuizPassword : "••••••••")
                     : "No password set"}
@@ -301,14 +301,14 @@ const CustomQuizSelectButton = ({
                 <div className="mt-3 flex gap-2 justify-center flex-wrap">
                   {storedQuizPassword ? (
                     <button
-                      className="px-3 py-1 rounded-md bg-[rgba(99,102,241,0.2)] text-[#c4b5fd] border border-[#8b5cf6] hover:bg-[rgba(99,102,241,0.32)] transition"
+                      className="px-3 py-1 rounded-lg border border-[var(--primary-300)] bg-[var(--primary-100)] text-[var(--primary-500)] transition hover:bg-[var(--primary-200)]"
                       onClick={() => setShowStoredPassword((prev) => !prev)}
                     >
                       {showStoredPassword ? "Hide" : "Show"}
                     </button>
                   ) : null}
                   <button
-                    className="px-3 py-1 rounded-md bg-[rgba(139,92,246,0.22)] text-[#f5f3ff] border border-[#a78bfa] hover:bg-[rgba(139,92,246,0.34)] transition"
+                    className="px-3 py-1 rounded-lg border border-[var(--primary-500)] bg-[var(--primary-400)] text-white transition hover:bg-[var(--primary-500)]"
                     onClick={() => {
                       setEditedQuizPassword(storedQuizPassword);
                       setIsEditingPassword(true);
@@ -320,25 +320,25 @@ const CustomQuizSelectButton = ({
               </>
             ) : (
               <>
-                <div className="text-sm font-semibold">Edit Password</div>
+                <div className="text-sm font-semibold text-primary">Edit Password</div>
                 <input
                   type="text"
                   autoComplete="off"
                   value={editedQuizPassword}
                   onChange={(e) => setEditedQuizPassword(e.target.value)}
-                  className="text-xl text-black mt-2 bg-white rounded-md w-full p-1 border"
+                  className="mt-2 w-full rounded-lg border border-primary bg-card px-3 py-2 text-base text-primary focus:outline-none focus:ring-2 focus:ring-accent"
                   placeholder="Enter new quiz password"
                 />
                 <div className="mt-3 flex gap-2 justify-center flex-wrap">
                   <button
-                    className="px-3 py-1 rounded-md bg-[linear-gradient(90deg,#7c3aed,#8b5cf6)] text-white border border-[#a78bfa] hover:opacity-90 transition"
+                    className="px-3 py-1 rounded-lg border border-[var(--primary-500)] bg-[var(--primary-400)] text-white transition hover:bg-[var(--primary-500)]"
                     onClick={handleSaveQuizPassword}
                     disabled={isSavingPassword}
                   >
                     {isSavingPassword ? "Saving..." : "Save"}
                   </button>
                   <button
-                    className="px-3 py-1 rounded-md bg-[rgba(255,255,255,0.08)] text-[#e9d5ff] border border-[#8b5cf6] hover:bg-[rgba(255,255,255,0.14)] transition"
+                    className="px-3 py-1 rounded-lg border border-primary bg-[var(--bg-card)] text-primary transition hover:bg-[var(--bg-secondary)]"
                     onClick={() => {
                       setEditedQuizPassword(storedQuizPassword);
                       setIsEditingPassword(false);
@@ -350,7 +350,7 @@ const CustomQuizSelectButton = ({
                 </div>
                 {storedQuizPassword ? (
                   <button
-                    className="mt-3 px-3 py-1 rounded-md bg-[rgba(190,24,93,0.18)] text-[#fbcfe8] border border-[#ec4899] hover:bg-[rgba(190,24,93,0.28)] transition"
+                    className="mt-3 px-3 py-1 rounded-lg border border-red-400 bg-[rgba(239,68,68,0.12)] text-red-600 transition hover:bg-[rgba(239,68,68,0.2)]"
                     onClick={() => setEditedQuizPassword("")}
                     disabled={isSavingPassword}
                   >
@@ -366,9 +366,9 @@ const CustomQuizSelectButton = ({
   };
 
   return (
-    <div className="w-1/2 p-5 text-center -sm:p-1">
+    <div className="w-full max-w-[320px] p-2 text-center">
       {quizPassword && !isCreator ? (
-        <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
+        <div className="card relative rounded-2xl border border-accent bg-card text-primary px-5 py-6 shadow-lg hover:shadow-xl">
           <div className="text-2xl text-[var(--primary-500)]">{title}</div>
           <div className="text-base">{renderCreatorName()}</div>
           <div className="text-base">{displayTags(tags)}</div>
@@ -376,8 +376,8 @@ const CustomQuizSelectButton = ({
           <input
             type="text"
             autoComplete="off"
-            placeholder='Enter Quiz Password'
-            className='text-xl text-black mb-4 bg-gray-300 rounded-md w-full p-1'
+            placeholder="Enter Quiz Password"
+            className="mb-4 w-full rounded-lg border border-primary bg-card px-3 py-2 text-base text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             id="quizPasswordAttempt"
             value={quizPasswordAttempt}
             onChange={handleQuizPasswordChange}
@@ -398,7 +398,7 @@ const CustomQuizSelectButton = ({
           />
         </div>
       ) : (
-        <div className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent">
+        <div className="card relative rounded-2xl border border-accent bg-card text-primary px-5 py-6 shadow-lg hover:shadow-xl">
           {quizPassword && isCreator ? (
             <>
               <div className="text-2xl text-[var(--primary-500)] cursor-pointer" onClick={handleCreatorStart}>{title}</div>
