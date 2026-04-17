@@ -84,6 +84,7 @@ const SupportDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [spamFilter, setSpamFilter] = useState('active');
+  const [hasInitializedFilters, setHasInitializedFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [replyText, setReplyText] = useState('');
   const [replying, setReplying] = useState(false);
@@ -134,9 +135,6 @@ const SupportDashboard = () => {
           .filter((ticket) => ticket.deleted !== true);
 
         setTickets(ticketsData);
-        if (ticketsData.length > 0) {
-          setSelectedTicketId((current) => current || ticketsData[0].id);
-        }
       } catch (err) {
         console.error('Error loading support tickets:', err);
         setError(err);
@@ -153,6 +151,16 @@ const SupportDashboard = () => {
     tickets.forEach((ticket) => values.add(getTicketCategory(ticket)));
     return ['all', ...Array.from(values).sort((a, b) => a.localeCompare(b))];
   }, [tickets]);
+
+  useEffect(() => {
+    if (hasInitializedFilters || tickets.length === 0) {
+      return;
+    }
+
+    setSpamFilter('active');
+    setStatusFilter('all');
+    setHasInitializedFilters(true);
+  }, [tickets, hasInitializedFilters]);
 
   const filteredTickets = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -193,6 +201,10 @@ const SupportDashboard = () => {
   }, [tickets, statusFilter, categoryFilter, spamFilter, searchTerm]);
 
   useEffect(() => {
+    if (!hasInitializedFilters) {
+      return;
+    }
+
     if (filteredTickets.length === 0) {
       setSelectedTicketId(null);
       return;
@@ -202,7 +214,7 @@ const SupportDashboard = () => {
     if (!selectedStillVisible) {
       setSelectedTicketId(filteredTickets[0].id);
     }
-  }, [filteredTickets, selectedTicketId]);
+  }, [filteredTickets, selectedTicketId, hasInitializedFilters]);
 
   useEffect(() => {
     if (selectedTicketId && !messagesByTicket[selectedTicketId]) {
