@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import useProfileSectionData from '../hooks/useProfileSectionData';
 import ProfileInfo from '../components/profile/ProfileInfo';
@@ -34,13 +35,25 @@ const Profile = () => {
   return (
     <div className="dashboard-content">
       <div className="relative max-w-[1600px] mx-auto space-y-20 mb-10">
-        <section className="text-center space-y-2">
-          <h1 className="dashboard-title text-5xl font-extrabold tracking-tight drop-shadow sm:text-6xl text-gradient-primary">
-            My Profile
-          </h1>
-          <p className="dashboard-subtitle text-lg text-secondary">
-            View your activity, quiz performance, and manage your account information.
-          </p>
+        <section className="text-center space-y-4">
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-between sm:text-left">
+            <div className="space-y-2">
+              <h1 className="dashboard-title text-5xl font-extrabold tracking-tight drop-shadow sm:text-6xl text-gradient-primary">
+                My Profile
+              </h1>
+              <p className="dashboard-subtitle text-lg text-secondary">
+                View your activity, quiz performance, and manage your account information.
+              </p>
+            </div>
+
+            {profile?.isAdmin === true && (
+              <Link
+                to="/support-dashboard"
+                className="card inline-flex items-center justify-center bg-purple-600 px-5 py-3 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-purple-700">
+                Admin Dashboard
+              </Link>
+            )}
+          </div>
         </section>
 
         <div className="dashboard-section">
@@ -61,9 +74,12 @@ const Profile = () => {
 
           {/* Quiz Performance Section */}
           <div className="card mb-8">
-            <QuizAverages quizAverages={quizAverages} overallStats={overallStats} loading={loading} />
+            <QuizAverages
+              quizAverages={quizAverages}
+              overallStats={overallStats}
+              loading={loading}
+            />
           </div>
-
         </div>
       </div>
     </div>

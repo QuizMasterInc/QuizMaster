@@ -6,7 +6,7 @@
  * The routes are enclosed in the authprovider, this is how we ensure authenticaiton throughout the application
  */
 import NavBar from './components/navbar/NavBar'
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import NotFound from './pages/NotFound';
 import SelectQuiz from './components/quizselect/SelectQuiz';
 import QuizActivity from './components/quiz/QuizActivity';
@@ -17,6 +17,8 @@ import About from './components/about/About';
 import Contact from './components/contact/Contact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import Support from './pages/Support';
+import SupportDashboard from './pages/SupportDashboard';
 import { AppProvider } from './contexts/AppContext';
 import { QuizProvider } from './contexts/QuizContext';
 import { ResultsProvider } from './contexts/ResultsContext';
@@ -47,6 +49,7 @@ import { Footer } from './components/ui/index.jsx';
 import Settings from './components/settings/Settings'
 import { CATEGORY_DESTINATIONS } from './constants/quizConstants.jsx';
 import { useAuth } from './contexts/AuthContext';
+import useProfileSectionData from './hooks/useProfileSectionData';
 import Presentation from './components/presentation/presentation';
 import Classroom from './pages/Classroom';
 import Poll from './components/pollfeature/Poll.jsx';
@@ -54,6 +57,29 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect } from "react";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  const { profile, loading: profileLoading } = useProfileSectionData(user?.uid);
+
+  if (loading || profileLoading) {
+    return (
+      <div className="min-h-screen bg-primary flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user || user.isAnonymous) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  if (profile?.isAdmin !== true) {
+    return <Navigate to="/profile" replace />;
+  }
+
+  return children;
+};
 
 function App() {
   const { user, loading, error } = useAuth();
@@ -106,7 +132,17 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/support" element={
+                <PrivateRoute>
+                  <Support />
+                </PrivateRoute>
+              } />
               <Route path="/poll" element={<Poll />} />
+              <Route path="/support-dashboard" element={
+                <AdminRoute>
+                  <SupportDashboard />
+                </AdminRoute>
+              } />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="/settings" element={
