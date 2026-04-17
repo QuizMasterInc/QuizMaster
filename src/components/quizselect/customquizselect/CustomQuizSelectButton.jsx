@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import DeleteQuizButton from "./DeleteQuizButton";
-import { collection, getDocs, limit, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, limit, query, updateDoc, where } from "firebase/firestore";
 import { db } from "../../../services/firebase/firebaseService";
 import { useAuth } from "../../../contexts/AuthContext";
 import { toast } from 'react-toastify';
@@ -24,8 +24,15 @@ const CustomQuizSelectButton = ({
   const { currentUser } = useAuth();
   const [quizPasswordAttempt, setQuizPasswordAttempt] = useState("");
   const [resolvedCreatorUsername, setResolvedCreatorUsername] = useState(null);
+  const [showPasswordManager, setShowPasswordManager] = useState(false);
+  const [showStoredPassword, setShowStoredPassword] = useState(false);
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [storedQuizPassword, setStoredQuizPassword] = useState(quizPassword || "");
+  const [editedQuizPassword, setEditedQuizPassword] = useState(quizPassword || "");
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
 
   const isCreator = currentUserId && creatorId && currentUserId === creatorId;
+  const showOwnerPasswordTools = isCreator && location.pathname === "/myquizzes";
 
   useEffect(() => {
     let cancelled = false;
@@ -73,6 +80,43 @@ const CustomQuizSelectButton = ({
       cancelled = true;
     };
   }, [creatorUsername, creatorId]);
+
+  useEffect(() => {
+    const nextPassword = quizPassword || "";
+    setStoredQuizPassword(nextPassword);
+    setEditedQuizPassword(nextPassword);
+  }, [quizPassword]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadOwnerPassword() {
+      if (!showOwnerPasswordTools || !uid) return;
+
+      try {
+        const quizRef = doc(db, "custom_quizzes", uid);
+        const quizSnap = await getDoc(quizRef);
+
+        if (!quizSnap.exists() || cancelled) return;
+
+        const data = quizSnap.data() || {};
+        const actualPassword = data?.metadata?.password || "";
+
+        if (!cancelled) {
+          setStoredQuizPassword(actualPassword);
+          setEditedQuizPassword(actualPassword);
+        }
+      } catch (error) {
+        console.error("Failed to load owner quiz password:", error);
+      }
+    }
+
+    loadOwnerPassword();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [showOwnerPasswordTools, uid]);
 
   function getCreatorLabel() {
     const effective = (
@@ -198,7 +242,128 @@ const CustomQuizSelectButton = ({
 
   const handleQuizPasswordChange = (e) => {
     setQuizPasswordAttempt(e.target.value);
-  }
+  };
+
+  const handleSaveQuizPassword = async () => {
+    const trimmedPassword = editedQuizPassword.trim();
+
+    try {
+      setIsSavingPassword(true);
+
+      await updateDoc(doc(db, "custom_quizzes", uid), {
+        "metadata.password": trimmedPassword,
+        "metadata.hasPassword": Boolean(trimmedPassword),
+      });
+
+      setStoredQuizPassword(trimmedPassword);
+      setEditedQuizPassword(trimmedPassword);
+      setShowStoredPassword(Boolean(trimmedPassword));
+      setShowPasswordManager(true);
+      setIsEditingPassword(false);
+      toast.success(trimmedPassword ? "Quiz password updated!" : "Quiz password removed!");
+    } catch (error) {
+      console.error("Failed to update quiz password:", error);
+      toast.error("Failed to update quiz password.");
+    } finally {
+      setIsSavingPassword(false);
+    }
+  };
+
+  const renderPasswordManager = () => {
+    if (!showOwnerPasswordTools) return null;
+
+    return (
+      <div className="mt-3">
+        <button
+          className="inline-block px-4 py-1 rounded-lg font-medium text-white bg-[linear-gradient(90deg,#7c3aed,#8b5cf6)] border border-[#a78bfa] shadow-md hover:opacity-90 transition"
+          onClick={() => {
+            setShowPasswordManager((prev) => {
+              const nextOpen = !prev;
+              setShowStoredPassword(nextOpen && Boolean(storedQuizPassword));
+              return nextOpen;
+            });
+            setIsEditingPassword(false);
+          }}
+        >
+          View / Edit Password
+        </button>
+
+        {showPasswordManager ? (
+          <div className="mt-3 p-4 rounded-xl bg-[rgba(20,20,28,0.95)] border border-[var(--primary-400)] text-white shadow-lg backdrop-blur-sm">
+            {!isEditingPassword ? (
+              <>
+                <div className="text-sm font-semibold">Quiz Password</div>
+                <div className="mt-2 text-base break-all">
+                  {storedQuizPassword
+                    ? (showStoredPassword ? storedQuizPassword : "••••••••")
+                    : "No password set"}
+                </div>
+                <div className="mt-3 flex gap-2 justify-center flex-wrap">
+                  {storedQuizPassword ? (
+                    <button
+                      className="px-3 py-1 rounded-md bg-[rgba(99,102,241,0.2)] text-[#c4b5fd] border border-[#8b5cf6] hover:bg-[rgba(99,102,241,0.32)] transition"
+                      onClick={() => setShowStoredPassword((prev) => !prev)}
+                    >
+                      {showStoredPassword ? "Hide" : "Show"}
+                    </button>
+                  ) : null}
+                  <button
+                    className="px-3 py-1 rounded-md bg-[rgba(139,92,246,0.22)] text-[#f5f3ff] border border-[#a78bfa] hover:bg-[rgba(139,92,246,0.34)] transition"
+                    onClick={() => {
+                      setEditedQuizPassword(storedQuizPassword);
+                      setIsEditingPassword(true);
+                    }}
+                  >
+                    {storedQuizPassword ? "✏️ Edit" : "+ Add Password"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-sm font-semibold">Edit Password</div>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  value={editedQuizPassword}
+                  onChange={(e) => setEditedQuizPassword(e.target.value)}
+                  className="text-xl text-black mt-2 bg-white rounded-md w-full p-1 border"
+                  placeholder="Enter new quiz password"
+                />
+                <div className="mt-3 flex gap-2 justify-center flex-wrap">
+                  <button
+                    className="px-3 py-1 rounded-md bg-[linear-gradient(90deg,#7c3aed,#8b5cf6)] text-white border border-[#a78bfa] hover:opacity-90 transition"
+                    onClick={handleSaveQuizPassword}
+                    disabled={isSavingPassword}
+                  >
+                    {isSavingPassword ? "Saving..." : "Save"}
+                  </button>
+                  <button
+                    className="px-3 py-1 rounded-md bg-[rgba(255,255,255,0.08)] text-[#e9d5ff] border border-[#8b5cf6] hover:bg-[rgba(255,255,255,0.14)] transition"
+                    onClick={() => {
+                      setEditedQuizPassword(storedQuizPassword);
+                      setIsEditingPassword(false);
+                    }}
+                    disabled={isSavingPassword}
+                  >
+                    Cancel
+                  </button>
+                </div>
+                {storedQuizPassword ? (
+                  <button
+                    className="mt-3 px-3 py-1 rounded-md bg-[rgba(190,24,93,0.18)] text-[#fbcfe8] border border-[#ec4899] hover:bg-[rgba(190,24,93,0.28)] transition"
+                    onClick={() => setEditedQuizPassword("")}
+                    disabled={isSavingPassword}
+                  >
+                    Remove Password
+                  </button>
+                ) : null}
+              </>
+            )}
+          </div>
+        ) : null}
+      </div>
+    );
+  };
 
   return (
     <div className="w-1/2 p-5 text-center -sm:p-1">
@@ -248,6 +413,7 @@ const CustomQuizSelectButton = ({
                   Start
                 </button>
               </div>
+              {renderPasswordManager()}
             </>
           ) : (
             <>
@@ -270,6 +436,7 @@ const CustomQuizSelectButton = ({
                 <div className="text-base">{displayTags(tags)}</div>
                 <div className="text-base">Questions: {numQuestions}</div>
               </Link>
+              {renderPasswordManager()}
             </>
           )}
           <DeleteQuizButton
