@@ -12,6 +12,7 @@ const PROFANITY_STEMS = [
   "chingado",
   "chingar",
   "chingon",
+  "cracker",
   "crap",
   "cunt",
   "damn",
