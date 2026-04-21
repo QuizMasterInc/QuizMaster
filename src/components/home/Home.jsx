@@ -32,6 +32,7 @@ const FeatureCard = ({ icon, title, desc, delayClass, route, isAuthenticated }) 
 
 function Home() {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -57,12 +58,15 @@ function Home() {
     };
   }, []);
 
+  const handleSupportTicketClick = () => {
+    navigate("/support");
+  };
+
   return (
     <div className="relative min-h-screen overflow-x-hidden font-main bg-primary text-primary">
       <div>
         <HeroSection isAuthenticated={isAuthenticated} />
       </div>
-
 
       <section ref={sectionRef} className="py-20 text-center px-4 relative z-10 animate-on-scroll">
         <h2 className="text-4xl font-bold mb-12 font-main text-gradient-primary">
@@ -95,6 +99,15 @@ function Home() {
           />
         </div>
       </section>
+
+      <div className="flex justify-center pb-10 relative z-10">
+        <button
+          onClick={handleSupportTicketClick}
+          className="text-sm text-secondary hover:text-accent transition-colors duration-200 font-main"
+        >
+          Submit a Support Ticket
+        </button>
+      </div>
     </div>
   );
 }

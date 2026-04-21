@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
-import FeedbackForm from '../feedback/FeedbackForm';
 
 // Reusable Button Component
 export const Button = ({
@@ -90,7 +88,6 @@ export const Card = ({
 // Reusable Footer Component
 export const Footer = () => {
   const appVersion = "2.1.0";
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   return (
     <>
@@ -102,12 +99,12 @@ export const Footer = () => {
             </p>
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 items-center">
               <span className="text-gray-500">v{appVersion}</span>
-              <button
-                onClick={() => setFeedbackOpen(true)}
+              <Link
+                to="/support"
                 className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
               >
-                Feedback
-              </button>
+                Support
+              </Link>
               <Link
                 to="/contact"
                 className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
@@ -136,8 +133,6 @@ export const Footer = () => {
           </div>
         </div>
       </footer>
-
-      <FeedbackForm isOpen={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
     </>
   );
 };

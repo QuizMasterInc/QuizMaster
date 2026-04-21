@@ -59,6 +59,8 @@ export default function QuizCreation({
   sendQuiz,
   quizName,
   setQuizName,
+  quizDescription,
+  setQuizDescription,
   privateQuiz,
   setPrivateQuiz,
   privateQuizPassword,
@@ -129,6 +131,9 @@ export default function QuizCreation({
 
   // Handle quiz name change
   const handleQuizNameChange = (e) => setQuizName(e.target.value);
+
+  // Handle quiz description change
+  const handleQuizDescriptionChange = (e) => setQuizDescription(e.target.value);
 
   // Handle quiz password change
   const handleQuizPasswordChange = (e) => setPrivateQuizPassword(e.target.value);
@@ -214,6 +219,23 @@ export default function QuizCreation({
           onCategoryChange={updateQuizTags}
           showCategoryError={showCategoryError}
         />
+
+        <div className="space-y-2">
+          <label htmlFor="quiz-description" className="block text-sm font-medium text-primary">
+            Quiz Description <span className="text-secondary font-normal">(Optional)</span>
+          </label>
+          <textarea
+            id="quiz-description"
+            value={quizDescription}
+            onChange={handleQuizDescriptionChange}
+            placeholder="Give players a quick idea of what this quiz is about."
+            rows={4}
+            className="w-full rounded-lg border border-primary bg-transparent text-primary placeholder:text-secondary px-4 py-3 shadow-sm focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent resize-vertical"
+          />
+          <p className="text-xs text-secondary leading-relaxed">
+            This will appear on the quiz overview page before someone starts the quiz.
+          </p>
+        </div>
       </CollapsibleSection>
 
       {/* Quiz Settings (collapsed by default) */}

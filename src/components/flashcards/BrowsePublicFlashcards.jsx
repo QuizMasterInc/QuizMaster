@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import flashcardService from '../../services/flashcards/flashcardService';
 import FlashcardPreview from './FlashcardPreview';
@@ -40,6 +40,7 @@ export default function BrowsePublicFlashcards() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
+    searchTerm: '',
     category: 'all',
     difficulty: 'all',
     sortBy: 'recent'
@@ -52,7 +53,14 @@ export default function BrowsePublicFlashcards() {
   useEffect(() => {
     fetchPublicFlashcards();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [filters.category, filters.difficulty, filters.sortBy]);
+
+  const handleFilterChange = (key, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: value
+    }));
+  };
 
   const fetchCategories = async () => {
     try {
@@ -105,9 +113,7 @@ export default function BrowsePublicFlashcards() {
 
         return {
           ...d,
-          // store as plain username (no @)
           creatorUsername: existing,
-          // Mirror onto nested creator.username too (helps other components that read creator.username)
           creator: d?.creator ? { ...d.creator, username: existing || d.creator.username } : d?.creator
         };
       });
@@ -148,6 +154,26 @@ export default function BrowsePublicFlashcards() {
     }
   };
 
+  const filteredFlashcardDecks = useMemo(() => {
+    const search = filters.searchTerm.trim().toLowerCase();
+
+    if (!search) {
+      return flashcardDecks;
+    }
+
+    return flashcardDecks.filter((deck) => {
+      const titleMatch = deck?.title?.toLowerCase().includes(search);
+      const descriptionMatch = deck?.description?.toLowerCase().includes(search);
+      const categoryMatch = deck?.category?.toLowerCase().includes(search);
+      const creatorMatch = getCreatorLabel(deck).toLowerCase().includes(search);
+      const tagMatch = Array.isArray(deck?.tags)
+        ? deck.tags.some((tag) => String(tag).toLowerCase().includes(search))
+        : false;
+
+      return titleMatch || descriptionMatch || categoryMatch || creatorMatch || tagMatch;
+    });
+  }, [flashcardDecks, filters.searchTerm]);
+
   return (
     <div className="min-h-screen bg-primary relative overflow-hidden py-20 px-6 text-[var(--text-primary)]">
       <div className="relative z-10">
@@ -155,7 +181,6 @@ export default function BrowsePublicFlashcards() {
           Browse Public Flashcard Decks
         </h1>
 
-        {/* Navigation */}
         <div className="flex justify-center items-center gap-4 mb-8">
           <Link
             to="/myflashcards"
@@ -177,31 +202,96 @@ export default function BrowsePublicFlashcards() {
           </div>
         )}
 
-        <p className="mt-6 text-center text-lg">
+        <div className="flex flex-wrap justify-center items-center gap-4 mt-8 mb-4 text-[var(--text-primary)]">
+          <label className="flex items-center gap-2">
+            <span className="font-medium">Search:</span>
+            <input
+              type="text"
+              value={filters.searchTerm}
+              onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
+              placeholder="Search"
+              className="px-3 py-2 rounded-md border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            />
+          </label>
+
+          <label className="flex items-center gap-2">
+            <span className="font-medium">Category:</span>
+            <select
+              value={filters.category}
+              onChange={(e) => handleFilterChange('category', e.target.value)}
+              className="px-3 py-2 rounded-md border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            >
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category === 'all' ? 'All Categories' : category}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <span className="font-medium">Difficulty:</span>
+            <select
+              value={filters.difficulty}
+              onChange={(e) => handleFilterChange('difficulty', e.target.value)}
+              className="px-3 py-2 rounded-md border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            >
+              <option value="all">All Difficulties</option>
+              <option value="1">Easy</option>
+              <option value="2">Medium</option>
+              <option value="3">Hard</option>
+            </select>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <span className="font-medium">Sort by:</span>
+            <select
+              value={filters.sortBy}
+              onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+              className="px-3 py-2 rounded-md border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            >
+              <option value="recent">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="titleAsc">Title, A→Z</option>
+              <option value="titleDesc">Title, Z→A</option>
+              <option value="cardsAsc">Shortest</option>
+              <option value="cardsDesc">Longest</option>
+            </select>
+          </label>
+
+          <button
+            type="button"
+            onClick={fetchPublicFlashcards}
+            className="px-4 py-2 bg-[var(--btn-primary-bg)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+          >
+            Refresh
+          </button>
+        </div>
+
+        <p className="mt-2 text-center text-lg">
           Found{' '}
-          <span className="font-bold text-[var(--accent)]">{flashcardDecks.length}</span>{' '}
-          public deck{flashcardDecks.length !== 1 ? 's' : ''}
+          <span className="font-bold text-[var(--accent)]">{filteredFlashcardDecks.length}</span>{' '}
+          public deck{filteredFlashcardDecks.length !== 1 ? 's' : ''}
         </p>
 
         {loading ? (
           <div className="flex justify-center items-center mt-10">
             <div className="text-gradient-primary text-lg">Loading public flashcard decks...</div>
           </div>
-        ) : flashcardDecks.length === 0 ? (
+        ) : filteredFlashcardDecks.length === 0 ? (
           <div className="flex flex-col items-center mt-10 p-8">
             <div className="text-center text-lg text-[var(--text-secondary)] mb-6">
-              No public flashcard decks found.
+              No flashcard decks match your current filters.
             </div>
           </div>
         ) : (
           <div id="flashcardDecks" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
-            {flashcardDecks.map((deck, index) => (
+            {filteredFlashcardDecks.map((deck, index) => (
               <div key={deck.id || index} className="w-full md:w-1/2 lg:w-1/3 p-5 text-center">
                 <div className="card rounded-lg shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col">
                   <div className="p-6 flex-grow">
                     <div className="text-2xl text-[var(--accent)] font-bold mb-3">{deck.title}</div>
 
-                    {/* Creator line */}
                     <div className="text-sm text-[var(--text-secondary)] mb-3">
                       <strong>Created by:</strong>{' '}
                       {deck?.creatorUsername && isValidUsername(deck.creatorUsername) ? (

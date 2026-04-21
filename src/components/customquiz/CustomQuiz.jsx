@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 export default function CustomQuiz() {
   const [quizData, setQuizData] = useState([])
   const [quizName, setQuizName] = useState("")
+  const [quizDescription, setQuizDescription] = useState("")
   const [privateQuizPassword, setPrivateQuizPassword] = useState("")
   const [privateQuiz, setPrivateQuiz] = useState(false)
   const [quizTags, setQuizTags] = useState([])
@@ -44,6 +45,7 @@ export default function CustomQuiz() {
       }
 
       setIsCreatingQuiz(true);
+      const normalizedDescription = quizDescription.trim();
 
       const quizInput = {
         quizName,
@@ -53,7 +55,7 @@ export default function CustomQuiz() {
         privateQuizPassword,
         currentUserId: currentUser.uid,
         teacherQuiz,
-        description: "",
+        description: normalizedDescription,
         category: ""
       };
 
@@ -74,6 +76,7 @@ export default function CustomQuiz() {
         // Reset form
         setQuizData([]);
         setQuizName("");
+        setQuizDescription("");
         setPrivateQuizPassword("");
         setQuizTags([]);
 
@@ -124,6 +127,8 @@ export default function CustomQuiz() {
             sendQuiz={sendQuiz}
             quizName={quizName}
             setQuizName={setQuizName}
+            quizDescription={quizDescription}
+            setQuizDescription={setQuizDescription}
             privateQuiz={privateQuiz}
             setPrivateQuiz={setPrivateQuiz}
             privateQuizPassword={privateQuizPassword}
