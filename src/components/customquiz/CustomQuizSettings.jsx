@@ -18,6 +18,11 @@ function CustomQuizSettings() {
   const [passwordError, setPasswordError] = useState('');
 
   const password = location.state?.password;
+  const quizDescription = quizData?.metadata?.description || '';
+  const questionCount = quizData?.metadata?.questionCount || 0;
+  const category = quizData?.metadata?.category || '';
+  const tags = quizData?.metadata?.tags || '';
+  const difficulty = quizData?.metadata?.difficulty || '';
 
   const fetchQuizData = async (quizPassword) => {
     try {
@@ -165,34 +170,64 @@ function CustomQuizSettings() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-primary relative overflow-hidden m-5">
-      <div className="card rounded-3xl shadow-2xl px-10 py-12 space-y-10 z-10 w-[600px]">
-
-        <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-extrabold">
-            Quiz Settings
+    <div className="min-h-screen bg-primary text-primary relative overflow-hidden px-4 pt-10 pb-24">
+      <div className="card rounded-3xl shadow-2xl px-8 py-10 space-y-8 z-10 w-full max-w-[600px] mx-auto border border-[var(--border-primary)]">
+        <div className="flex justify-between items-center gap-4">
+          <h1 className="text-4xl font-extrabold text-primary">
+            Quiz Overview
           </h1>
-          <div className="rounded-lg shadow-lg transition duration-200">
+          <div className="transition duration-200 opacity-90">
             <BackButton />
           </div>
         </div>
 
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-semibold text-gradient-primary">
+        <div className="text-center space-y-3">
+          <h2 className="text-2xl font-semibold text-primary">
             {quizData.metadata?.title || quizData.title || 'Custom Quiz'}
           </h2>
           <p className="text-secondary">
-            {hasDraft ? 'You have an in-progress attempt.' : 'Ready to start your quiz?'}
+            {hasDraft ? 'You have an in-progress attempt.' : 'Review the quiz details before you begin.'}
           </p>
+
+          {(questionCount || category || tags || difficulty) && (
+            <div className="flex flex-wrap justify-center gap-2 pt-2">
+              {questionCount ? (
+                <span className="px-3 py-1 rounded-full text-sm bg-[var(--bg-secondary)] text-secondary border border-[var(--border-primary)]">
+                  {questionCount} {questionCount === 1 ? 'Question' : 'Questions'}
+                </span>
+              ) : null}
+              {category ? (
+                <span className="px-3 py-1 rounded-full text-sm bg-[var(--bg-secondary)] text-secondary border border-[var(--border-primary)]">
+                  {category}
+                </span>
+              ) : null}
+              {tags ? (
+                <span className="px-3 py-1 rounded-full text-sm bg-[var(--bg-secondary)] text-secondary border border-[var(--border-primary)]">
+                  {tags}
+                </span>
+              ) : null}
+              {difficulty ? (
+                <span className="px-3 py-1 rounded-full text-sm bg-[var(--bg-secondary)] text-secondary border border-[var(--border-primary)]">
+                  Difficulty: {difficulty}
+                </span>
+              ) : null}
+            </div>
+          )}
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
+          {quizDescription.trim() && (
+            <div className="bg-[var(--bg-secondary)] rounded-2xl p-5 border border-[var(--border-primary)] shadow-sm">
+              <h3 className="text-lg font-semibold mb-2 text-primary">Description</h3>
+              <p className="text-secondary leading-relaxed break-words">{quizDescription}</p>
+            </div>
+          )}
         </div>
 
-        <div className="pt-8 flex justify-center">
+        <div className="pt-4 flex justify-center">
           <button
             onClick={handleStartQuiz}
-            className="inline-block px-8 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
+            className="inline-block px-8 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border border-accent"
           >
             {hasDraft ? 'Resume Quiz' : 'Start Quiz'}
           </button>

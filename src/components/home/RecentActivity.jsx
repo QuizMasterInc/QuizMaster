@@ -230,7 +230,7 @@ const RecentActivity = ({ limit = 6 }) => {
           <h3 className="text-lg font-semibold">No recent activity</h3>
           <p className="text-sm text-secondary">Start a quiz or study some flashcards to see them here.</p>
           <div className="mt-4 flex justify-center gap-3">
-            <button onClick={() => navigate('/typeofquiz', { state: { from: location.pathname } })} className="btn btn-primary">Take a Quiz</button>
+            <button onClick={() => navigate('/allcustomquizzes', { state: { from: location.pathname } })} className="btn btn-primary">Take a Quiz</button>
             <button onClick={() => navigate('/flashcards', { state: { from: location.pathname } })} className="btn btn-secondary">Study Flashcards</button>
           </div>
         </div>

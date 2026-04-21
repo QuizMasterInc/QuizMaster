@@ -8,6 +8,7 @@ import {
   collection,
   query,
   where,
+  writeBatch,
 } from "firebase/firestore";
 
 import { db } from "./firebaseService";
@@ -51,13 +52,21 @@ export function isValidUsername(name) {
 }
 
 // Quick check (non-atomic). Use reserveUsername()/changeUsername() for the real lock.
-export async function isUsernameAvailable(username) {
+// If a uid is provided, a username already reserved by that same uid is treated as available.
+export async function isUsernameAvailable(username, uid = null) {
   const usernameLower = normalizeUsername(username);
   if (!usernameLower) return false;
 
   const unameRef = doc(db, "usernames", usernameLower);
   const snap = await getDoc(unameRef);
-  return !snap.exists();
+
+  if (!snap.exists()) return true;
+
+  // Treat usernames already owned by this same user as available so they can
+  // keep or revert to one of their own reserved usernames.
+  if (uid && snap.data()?.uid === uid) return true;
+
+  return false;
 }
 
 // Batch helper for UI joins (uids -> username). Firestore `in` queries are limited to 10.
@@ -233,10 +242,11 @@ export async function ensureOAuthUsername({ uid }) {
 // Username change
 // -------------------------
 
-// Change username while keeping the old username reserved (prevents impersonation).
+// Change username and release the user's previous username so it can be reused.
 // This will:
 //  - fail if the new username is owned by someone else
-//  - create a new usernames/{usernameLower} doc if it doesn't exist
+//  - reserve usernames/{usernameLower} for this user if needed
+//  - delete the previous usernames/{oldUsernameLower} doc when it is owned by this user
 //  - update users/{uid}.username + usernameLower
 export async function changeUsername({ uid, username }) {
   const usernameLower = normalizeUsername(username);
@@ -251,6 +261,9 @@ export async function changeUsername({ uid, username }) {
   const userRef = doc(db, "users", uid);
 
   await runTransaction(db, async (tx) => {
+    const userSnap = await tx.get(userRef);
+    const oldUsernameLower = normalizeUsername(userSnap.exists() ? userSnap.data()?.usernameLower || userSnap.data()?.username : "");
+
     const unameSnap = await tx.get(unameRef);
 
     // If taken by someone else, block
@@ -268,6 +281,16 @@ export async function changeUsername({ uid, username }) {
       });
     }
 
+    // Release the previous username when changing away from it.
+    if (oldUsernameLower && oldUsernameLower !== usernameLower) {
+      const oldUnameRef = doc(db, "usernames", oldUsernameLower);
+      const oldUnameSnap = await tx.get(oldUnameRef);
+
+      if (oldUnameSnap.exists() && oldUnameSnap.data()?.uid === uid) {
+        tx.delete(oldUnameRef);
+      }
+    }
+
     // Update the user profile
     tx.set(
       userRef,
@@ -282,4 +305,34 @@ export async function changeUsername({ uid, username }) {
   });
 
   return { username: usernameLower, usernameLower };
+}
+
+// One-time cleanup helper: remove any old usernames still reserved by this user,
+// while keeping the user's current username reservation intact.
+export async function cleanupUsernameReservations({ uid }) {
+  if (!uid) throw new Error("Missing uid");
+
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
+  const currentUsernameLower = normalizeUsername(
+    userSnap.exists() ? userSnap.data()?.usernameLower || userSnap.data()?.username : ""
+  );
+
+  const q = query(collection(db, "usernames"), where("uid", "==", uid));
+  const snap = await getDocs(q);
+
+  const staleDocs = snap.docs.filter((d) => d.id !== currentUsernameLower);
+
+  if (!staleDocs.length) {
+    return { deleted: 0, kept: currentUsernameLower || null };
+  }
+
+  const batch = writeBatch(db);
+  staleDocs.forEach((d) => batch.delete(d.ref));
+  await batch.commit();
+
+  return {
+    deleted: staleDocs.length,
+    kept: currentUsernameLower || null,
+  };
 }
