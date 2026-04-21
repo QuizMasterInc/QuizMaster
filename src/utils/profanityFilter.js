@@ -19,6 +19,7 @@ const PROFANITY_STEMS = [
   "dick",
   "douche",
   "douchebag",
+  "dumb",
   "dyke",
   "fag",
   "faggot",
