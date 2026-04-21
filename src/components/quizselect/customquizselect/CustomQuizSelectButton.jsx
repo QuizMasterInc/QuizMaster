@@ -289,7 +289,7 @@ const CustomQuizSelectButton = ({
         </button>
 
         {showPasswordManager ? (
-          <div className="mt-4 rounded-2xl border border-primary bg-[var(--bg-secondary)] p-4 text-primary shadow-lg">
+          <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-4 text-primary shadow-sm">
             {!isEditingPassword ? (
               <>
                 <div className="text-sm font-semibold text-primary">Quiz Password</div>
@@ -326,7 +326,7 @@ const CustomQuizSelectButton = ({
                   autoComplete="off"
                   value={editedQuizPassword}
                   onChange={(e) => setEditedQuizPassword(e.target.value)}
-                  className="mt-2 w-full rounded-lg border border-primary bg-card px-3 py-2 text-base text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="mt-2 w-full rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-base text-primary focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
                   placeholder="Enter new quiz password"
                 />
                 <div className="mt-3 flex gap-2 justify-center flex-wrap">
@@ -366,85 +366,97 @@ const CustomQuizSelectButton = ({
   };
 
   return (
-    <div className="w-full max-w-[320px] p-2 text-center">
+    <div className="w-full text-center">
       {quizPassword && !isCreator ? (
-        <div className="card relative rounded-2xl border border-accent bg-card text-primary px-5 py-6 shadow-lg hover:shadow-xl">
-          <div className="text-2xl text-[var(--primary-500)]">{title}</div>
-          <div className="text-base">{renderCreatorName()}</div>
-          <div className="text-base">{displayTags(tags)}</div>
-          <div className="text-base">Questions: {numQuestions}</div>
-          <input
-            type="text"
-            autoComplete="off"
-            placeholder="Enter Quiz Password"
-            className="mb-4 w-full rounded-lg border border-primary bg-card px-3 py-2 text-base text-primary focus:outline-none focus:ring-2 focus:ring-accent"
-            id="quizPasswordAttempt"
-            value={quizPasswordAttempt}
-            onChange={handleQuizPasswordChange}
-          />
-          <div>
+        <div className="card relative rounded-2xl shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col transition-all duration-200">
+          <div className="p-6 flex-grow flex flex-col text-center">
+            <div className="text-2xl text-[var(--accent)] font-bold mb-3">{title}</div>
+            <div className="text-sm text-[var(--text-secondary)] mb-3">{renderCreatorName()}</div>
+            <div className="space-y-2 mb-4">
+              {displayTags(tags) ? <div className="text-sm text-[var(--text-secondary)]">{displayTags(tags)}</div> : null}
+              <div className="text-base text-[var(--text-secondary)]">Questions: {numQuestions}</div>
+            </div>
+            <input
+              type="text"
+              autoComplete="off"
+              placeholder="Enter Quiz Password"
+              className="w-full px-4 py-3 rounded-lg bg-transparent text-primary border border-[var(--border)] mb-3 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+              id="quizPasswordAttempt"
+              value={quizPasswordAttempt}
+              onChange={handleQuizPasswordChange}
+            />
             <button
-              className="inline-block px-4 py-1 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
+              className="w-full px-4 py-2 bg-[var(--btn-primary-bg)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
               onClick={() => quizPasswordCheck(quizPasswordAttempt)}
             >
               Start
             </button>
           </div>
-          <DeleteQuizButton
-            quizId={uid}
-            creatorId={creatorId}
-            currentUserId={currentUserId}
-            onDeleted={onDeleted}
-          />
+          <div className="p-4 border-t border-[var(--border)]">
+            <DeleteQuizButton
+              quizId={uid}
+              creatorId={creatorId}
+              currentUserId={currentUserId}
+              onDeleted={onDeleted}
+            />
+          </div>
         </div>
       ) : (
-        <div className="card relative rounded-2xl border border-accent bg-card text-primary px-5 py-6 shadow-lg hover:shadow-xl">
+        <div className="card relative rounded-2xl shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col transition-all duration-200">
           {quizPassword && isCreator ? (
             <>
-              <div className="text-2xl text-[var(--primary-500)] cursor-pointer" onClick={handleCreatorStart}>{title}</div>
-              <div className="text-base">{renderCreatorName()}</div>
-              <div className="text-base">{displayTags(tags)}</div>
-              <div className="text-base">Questions: {numQuestions}</div>
-              <div>
+              <div className="p-6 flex-grow flex flex-col text-center">
+                <div className="text-2xl text-[var(--accent)] font-bold mb-3 cursor-pointer" onClick={handleCreatorStart}>{title}</div>
+                <div className="text-sm text-[var(--text-secondary)] mb-3">{renderCreatorName()}</div>
+                <div className="space-y-2 mb-4">
+                  {displayTags(tags) ? <div className="text-sm text-[var(--text-secondary)]">{displayTags(tags)}</div> : null}
+                  <div className="text-base text-[var(--text-secondary)]">Questions: {numQuestions}</div>
+                </div>
                 <button
-                  className="inline-block px-4 py-1 bg-[var(--primary-400)] rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
+                  className="w-full px-4 py-2 bg-[var(--btn-primary-bg)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
                   onClick={handleCreatorStart}
                 >
                   Start
                 </button>
+                {renderPasswordManager()}
               </div>
-              {renderPasswordManager()}
             </>
           ) : (
             <>
-              <Link to={'/customquiz/settings/' + uid} state={{ from: location.pathname }}>
-                <div className="text-2xl text-[var(--primary-500)]">{title}</div>
-              </Link>
-              <div className="text-base">
-                {linkCreatorToProfile && creatorId ? (
-                  <>
-                    Created by:{" "}
-                    <Link to={getCreatorProfilePath()} className="text-[var(--primary-400)] hover:underline">
-                      {getCreatorLabel()}
-                    </Link>
-                  </>
-                ) : (
-                  renderCreatorName()
-                )}
+              <div className="p-6 flex-grow flex flex-col text-center">
+                <Link to={'/customquiz/settings/' + uid} state={{ from: location.pathname }}>
+                  <div className="text-2xl text-[var(--accent)] font-bold mb-3">{title}</div>
+                </Link>
+                <div className="text-sm text-[var(--text-secondary)] mb-3">
+                  {linkCreatorToProfile && creatorId ? (
+                    <>
+                      Created by:{" "}
+                      <Link to={getCreatorProfilePath()} className="text-[var(--accent)] hover:underline">
+                        {getCreatorLabel()}
+                      </Link>
+                    </>
+                  ) : (
+                    renderCreatorName()
+                  )}
+                </div>
+                <Link to={'/customquiz/settings/' + uid} state={{ from: location.pathname }}>
+                  <div className="space-y-2 mb-4">
+                    {displayTags(tags) ? <div className="text-sm text-[var(--text-secondary)]">{displayTags(tags)}</div> : null}
+                    <div className="text-base text-[var(--text-secondary)]">Questions: {numQuestions}</div>
+                  </div>
+                </Link>
+                {renderPasswordManager()}
               </div>
-              <Link to={'/customquiz/settings/' + uid} state={{ from: location.pathname }}>
-                <div className="text-base">{displayTags(tags)}</div>
-                <div className="text-base">Questions: {numQuestions}</div>
-              </Link>
-              {renderPasswordManager()}
             </>
           )}
-          <DeleteQuizButton
-            quizId={uid}
-            creatorId={creatorId}
-            currentUserId={currentUserId}
-            onDeleted={onDeleted}
-          />
+          <div className="p-4 border-t border-[var(--border)]">
+            <DeleteQuizButton
+              quizId={uid}
+              creatorId={creatorId}
+              currentUserId={currentUserId}
+              onDeleted={onDeleted}
+            />
+          </div>
         </div>
       )}
     </div>

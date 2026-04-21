@@ -260,7 +260,10 @@ const QuizList = ({
             </div>
           </div>
         ) : (
-          <div id="customQuizDiv" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
+          <div
+            id="customQuizDiv"
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-14 w-full max-w-7xl mx-auto px-2 md:px-6 items-start justify-items-center"
+          >
             {quizzesToDisplay.map((quiz) => {
               const quizData = normalizeQuizData(quiz);
 
@@ -271,36 +274,37 @@ const QuizList = ({
               }
 
               return (
-                <CustomQuizSelectButton
-                  key={quizData.id + quizData.title}
-                  title={quizData.title}
-                  numQuestions={quizData.numQuestions}
-                  tags={Array.isArray(quizData.tags) ? quizData.tags.join(", ") : quizData.tags}
-                  uid={quizData.id}
-                  quizPassword={quizData.password}
-                  creatorUsername={
-                    (typeof quiz?.creatorUsername === "string" && quiz.creatorUsername.trim())
-                      ? quiz.creatorUsername.trim()
-                      : null
-                  }
-                  creator={{
-                    ...(quizData.creator || {}),
-                    username: getCreatorHandle(quiz)
-                      ? getCreatorHandle(quiz).replace(/^@/, "")
-                      : (quizData.creator?.username || null),
-                    handle: getCreatorHandle(quiz) || null,
-                  }}
-                  difficulty={quizData.difficulty}
-                  category={quizData.category}
-                  attempts={quizData.attempts}
-                  averageScore={quizData.averageScore}
-                  createdAt={quizData.createdAt}
-                  isPrivate={quizData.isPrivate}
-                  creatorId={creatorId}
-                  currentUserId={currentUser?.uid}
-                  linkCreatorToProfile={linkCreatorToProfile}
-                  onDeleted={handleQuizDeleted}
-                />
+                <div className="w-full max-w-[420px]" key={quizData.id + quizData.title}>
+                  <CustomQuizSelectButton
+                    title={quizData.title}
+                    numQuestions={quizData.numQuestions}
+                    tags={Array.isArray(quizData.tags) ? quizData.tags.join(", ") : quizData.tags}
+                    uid={quizData.id}
+                    quizPassword={quizData.password}
+                    creatorUsername={
+                      (typeof quiz?.creatorUsername === "string" && quiz.creatorUsername.trim())
+                        ? quiz.creatorUsername.trim()
+                        : null
+                    }
+                    creator={{
+                      ...(quizData.creator || {}),
+                      username: getCreatorHandle(quiz)
+                        ? getCreatorHandle(quiz).replace(/^@/, "")
+                        : (quizData.creator?.username || null),
+                      handle: getCreatorHandle(quiz) || null,
+                    }}
+                    difficulty={quizData.difficulty}
+                    category={quizData.category}
+                    attempts={quizData.attempts}
+                    averageScore={quizData.averageScore}
+                    createdAt={quizData.createdAt}
+                    isPrivate={quizData.isPrivate}
+                    creatorId={creatorId}
+                    currentUserId={currentUser?.uid}
+                    linkCreatorToProfile={linkCreatorToProfile}
+                    onDeleted={handleQuizDeleted}
+                  />
+                </div>
               );
             })}
           </div>
