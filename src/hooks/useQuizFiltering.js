@@ -42,8 +42,9 @@ export function useQuizFiltering(enabledFilters = ['search', 'privacy', 'sort'])
 
     // Update URL params immediately for all filters
     const params = {};
-    if (updatedFilters.searchTerm !== undefined ? updatedFilters.searchTerm.trim() : filters.searchTerm.trim()) {
-      params.q = updatedFilters.searchTerm !== undefined ? updatedFilters.searchTerm.trim() : filters.searchTerm.trim();
+    
+    if (updatedFilters.searchTerm !== undefined ? updatedFilters.searchTerm : filters.searchTerm) {
+      params.q = updatedFilters.searchTerm !== undefined ? updatedFilters.searchTerm : filters.searchTerm;
     }
     if (updatedFilters.sortBy !== undefined ? updatedFilters.sortBy !== 'newest' : filters.sortBy !== 'newest') {
       params.sort = updatedFilters.sortBy !== undefined ? updatedFilters.sortBy : filters.sortBy;
