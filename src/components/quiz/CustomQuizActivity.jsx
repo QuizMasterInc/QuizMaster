@@ -6,6 +6,7 @@ import DoneModal from './DoneModal';
 import HelpModal from './HelpModal';
 import ProgressBar from './ProgressBar';
 import BackToTop from './BackToTopButton';
+import QuizNavigator from './QuizNavigator';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResults } from '../../contexts/ResultsContext';
 import quizDraftService from '../../services/quiz/quizDraftService';
@@ -393,6 +394,7 @@ function CustomQuizActivity() {
                     onAnswerChange={recordAnswered}
                     answerCount={answerCount}
                     onReviewToggle={handleReviewToggle}
+                    isMarkedForReview={reviewQueue.includes(i)}
                     savedAnswer={userAnswers[i]}
                   />
                 </div>
@@ -484,6 +486,16 @@ function CustomQuizActivity() {
           </div>
         )}
       </div>
+
+      {!showResults && questions.length > 0 && (
+        <QuizNavigator
+          questions={questions}
+          userAnswers={userAnswers}
+          reviewQueue={reviewQueue}
+          onNavigate={scrollToQuestion}
+          onToggleReview={handleReviewToggle}
+        />
+      )}
 
       {helpActive && (
         <HelpModal
