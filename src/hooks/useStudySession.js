@@ -181,11 +181,11 @@ export const useStudySession = (deckId, userId) => {
                 return { completed: false, nextIndex };
             } else {
                 const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-                
+ 
                 const knowCount = updatedRatings.filter(r => r.rating === 'know').length;
                 const stillLearningCount = updatedRatings.filter(r => r.rating === 'still learning').length;
-                const successRate = updatedRatings.length > 0 
-                    ? (knowCount / updatedRatings.length) * 100 
+                const successRate = updatedRatings.length > 0
+                    ? (knowCount / updatedRatings.length) * 100
                     : 0;
  
                 if (session?.id) {
@@ -195,8 +195,8 @@ export const useStudySession = (deckId, userId) => {
                         successRate,
                         timeSpent
                     });
-                    
-                    flashcardService.updateDeckAnalytics(deckId).catch(err => 
+ 
+                    flashcardService.updateDeckAnalytics(deckId).catch(err =>
                         console.error('Error updating deck analytics:', err)
                     );
                 }
@@ -212,14 +212,14 @@ export const useStudySession = (deckId, userId) => {
  
     const getCardsArray = () => {
         if (!deck || !deck.cards) return [];
-        
+ 
         if (Array.isArray(deck.cards)) {
             return deck.cards.map((card, index) => ({
                 id: card.id || `card_${index}`,
                 ...card
             }));
         }
-        
+ 
         return Object.entries(deck.cards).map(([key, card]) => ({
             id: card.id || key,
             ...card
@@ -232,7 +232,7 @@ export const useStudySession = (deckId, userId) => {
     const currentStats = {
         knowCount: localRatings.filter(r => r.rating === 'know').length,
         stillLearningCount: localRatings.filter(r => r.rating === 'still learning').length,
-        successRate: localRatings.length > 0 
+        successRate: localRatings.length > 0
             ? ((localRatings.filter(r => r.rating === 'know').length / localRatings.length) * 100)
             : 0
     };
@@ -263,6 +263,7 @@ export const useStudySession = (deckId, userId) => {
         cards,
         stats: currentStats,
         cardsStudied: localRatings.length,
+        localRatings,
         trackProgress,
         setTrackProgress: setTrackProgressAndPersist,
         handleFlip,
@@ -270,3 +271,4 @@ export const useStudySession = (deckId, userId) => {
         saveSession
     };
 };
+ 
