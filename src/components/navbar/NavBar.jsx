@@ -130,12 +130,6 @@ export default function NavBar() {
                                         <Profile className="w-5 h-5" />
                                         Dashboard
                                     </NavLink>
-                                    {/* Commented out - Poll page button in main menu not needed currently. 
-                                    <NavLink to="/poll" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
-                                        <Q className="w-5 h-5" />
-                                        Take a Poll
-                                    </NavLink> 
-                                    */}
                                     <NavLink to="/allcustomquizzes" onClick={(e) => { handleClick(e); setMobileMenuOpen(false); }} className="mobile-nav-item">
                                         <School className="w-5 h-5" />
                                         Take a Quiz!
