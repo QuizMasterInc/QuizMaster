@@ -33,6 +33,7 @@ const CustomQuizSelectButton = ({
 
   const isCreator = currentUserId && creatorId && currentUserId === creatorId;
   const showOwnerPasswordTools = isCreator && location.pathname === "/myquizzes";
+  const showOwnerEditAction = isCreator && location.pathname === "/myquizzes";
 
   useEffect(() => {
     let cancelled = false;
@@ -450,6 +451,14 @@ const CustomQuizSelectButton = ({
             </>
           )}
           <div className="p-4 border-t border-[var(--border)]">
+            {showOwnerEditAction ? (
+              <Link
+                to={`/customquiz/${uid}`}
+                className="absolute bottom-2 right-2 inline-block px-2 py-0.5 bg-[var(--primary-400)] rounded-md font-medium text-xs transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 border border-[var(--primary-500)] text-[var(--neutral-900)]"
+              >
+                Edit
+              </Link>
+            ) : null}
             <DeleteQuizButton
               quizId={uid}
               creatorId={creatorId}

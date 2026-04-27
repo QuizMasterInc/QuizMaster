@@ -131,7 +131,7 @@ async deleteCustomQuiz(quizId) {
   }
 
   async getCustomQuiz(quizId) {
-    return this.call('grabCustomQuiz', { quizId });
+    return this.call('grabCustomQuiz', { quizid: quizId }, 'GET');
   }
 
 // ===== EXISTING FUNCTIONS =====

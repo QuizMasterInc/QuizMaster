@@ -4,6 +4,8 @@
 import { handleFirebaseError } from '../firebase/firebaseService';
 import cloudFunctionsAPI from '../api/cloudFunctions';
 import { sanitizeProfanity } from '../../utils/profanityFilter';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase/firebaseService';
 
 class QuizRetrievalService {
   constructor() {
@@ -21,13 +23,23 @@ class QuizRetrievalService {
         throw new Error('Quiz ID is required');
       }
 
-      const quiz = await cloudFunctionsAPI.getCustomQuiz(quizId);
+      const response = await cloudFunctionsAPI.getCustomQuiz(quizId);
+      const quiz = response?.data || response;
+
+      if (!quiz) {
+        throw new Error('Quiz not found');
+      }
+
+      const questions = quiz.content?.questions || quiz.questions || {};
+      const questionCount = quiz.metadata?.questionCount || quiz.content?.totalQuestions || Object.keys(questions).length;
 
       return {
         id: quiz.id || quiz.uid,
         ...quiz,
+        questions,
+        numQuestions: quiz.numQuestions || questionCount,
         createdAt: quiz.timestamps?.createdAt || quiz.createdAt,
-        updatedAt: quiz.timestamps?.updatedAt || quiz.updatedAt
+        updatedAt: quiz.timestamps?.updatedAt || quiz.updatedAt || quiz.lastEdit
       };
     } catch (error) {
       if (error.code !== 'quiz-not-found') {
@@ -166,7 +178,16 @@ class QuizRetrievalService {
 
   async updateCustomQuiz(quizId, quizData) {
     try {
-      return await cloudFunctionsAPI.updateCustomQuiz(quizId, quizData);
+      if (!quizId) {
+        throw new Error('Quiz ID is required');
+      }
+
+      await updateDoc(doc(db, this.collection, quizId), {
+        ...quizData,
+        'timestamps.updatedAt': new Date().toISOString()
+      });
+
+      return { success: true, quizId };
     } catch (error) {
       throw handleFirebaseError(error);
     }
