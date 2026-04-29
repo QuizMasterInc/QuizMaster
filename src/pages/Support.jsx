@@ -14,7 +14,6 @@ import {
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 
-
 const CATEGORY_OPTIONS = [
   "General Issue",
   "Account Issue",
@@ -40,7 +39,6 @@ const getTicketStatusLabel = (status) => {
   return "Awaiting Response";
 };
 
-
 function TicketCard({ ticket, onOpen }) {
   return (
     <div className="bg-card border border-accent rounded-2xl p-5 shadow-xl transition-transform duration-200 hover:-translate-y-1">
@@ -51,11 +49,26 @@ function TicketCard({ ticket, onOpen }) {
         <span className="text-xs text-secondary">{ticket.statusLabel}</span>
       </div>
 
-      <h3 className="text-xl font-bold text-primary font-main mb-2">{ticket.title}</h3>
+      <h3 className="text-xl font-bold text-primary font-main mb-2">
+        {ticket.title}
+      </h3>
       <p className="text-sm text-secondary leading-6">{ticket.description}</p>
 
-      <div className="mt-4 flex items-center justify-between gap-3">
-        <span className="text-xs text-secondary">{ticket.updatedAt}</span>
+      <div className="mt-4 flex flex-col gap-1">
+        <span className="text-xs text-secondary">
+          Updated {ticket.updatedAt}
+        </span>
+        {ticket.lastMessageSenderName ? (
+          <span className="text-xs text-secondary">
+            Last message by{" "}
+            <span className="font-semibold text-primary">
+              {ticket.lastMessageSenderName}
+            </span>
+          </span>
+        ) : null}
+      </div>
+
+      <div className="mt-4 flex justify-end">
         <button
           onClick={() => onOpen(ticket)}
           className="px-4 py-2 rounded-xl bg-[linear-gradient(90deg,#7c3aed,#a855f7)] text-white font-semibold shadow-md hover:opacity-90 transition"
@@ -70,6 +83,8 @@ function TicketCard({ ticket, onOpen }) {
 function TicketConversation({
   ticket,
   onClose,
+  onRefresh,
+  isRefreshing,
   replyText,
   onReplyChange,
   onSendReply,
@@ -89,23 +104,38 @@ function TicketConversation({
             </span>
             <span className="text-xs text-secondary">{ticket.statusLabel}</span>
           </div>
-          <h2 className="text-2xl font-bold text-primary mb-2">{ticket.title}</h2>
-          <p className="text-sm text-secondary leading-6 max-w-3xl">{ticket.description}</p>
+
+          <h2 className="text-2xl font-bold text-primary mb-2">
+            {ticket.title}
+          </h2>
+          <p className="text-sm text-secondary leading-6 max-w-3xl">
+            {ticket.description}
+          </p>
         </div>
 
-        <button
-          onClick={onClose}
-          className="px-4 py-2 rounded-xl border border-accent text-secondary hover:text-accent hover:border-accent transition"
-        >
-          Close View
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            className="px-4 py-2 rounded-xl border border-accent text-secondary hover:text-accent hover:border-accent transition disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {isRefreshing ? "Refreshing..." : "Refresh"}
+          </button>
+
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-accent text-secondary hover:text-accent hover:border-accent transition"
+          >
+            Close View
+          </button>
+        </div>
       </div>
 
       <div className="space-y-4">
         {ticket.messages && ticket.messages.length > 0 ? (
           ticket.messages.map((message) => (
             <div
-              key={message.id}
+              key={message.id || `${message.senderRole}-${message.timestamp}`}
               className={`rounded-2xl border p-4 ${
                 message.senderRole === "admin"
                   ? "border-[rgba(168,85,247,0.35)] bg-[rgba(168,85,247,0.10)]"
@@ -114,12 +144,16 @@ function TicketConversation({
             >
               <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-primary text-sm">{message.senderName}</span>
+                  <span className="font-semibold text-primary text-sm">
+                    {message.senderName}
+                  </span>
                   <span className="text-[11px] uppercase tracking-wide text-secondary">
                     {message.senderRole}
                   </span>
                 </div>
-                <span className="text-[11px] text-secondary">{message.timestamp}</span>
+                <span className="text-[11px] text-secondary">
+                  {message.timestamp}
+                </span>
               </div>
               <p className="text-sm text-secondary leading-6">{message.text}</p>
             </div>
@@ -135,9 +169,13 @@ function TicketConversation({
 
       <div className="mt-6 rounded-2xl border border-accent p-4 bg-[rgba(255,255,255,0.02)]">
         <div className="flex items-center justify-between gap-3 mb-3">
-          <h3 className="text-lg font-semibold text-primary">Reply to Ticket</h3>
+          <h3 className="text-lg font-semibold text-primary">
+            Reply to Ticket
+          </h3>
           {isClosed ? (
-            <span className="text-xs text-secondary">Sending a reply will reopen this ticket.</span>
+            <span className="text-xs text-secondary">
+              Sending a reply will reopen this ticket.
+            </span>
           ) : null}
         </div>
 
@@ -155,7 +193,11 @@ function TicketConversation({
             disabled={isSendingReply || !replyText.trim()}
             className="px-5 py-3 rounded-2xl bg-[linear-gradient(90deg,#7c3aed,#a855f7)] text-white font-semibold shadow-lg hover:opacity-90 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {isSendingReply ? "Sending..." : isClosed ? "Reply & Reopen Ticket" : "Send Reply"}
+            {isSendingReply
+              ? "Sending..."
+              : isClosed
+                ? "Reply & Reopen Ticket"
+                : "Send Reply"}
           </button>
         </div>
       </div>
@@ -176,6 +218,10 @@ export default function Support() {
   const [closedTickets, setClosedTickets] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingTickets, setIsLoadingTickets] = useState(true);
+  const [isRefreshingTickets, setIsRefreshingTickets] = useState(false);
+  const [isRefreshingSelectedTicket, setIsRefreshingSelectedTicket] =
+    useState(false);
+  const [refreshTicketsVersion, setRefreshTicketsVersion] = useState(0);
   const [replyText, setReplyText] = useState("");
   const [isSendingReply, setIsSendingReply] = useState(false);
   const selectedTicketRef = useRef(null);
@@ -183,7 +229,8 @@ export default function Support() {
   const formatTicketTimestamp = (value) => {
     if (!value) return "Just now";
 
-    const date = typeof value?.toDate === "function" ? value.toDate() : new Date(value);
+    const date =
+      typeof value?.toDate === "function" ? value.toDate() : new Date(value);
 
     if (Number.isNaN(date.getTime())) {
       return "Just now";
@@ -199,20 +246,43 @@ export default function Support() {
 
   const buildTicketFromDoc = async (ticketDoc) => {
     const data = ticketDoc.data() || {};
-    const messagesRef = collection(db, "support_tickets", ticketDoc.id, "messages");
+    const messagesRef = collection(
+      db,
+      "support_tickets",
+      ticketDoc.id,
+      "messages"
+    );
     const messagesSnapshot = await getDocs(messagesRef);
-    const messages = messagesSnapshot.docs.map((messageDoc) => {
-      const messageData = messageDoc.data() || {};
 
-      return {
-        id: messageDoc.id,
-        senderName: messageData.senderUsername || messageData.senderName || "Support",
-        senderRole: messageData.senderRole || "user",
-        timestamp: formatTicketTimestamp(messageData.createdAt),
-        text: messageData.text || "",
-      };
-    });
+    const messages = messagesSnapshot.docs
+      .map((messageDoc) => {
+        const messageData = messageDoc.data() || {};
+        const createdAtDate =
+          typeof messageData.createdAt?.toDate === "function"
+            ? messageData.createdAt.toDate()
+            : messageData.createdAt
+              ? new Date(messageData.createdAt)
+              : null;
 
+        return {
+          id: messageDoc.id,
+          senderName:
+            messageData.senderUsername || messageData.senderName || "Support",
+          senderRole: messageData.senderRole || "user",
+          timestamp: formatTicketTimestamp(messageData.createdAt),
+          createdAtMillis:
+            createdAtDate && !Number.isNaN(createdAtDate.getTime())
+              ? createdAtDate.getTime()
+              : 0,
+          text: messageData.text || "",
+        };
+      })
+      .sort(
+        (firstMessage, secondMessage) =>
+          firstMessage.createdAtMillis - secondMessage.createdAtMillis
+      );
+
+    const lastMessage = messages[messages.length - 1] || null;
     const status = getTicketStatusValue(data);
 
     return {
@@ -225,6 +295,8 @@ export default function Support() {
       statusLabel: getTicketStatusLabel(status),
       stillOpen: status !== "closed",
       messages,
+      lastMessageSenderName: lastMessage?.senderName || "",
+      lastMessageSenderRole: lastMessage?.senderRole || "",
     };
   };
 
@@ -251,7 +323,9 @@ export default function Support() {
       }
 
       try {
-        setIsLoadingTickets(true);
+        if (!isRefreshingTickets) {
+          setIsLoadingTickets(true);
+        }
 
         const ticketsQuery = query(
           collection(db, "support_tickets"),
@@ -263,13 +337,24 @@ export default function Support() {
           ticketsSnapshot.docs.map((ticketDoc) => buildTicketFromDoc(ticketDoc))
         );
 
-        const nextActiveTickets = loadedTickets.filter((ticket) => ticket.stillOpen);
-        const nextClosedTickets = loadedTickets.filter((ticket) => !ticket.stillOpen);
+        const nextActiveTickets = loadedTickets.filter(
+          (ticket) => ticket.stillOpen
+        );
+        const nextClosedTickets = loadedTickets.filter(
+          (ticket) => !ticket.stillOpen
+        );
 
         if (!cancelled) {
           setActiveTickets(nextActiveTickets);
           setClosedTickets(nextClosedTickets);
-          setSelectedTicket(null);
+          setSelectedTicket((currentTicket) => {
+            if (!currentTicket) return null;
+
+            return (
+              loadedTickets.find((ticket) => ticket.id === currentTicket.id) ||
+              null
+            );
+          });
         }
       } catch (error) {
         console.error("Failed to load support tickets:", error);
@@ -279,6 +364,7 @@ export default function Support() {
       } finally {
         if (!cancelled) {
           setIsLoadingTickets(false);
+          setIsRefreshingTickets(false);
         }
       }
     }
@@ -288,7 +374,7 @@ export default function Support() {
     return () => {
       cancelled = true;
     };
-  }, [db, user?.uid]);
+  }, [db, user?.uid, refreshTicketsVersion, isRefreshingTickets]);
 
   const visibleTickets = viewMode === "closed" ? closedTickets : activeTickets;
 
@@ -315,6 +401,60 @@ export default function Support() {
     setSelectedTicket(null);
     setReplyText("");
   };
+
+  const handleRefreshTickets = () => {
+    if (!user?.uid || isLoadingTickets || isRefreshingTickets) return;
+
+    setIsRefreshingTickets(true);
+    setRefreshTicketsVersion((currentVersion) => currentVersion + 1);
+  };
+
+  const handleRefreshSelectedTicket = async () => {
+    if (!selectedTicket?.id || isRefreshingSelectedTicket) return;
+
+    setIsRefreshingSelectedTicket(true);
+
+    try {
+      const ticketRef = doc(db, "support_tickets", selectedTicket.id);
+      const ticketSnapshot = await getDoc(ticketRef);
+
+      if (!ticketSnapshot.exists()) {
+        toast.error("This support ticket could not be found.");
+        setSelectedTicket(null);
+        return;
+      }
+
+      const refreshedTicket = await buildTicketFromDoc(ticketSnapshot);
+
+      setSelectedTicket(refreshedTicket);
+
+      setActiveTickets((currentTickets) => {
+        const withoutTicket = currentTickets.filter(
+          (ticket) => ticket.id !== refreshedTicket.id
+        );
+
+        return refreshedTicket.stillOpen
+          ? [refreshedTicket, ...withoutTicket]
+          : withoutTicket;
+      });
+
+      setClosedTickets((currentTickets) => {
+        const withoutTicket = currentTickets.filter(
+          (ticket) => ticket.id !== refreshedTicket.id
+        );
+
+        return refreshedTicket.stillOpen
+          ? withoutTicket
+          : [refreshedTicket, ...withoutTicket];
+      });
+    } catch (error) {
+      console.error("Failed to refresh selected support ticket:", error);
+      toast.error("Failed to refresh this support ticket.");
+    } finally {
+      setIsRefreshingSelectedTicket(false);
+    }
+  };
+
   const handleSendReply = async () => {
     const trimmedReply = replyText.trim();
 
@@ -331,7 +471,8 @@ export default function Support() {
     setIsSendingReply(true);
 
     try {
-      let username = user.username || user.displayName || user.email?.split("@")[0] || "user";
+      let username =
+        user.username || user.displayName || user.email?.split("@")[0] || "user";
       let displayName = user.displayName || user.email?.split("@")[0] || "User";
       let email = user.email || "";
 
@@ -341,7 +482,8 @@ export default function Support() {
       if (userDocSnap.exists()) {
         const userData = userDocSnap.data() || {};
         username = userData.username || userData.userName || username;
-        displayName = userData.profile?.displayName || userData.displayName || displayName;
+        displayName =
+          userData.profile?.displayName || userData.displayName || displayName;
         email = userData.email || email;
       }
 
@@ -379,14 +521,20 @@ export default function Support() {
         stillOpen: true,
         updatedAt: "Just now",
         messages: [...(selectedTicket.messages || []), newMessage],
+        lastMessageSenderName: newMessage.senderName,
+        lastMessageSenderRole: newMessage.senderRole,
       };
 
       setSelectedTicket(updatedTicket);
       setActiveTickets((prev) => {
-        const withoutCurrent = prev.filter((ticket) => ticket.id !== updatedTicket.id);
+        const withoutCurrent = prev.filter(
+          (ticket) => ticket.id !== updatedTicket.id
+        );
         return [updatedTicket, ...withoutCurrent];
       });
-      setClosedTickets((prev) => prev.filter((ticket) => ticket.id !== updatedTicket.id));
+      setClosedTickets((prev) =>
+        prev.filter((ticket) => ticket.id !== updatedTicket.id)
+      );
       setReplyText("");
       setViewMode("active");
       toast.success("Reply sent successfully.");
@@ -426,7 +574,8 @@ export default function Support() {
     setIsSubmitting(true);
 
     try {
-      let username = user.username || user.displayName || user.email?.split("@")[0] || "user";
+      let username =
+        user.username || user.displayName || user.email?.split("@")[0] || "user";
       let displayName = user.displayName || user.email?.split("@")[0] || "User";
       let email = user.email || "";
 
@@ -464,7 +613,10 @@ export default function Support() {
         updatedAt: serverTimestamp(),
       };
 
-      const ticketRef = await addDoc(collection(db, "support_tickets"), newTicketPayload);
+      const ticketRef = await addDoc(
+        collection(db, "support_tickets"),
+        newTicketPayload
+      );
 
       await addDoc(collection(db, "support_tickets", ticketRef.id, "messages"), {
         text: trimmedDescription,
@@ -494,6 +646,8 @@ export default function Support() {
             text: trimmedDescription,
           },
         ],
+        lastMessageSenderName: displayName || username,
+        lastMessageSenderRole: "user",
       };
 
       if (shouldStartClosed) {
@@ -523,7 +677,8 @@ export default function Support() {
             Support Center
           </h1>
           <p className="max-w-2xl mx-auto text-secondary text-base sm:text-lg leading-7">
-            Create support tickets, track your active requests, and review closed conversations in one place.
+            Create support tickets, track your active requests, and review
+            closed conversations in one place.
           </p>
         </div>
 
@@ -565,15 +720,20 @@ export default function Support() {
         {viewMode === "create" ? (
           <section className="bg-card border border-accent rounded-3xl p-6 sm:p-8 shadow-2xl max-w-4xl mx-auto">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-primary mb-2">Open a Support Ticket</h2>
+              <h2 className="text-2xl font-bold text-primary mb-2">
+                Open a Support Ticket
+              </h2>
               <p className="text-sm text-secondary leading-6">
-                Choose the category that best matches your request, then add a short title and description.
+                Choose the category that best matches your request, then add a
+                short title and description.
               </p>
             </div>
 
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-primary mb-2">Category</label>
+                <label className="block text-sm font-semibold text-primary mb-2">
+                  Category
+                </label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
@@ -585,11 +745,15 @@ export default function Support() {
                     </option>
                   ))}
                 </select>
-                <p className="mt-2 text-xs text-secondary leading-5">{helperText}</p>
+                <p className="mt-2 text-xs text-secondary leading-5">
+                  {helperText}
+                </p>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-primary mb-2">Title</label>
+                <label className="block text-sm font-semibold text-primary mb-2">
+                  Title
+                </label>
                 <input
                   type="text"
                   value={ticketTitle}
@@ -600,7 +764,9 @@ export default function Support() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-primary mb-2">Description</label>
+                <label className="block text-sm font-semibold text-primary mb-2">
+                  Description
+                </label>
                 <textarea
                   rows={6}
                   value={ticketDescription}
@@ -644,19 +810,27 @@ export default function Support() {
               <div className="space-y-4">
                 {isLoadingTickets ? (
                   <div className="rounded-2xl border border-dashed border-accent p-8 text-center bg-[rgba(255,255,255,0.02)]">
-                    <h3 className="text-xl font-semibold text-primary mb-2">Loading tickets...</h3>
+                    <h3 className="text-xl font-semibold text-primary mb-2">
+                      Loading tickets...
+                    </h3>
                     <p className="text-sm text-secondary leading-6 max-w-2xl mx-auto">
                       We are fetching your support history now.
                     </p>
                   </div>
                 ) : visibleTickets.length > 0 ? (
                   visibleTickets.map((ticket) => (
-                    <TicketCard key={ticket.id} ticket={ticket} onOpen={handleOpenTicket} />
+                    <TicketCard
+                      key={ticket.id}
+                      ticket={ticket}
+                      onOpen={handleOpenTicket}
+                    />
                   ))
                 ) : (
                   <div className="rounded-2xl border border-dashed border-accent p-8 text-center bg-[rgba(255,255,255,0.02)]">
                     <h3 className="text-xl font-semibold text-primary mb-2">
-                      {viewMode === "active" ? "No active tickets yet" : "No closed tickets yet"}
+                      {viewMode === "active"
+                        ? "No active tickets yet"
+                        : "No closed tickets yet"}
                     </h3>
                     <p className="text-sm text-secondary leading-6 max-w-2xl mx-auto">
                       {viewMode === "active"
@@ -676,6 +850,8 @@ export default function Support() {
                     setSelectedTicket(null);
                     setReplyText("");
                   }}
+                  onRefresh={handleRefreshSelectedTicket}
+                  isRefreshing={isRefreshingSelectedTicket}
                   replyText={replyText}
                   onReplyChange={setReplyText}
                   onSendReply={handleSendReply}
