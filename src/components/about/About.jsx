@@ -8,11 +8,12 @@ export default function About() {
 
   // Return JSX for the About component
   return (
-    <div className="min-h-screen py-20 px-6 font-main bg-primary text-primary">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen py-20 px-6 font-main bg-primary text-primary md:ml-[76px] md:w-[calc(100%_-_76px)] overflow-x-hidden">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-5xl font-bold text-center mb-4 font-main text-gradient-primary">
           About Us
         </h1>
+
         <p className="text-xl text-center mb-10 text-secondary">
           Welcome to QuizMaster, your platform for managing, taking, and creating quizzes!
         </p>
@@ -26,9 +27,13 @@ export default function About() {
               aria-expanded={isFlierOpen}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary hover:bg-card text-primary font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02] border-2 border-accent"
             >
-              <span className="text-gradient-primary">{isFlierOpen ? 'Hide Flyer' : 'View Flyer'}</span>
+              <span className="text-gradient-primary">
+                {isFlierOpen ? 'Hide Flyer' : 'View Flyer'}
+              </span>
               <span
-                className={`transition-transform duration-300 ${isFlierOpen ? 'rotate-180' : 'rotate-0'}`}
+                className={`transition-transform duration-300 ${
+                  isFlierOpen ? 'rotate-180' : 'rotate-0'
+                }`}
                 aria-hidden="true"
               >
                 ▾
@@ -41,7 +46,11 @@ export default function About() {
               isFlierOpen ? 'max-h-[2000px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'
             }`}
           >
-            <div className={`transform transition-transform duration-400 ${isFlierOpen ? 'scale-100' : 'scale-[0.98]'}`}>
+            <div
+              className={`transform transition-transform duration-400 ${
+                isFlierOpen ? 'scale-100' : 'scale-[0.98]'
+              }`}
+            >
               <div className="relative mx-auto max-w-xl rounded-3xl bg-card border border-accent shadow-2xl p-2">
                 <img
                   src={flier}
@@ -55,25 +64,26 @@ export default function About() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid w-full grid-cols-1 gap-8 md:grid-cols-2">
           {/* Left Card - About QuizMaster */}
-          <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent">
+          <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent w-full overflow-hidden">
             <h2 className="text-3xl font-semibold mb-6 text-center font-main text-gradient-primary">
               What is QuizMaster?
             </h2>
+
             <p className="text-lg leading-7 mb-8 text-secondary">
               QuizMaster is your interactive study platform designed to help you learn smarter, not harder.
-              Create custom quizzes, build flashcard decks, and track your progress — whether you're 
+              Create custom quizzes, build flashcard decks, and track your progress — whether you're
               preparing for exams, learning new material, or helping others study.
             </p>
-            
+
             <div className="border-t border-primary pt-6">
               <h3 className="text-2xl font-semibold mb-4 text-center font-main text-gradient-primary">
                 Key Features
               </h3>
+
               {/* List of features */}
               <ul className="space-y-4 text-base">
-                {/* Feature: Create Quizzes */}
                 <li className="flex gap-x-3 items-start">
                   <svg
                     className="h-6 w-5 flex-none text-accent mt-0.5"
@@ -87,9 +97,11 @@ export default function About() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-secondary">Create and share custom quizzes with your classmates</span>
+                  <span className="text-secondary">
+                    Create and share custom quizzes with your classmates
+                  </span>
                 </li>
-                {/* Feature: Flashcards */}
+
                 <li className="flex gap-x-3 items-start">
                   <svg
                     className="h-6 w-5 flex-none text-accent mt-0.5"
@@ -103,9 +115,11 @@ export default function About() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-secondary">Build flashcard decks for quick and effective studying</span>
+                  <span className="text-secondary">
+                    Build flashcard decks for quick and effective studying
+                  </span>
                 </li>
-                {/* Feature: Progress Tracking */}
+
                 <li className="flex gap-x-3 items-start">
                   <svg
                     className="h-6 w-5 flex-none text-accent mt-0.5"
@@ -119,9 +133,11 @@ export default function About() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-secondary">Track your progress and pick up where you left off</span>
+                  <span className="text-secondary">
+                    Track your progress and pick up where you left off
+                  </span>
                 </li>
-                {/* Feature: Auto-save */}
+
                 <li className="flex gap-x-3 items-start">
                   <svg
                     className="h-6 w-5 flex-none text-accent mt-0.5"
@@ -135,9 +151,11 @@ export default function About() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-secondary">Auto-save your quiz progress so you never lose your work</span>
+                  <span className="text-secondary">
+                    Auto-save your quiz progress so you never lose your work
+                  </span>
                 </li>
-                {/* Feature: Browse Public Content */}
+
                 <li className="flex gap-x-3 items-start">
                   <svg
                     className="h-6 w-5 flex-none text-accent mt-0.5"
@@ -151,35 +169,44 @@ export default function About() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span className="text-secondary">Browse and study from public quizzes and flashcard decks</span>
+                  <span className="text-secondary">
+                    Browse and study from public quizzes and flashcard decks
+                  </span>
                 </li>
               </ul>
             </div>
           </div>
 
           {/* Right Card - Team Info */}
-          <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent flex flex-col justify-between">
+          <div className="bg-card rounded-3xl p-8 shadow-xl border border-accent flex flex-col justify-between w-full overflow-hidden">
             <div>
               <h2 className="text-3xl font-semibold mb-6 text-center font-main text-gradient-primary">
                 Our Technology Stack
               </h2>
+
               <p className="text-lg leading-7 mb-6 text-secondary">
                 Our talented team leverages modern web technologies including{' '}
                 <span className="font-medium text-accent">React.js</span>,{' '}
                 <span className="font-medium text-accent">Firebase</span>, and{' '}
-                <span className="font-medium text-accent">Tailwind CSS</span> to deliver a fast, scalable, and modern experience.
+                <span className="font-medium text-accent">Tailwind CSS</span> to deliver a fast,
+                scalable, and modern experience.
               </p>
+
               <p className="text-lg leading-7 mb-6 text-secondary">
-                We use <span className="font-medium text-accent">Firestore</span> for real-time data storage and seamless progress tracking, ensuring your study sessions are always saved and synchronized across devices.
+                We use <span className="font-medium text-accent">Firestore</span> for real-time
+                data storage and seamless progress tracking, ensuring your study sessions are
+                always saved and synchronized across devices.
               </p>
+
               <p className="text-lg leading-7 text-secondary">
-                Create an account or log in to unlock the full QuizMaster experience and start your study journey today!
+                Create an account or log in to unlock the full QuizMaster experience and start your
+                study journey today!
               </p>
             </div>
 
             <div className="text-center mt-8">
-              
-                <a href="/register"
+              <a
+                href="/register"
                 className="inline-block px-8 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
               >
                 Start Studying Today!
