@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import useProfileSectionData from '../hooks/useProfileSectionData';
@@ -7,18 +7,34 @@ import QuizAverages from '../components/profile/QuizAverages';
 import MyStudyMaterial from '../components/profile/MyStudyMaterial';
 import RecentStudyActivity from '../components/profile/RecentStudyActivity';
 
+const EMPTY_OBJECT = Object.freeze({});
+const EMPTY_ARRAY = Object.freeze([]);
+
 const Profile = () => {
   const { user } = useAuth();
+  const userId = user?.uid || null;
   const { profile, quizzes, decks, loading, error, quizAverages, overallStats } =
-    useProfileSectionData(user?.uid);
+    useProfileSectionData(userId);
 
-  const safeProfile = profile || {};
-  const safeQuizzes = Array.isArray(quizzes) ? quizzes : [];
-  const safeDecks = Array.isArray(decks) ? decks : [];
-  const safeQuizAverages = Array.isArray(quizAverages) ? quizAverages : [];
-  const safeOverallStats = overallStats || {};
+  const safeProfile = useMemo(() => profile || EMPTY_OBJECT, [profile]);
+  const safeQuizzes = useMemo(
+    () => (Array.isArray(quizzes) ? quizzes : EMPTY_ARRAY),
+    [quizzes]
+  );
+  const safeDecks = useMemo(
+    () => (Array.isArray(decks) ? decks : EMPTY_ARRAY),
+    [decks]
+  );
+  const safeQuizAverages = useMemo(
+    () => (Array.isArray(quizAverages) ? quizAverages : EMPTY_ARRAY),
+    [quizAverages]
+  );
+  const safeOverallStats = useMemo(
+    () => overallStats || EMPTY_OBJECT,
+    [overallStats]
+  );
 
-  if (!user?.uid) {
+  if (!userId) {
     return (
       <div className="dashboard-content overflow-x-hidden">
         <div className="flex items-center justify-center min-h-[400px]">
@@ -68,7 +84,7 @@ const Profile = () => {
         <div className="dashboard-section w-full space-y-8">
           {/* Profile Info Section */}
           <div className="card w-full overflow-hidden">
-            <ProfileInfo profile={safeProfile} userId={user?.uid} />
+            <ProfileInfo profile={safeProfile} userId={userId} />
           </div>
 
           {/* My Study Material Section */}
