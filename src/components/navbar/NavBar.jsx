@@ -132,9 +132,9 @@ export default function NavBar() {
                             aria-haspopup="true"
                             aria-expanded={profileOpen}
                             aria-label="Open profile menu"
-                            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-sm transition-all duration-150 hover:bg-[var(--accent)]/10 hover:text-[var(--accent)] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-primary)] shadow-sm transition-all duration-150 hover:bg-[var(--accent)]/10 hover:text-[var(--accent)] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[var(--accent)] [&_svg]:text-current [&_svg]:fill-current [&_svg_*]:fill-current [&_svg_*]:stroke-current"
                         >
-                            <Profile className="w-6 h-6 text-current" />
+                            <Profile className="w-6 h-6 text-current" aria-hidden="true" />
                         </button>
 
                         {profileOpen && (
