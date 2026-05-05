@@ -290,7 +290,7 @@ export default function BrowsePublicFlashcards() {
               <div key={deck.id || index} className="w-full md:w-1/2 lg:w-1/3 p-5 text-center">
                 <div className="card rounded-lg shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col">
                   <div className="p-6 flex-grow">
-                    <div className="text-2xl text-[var(--accent)] font-bold mb-3">{deck.title}</div>
+                    <div className="text-2xl text-[var(--accent)] font-bold mb-3 line-clamp-2 break-words">{deck.title}</div>
 
                     <div className="text-sm text-[var(--text-secondary)] mb-3">
                       <strong>Created by:</strong>{' '}

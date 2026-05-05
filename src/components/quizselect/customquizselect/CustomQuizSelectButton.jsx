@@ -590,22 +590,24 @@ const CustomQuizSelectButton = ({
               </div>
             </div>
 
-            <input
-              type="text"
-              autoComplete="off"
-              placeholder="Enter Quiz Password"
-              className="w-full px-4 py-3 rounded-lg bg-transparent text-primary border border-[var(--border)] mb-3 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
-              id="quizPasswordAttempt"
-              value={quizPasswordAttempt}
-              onChange={handleQuizPasswordChange}
-            />
+            <div className="min-h-[96px] flex flex-col justify-end">
+              <input
+                type="text"
+                autoComplete="off"
+                placeholder="Enter Quiz Password"
+                className="w-full px-4 py-3 rounded-lg bg-transparent text-primary border border-[var(--border)] mb-3 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+                id="quizPasswordAttempt"
+                value={quizPasswordAttempt}
+                onChange={handleQuizPasswordChange}
+              />
 
-            <button
-              className="w-full px-4 py-2 bg-[var(--btn-primary-bg)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
-              onClick={() => quizPasswordCheck(quizPasswordAttempt)}
-            >
-              Start
-            </button>
+              <button
+                className="w-full px-4 py-2 bg-[var(--btn-primary-bg)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                onClick={() => quizPasswordCheck(quizPasswordAttempt)}
+              >
+                Start
+              </button>
+            </div>
           </div>
 
           <div className="min-h-[76px] p-4 border-t border-[var(--border)]">
@@ -628,7 +630,7 @@ const CustomQuizSelectButton = ({
           </div>
         </div>
       ) : (
-        <div className="card relative w-full min-w-0 rounded-2xl shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col transition-all duration-200">
+        <div className="card min-h-[530px] relative w-full min-w-0 rounded-2xl shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col transition-all duration-200">
           {quizPassword && isCreator ? (
             <>
               <div className="p-6 flex-grow flex flex-col text-center">
@@ -673,7 +675,7 @@ const CustomQuizSelectButton = ({
                   to={`/customquiz/settings/${uid}`}
                   state={{ from: location.pathname }}
                 >
-                  <div className="break-words text-2xl text-[var(--accent)] font-bold mb-3">
+                  <div className="break-words text-2xl text-[var(--accent)] font-bold line-clamp-1 mb-3">
                     {title}
                   </div>
                 </Link>
@@ -712,15 +714,16 @@ const CustomQuizSelectButton = ({
                   </div>
                 </Link>
 
-                {shouldShowPublicStartButton ? (
-                  <button
-                    className="w-full px-4 py-2 bg-[var(--btn-primary-bg)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
-                    onClick={handleCreatorStart}
-                  >
-                    Start
-                  </button>
-                ) : null}
-
+                <div className="mt-auto">
+                  {shouldShowPublicStartButton ? (
+                    <button
+                      className="w-full px-4 py-2 bg-[var(--btn-primary-bg)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+                      onClick={handleCreatorStart}
+                    >
+                      Start
+                    </button>
+                  ) : null}
+                </div>
                 {renderPasswordManager()}
               </div>
             </>
