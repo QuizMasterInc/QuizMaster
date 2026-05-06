@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "@tailwindcss/line-clamp": "^0.4.4",
     "dotenv": "^17.2.3",
     "esbuild": "^0.25.4",
     "firebase": "^11.3.1",
@@ -35,6 +34,7 @@
     "@babel/core": "^7.23.5",
     "@babel/preset-env": "^7.23.5",
     "@babel/preset-react": "^7.23.3",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^14.1.2",
     "@types/jest": "^29.5.8",

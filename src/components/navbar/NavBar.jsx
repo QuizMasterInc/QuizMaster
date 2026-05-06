@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { FaBars, FaListAlt, FaEdit } from "react-icons/fa";
+import { FaBars, FaListAlt, FaEdit, FaUsers} from "react-icons/fa";
+import { FiLogOut } from "react-icons/fi";
 import { School, Computer, Profile, SignIn, Q, Scroll, Book } from "../icons/index.jsx";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -7,12 +8,12 @@ import '../../styles/nav.css';
 
 const authenticatedSidebarLinks = [
     { label: "Dashboard", path: "/dashboard", icon: Profile },
-    { label: "Take a Quiz!", path: "/allcustomquizzes", icon: School },
+    { label: "User-Made Quizzes", path: "/allcustomquizzes", icon: FaUsers, dividerBefore: true },
     { label: "My Quizzes", path: "/myquizzes", icon: FaListAlt },
-    { label: "Make Quiz", path: "/customquiz", icon: FaEdit },
-    { label: "Browse Flashcards", path: "/browse-flashcards", icon: Book },
-    { label: "My Flashcards", path: "/myflashcards", icon: Scroll },
-    { label: "Make Flashcards", path: "/flashcards", icon: Computer }
+    { label: "Make Quiz", path: "/customquiz", icon: FaEdit, dividerBefore: true },
+    { label: "Make Flashcards", path: "/flashcards", icon: Computer },
+    { label: "Browse Flashcards", path: "/browse-flashcards", icon: Book, dividerBefore: true },
+    { label: "My Flashcards", path: "/myflashcards", icon: Scroll }
 ];
 
 const guestSidebarLinks = [
@@ -184,17 +185,57 @@ export default function NavBar() {
                     </NavLink>
                 </div>
 
-                <div className={`py-5 transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)] ${sidebarExpanded ? "px-3" : "px-2"}`}>
-                    <nav className="space-y-2">
-                        {(isAuthenticated ? authenticatedSidebarLinks : guestSidebarLinks).map((item) => (
-                            <SidebarNavItem
-                                key={item.label}
-                                item={item}
-                                expanded={sidebarExpanded}
-                                onClick={handleClick}
-                            />
-                        ))}
-                    </nav>
+                <div className="flex h-[calc(100vh-80px)] flex-col justify-between">
+                    <div className={`py-5 transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)] ${sidebarExpanded ? "px-3" : "px-2"}`}>
+                        <nav className="space-y-2">
+                            {(isAuthenticated ? authenticatedSidebarLinks : guestSidebarLinks).map((item) => (
+                                <div key={item.label}>
+                                    {item.dividerBefore && (
+                                        <div
+                                            className={`my-3 border-t border-[var(--border)] opacity-80 shadow-sm transition-all duration-300 ${
+                                                sidebarExpanded ? "mx-2" : "mx-auto w-8"
+                                            }`}
+                                        />
+                                    )}
+                                    <SidebarNavItem
+                                        item={item}
+                                        expanded={sidebarExpanded}
+                                        onClick={handleClick}
+                                    />
+                                </div>
+                            ))}
+                        </nav>
+                    </div>
+
+                    {isAuthenticated && (
+                        <div className="pb-6 pt-4 bg-[var(--btn-primary-bg)] shadow-[0_-10px_24px_rgba(0,0,0,0.08)] transition-all duration-300">
+                            <div className={`transition-all duration-300 ${sidebarExpanded ? "px-3" : "px-2"}`}>
+                                <button
+                                    onClick={handleLogout}
+                                    title={!sidebarExpanded ? "Logout" : undefined}
+                                    className={`group flex h-12 items-start overflow-hidden rounded-lg font-medium text-[var(--btn-primary-text)] hover:bg-white/10 transition-all duration-200 w-full ${
+                                        sidebarExpanded
+                                            ? "justify-start gap-3 px-3"
+                                            : "justify-center px-0"
+                                    }`}
+                                >
+                                    <span className="flex h-5 w-5 shrink-0 items-center justify-center text-current">
+                                        <FiLogOut className="h-5 w-5" />
+                                    </span>
+
+                                    <span
+                                        className={`whitespace-nowrap text-base transition-[max-width,opacity,transform] duration-300 ease-[cubic-bezier(0.2,0,0,1)] ${
+                                            sidebarExpanded
+                                                ? "max-w-[150px] translate-x-0 opacity-100 delay-75"
+                                                : "max-w-0 -translate-x-3 opacity-0"
+                                        }`}
+                                    >
+                                        Logout
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </aside>
         </>

@@ -11,6 +11,7 @@ import { useQuizFiltering } from "../../../hooks/useQuizFiltering";
 import quizRetrievalService from "../../../services/quiz/quizRetrievalService";
 import cloudFunctionsAPI from "../../../services/api/cloudFunctions";
 import { fetchUsernamesByUids, isValidUsername } from "../../../services/firebase/usernameService";
+import QuizCarousel from "../../carousels/QuizCarousel";
 
 // --- Username helpers (for all viewers, including public browsing) ---
 const collectCreatorUid = (item) =>
@@ -75,6 +76,7 @@ const QuizList = ({
   const [error, setError] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [quizzesToDisplay, setQuizzesToDisplay] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(6);
 
   // Use custom filtering hook
   const {
@@ -220,6 +222,96 @@ const QuizList = ({
     );
   };
 
+  const hasActiveFilters =
+    Boolean(filters.searchTerm?.trim()) ||
+    Boolean(debouncedSearchTerm?.trim());
+
+  // Scores and ranks quizzes using popularity, quality, metadata richness, and recency to generate suggested quiz recommendations.
+  const getQuizScore = (quiz, index) => {
+    const quizData = normalizeQuizData(quiz);
+
+    const attempts = Number(quizData.attempts || quiz.quizTaken || quiz.attempts || 0);
+    const averageScore = Number(quizData.averageScore || quiz.averageScore || 0);
+    const questionCount = Number(quizData.numQuestions || quiz.numQuestions || quiz.metadata?.questionCount || 0);
+    const hasTags = Array.isArray(quizData.tags)
+      ? quizData.tags.length > 0
+      : Boolean(quizData.tags);
+
+    const createdAtValue =
+      quizData.createdAt?.seconds ||
+      quiz.createdAt?.seconds ||
+      quiz.timestamps?.createdAt?.seconds ||
+      0;
+
+    return (
+      attempts * 5 +
+      averageScore * 0.5 +
+      questionCount * 0.2 +
+      (hasTags ? 8 : 0) +
+      createdAtValue / 100000000 -
+      index * 0.01
+    );
+  };
+
+  const suggestedQuizzes = [...quizzes]
+    .map((quiz, index) => ({
+      quiz,
+      score: getQuizScore(quiz, index),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .map((item) => item.quiz)
+    .slice(0, 6);
+  
+  const visibleQuizzes = quizzesToDisplay.slice(0, visibleCount);
+  const hasMoreQuizzes = visibleCount < quizzesToDisplay.length;
+
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [debouncedSearchTerm, filters.searchTerm, filters.privacy, filters.sortBy]);
+
+  const renderQuizCard = (quiz) => {
+    const quizData = normalizeQuizData(quiz);
+
+    let creatorId = null;
+    if (dataSource === "browseCustomQuizzes") {
+      creatorId = collectCreatorUid(quiz);
+    }
+
+    return (
+      <div className="w-full max-w-[420px]" key={quizData.id + quizData.title}>
+        <CustomQuizSelectButton
+          title={quizData.title}
+          numQuestions={quizData.numQuestions}
+          tags={Array.isArray(quizData.tags) ? quizData.tags.join(", ") : quizData.tags}
+          uid={quizData.id}
+          quizPassword={quizData.password}
+          creatorUsername={
+            (typeof quiz?.creatorUsername === "string" && quiz.creatorUsername.trim())
+              ? quiz.creatorUsername.trim()
+              : null
+          }
+          creator={{
+            ...(quizData.creator || {}),
+            username: getCreatorHandle(quiz)
+              ? getCreatorHandle(quiz).replace(/^@/, "")
+              : (quizData.creator?.username || null),
+            handle: getCreatorHandle(quiz) || null,
+          }}
+          difficulty={quizData.difficulty}
+          category={quizData.category}
+          attempts={quizData.attempts}
+          averageScore={quizData.averageScore}
+          createdAt={quizData.createdAt}
+          isPrivate={quizData.isPrivate}
+          creatorId={creatorId}
+          currentUserId={currentUser?.uid}
+          linkCreatorToProfile={linkCreatorToProfile}
+          onDeleted={handleQuizDeleted}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className={`min-h-screen bg-primary relative overflow-hidden py-20 px-6 text-[var(--text-primary)] ${className}`}>
       <div className="relative z-10">
@@ -249,10 +341,6 @@ const QuizList = ({
           </div>
         )}
 
-        <p className="mt-6 text-center text-lg">
-          Displaying <span className="font-bold text-[var(--primary-400)]">{quizzesToDisplay.length}</span> quizzes
-        </p>
-
         {loading ? (
           <div className="flex justify-center items-center mt-10">
             <div className="text-gradient-primary text-lg">
@@ -260,54 +348,43 @@ const QuizList = ({
             </div>
           </div>
         ) : (
-          <div
-            id="customQuizDiv"
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-14 w-full max-w-7xl mx-auto px-2 md:px-6 items-start justify-items-center"
-          >
-            {quizzesToDisplay.map((quiz) => {
-              const quizData = normalizeQuizData(quiz);
+          <>
+            {dataSource === "browseCustomQuizzes" && !hasActiveFilters && (
+              <div className="w-full max-w-7xl mx-auto mt-14 px-2 md:px-6">
+                <QuizCarousel
+                  title="Suggested Quizzes"
+                  quizzes={suggestedQuizzes}
+                  renderQuizCard={renderQuizCard}
+                  emptyMessage="No suggested quizzes available yet."
+                />
+              </div>
+            )}
 
-              // Used to decide if the Delete button should be shown (only for its owner).
-              let creatorId = null;
-              if (dataSource === "browseCustomQuizzes") {
-                creatorId = collectCreatorUid(quiz);
-              }
+            <div className="w-full max-w-7xl mx-auto mt-12 px-2 md:px-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center md:text-left">
+                  {hasActiveFilters ? "Search Results" : "Browse Quizzes"}
+              </h2>
 
-              return (
-                <div className="w-full max-w-[420px]" key={quizData.id + quizData.title}>
-                  <CustomQuizSelectButton
-                    title={quizData.title}
-                    numQuestions={quizData.numQuestions}
-                    tags={Array.isArray(quizData.tags) ? quizData.tags.join(", ") : quizData.tags}
-                    uid={quizData.id}
-                    quizPassword={quizData.password}
-                    creatorUsername={
-                      (typeof quiz?.creatorUsername === "string" && quiz.creatorUsername.trim())
-                        ? quiz.creatorUsername.trim()
-                        : null
-                    }
-                    creator={{
-                      ...(quizData.creator || {}),
-                      username: getCreatorHandle(quiz)
-                        ? getCreatorHandle(quiz).replace(/^@/, "")
-                        : (quizData.creator?.username || null),
-                      handle: getCreatorHandle(quiz) || null,
-                    }}
-                    difficulty={quizData.difficulty}
-                    category={quizData.category}
-                    attempts={quizData.attempts}
-                    averageScore={quizData.averageScore}
-                    createdAt={quizData.createdAt}
-                    isPrivate={quizData.isPrivate}
-                    creatorId={creatorId}
-                    currentUserId={currentUser?.uid}
-                    linkCreatorToProfile={linkCreatorToProfile}
-                    onDeleted={handleQuizDeleted}
-                  />
-                </div>
-              );
-            })}
-          </div>
+              <div
+                id="customQuizDiv"
+                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 w-full items-start justify-items-center"
+              >
+                {visibleQuizzes.map((quiz) => renderQuizCard(quiz))}
+              </div>
+            </div>
+
+            {hasMoreQuizzes && (
+              <div className="flex justify-center mt-10">
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((prev) => prev + 6)}
+                  className="px-6 py-3 rounded-full font-semibold bg-white border border-gray-200 text-gray-800 shadow-sm hover:bg-gray-100 transition"
+                >
+                  Load More
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

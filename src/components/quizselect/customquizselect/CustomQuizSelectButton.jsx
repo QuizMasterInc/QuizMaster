@@ -570,7 +570,7 @@ const CustomQuizSelectButton = ({
       {quizPassword && !isCreator ? (
         <div className="card relative w-full min-w-0 rounded-2xl shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col transition-all duration-200">
           <div className="p-6 flex-grow flex flex-col text-center">
-            <div className="break-words text-2xl text-[var(--accent)] font-bold mb-3">
+            <div className="min-h-[72px] line-clamp-2 overflow-hidden flex items-center justify-center text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center">
               {title}
             </div>
 
@@ -635,7 +635,7 @@ const CustomQuizSelectButton = ({
             <>
               <div className="p-6 flex-grow flex flex-col text-center">
                 <div
-                  className="break-words text-2xl text-[var(--accent)] font-bold mb-3 cursor-pointer"
+                  className="min-h-[72px] line-clamp-2 overflow-hidden flex items-center justify-center text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center cursor-pointer"
                   onClick={handleCreatorStart}
                 >
                   {title}
@@ -675,7 +675,7 @@ const CustomQuizSelectButton = ({
                   to={`/customquiz/settings/${uid}`}
                   state={{ from: location.pathname }}
                 >
-                  <div className="break-words text-2xl text-[var(--accent)] font-bold line-clamp-1 mb-3">
+                  <div className="min-h-[72px] line-clamp-2 overflow-hidden flex items-center justify-center text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center">
                     {title}
                   </div>
                 </Link>
