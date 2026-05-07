@@ -132,7 +132,7 @@ const MyQuiz = ({
         {loading ? (
           <div className="flex justify-center items-center mt-10">
             <div className="text-gradient-primary text-lg">
-              {dataSource === "browseCustomQuizzes" ? 'Loading optimized results...' : 'Loading quizzes...'}
+              {dataSource === "browseCustomQuizzes" ? 'Loading your awesome quizzes...' : 'Loading quizzes...'}
             </div>
           </div>
         ) : (

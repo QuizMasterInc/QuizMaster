@@ -159,7 +159,7 @@ const DoneModal = ({
                                         Review Incorrect Again
                                     </button>
 
-                                    <Link to="/typeofquiz" state={{ from: location.pathname }}>
+                                    <Link to="/allcustomquizzes" state={{ from: location.pathname }}>
                                         <button
                                             type="button"
                                             className="px-6 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 border-2 border-accent"
