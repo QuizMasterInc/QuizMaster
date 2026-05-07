@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import '../config/firebase';
-import { appVersion } from '../components/ui';
+import { appVersionState, updateAppVersion } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 import useProfileSectionData from '../hooks/useProfileSectionData';
 
 const emptyForm = {
-  version: appVersion,
+  version: appVersionState.value,
   title: '',
   description: '',
   changesText: '',
@@ -22,10 +22,10 @@ const getEntryStatusLabel = (entry) => {
 };
 
 const getEntryStatusClasses = (entry) => {
-  if (entry.status === 'pending_edit') return 'bg-blue-950 text-blue-300';
-  if (entry.status === 'pending_review') return 'bg-yellow-950 text-yellow-300';
-  if (entry.status === 'published' || entry.published) return 'bg-green-950 text-green-300';
-  return 'bg-gray-800 text-gray-300';
+  if (entry.status === 'pending_edit') return 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300';
+  if (entry.status === 'pending_review') return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300';
+  if (entry.status === 'published' || entry.published) return 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300';
+  return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
 };
 
 const Changelog = () => {
@@ -54,19 +54,39 @@ const Changelog = () => {
 
     try {
       let request = firebase.firestore().collection('changelog');
+      let snapshot;
 
       if (!isAdmin) {
-        request = request.where('published', '==', true);
+        request = request
+          .where('published', '==', true)
+          .where('status', '==', 'published');
+
+        snapshot = await request.get();
+      } else {
+        snapshot = await request.orderBy('createdAt', 'desc').get();
       }
 
-      const snapshot = await request.orderBy('createdAt', 'desc').get();
-
-      setEntries(
-        snapshot.docs.map((doc) => ({
+      const changelogEntries = snapshot.docs
+        .map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }))
-      );
+        .sort((firstEntry, secondEntry) => {
+          const firstCreatedAt = firstEntry.createdAt?.toMillis?.() || 0;
+          const secondCreatedAt = secondEntry.createdAt?.toMillis?.() || 0;
+
+          return secondCreatedAt - firstCreatedAt;
+        });
+
+      const newestPublishedEntry = changelogEntries.find((entry) => (
+        entry.published === true && entry.status === 'published' && entry.version
+      ));
+
+      if (newestPublishedEntry) {
+        updateAppVersion(newestPublishedEntry.version);
+      }
+
+      setEntries(changelogEntries);
     } catch (err) {
       console.error('Unable to load changelog entries:', err);
       setError('Unable to load changelog entries. Please try again.');
@@ -81,7 +101,12 @@ const Changelog = () => {
   }, [isAdmin]);
 
   const resetForm = () => {
-    setForm(emptyForm);
+    setForm({
+      version: appVersionState.value,
+      title: '',
+      description: '',
+      changesText: '',
+    });
     setEditingEntry(null);
     setShowForm(false);
   };
@@ -173,7 +198,7 @@ const Changelog = () => {
     setSuccessMessage('');
     setEditingEntry(entry);
     setForm({
-      version: source.version || appVersion,
+      version: source.version || appVersionState.value,
       title: source.title || '',
       description: source.description || '',
       changesText: Array.isArray(source.changes) ? source.changes.join('\n') : '',
@@ -292,18 +317,26 @@ const Changelog = () => {
     return proposerId !== user?.uid;
   };
 
+  const isEntryProposer = (entry) => {
+    if (!isAdmin) return false;
+    if (!['pending_review', 'pending_edit'].includes(entry.status)) return false;
+
+    const proposerId = entry.status === 'pending_edit' ? entry.editProposedBy : entry.proposedBy;
+    return proposerId === user?.uid;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-950 px-4 py-10 text-white">
+    <div className="min-h-screen bg-gray-50 px-4 py-10 text-gray-950 dark:bg-gray-950 dark:text-white">
       <div className="mx-auto max-w-4xl space-y-6">
         <header>
-          <p className="text-sm font-medium uppercase tracking-[0.3em] text-purple-300">
+          <p className="text-sm font-medium uppercase tracking-[0.3em] text-purple-500 dark:text-purple-300">
             QuizMaster
           </p>
 
           <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-purple-400">Changelog</h1>
-              <p className="mt-2 text-gray-400">
+              <h1 className="text-4xl font-bold text-purple-600 dark:text-purple-400">Changelog</h1>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">
                 View updates, fixes, and improvements for QuizMaster.
               </p>
             </div>
@@ -319,7 +352,12 @@ const Changelog = () => {
                     resetForm();
                   } else {
                     setEditingEntry(null);
-                    setForm(emptyForm);
+                    setForm({
+                      version: appVersionState.value,
+                      title: '',
+                      description: '',
+                      changesText: '',
+                    });
                     setShowForm(true);
                   }
                 }}
@@ -332,12 +370,12 @@ const Changelog = () => {
         </header>
 
         {isAdmin && showForm && (
-          <section className="rounded-2xl border border-purple-800 bg-gray-900 p-6 shadow-lg">
-            <div className="mb-5 border-b border-gray-800 pb-4">
-              <h2 className="text-2xl font-semibold text-white">
+          <section className="rounded-2xl border border-purple-200 bg-white p-6 shadow-lg dark:border-purple-800 dark:bg-gray-900">
+            <div className="mb-5 border-b border-gray-200 pb-4 dark:border-gray-800">
+              <h2 className="text-2xl font-semibold text-gray-950 dark:text-white">
                 {editingEntry ? 'Submit Changelog Edit' : 'Add Changelog Entry'}
               </h2>
-              <p className="mt-1 text-sm text-gray-400">
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 {editingEntry
                   ? 'Edits are saved as pending changes and must be approved by another admin.'
                   : 'New changelog entries must be approved by another admin before they are published.'}
@@ -347,64 +385,64 @@ const Changelog = () => {
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="space-y-2">
-                  <span className="text-sm font-medium text-gray-300">Version</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Version</span>
                   <input
                     name="version"
                     value={form.version}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-white outline-none transition focus:border-purple-500"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-950 outline-none transition focus:border-purple-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                     placeholder="2.3.0"
                   />
                 </label>
 
                 <label className="space-y-2">
-                  <span className="text-sm font-medium text-gray-300">Title</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Title</span>
                   <input
                     name="title"
                     value={form.title}
                     onChange={handleChange}
-                    className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-white outline-none transition focus:border-purple-500"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-950 outline-none transition focus:border-purple-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                     placeholder="Changelog Page Added"
                   />
                 </label>
               </div>
 
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-gray-300">Description</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</span>
                 <textarea
                   name="description"
                   value={form.description}
                   onChange={handleChange}
-                  className="min-h-24 w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-white outline-none transition focus:border-purple-500"
+                  className="min-h-24 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-950 outline-none transition focus:border-purple-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                   placeholder="Briefly summarize this release."
                 />
               </label>
 
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-gray-300">Changes</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Changes</span>
                 <textarea
                   name="changesText"
                   value={form.changesText}
                   onChange={handleChange}
-                  className="min-h-32 w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-white outline-none transition focus:border-purple-500"
+                  className="min-h-32 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-950 outline-none transition focus:border-purple-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                   placeholder={"Added a new feature\nFixed a bug\nImproved admin tools"}
                 />
               </label>
 
-              <div className="rounded-lg border border-yellow-800 bg-yellow-950/30 px-3 py-2 text-sm text-yellow-200">
+              <div className="rounded-lg border border-yellow-300 bg-yellow-50 px-3 py-2 text-sm text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950/30 dark:text-yellow-200">
                 {editingEntry
                   ? 'This edit will not go live until another admin approves it.'
                   : 'This entry will not be public until another admin approves it.'}
               </div>
 
               {error && (
-                <p className="rounded-lg border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-300">
+                <p className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">
                   {error}
                 </p>
               )}
 
               {successMessage && (
-                <p className="rounded-lg border border-green-800 bg-green-950/40 px-3 py-2 text-sm text-green-300">
+                <p className="rounded-lg border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300">
                   {successMessage}
                 </p>
               )}
@@ -421,7 +459,7 @@ const Changelog = () => {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="rounded-lg border border-gray-700 px-5 py-2 font-semibold text-gray-300 transition hover:border-purple-500 hover:text-purple-300"
+                  className="rounded-lg border border-gray-300 px-5 py-2 font-semibold text-gray-700 transition hover:border-purple-500 hover:text-purple-600 dark:border-gray-700 dark:text-gray-300 dark:hover:text-purple-300"
                 >
                   Cancel
                 </button>
@@ -431,25 +469,25 @@ const Changelog = () => {
         )}
 
         {error && !showForm && (
-          <p className="rounded-lg border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-300">
+          <p className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">
             {error}
           </p>
         )}
 
         {successMessage && !showForm && (
-          <p className="rounded-lg border border-green-800 bg-green-950/40 px-3 py-2 text-sm text-green-300">
+          <p className="rounded-lg border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300">
             {successMessage}
           </p>
         )}
 
         {loading && (
-          <p className="rounded-2xl border border-gray-800 bg-gray-900 p-6 text-gray-300">
+          <p className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300">
             Loading changelog entries...
           </p>
         )}
 
         {!loading && entries.length === 0 && (
-          <p className="rounded-2xl border border-gray-800 bg-gray-900 p-6 text-gray-300">
+          <p className="rounded-2xl border border-gray-200 bg-white p-6 text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300">
             No changelog entries found yet.
           </p>
         )}
@@ -458,16 +496,18 @@ const Changelog = () => {
           const statusLabel = getEntryStatusLabel(entry);
           const statusClasses = getEntryStatusClasses(entry);
           const proposerName = entry.status === 'pending_edit' ? entry.editProposedByName : entry.proposedByName;
+          const awaitingOwnApproval = isEntryProposer(entry);
+          const canAdminReviewEntry = canApproveEntry(entry);
 
           return (
             <section
               key={entry.id}
-              className="rounded-2xl border border-gray-800 bg-gray-900 p-6 shadow-lg"
+              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-800 dark:bg-gray-900"
             >
-              <div className="mb-4 border-b border-gray-800 pb-4">
+              <div className="mb-4 border-b border-gray-200 pb-4 dark:border-gray-800">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="text-2xl font-semibold text-white">
-                    Version {entry.version || appVersion}
+                  <h2 className="text-2xl font-semibold text-gray-950 dark:text-white">
+                    Version {entry.version || appVersionState.value}
                   </h2>
 
                   {isAdmin && (
@@ -477,18 +517,24 @@ const Changelog = () => {
                   )}
                 </div>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-500">
                   {entry.title}
                 </p>
 
-                {isAdmin && proposerName && ['pending_review', 'pending_edit'].includes(entry.status) && (
-                  <p className="mt-2 text-xs text-gray-500">
-                    Proposed by {proposerName}
-                  </p>
+                {isAdmin && ['pending_review', 'pending_edit'].includes(entry.status) && (
+                  <div className="mt-2 space-y-1 text-xs text-gray-600 dark:text-gray-500">
+                    {proposerName && <p>Proposed by {proposerName}</p>}
+
+                    {awaitingOwnApproval && (
+                      <p className="font-medium text-yellow-700 dark:text-yellow-300">
+                        Awaiting approval from another admin.
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
 
-              <div className="space-y-3 text-gray-300">
+              <div className="space-y-3 text-gray-700 dark:text-gray-300">
                 <p>{entry.description}</p>
 
                 {entry.changes?.length > 0 && (
@@ -500,14 +546,14 @@ const Changelog = () => {
                 )}
 
                 {isAdmin && entry.pendingChanges && (
-                  <div className="mt-5 rounded-xl border border-blue-800 bg-blue-950/30 p-4">
-                    <p className="text-sm font-semibold text-blue-200">Pending edit awaiting approval</p>
-                    <p className="mt-2 text-sm text-blue-100">Version {entry.pendingChanges.version}</p>
-                    <p className="mt-1 text-sm text-blue-100">{entry.pendingChanges.title}</p>
-                    <p className="mt-2 text-sm text-blue-100">{entry.pendingChanges.description}</p>
+                  <div className="mt-5 rounded-xl border border-blue-300 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
+                    <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">Pending edit awaiting approval</p>
+                    <p className="mt-2 text-sm text-blue-800 dark:text-blue-100">Version {entry.pendingChanges.version}</p>
+                    <p className="mt-1 text-sm text-blue-800 dark:text-blue-100">{entry.pendingChanges.title}</p>
+                    <p className="mt-2 text-sm text-blue-800 dark:text-blue-100">{entry.pendingChanges.description}</p>
 
                     {entry.pendingChanges.changes?.length > 0 && (
-                      <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-blue-100">
+                      <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-blue-800 dark:text-blue-100">
                         {entry.pendingChanges.changes.map((change, index) => (
                           <li key={index}>{change}</li>
                         ))}
@@ -518,34 +564,42 @@ const Changelog = () => {
 
                 {isAdmin && (
                   <div className="flex flex-wrap gap-3 pt-3">
-                    <button
-                      type="button"
-                      onClick={() => handleEdit(entry)}
-                      className="rounded-lg border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-300 transition hover:border-purple-500 hover:text-purple-300"
-                    >
-                      Edit
-                    </button>
+                    {awaitingOwnApproval ? (
+                      <span className="rounded-lg border border-yellow-300 bg-yellow-50 px-4 py-2 text-sm font-semibold text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950/30 dark:text-yellow-200">
+                        Awaiting approval
+                      </span>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(entry)}
+                          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-purple-500 hover:text-purple-600 dark:border-gray-700 dark:text-gray-300 dark:hover:text-purple-300"
+                        >
+                          Edit
+                        </button>
 
-                    {canApproveEntry(entry) && (
-                      <button
-                        type="button"
-                        disabled={saving}
-                        onClick={() => handleApprove(entry)}
-                        className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        Approve
-                      </button>
-                    )}
+                        {canAdminReviewEntry && (
+                          <>
+                            <button
+                              type="button"
+                              disabled={saving}
+                              onClick={() => handleApprove(entry)}
+                              className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              Approve
+                            </button>
 
-                    {['pending_review', 'pending_edit'].includes(entry.status) && (
-                      <button
-                        type="button"
-                        disabled={saving}
-                        onClick={() => handleReject(entry)}
-                        className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        Reject
-                      </button>
+                            <button
+                              type="button"
+                              disabled={saving}
+                              onClick={() => handleReject(entry)}
+                              className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
