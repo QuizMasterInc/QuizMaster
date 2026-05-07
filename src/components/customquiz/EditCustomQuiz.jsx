@@ -149,6 +149,15 @@ export default function EditCustomQuiz() {
     setQuizDataArray(prev => prev.filter((_, i) => i !== index))
   }
 
+  // Add a new empty question row to the quiz
+  const handleAddQuestion = () => {
+    setQuizDataArray(prev => [
+      ...prev,
+      ['', '', '', '', '', '']
+    ])
+    toast.info('New question added. Click it to edit.')
+  }
+
   // function handles when a user confirms they want to delete their quiz
   const handleQuizDeletion = (e) => {
     e.preventDefault()
@@ -324,6 +333,13 @@ export default function EditCustomQuiz() {
             {customQuiz.quiz && (
               <div className="bg-card rounded-2xl p-6 shadow-xl border border-accent">
                 <div className="flex gap-4 justify-center flex-wrap">
+                  <button
+                    className="px-8 py-3 bg-neutral-500 hover:bg-neutral-600 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-neutral-500"
+                    onClick={handleAddQuestion}
+                    type="button"
+                  >
+                    Add Question
+                  </button>
                   <button 
                     className="px-8 py-3 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-accent disabled:opacity-50" 
                     onClick={handleSaveChanges}

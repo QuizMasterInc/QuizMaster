@@ -11,6 +11,8 @@ import {
 } from 'firebase/firestore';
 
 import { db } from '../../services/firebase/firebaseService';
+import { FaShare } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 const getQuizSortTime = (item) => {
   const value =
@@ -47,6 +49,41 @@ const normalizeCategory = (value) => {
   if (typeof value !== 'string') return 'General';
   const trimmed = value.trim();
   return trimmed || 'General';
+};
+
+const normalizeDescription = (value) => {
+  if (typeof value !== 'string') return '';
+  return value.trim();
+};
+
+const getQuizDescription = (quiz) => {
+  const description =
+    quiz?.metadata?.description ||
+    quiz?.description ||
+    quiz?.quizDescription ||
+    quiz?.summary ||
+    quiz?.metadata?.summary ||
+    quiz?.details?.description ||
+    quiz?.quizDetails?.description ||
+    quiz?.settings?.description ||
+    quiz?.content?.description ||
+    quiz?.content?.metadata?.description ||
+    '';
+
+  return normalizeDescription(description);
+};
+
+const getDeckDescription = (deck) => {
+  const description =
+    deck?.description ||
+    deck?.metadata?.description ||
+    deck?.deckDescription ||
+    deck?.summary ||
+    deck?.details?.description ||
+    deck?.settings?.description ||
+    '';
+
+  return normalizeDescription(description);
 };
 
 const PUBLIC_CONTENT_CATEGORIES = [
@@ -253,12 +290,15 @@ export default function PublicUserPage() {
   const filteredQuizzes = useMemo(() => {
     return publicQuizzes.filter((qz) => {
       const quizTitle = (qz?.metadata?.title || qz?.title || '').toLowerCase();
+      const quizDescription = getQuizDescription(qz).toLowerCase();
       const quizCategory = normalizeCategory(
         qz?.metadata?.category || qz?.category
       );
 
       const matchesSearch =
-        !normalizedSearch || quizTitle.includes(normalizedSearch);
+        !normalizedSearch ||
+        quizTitle.includes(normalizedSearch) ||
+        quizDescription.includes(normalizedSearch);
       const matchesCategory =
         selectedCategory === 'all' || quizCategory === selectedCategory;
 
@@ -269,10 +309,13 @@ export default function PublicUserPage() {
   const filteredDecks = useMemo(() => {
     return publicDecks.filter((dk) => {
       const deckTitle = (dk?.title || '').toLowerCase();
-      const deckCategory = normalizeCategory(dk?.category);
+      const deckDescription = getDeckDescription(dk).toLowerCase();
+      const deckCategory = normalizeCategory(dk?.category || dk?.metadata?.category);
 
       const matchesSearch =
-        !normalizedSearch || deckTitle.includes(normalizedSearch);
+        !normalizedSearch ||
+        deckTitle.includes(normalizedSearch) ||
+        deckDescription.includes(normalizedSearch);
       const matchesCategory =
         selectedCategory === 'all' || deckCategory === selectedCategory;
 
@@ -290,6 +333,52 @@ export default function PublicUserPage() {
     showQuizzes && showDecks
       ? 'grid grid-cols-1 lg:grid-cols-2 gap-8'
       : 'max-w-3xl mx-auto';
+
+  const handleShare = async ({ title, text, url, successMessage }) => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, text, url });
+        return;
+      }
+
+      await navigator.clipboard.writeText(url);
+      toast.success(successMessage);
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success(successMessage);
+      } catch (clipboardError) {
+        console.error('Failed to share public user content:', clipboardError);
+        toast.error('Could not share this item right now.');
+      }
+    }
+  };
+
+  const handleShareQuiz = (quiz) => {
+    const quizTitle = quiz?.metadata?.title || quiz?.title || 'Untitled Quiz';
+    const quizUrl = `${window.location.origin}/customquiz/settings/${quiz.id}`;
+
+    handleShare({
+      title: quizTitle,
+      text: `Check out this QuizMaster quiz: ${quizTitle}`,
+      url: quizUrl,
+      successMessage: 'Quiz link copied to clipboard!',
+    });
+  };
+
+  const handleShareDeck = (deck) => {
+    const deckTitle = deck?.title || 'Untitled Deck';
+    const deckUrl = `${window.location.origin}/flashcards/study/${deck.id}`;
+
+    handleShare({
+      title: deckTitle,
+      text: `Check out this QuizMaster flashcard deck: ${deckTitle}`,
+      url: deckUrl,
+      successMessage: 'Flashcard deck link copied to clipboard!',
+    });
+  };
 
   return (
     <div className="min-h-screen bg-primary relative overflow-hidden py-20 px-6 text-[var(--text-primary)]">
@@ -415,11 +504,12 @@ export default function PublicUserPage() {
                             qz?.numQuestions ||
                             qz?.questionCount ||
                             null;
+                          const quizDescription = getQuizDescription(qz);
 
                           return (
                             <div
                               key={qz.id}
-                              className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent px-6 py-5 transition-all duration-200"
+                              className="card relative rounded-2xl shadow-lg hover:shadow-xl border border-accent px-6 py-5 transition-all duration-200"
                             >
                               <div className="text-center">
                                 <div className="text-2xl text-[var(--primary-500)] font-semibold break-words">
@@ -439,13 +529,33 @@ export default function PublicUserPage() {
                                     </span>
                                   </div>
                                 ) : null}
-                                <div className="mt-5">
+
+                                <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)]/60 px-4 py-3 text-center">
+                                  <div className="mb-1 text-sm font-bold text-[var(--accent)]">
+                                    Description:
+                                  </div>
+                                  <p className="mx-auto max-w-sm whitespace-pre-line text-sm leading-relaxed text-[var(--text-primary)]">
+                                    {quizDescription || 'No description provided.'}
+                                  </p>
+                                </div>
+
+                                <div className="mt-5 flex items-center justify-center gap-3">
                                   <Link
-                                    to={`/quiz/${qz.id}`}
-                                    className="inline-block rounded-lg bg-[var(--primary-500)] px-5 py-2 text-sm font-medium text-white hover:opacity-90 transition-all duration-200"
+                                    to={`/customquiz/settings/${qz.id}`}
+                                    className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-[var(--primary-500)] px-5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-lg"
                                   >
                                     Open Quiz
                                   </Link>
+
+                                  <button
+                                    type="button"
+                                    aria-label="Share quiz"
+                                    title="Share quiz"
+                                    onClick={() => handleShareQuiz(qz)}
+                                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--accent)] hover:bg-[var(--accent)]/10 hover:text-[var(--accent)] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40"
+                                  >
+                                    <FaShare className="h-4 w-4" />
+                                  </button>
                                 </div>
                               </div>
                             </div>
@@ -492,11 +602,12 @@ export default function PublicUserPage() {
                             dk?.totalCards ||
                             dk?.flashcards?.length ||
                             null;
+                          const deckDescription = getDeckDescription(dk);
 
                           return (
                             <div
                               key={dk.id}
-                              className="card relative rounded-lg shadow-lg hover:shadow-xl border border-accent px-6 py-5 transition-all duration-200"
+                              className="card relative rounded-2xl shadow-lg hover:shadow-xl border border-accent px-6 py-5 transition-all duration-200"
                             >
                               <div className="text-center">
                                 <div className="text-2xl text-[var(--primary-500)] font-semibold break-words">
@@ -516,13 +627,33 @@ export default function PublicUserPage() {
                                     </span>
                                   </div>
                                 ) : null}
-                                <div className="mt-5">
+
+                                <div className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)]/60 px-4 py-3 text-center">
+                                  <div className="mb-1 text-sm font-bold text-[var(--accent)]">
+                                    Description:
+                                  </div>
+                                  <p className="mx-auto max-w-sm whitespace-pre-line text-sm leading-relaxed text-[var(--text-primary)]">
+                                    {deckDescription || 'No description provided.'}
+                                  </p>
+                                </div>
+
+                                <div className="mt-5 flex items-center justify-center gap-3">
                                   <Link
                                     to={`/flashcards/study/${dk.id}`}
-                                    className="inline-block rounded-lg bg-[var(--primary-500)] px-5 py-2 text-sm font-medium text-white hover:opacity-90 transition-all duration-200"
+                                    className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-[var(--primary-500)] px-5 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-lg"
                                   >
                                     Study Deck
                                   </Link>
+
+                                  <button
+                                    type="button"
+                                    aria-label="Share flashcard deck"
+                                    title="Share flashcard deck"
+                                    onClick={() => handleShareDeck(dk)}
+                                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--accent)] hover:bg-[var(--accent)]/10 hover:text-[var(--accent)] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40"
+                                  >
+                                    <FaShare className="h-4 w-4" />
+                                  </button>
                                 </div>
                               </div>
                             </div>

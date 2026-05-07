@@ -17,6 +17,7 @@ import About from './components/about/About';
 import Contact from './components/contact/Contact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import Changelog from './pages/changelog';
 import Support from './pages/Support';
 import SupportDashboard from './pages/SupportDashboard';
 import { AppProvider } from './contexts/AppContext';
@@ -145,6 +146,7 @@ function App() {
               } />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/changelog" element={<Changelog />} />
               <Route path="/settings" element={
                 <Settings />
               }/>

@@ -336,7 +336,7 @@ const SupportDashboard = () => {
 
   if (loading) {
     return (
-      <div className="dashboard-content">
+      <div className="dashboard-content md:ml-[76px] md:w-[calc(100%_-_76px)] overflow-x-hidden">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-xl">Loading support tickets...</div>
         </div>
@@ -346,7 +346,7 @@ const SupportDashboard = () => {
 
   if (error) {
     return (
-      <div className="dashboard-content">
+      <div className="dashboard-content md:ml-[76px] md:w-[calc(100%_-_76px)] overflow-x-hidden">
         <div className="flex items-center justify-center min-h-[400px] px-6">
           <div className="text-red-500 text-center">
             Error loading support tickets: {error.message}
@@ -357,8 +357,8 @@ const SupportDashboard = () => {
   }
 
   return (
-    <div className="dashboard-content">
-      <div className="relative max-w-[1600px] mx-auto space-y-10 mb-10">
+    <div className="dashboard-content md:ml-[76px] md:w-[calc(100%_-_76px)] overflow-x-hidden">
+      <div className="relative w-full max-w-7xl mx-auto space-y-10 mb-10 px-4 sm:px-6 lg:px-8">
         <section className="text-center space-y-4">
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-between sm:text-left">
             <div className="space-y-2">
@@ -372,14 +372,14 @@ const SupportDashboard = () => {
 
             <Link
               to="/profile"
-              className="card inline-flex items-center justify-center bg-purple-600 px-5 py-3 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-purple-700"
+              className="card inline-flex shrink-0 items-center justify-center bg-purple-600 px-5 py-3 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-purple-700"
             >
               Back to Profile
             </Link>
           </div>
         </section>
 
-        <div className="card space-y-6 border border-primary bg-card text-primary shadow-lg">
+        <div className="card w-full max-w-full overflow-hidden space-y-6 border border-primary bg-card text-primary shadow-lg">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h2 className="text-2xl font-bold">Support Tickets</h2>
@@ -389,7 +389,7 @@ const SupportDashboard = () => {
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-4 lg:min-w-[900px]">
+            <div className="grid w-full max-w-full gap-3 sm:grid-cols-2 xl:grid-cols-4 lg:max-w-[900px]">
               <input
                 type="text"
                 value={searchTerm}
@@ -439,7 +439,7 @@ const SupportDashboard = () => {
               No support tickets match the current filters.
             </div>
           ) : (
-            <div className="grid gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
+            <div className="grid max-w-full gap-6 xl:grid-cols-[minmax(280px,380px)_minmax(0,1fr)]">
               <div className="space-y-4 max-h-[900px] overflow-y-auto pr-1">
                 {filteredTickets.map((ticket) => {
                   const isSelected = ticket.id === selectedTicketId;
@@ -511,7 +511,7 @@ const SupportDashboard = () => {
               </div>
 
               {selectedTicket ? (
-                <div className="rounded-2xl border border-primary bg-card p-6 space-y-6 text-primary shadow-lg">
+                <div className="rounded-2xl border border-primary bg-card p-6 space-y-6 text-primary shadow-lg min-w-0">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="space-y-3 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
