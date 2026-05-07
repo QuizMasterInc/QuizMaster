@@ -152,9 +152,9 @@ export default function CSVUpload({ onQuestionsAdded }) {
   };
 
   return (
-    <div className="w-full space-y-5 rounded-2xl border border-[var(--border)] bg-[var(--bg-primary)] p-6 text-primary shadow-inner">
+    <div className="w-full space-y-5 rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-[var(--text-primary)] shadow-inner transition-colors duration-200">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-primary">
+        <h2 className="text-2xl font-bold text-[var(--text-primary)]">
           📥 Upload Cards from CSV
         </h2>
         <p className="text-sm text-[var(--text-secondary)]">
@@ -164,7 +164,7 @@ export default function CSVUpload({ onQuestionsAdded }) {
 
       <label
         htmlFor="csv-file-input"
-        className="flex w-full cursor-pointer items-center justify-center rounded-xl bg-[var(--primary-400)] px-5 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--primary-500)] hover:shadow-xl"
+        className="flex w-full cursor-pointer items-center justify-center rounded-xl border border-[var(--accent)] bg-[var(--btn-primary-bg)] px-5 py-3 font-semibold text-[var(--btn-primary-text)] shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--accent-hover)] hover:shadow-xl"
       >
         {selectedFile ? `📄 ${selectedFile.name}` : "📁 Choose CSV File"}
       </label>
@@ -179,7 +179,7 @@ export default function CSVUpload({ onQuestionsAdded }) {
       />
 
       {uploadError ? (
-        <div className="rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-300">
+        <div className="rounded-xl border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm font-medium text-[var(--error-text)]">
           {uploadError}
         </div>
       ) : null}
@@ -189,7 +189,7 @@ export default function CSVUpload({ onQuestionsAdded }) {
           type="button"
           onClick={handleCSVUpload}
           disabled={isUploadingCSV || !selectedFile}
-          className="inline-flex flex-1 items-center justify-center rounded-xl bg-green-600 px-5 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+          className="inline-flex flex-1 items-center justify-center rounded-xl border border-[var(--success)] bg-[var(--success)] px-5 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-95 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
         >
           {isUploadingCSV ? "Processing..." : "⬆️ Upload CSV"}
         </button>
@@ -198,18 +198,18 @@ export default function CSVUpload({ onQuestionsAdded }) {
           <button
             type="button"
             onClick={clearFileInput}
-            className="inline-flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] px-5 py-3 font-semibold text-primary shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            className="inline-flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--btn-secondary-bg)] px-5 py-3 font-semibold text-[var(--btn-secondary-text)] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--accent)] hover:text-[var(--accent)]"
           >
             Clear
           </button>
         ) : null}
       </div>
 
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)]">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] transition-colors duration-200">
         <button
           type="button"
           onClick={() => setShowRequirements((prev) => !prev)}
-          className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left font-semibold text-primary"
+          className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left font-semibold text-[var(--text-primary)]"
         >
           <span>{showRequirements ? "▾" : "▸"} 📋 CSV Format Requirements</span>
           <span
@@ -226,7 +226,7 @@ export default function CSVUpload({ onQuestionsAdded }) {
                 downloadFlashcardCSVTemplate();
               }
             }}
-            className="rounded-lg border border-[var(--border)] px-3 py-1 text-xs text-[var(--text-secondary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            className="rounded-lg border border-[var(--border)] bg-[var(--bg-primary)] px-3 py-1 text-xs text-[var(--text-secondary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
           >
             Download Template
           </span>
@@ -235,7 +235,7 @@ export default function CSVUpload({ onQuestionsAdded }) {
         {showRequirements ? (
           <div className="space-y-3 border-t border-[var(--border)] px-4 py-4 text-sm text-[var(--text-secondary)]">
             <p>Your CSV must have these columns in order:</p>
-            <code className="block rounded-lg bg-[var(--bg-primary)] px-3 py-2 text-primary">
+            <code className="block rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2 text-[var(--text-primary)]">
               front,back
             </code>
             <p>Each row creates one flashcard. Both fields are required.</p>
