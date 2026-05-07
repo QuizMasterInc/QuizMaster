@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+
+export const appVersion = '2.3.0';
 
 // Reusable Button Component
 export const Button = ({
@@ -87,8 +88,6 @@ export const Card = ({
 
 // Reusable Footer Component
 export const Footer = () => {
-  const appVersion = "2.3.0";
-
   return (
     <>
       <footer className="w-full fixed bottom-0 left-0 bg-gradient-to-r from-[#1a0533] via-[#220b47] to-[#100222] text-center py-3 text-sm text-gray-300 border-t border-purple-800 shadow-inner z-50">
@@ -98,7 +97,14 @@ export const Footer = () => {
               © 2025 <span className="text-purple-400 font-semibold">QuizMaster</span>. All rights reserved.
             </p>
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 items-center">
-              <span className="text-gray-500">v{appVersion}</span>
+              <Link
+                to="/changelog"
+                className="inline-flex items-center rounded-full border border-gray-700 bg-gray-900 px-3 py-1 text-xs font-medium text-gray-400 transition-all duration-200 hover:border-purple-500 hover:bg-purple-950/40 hover:text-purple-300"
+                aria-label={`View changelog for version ${appVersion}`}
+                title="View changelog"
+              >
+                v{appVersion}
+              </Link>
               <Link
                 to="/support"
                 className="text-gray-400 hover:text-purple-400 transition-colors duration-200 hover:underline"
