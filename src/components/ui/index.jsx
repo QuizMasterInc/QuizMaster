@@ -5,6 +5,9 @@ import 'firebase/compat/firestore';
 import '../../config/firebase';
 
 export const appVersion = '2.3.0';
+export const appVersionState = {
+  value: appVersion,
+};
 
 const normalizeVersion = (version) => String(version || '')
   .trim()
@@ -37,6 +40,16 @@ const getHighestPublishedVersion = (entries) => entries.reduce((highestVersion, 
 
   return highestVersion;
 }, normalizeVersion(appVersion));
+
+export const updateAppVersion = (version) => {
+  const normalizedVersion = normalizeVersion(version);
+
+  if (normalizedVersion) {
+    appVersionState.value = normalizedVersion;
+  }
+
+  return appVersionState.value;
+};
 
 // Reusable Button Component
 export const Button = ({
