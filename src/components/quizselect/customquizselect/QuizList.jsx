@@ -11,17 +11,32 @@ import { useQuizFiltering } from "../../../hooks/useQuizFiltering";
 import quizRetrievalService from "../../../services/quiz/quizRetrievalService";
 import cloudFunctionsAPI from "../../../services/api/cloudFunctions";
 import { fetchUsernamesByUids, isValidUsername } from "../../../services/firebase/usernameService";
-import QuizCarousel from "../../carousels/QuizCarousel";
 
 // --- Username helpers (for all viewers, including public browsing) ---
-const collectCreatorUid = (item) =>
-  item?.creator?.uid ||
-  item?.creatorId ||
-  item?.creatorID ||
-  item?.createdBy ||
-  item?.userId ||
-  item?.creator?.userId ||
-  null;
+const collectCreatorUid = (item) => {
+  const createdBy = item?.createdBy;
+
+  return (
+    item?.creator?.uid ||
+    item?.creator?.userId ||
+    item?.creator?.id ||
+    item?.creatorId ||
+    item?.creatorID ||
+    item?.ownerId ||
+    item?.ownerID ||
+    item?.userId ||
+    item?.userID ||
+    item?.uidOfCreator ||
+    (typeof createdBy === "string" ? createdBy : null) ||
+    createdBy?.uid ||
+    createdBy?.userId ||
+    createdBy?.id ||
+    item?.metadata?.creatorId ||
+    item?.metadata?.creatorID ||
+    item?.metadata?.creator?.uid ||
+    null
+  );
+};
 
 const getCreatorHandle = (item) => {
   const raw = (item?.creatorUsername || item?.creator?.username || item?.username || "").trim();
@@ -41,14 +56,12 @@ const attachCreatorUsernames = async (items) => {
 
     return {
       ...q,
-      // stash a resolved username on the root for easy rendering
       creatorUsername:
         (normalizedUname && isValidUsername(normalizedUname) ? uname : null) ||
         (q?.creator?.username && isValidUsername(String(q.creator.username).replace(/^@/, "")) ? q.creator.username : null) ||
         (q?.creatorUsername && isValidUsername(String(q.creatorUsername).replace(/^@/, "")) ? q.creatorUsername : null) ||
         (q?.username && isValidUsername(String(q.username).replace(/^@/, "")) ? q.username : null),
 
-      // also mirror onto creator for components that read creator.username
       creator: {
         ...(q?.creator || {}),
         username:
@@ -61,6 +74,56 @@ const attachCreatorUsernames = async (items) => {
       },
     };
   });
+};
+
+const getQuizCreatedAt = (quiz) =>
+  quiz?.timestamps?.createdAt ||
+  quiz?.createdAt ||
+  quiz?.timeCreated ||
+  quiz?.createdOn ||
+  quiz?.metadata?.createdAt ||
+  null;
+
+const getQuizUpdatedAt = (quiz) =>
+  quiz?.timestamps?.updatedAt ||
+  quiz?.updatedAt ||
+  quiz?.lastEdit ||
+  quiz?.metadata?.updatedAt ||
+  null;
+
+const getQuizDescription = (quiz) => {
+  const description =
+    quiz?.metadata?.description ||
+    quiz?.description ||
+    quiz?.quizDescription ||
+    quiz?.summary ||
+    quiz?.metadata?.summary ||
+    quiz?.details?.description ||
+    quiz?.quizDetails?.description ||
+    quiz?.settings?.description ||
+    quiz?.content?.description ||
+    quiz?.content?.metadata?.description ||
+    '';
+
+  return typeof description === 'string' ? description.trim() : '';
+};
+
+const normalizeQuizId = (quiz) =>
+  quiz?.id ||
+  quiz?.uid ||
+  quiz?.quizId ||
+  quiz?.docId ||
+  quiz?.metadata?.id ||
+  quiz?.metadata?.uid ||
+  null;
+
+const getQuizArray = (value) => {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.quizzes)) return value.quizzes;
+  if (Array.isArray(value?.data)) return value.data;
+  if (Array.isArray(value?.result?.quizzes)) return value.result.quizzes;
+  if (Array.isArray(value?.result?.data)) return value.result.data;
+  return [];
 };
 
 const QuizList = ({
@@ -76,9 +139,7 @@ const QuizList = ({
   const [error, setError] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [quizzesToDisplay, setQuizzesToDisplay] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(6);
 
-  // Use custom filtering hook
   const {
     filters,
     debouncedSearchTerm,
@@ -86,7 +147,6 @@ const QuizList = ({
     applyClientSideFilters
   } = useQuizFiltering(enabledFilters);
 
-  // Data fetching logic based on dataSource
   const fetchQuizzes = useCallback(async () => {
     try {
       setLoading(true);
@@ -95,11 +155,8 @@ const QuizList = ({
       let result;
 
       if (dataSource === "browseCustomQuizzes") {
-        // Pass through all privacy values so the backend can include public quizzes
-        // plus the current user's own private quizzes when allowed.
         const privacySafe = (filters.privacy || "all").toLowerCase();
 
-        // AllCustomQuizzes logic
         const options = {
           searchTerm: debouncedSearchTerm.trim(),
           sortBy: filters.sortBy,
@@ -110,25 +167,29 @@ const QuizList = ({
           fields: [
             "metadata.title", "metadata.tags", "metadata.difficulty",
             "metadata.category", "metadata.questionCount", "metadata.isPublic",
-            "metadata.hasPassword", "creator.uid", "creator.displayName",
-            "creator.username", "timestamps.createdAt", "timestamps.updatedAt"
+            "metadata.description", "description", "quizDescription",
+            "metadata.summary", "summary", "details.description",
+            "quizDetails.description", "settings.description", "content.description",
+            "content.metadata.description", "metadata.hasPassword", "metadata.creatorId", "metadata.creatorID",
+            "creator.uid", "creator.userId", "creator.id", "creator.displayName",
+            "creator.username", "creatorId", "creatorID", "createdBy", "userId",
+            "ownerId", "timestamps.createdAt", "timestamps.updatedAt"
           ]
         };
 
         result = await quizRetrievalService.browseCustomQuizzes(options);
 
-        // Fallback logic for AllCustomQuizzes
-        if (!result.quizzes && currentUser?.uid) {
+        if (getQuizArray(result).length === 0 && currentUser?.uid) {
           try {
             const userQuizzes = await quizRetrievalService.getCustomQuizzesByUser(currentUser.uid);
-            result = { quizzes: userQuizzes };
+            result = { quizzes: getQuizArray(userQuizzes) };
             setError("Showing your quizzes only (server temporarily unavailable)");
           } catch (fallbackError) {
+            console.warn("Fallback quiz fetch failed:", fallbackError);
             result = { quizzes: [] };
           }
         }
       } else if (dataSource === "teacherQuizzes") {
-        // AllTeacherQuizzes logic - now uses server-side filtering
         result = await cloudFunctionsAPI.getTeacherQuizzes({
           searchTerm: filters.searchTerm,
           sortBy: filters.sortBy,
@@ -136,9 +197,8 @@ const QuizList = ({
         });
       }
 
-      const quizArray = result?.quizzes || [];
+      const quizArray = getQuizArray(result);
 
-      // Username enrichment should NEVER crash the whole list
       let quizArrayWithUsernames = quizArray;
       if (dataSource === "browseCustomQuizzes") {
         try {
@@ -161,7 +221,6 @@ const QuizList = ({
     }
   }, [dataSource, debouncedSearchTerm, filters.sortBy, filters.privacy, currentUser?.uid]);
 
-  // Initial fetch - different behavior based on dataSource
   useEffect(() => {
     if (dataSource === "teacherQuizzes") {
       fetchQuizzes();
@@ -174,7 +233,6 @@ const QuizList = ({
     }
   }, [dataSource, currentUser?.uid, debouncedSearchTerm, filters.sortBy, filters.privacy]);
 
-  // For teacher quizzes, apply client-side filtering when filters change
   useEffect(() => {
     if (dataSource === "teacherQuizzes") {
       const filtered = applyClientSideFilters(quizzes);
@@ -182,30 +240,39 @@ const QuizList = ({
     }
   }, [dataSource, filters, quizzes, applyClientSideFilters]);
 
-  // Normalize quiz data for display
   const normalizeQuizData = (quiz) => {
     if (dataSource === "browseCustomQuizzes") {
-      return quizRetrievalService.normalizeQuizData(quiz);
-    } else {
+      const normalizedQuiz = quizRetrievalService.normalizeQuizData(quiz);
+
       return {
-        id: quiz.uid,
-        title: quiz.title,
-        numQuestions: quiz.numQuestions,
-        tags: quiz.tags,
-        password: quiz.quizPassword,
-        creator: quiz.creator,
-        difficulty: "Medium",
-        category: "Education",
-        isPrivate: false,
-        attempts: quiz.quizTaken || 0,
-        averageScore: 0,
-        createdAt: quiz.createdAt,
-        updatedAt: quiz.lastEdit
+        ...normalizedQuiz,
+        id: normalizedQuiz.id || normalizeQuizId(quiz),
+        uid: normalizedQuiz.uid || normalizeQuizId(quiz),
+        title: normalizedQuiz.title || quiz?.title || quiz?.metadata?.title || "Untitled Quiz",
+        description: normalizedQuiz.description || getQuizDescription(quiz),
+        createdAt: normalizedQuiz.createdAt || getQuizCreatedAt(quiz),
+        updatedAt: normalizedQuiz.updatedAt || getQuizUpdatedAt(quiz),
       };
     }
+
+    return {
+      id: normalizeQuizId(quiz),
+      title: quiz.title,
+      description: getQuizDescription(quiz),
+      numQuestions: quiz.numQuestions,
+      tags: quiz.tags,
+      password: quiz.quizPassword,
+      creator: quiz.creator,
+      difficulty: "Medium",
+      category: "Education",
+      isPrivate: false,
+      attempts: quiz.quizTaken || 0,
+      averageScore: 0,
+      createdAt: getQuizCreatedAt(quiz),
+      updatedAt: getQuizUpdatedAt(quiz),
+    };
   };
 
-  // Called after a quiz is successfully deleted on the server.
   const handleQuizDeleted = (deletedId) => {
     setQuizzes((prev) =>
       prev.filter((quiz) => {
@@ -222,104 +289,15 @@ const QuizList = ({
     );
   };
 
-  const hasActiveFilters =
-    Boolean(filters.searchTerm?.trim()) ||
-    Boolean(debouncedSearchTerm?.trim());
-
-  // Scores and ranks quizzes using popularity, quality, metadata richness, and recency to generate suggested quiz recommendations.
-  const getQuizScore = (quiz, index) => {
-    const quizData = normalizeQuizData(quiz);
-
-    const attempts = Number(quizData.attempts || quiz.quizTaken || quiz.attempts || 0);
-    const averageScore = Number(quizData.averageScore || quiz.averageScore || 0);
-    const questionCount = Number(quizData.numQuestions || quiz.numQuestions || quiz.metadata?.questionCount || 0);
-    const hasTags = Array.isArray(quizData.tags)
-      ? quizData.tags.length > 0
-      : Boolean(quizData.tags);
-
-    const createdAtValue =
-      quizData.createdAt?.seconds ||
-      quiz.createdAt?.seconds ||
-      quiz.timestamps?.createdAt?.seconds ||
-      0;
-
-    return (
-      attempts * 5 +
-      averageScore * 0.5 +
-      questionCount * 0.2 +
-      (hasTags ? 8 : 0) +
-      createdAtValue / 100000000 -
-      index * 0.01
-    );
-  };
-
-  const suggestedQuizzes = [...quizzes]
-    .map((quiz, index) => ({
-      quiz,
-      score: getQuizScore(quiz, index),
-    }))
-    .sort((a, b) => b.score - a.score)
-    .map((item) => item.quiz)
-    .slice(0, 6);
-  
-  const visibleQuizzes = quizzesToDisplay.slice(0, visibleCount);
-  const hasMoreQuizzes = visibleCount < quizzesToDisplay.length;
-
-  useEffect(() => {
-    setVisibleCount(6);
-  }, [debouncedSearchTerm, filters.searchTerm, filters.privacy, filters.sortBy]);
-
-  const renderQuizCard = (quiz) => {
-    const quizData = normalizeQuizData(quiz);
-
-    let creatorId = null;
-    if (dataSource === "browseCustomQuizzes") {
-      creatorId = collectCreatorUid(quiz);
-    }
-
-    return (
-      <div className="w-full max-w-[420px]" key={quizData.id + quizData.title}>
-        <CustomQuizSelectButton
-          title={quizData.title}
-          numQuestions={quizData.numQuestions}
-          tags={Array.isArray(quizData.tags) ? quizData.tags.join(", ") : quizData.tags}
-          uid={quizData.id}
-          quizPassword={quizData.password}
-          creatorUsername={
-            (typeof quiz?.creatorUsername === "string" && quiz.creatorUsername.trim())
-              ? quiz.creatorUsername.trim()
-              : null
-          }
-          creator={{
-            ...(quizData.creator || {}),
-            username: getCreatorHandle(quiz)
-              ? getCreatorHandle(quiz).replace(/^@/, "")
-              : (quizData.creator?.username || null),
-            handle: getCreatorHandle(quiz) || null,
-          }}
-          difficulty={quizData.difficulty}
-          category={quizData.category}
-          attempts={quizData.attempts}
-          averageScore={quizData.averageScore}
-          createdAt={quizData.createdAt}
-          isPrivate={quizData.isPrivate}
-          creatorId={creatorId}
-          currentUserId={currentUser?.uid}
-          linkCreatorToProfile={linkCreatorToProfile}
-          onDeleted={handleQuizDeleted}
-        />
-      </div>
-    );
-  };
-
   return (
-    <div className={`min-h-screen bg-primary relative overflow-hidden py-20 px-6 text-[var(--text-primary)] ${className}`}>
-      <div className="relative z-10">
+    <div
+      className={`min-h-screen bg-primary relative overflow-x-hidden py-20 pl-[88px] pr-4 sm:pr-6 text-[var(--text-primary)] ${className}`}
+    >
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl font-extrabold text-gradient-primary text-center mb-6 drop-shadow-lg">
           {title}
         </h1>
 
-        {/* Filters */}
         <QuizFilters
           enabledFilters={enabledFilters}
           filters={filters}
@@ -341,6 +319,10 @@ const QuizList = ({
           </div>
         )}
 
+        <p className="mt-6 text-center text-lg">
+          Displaying <span className="font-bold text-[var(--primary-400)]">{quizzesToDisplay.length}</span> quizzes
+        </p>
+
         {loading ? (
           <div className="flex justify-center items-center mt-10">
             <div className="text-gradient-primary text-lg">
@@ -348,43 +330,56 @@ const QuizList = ({
             </div>
           </div>
         ) : (
-          <>
-            {dataSource === "browseCustomQuizzes" && !hasActiveFilters && (
-              <div className="w-full max-w-7xl mx-auto mt-14 px-2 md:px-6">
-                <QuizCarousel
-                  title="Suggested Quizzes"
-                  quizzes={suggestedQuizzes}
-                  renderQuizCard={renderQuizCard}
-                  emptyMessage="No suggested quizzes available yet."
-                />
-              </div>
-            )}
+          <div
+            id="customQuizDiv"
+            className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mt-14 w-full max-w-6xl mx-auto items-start justify-items-center"
+          >
+            {quizzesToDisplay.map((quiz, index) => {
+              const quizData = normalizeQuizData(quiz);
 
-            <div className="w-full max-w-7xl mx-auto mt-12 px-2 md:px-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center md:text-left">
-                  {hasActiveFilters ? "Search Results" : "Browse Quizzes"}
-              </h2>
+              let creatorId = null;
+              if (dataSource === "browseCustomQuizzes") {
+                creatorId = collectCreatorUid(quiz);
+              }
 
-              <div
-                id="customQuizDiv"
-                className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 w-full items-start justify-items-center"
-              >
-                {visibleQuizzes.map((quiz) => renderQuizCard(quiz))}
-              </div>
-            </div>
-
-            {hasMoreQuizzes && (
-              <div className="flex justify-center mt-10">
-                <button
-                  type="button"
-                  onClick={() => setVisibleCount((prev) => prev + 6)}
-                  className="px-6 py-3 rounded-full font-semibold bg-white border border-gray-200 text-gray-800 shadow-sm hover:bg-gray-100 transition"
-                >
-                  Load More
-                </button>
-              </div>
-            )}
-          </>
+              return (
+                <div className="w-full max-w-[360px]" key={`${quizData.id || index}-${quizData.title}`}>
+                  <CustomQuizSelectButton
+                    title={quizData.title}
+                    description={quizData.description}
+                    numQuestions={quizData.numQuestions}
+                    tags={Array.isArray(quizData.tags) ? quizData.tags.join(", ") : quizData.tags}
+                    uid={quizData.id}
+                    quizPassword={quizData.password}
+                    creatorUsername={
+                      (typeof quiz?.creatorUsername === "string" && quiz.creatorUsername.trim())
+                        ? quiz.creatorUsername.trim()
+                        : null
+                    }
+                    creator={{
+                      ...(quizData.creator || {}),
+                      username: getCreatorHandle(quiz)
+                        ? getCreatorHandle(quiz).replace(/^@/, "")
+                        : (quizData.creator?.username || null),
+                      handle: getCreatorHandle(quiz) || null,
+                    }}
+                    difficulty={quizData.difficulty}
+                    category={quizData.category}
+                    attempts={quizData.attempts}
+                    averageScore={quizData.averageScore}
+                    createdAt={quizData.createdAt}
+                    alwaysShowStartButton={true}
+                    showCreatedAtFooter={true}
+                    isPrivate={quizData.isPrivate}
+                    creatorId={creatorId}
+                    currentUserId={currentUser?.uid}
+                    linkCreatorToProfile={linkCreatorToProfile}
+                    onDeleted={handleQuizDeleted}
+                  />
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>
