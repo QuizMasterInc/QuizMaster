@@ -6,10 +6,10 @@
  * Presentational component for participants (non-creators).
  *
  * Responsibilities:
- * - Allows a user to join a poll using a join code.
+ * - Allows anonymous participants to join a poll using a join code.
  * - Renders the poll status and (optionally) live results info.
  * - Displays selectable poll options and submits a single vote.
- * - Provides a "Leave poll" action to reset local UI state.
+ * - Provides a "Leave poll" action that resets only the participant's local UI state.
  *
  * This component is UI-only:
  * - No Firestore reads/writes happen here directly.
@@ -38,6 +38,7 @@ isFetchingVote,
 onReset,
 }) {
 const pollOpen = poll?.status === "open";
+const pollClosed = poll?.status === "closed";
 const toggleOption = (index) => {
 setSelected((prev) =>
 prev.includes(index)
@@ -45,12 +46,18 @@ prev.includes(index)
 : [...prev, index]
 );
 };
+const maxOptionLength = Math.max(
+0,
+...options.map((opt) => String(opt || "").length)
+);
+const stackOptionCards = maxOptionLength > 70;
+const optionCardMinHeight = Math.min(
+220,
+Math.max(112, 88 + Math.ceil(maxOptionLength / 45) * 18)
+);
 return (
-<div className="rounded-2xl border border-accent bg-primary/60 p-6 shadow-sm">
-    <h2 className="text-xl font-semibold text-gradient-primary">Take a poll</h2>
-    <p className="text-secondary mt-2">
-    Join with the code, pick one or more options, and submit. 
-    </p>
+<div className="mx-auto w-full min-w-0 rounded-2xl border border-accent bg-primary/60 p-4 shadow-sm sm:p-5">
+    <h2 className="text-center text-xl font-semibold text-gradient-primary">Take a poll</h2>
     <div className="mt-4 h-px w-full bg-accent/70" />
 
     {!poll ? (
@@ -60,7 +67,8 @@ return (
             value={joinCodeInput}
             onChange={(e) => setJoinCodeInput(e.target.value)}
             placeholder="e.g. 482193"
-            className="w-full px-4 py-2 rounded-xl border border-input bg-input text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+            inputMode="numeric"
+            className="w-full px-4 py-3 rounded-xl border border-input bg-input text-primary focus:outline-none focus:ring-2 focus:ring-accent"
         />
         <button
             onClick={onJoin}
@@ -75,10 +83,10 @@ return (
         </button>
         
     </div>
-   ) : (
-    <div className="mt-4">
+) : (
+    <div className="mt-5 min-w-0">
         <p className="text-base font-bold text-primary">Question</p>
-        <p className="mt-2 text-lg font-semibold text-primary">
+        <p className="mt-1 rounded-xl border border-accent bg-input px-4 py-3 break-words text-2xl font-bold leading-snug text-primary sm:text-2xl">
         {poll.question || "Untitled poll"}
         </p>
     </div>
@@ -86,11 +94,11 @@ return (
 
     {poll && (
     <div className="mt-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-between sm:text-left">
         <p className="text-sm text-secondary">
             Status:{" "}
             <span className="font-semibold text-accent">
-            {poll.status === "open" ? "Open" : "Closed"}
+            {pollOpen ? "Open" : "Closed"}
             </span>
         </p>
         <p className="text-sm text-secondary">
@@ -98,9 +106,19 @@ return (
         </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-3 mt-4">
+        {pollClosed && (
+        <div className="mt-4 rounded-xl border border-yellow-400/60 bg-yellow-900/20 p-3 text-sm text-yellow-100">
+            This poll is currently closed by the creator. You can view it, but voting is disabled unless the creator reopens it.
+        </div>
+        )}
+
+        <div className={`mt-4 grid min-w-0 grid-cols-1 gap-3 ${stackOptionCards ? "" : "md:grid-cols-2"}`}>
         {options.map((opt, idx) => {
             const isSelected = selected.includes(idx);
+            const voteCount = votes[idx] || 0;
+            const votePercent = totalVotes
+            ? Math.round((voteCount / totalVotes) * 100)
+            : 0;
             const disabled =
             hasSubmitted || !pollOpen || !currentPollId || !opt;
             return (
@@ -108,7 +126,8 @@ return (
                 key={idx}
                 disabled={disabled}
                 onClick={() => toggleOption(idx)}
-                className={`text-left rounded-2xl border border-primary bg-secondary p-4 shadow-sm transition-all duration-200 ${
+                style={{ minHeight: `${optionCardMinHeight}px` }}
+                className={`w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-primary bg-secondary p-4 text-left shadow-sm transition-all duration-200 ${
                 isSelected ? "ring-2 ring-offset-2 ring-accent" : ""
                 } ${
                 !disabled
@@ -116,11 +135,11 @@ return (
                     : "cursor-not-allowed opacity-80"
                 }`}
             >
-                <div className="flex items-start justify-between gap-2">
-                <span className="text-lg font-semibold text-primary">
+                <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                <span className="min-w-0 overflow-hidden break-words text-base font-semibold leading-snug text-primary sm:text-lg">
                     {opt}
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 items-center gap-2">
                     <input
                     type="checkbox"
                     checked={isSelected}
@@ -130,55 +149,75 @@ return (
                     className="h-4 w-4 accent-blue-500"
                     />
                     {isSelected && (
-                    <span className="text-xs font-semibold text-accent bg-accent/10 px-3 py-1 rounded-full">
+                    <span className="hidden rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent sm:inline">
                         Selected
                     </span>
                     )}
                 </div>
                 </div>
-                <p className="text-secondary mt-1 text-sm">
+                <p className="mt-2 break-words text-sm text-secondary">
                 {hasSubmitted
                     ? "Vote locked"
                     : pollOpen
                     ? "Tap to choose"
                     : "Poll closed"}
                 </p>
+                {resultsVisible && (
+                <div className="mt-4">
+                    <div className="mb-2 flex items-center justify-between gap-3 text-sm font-semibold">
+                    <span className="text-secondary">
+                        {voteCount} vote{voteCount === 1 ? "" : "s"}
+                    </span>
+                    <span className="shrink-0 text-accent">{votePercent}%</span>
+                    </div>
+                    <div className="h-2.5 overflow-hidden rounded-full border border-primary bg-primary/50">
+                    <div
+                        className="h-full rounded-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-300"
+                        style={{ width: `${votePercent}%` }}
+                    />
+                    </div>
+                </div>
+                )}
             </button>
             );
         })}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 mt-5">
-        <button
-            onClick={onSubmit}
-            disabled={
-            hasSubmitted ||
-            !pollOpen ||
-            selected.length === 0 ||
-            !currentPollId ||
-            isFetchingVote
-            }
-            className={`px-5 py-2 rounded-full font-semibold shadow-md transition ${
-            hasSubmitted || !pollOpen || selected.length === 0 || !currentPollId || isFetchingVote
-                ? "bg-secondary text-secondary border border-primary cursor-not-allowed"
-                : "bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:-translate-y-0.5"
-            }`}
-        >
-            {hasSubmitted ? "Vote submitted" : isFetchingVote ? "Checking..." : "Submit vote"}
-        </button>
-        <p className="text-sm text-secondary">
-            {hasSubmitted
-            ? "You already voted with this account."
-            : "Sign in to vote once per account."}
-        </p>
-        {poll && (
+        <div className="mt-5 flex flex-col items-stretch gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             <button
-            onClick={onReset}
-            className="text-sm px-3 py-2 rounded-full border border-primary text-secondary hover:text-accent transition"
+                onClick={onSubmit}
+                disabled={
+                hasSubmitted ||
+                !pollOpen ||
+                selected.length === 0 ||
+                !currentPollId ||
+                isFetchingVote
+                }
+                className={`w-full rounded-full px-4 py-2 font-semibold shadow-md transition-transform duration-200 sm:w-auto ${
+                hasSubmitted || !pollOpen || selected.length === 0 || !currentPollId || isFetchingVote
+                    ? "bg-secondary text-secondary border border-primary cursor-not-allowed"
+                    : "bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:-translate-y-0.5 hover:shadow-lg"
+                }`}
             >
-            Leave poll
+                {hasSubmitted ? "Vote submitted" : isFetchingVote ? "Checking..." : "Submit vote"}
             </button>
-        )}
+            {poll && (
+                <button
+                onClick={onReset}
+                className="w-full rounded-full border border-primary px-4 py-2 text-sm text-secondary transition hover:text-accent sm:w-auto"
+                >
+                Leave poll
+                </button>
+            )}
+        </div>
+        <p className="min-w-0 break-words text-center text-sm text-secondary">
+            {hasSubmitted
+            ? "Your vote has already been submitted."
+            : pollOpen
+            ? "Anonymous participants can vote once per poll session."
+            : "Voting is disabled because this poll is closed."}
+        </p>
         </div>
     </div>
     )}
