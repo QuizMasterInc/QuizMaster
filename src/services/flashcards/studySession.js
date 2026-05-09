@@ -12,6 +12,7 @@ export const createStudySession = async (userId, deckId, deckTitle) => {
         currentCardIndex: 0,
         cardsStudied: 0,
         cardRatings: [],
+        cardOrder: [], // array of card IDs defining study order; empty = natural order
         isCompleted: false,
         trackProgress: false,
         lastCardIndex: null,
@@ -70,7 +71,7 @@ export const recordCardRating = async (sessionId, cardId, rating) => {
     const sessionData = sessionDoc.data();
     const newRating = {
         cardId,
-        rating, 
+        rating,
         timestamp: new Date().toISOString()
     };
  
@@ -78,7 +79,7 @@ export const recordCardRating = async (sessionId, cardId, rating) => {
     const stats = calculateStats(updatedRatings);
  
     const updatedSession = { ...sessionData, cardRatings: updatedRatings, stats };
-    
+ 
     updateDoc(sessionRef, {
         cardRatings: updatedRatings,
         cardsStudied: updatedRatings.length,
@@ -111,7 +112,7 @@ const calculateStats = (cardRatings) => {
     const stillLearningCount = cardRatings.filter(r => r.rating === 'still learning').length;
     const total = cardRatings.length;
     const successRate = total > 0 ? (knowCount / total) * 100 : 0;
-    
+ 
     return { knowCount, stillLearningCount, successRate };
 };
  
@@ -137,7 +138,7 @@ export const getRecentSessions = async (userId, limitCount = 6) => {
  
         const fallbackSnapshot = await getDocs(fallbackQ);
         if (fallbackSnapshot.empty) return [];
-        
+ 
         const sessions = fallbackSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return await addDeckTitles(sessions);
     }
@@ -154,14 +155,14 @@ const addDeckTitles = async (sessions) => {
             try {
                 const deckRef = doc(db, "flashcard_decks", session.deckId);
                 const deckSnap = await getDoc(deckRef);
-                
+ 
                 if (deckSnap.exists()) {
                     return { ...session, deckTitle: deckSnap.data().title };
                 }
             } catch (err) {
                 console.error('Error fetching deck title:', err);
             }
-            
+ 
             return session;
         })
     );
