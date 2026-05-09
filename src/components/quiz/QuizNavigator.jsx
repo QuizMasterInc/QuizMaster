@@ -17,9 +17,15 @@ function QuizNavigator({
 }) {
   const [collapsed, setCollapsed] = useState(false);
 
+  // reviewQueue is an array of questionIds
   const reviewSet = useMemo(() => new Set(reviewQueue || []), [reviewQueue]);
+
   const answeredCount = useMemo(
-    () => questions.reduce((count, _q, index) => (hasAnswer(userAnswers?.[index]) ? count + 1 : count), 0),
+    () =>
+      questions.reduce(
+        (count, q) => (hasAnswer(userAnswers?.[q.questionId]) ? count + 1 : count),
+        0
+      ),
     [questions, userAnswers]
   );
 
@@ -45,12 +51,13 @@ function QuizNavigator({
         {!collapsed && (
           <div className="p-3 max-h-[50vh] overflow-y-auto">
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-              {questions.map((_q, index) => {
-                const marked = reviewSet.has(index);
-                const answered = hasAnswer(userAnswers?.[index]);
+              {questions.map((q, index) => {
+                const qid = q.questionId;
+                const marked = reviewSet.has(qid);
+                const answered = hasAnswer(userAnswers?.[qid]);
 
                 return (
-                  <div key={index} className="flex items-center gap-1">
+                  <div key={qid} className="flex items-center gap-1">
                     <button
                       type="button"
                       onClick={() => onNavigate(index)}
@@ -67,7 +74,7 @@ function QuizNavigator({
                     </button>
                     <button
                       type="button"
-                      onClick={() => onToggleReview(index, !marked)}
+                      onClick={() => onToggleReview(qid, !marked)}
                       className={`h-9 w-9 rounded-lg border flex items-center justify-center transition-all duration-200 ${
                         marked
                           ? 'bg-yellow-500 border-yellow-500 text-black'
