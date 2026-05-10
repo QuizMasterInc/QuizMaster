@@ -28,6 +28,7 @@ This directory contains all React components organized by feature. Each folder r
 
 ### Additional Features
 - **`chatbot/`** - AI chatbot for help and assistance
+- **`pollfeature/`** - Live polling system for creating polls, joining with poll codes, voting, and viewing results
 - **`developer/`** - Admin tools and developer utilities
 
 ## Getting Started

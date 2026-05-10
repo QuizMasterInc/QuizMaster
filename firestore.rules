@@ -110,15 +110,19 @@ service cloud.firestore {
         && request.resource.data.options is list
         && request.resource.data.votes is list
         && request.resource.data.options.size() >= 2
-        && request.resource.data.options.size() <= 6
+        && request.resource.data.options.size() <= 10
         && request.resource.data.votes.size() == request.resource.data.options.size()
         && request.resource.data.status in ['open', 'closed'];
 
       allow update: if (
           request.auth != null
           && resource.data.createdBy == request.auth.uid
-          && request.resource.data.diff(resource.data).changedKeys().hasOnly(['status', 'showLiveResults', 'updatedAt'])
-          && request.resource.data.status in ['open', 'closed']
+          && resource.data.status in ['open', 'closed']
+          && request.resource.data.diff(resource.data).changedKeys().hasOnly(['status', 'showLiveResults', 'updatedAt', 'endedAt'])
+          && (
+            request.resource.data.status in ['open', 'closed'] ||
+            request.resource.data.status == 'ended'
+          )
         ) || (
           request.auth != null
           && request.resource.data.diff(resource.data).changedKeys().hasOnly(['votes', 'updatedAt'])

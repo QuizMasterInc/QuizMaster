@@ -6,14 +6,16 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-export function useQuizFiltering(enabledFilters = ['search', 'privacy', 'sort']) {
+export function useQuizFiltering(enabledFilters = ['search', 'creator', 'privacy', 'sort']) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [debouncedCreatorSearchTerm, setDebouncedCreatorSearchTerm] = useState('');
   const debounceTimerRef = useRef(null);
 
   // Get current filter values from URL (memoized to prevent infinite re-renders)
   const filters = useMemo(() => ({
     searchTerm: searchParams.get('q') || '',
+	creator: searchParams.get('creator') || '',
     sortBy: searchParams.get('sort') || 'newest',
     privacy: searchParams.get('privacy') || 'All'
   }), [searchParams]);
@@ -22,6 +24,11 @@ export function useQuizFiltering(enabledFilters = ['search', 'privacy', 'sort'])
   useEffect(() => {
     setDebouncedSearchTerm(filters.searchTerm);
   }, []);
+
+  // Initialize debounced creator search term
+  useEffect(() => {
+	setDebouncedCreatorSearchTerm(filters.creator);
+  })
 
   // Update URL params when filters change
   const updateFilters = useCallback((newFilters) => {
@@ -40,11 +47,27 @@ export function useQuizFiltering(enabledFilters = ['search', 'privacy', 'sort'])
       }, 300);
     }
 
+	// Handle creator search term with debouncing
+    if (newFilters.creator !== undefined) {
+      // Clear existing timer
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      
+      // Set new timer for 300ms delay
+      debounceTimerRef.current = setTimeout(() => {
+        setDebouncedCreatorSearchTerm(newFilters.creator);
+      }, 300);
+    }
+
     // Update URL params immediately for all filters
     const params = {};
     
     if (updatedFilters.searchTerm !== undefined ? updatedFilters.searchTerm : filters.searchTerm) {
       params.q = updatedFilters.searchTerm !== undefined ? updatedFilters.searchTerm : filters.searchTerm;
+    }
+	if (updatedFilters.creator !== undefined ? updatedFilters.creator : filters.creator) {
+      params.creator = updatedFilters.creator !== undefined ? updatedFilters.creator : filters.creator;
     }
     if (updatedFilters.sortBy !== undefined ? updatedFilters.sortBy !== 'newest' : filters.sortBy !== 'newest') {
       params.sort = updatedFilters.sortBy !== undefined ? updatedFilters.sortBy : filters.sortBy;
@@ -106,6 +129,15 @@ export function useQuizFiltering(enabledFilters = ['search', 'privacy', 'sort'])
       });
     }
 
+	// Apply creator filter
+	if (filters.creator.trim()) {
+		const creator = filters.creator.toLowerCase();
+		filtered = filtered.filter(quiz => {
+			const creatorMatch = quiz.creator.displayName.toLowerCase().includes(creator);
+			return creatorMatch
+		})
+	}
+
     // Apply sorting
     filtered = sortQuizzes(filtered, filters.sortBy);
 
@@ -115,6 +147,7 @@ export function useQuizFiltering(enabledFilters = ['search', 'privacy', 'sort'])
   return {
     filters,
     debouncedSearchTerm,
+	debouncedCreatorSearchTerm,
     updateFilters,
     sortQuizzes,
     applyClientSideFilters

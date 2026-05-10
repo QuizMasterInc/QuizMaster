@@ -23,6 +23,43 @@ const buildDraftId = ({ userId, quizId, category, difficulty, amount }) => {
   return `${userId}_cat_${category || 'any'}_d_${difficulty || 'any'}_a_${amount || 'any'}`;
 };
 
+/**
+ * Migrate an old index-keyed userAnswers map to a questionId-keyed map.
+ * Old shape: { 0: "answerA", 1: "answerB" }
+ * New shape: { "questionId_xyz": "answerA", "questionId_abc": "answerB" }
+ *
+ * Uses the saved questionIds array to map index -> questionId.
+ * If we can't migrate cleanly (missing questionIds, mismatched lengths),
+ * returns an empty object — better to lose draft progress than apply
+ * the wrong answer to the wrong question.
+ */
+const migrateUserAnswersIfNeeded = (userAnswers, questionIds) => {
+  if (!userAnswers || typeof userAnswers !== 'object') return {};
+
+  const keys = Object.keys(userAnswers);
+  if (keys.length === 0) return {};
+
+  // Already in the new shape if any key isn't purely numeric
+  const allNumericKeys = keys.every((k) => /^\d+$/.test(k));
+  if (!allNumericKeys) return userAnswers;
+
+  // Need questionIds to migrate
+  if (!Array.isArray(questionIds) || questionIds.length === 0) {
+    console.warn('Cannot migrate draft: missing questionIds');
+    return {};
+  }
+
+  const migrated = {};
+  for (const key of keys) {
+    const idx = Number(key);
+    const qid = questionIds[idx];
+    if (qid && userAnswers[key] !== null && userAnswers[key] !== undefined) {
+      migrated[qid] = userAnswers[key];
+    }
+  }
+  return migrated;
+};
+
 const saveDraft = async ({ 
   userId, 
   quizId, 
@@ -79,7 +116,10 @@ const loadDraft = async ({ userId, quizId, category, difficulty, amount }) => {
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() };
+      const data = docSnap.data();
+      // Migrate old index-keyed userAnswers to new questionId-keyed shape
+      const migratedAnswers = migrateUserAnswersIfNeeded(data.userAnswers, data.questionIds);
+      return { id: docSnap.id, ...data, userAnswers: migratedAnswers };
     }
     return null;
   } catch (err) {

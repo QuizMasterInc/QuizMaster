@@ -30,20 +30,20 @@ resultsVisible,
 status,
 }) {
 return (
-<section className="rounded-[2rem] border border-accent/30 bg-secondary/70 p-6 shadow-inner sm:p-8">
-    <div className="flex items-start justify-between gap-4 border-b border-primary pb-5">
-    <div>
+<section className="min-w-0 rounded-3xl border border-accent/30 bg-secondary/70 p-4 shadow-inner sm:rounded-[2rem] sm:p-6">
+    <div className="flex flex-col gap-4 border-b border-primary pb-5 sm:flex-row sm:items-start sm:justify-between">
+    <div className="min-w-0">
         <p className="text-xs uppercase tracking-[0.25em] text-accent font-semibold">
         Results
         </p>
         <h3 className="text-2xl font-bold text-primary mt-2">
         Current standings
         </h3>
-        <p className="text-sm text-secondary mt-2">
+        <p className="mt-2 break-words text-sm text-secondary">
         {pollQuestion || "Results will appear here once a poll question is available."}
         </p>
     </div>
-    <p className="text-sm text-secondary">
+    <p className="shrink-0 text-sm text-secondary">
         {resultsVisible
         ? `Votes: ${totalVotes}`
         : "Results hidden until closed or allowed"}
@@ -58,10 +58,10 @@ return (
         ? Math.round((count / totalVotes) * 100)
         : 0;
         return (
-        <div key={idx}>
+        <div key={idx} className="min-w-0">
             <div className="flex justify-between text-sm font-semibold text-secondary mb-2">
-            <span>{opt}</span>
-            <span className="text-accent">
+            <span className="min-w-0 break-words pr-3">{opt}</span>
+            <span className="shrink-0 text-accent">
                 {count} vote{count === 1 ? "" : "s"} • {percent}%
             </span>
             </div>
