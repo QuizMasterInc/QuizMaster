@@ -4,6 +4,7 @@ import { FiLogOut } from "react-icons/fi";
 import { School, Computer, Profile, SignIn, Q, Scroll, Book } from "../icons/index.jsx";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { FaHeart} from "react-icons/fa";
 import '../../styles/nav.css';
 
 const authenticatedSidebarLinks = [
@@ -11,6 +12,7 @@ const authenticatedSidebarLinks = [
     { label: "Take a Poll", path: "/poll", icon: FaPoll, dividerBefore: true},
     { label: "Take Quizzes", path: "/allcustomquizzes", icon: FaUsers, dividerBefore: true },
     { label: "My Quizzes", path: "/myquizzes", icon: FaListAlt },
+    { label: "My Favorite Quizzes", path: "/favorites", icon: FaHeart },
     { label: "Make Quiz", path: "/customquiz", icon: FaEdit, dividerBefore: true },
     { label: "Make Flashcards", path: "/flashcards", icon: Computer },
     { label: "Browse Flashcards", path: "/browse-flashcards", icon: Book, dividerBefore: true },

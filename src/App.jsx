@@ -58,6 +58,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect } from "react";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import FavoritesPage from './components/favorites/FavoritesPage';
 
 const AdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -256,6 +257,12 @@ function App() {
               <Route path="/myquizzes" element={
                 <PrivateRoute>
                   <MyQuiz title="My Quizzes" dataSource="browseCustomQuizzes" showRefreshButton={true} />
+                </PrivateRoute>
+              }/>
+
+              <Route path="/favorites" element={
+                <PrivateRoute>
+                  <FavoritesPage />
                 </PrivateRoute>
               }/>
 

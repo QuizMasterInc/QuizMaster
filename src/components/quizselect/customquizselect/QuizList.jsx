@@ -12,6 +12,8 @@ import quizRetrievalService from "../../../services/quiz/quizRetrievalService";
 import cloudFunctionsAPI from "../../../services/api/cloudFunctions";
 import { fetchUsernamesByUids, isValidUsername } from "../../../services/firebase/usernameService";
 import QuizCarousel from "../../carousels/QuizCarousel";
+import { db } from "../../../services/firebase/firebaseService";
+import { doc, getDoc, getDocs, collection, query, where, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 
 // --- Username helpers (for all viewers, including public browsing) ---
 const collectCreatorUid = (item) =>
@@ -78,6 +80,9 @@ const QuizList = ({
   const [quizzesToDisplay, setQuizzesToDisplay] = useState([]);
   const [visibleCount, setVisibleCount] = useState(6);
 
+  //New Coltin Rogge
+  const [userFavorites, setUserFavorites] = useState(undefined);
+
   // Use custom filtering hook
   const {
     filters,
@@ -85,6 +90,47 @@ const QuizList = ({
     updateFilters,
     applyClientSideFilters
   } = useQuizFiltering(enabledFilters);
+
+  // New again Coltin Rogge - fetch user favorites for potential use in filtering or display
+  useEffect(() => {
+      const fetchUserFavorites = async () => {
+        if (!currentUser?.uid) return;
+        try{
+          const userData = await getDoc(doc(db, 'users', currentUser.uid));
+          if(userData.exists()){
+            setUserFavorites(userData.data().favorites || []);
+          }
+        } catch (error) {
+          console.error("Error fetching user favorites:", error);
+        }
+      };
+      fetchUserFavorites();
+  }, [currentUser?.uid]);
+
+  //Coltin Rogge again
+  const toggleFavorite = async (quizId) => {
+    if (!currentUser) return alert("You must be logged in to favorite quizzes.");
+    
+    const userRef = doc(db, 'users', currentUser.uid);
+    const isFavorited = userFavorites.includes(quizId);
+
+    try{
+      if (isFavorited) {
+        await updateDoc(userRef, {
+          favorites: arrayRemove(quizId)
+        });
+        setUserFavorites((prev) => prev.filter(id => id !== quizId));
+      } else {
+        await updateDoc(userRef, {
+          favorites: arrayUnion(quizId)
+        });
+        setUserFavorites((prev) => [...prev, quizId]);
+      }
+    } catch (error) {
+      console.error("Error updating favorite quizzes:", error);
+    }
+  };
+
 
   // Data fetching logic based on dataSource
   const fetchQuizzes = useCallback(async () => {
@@ -134,6 +180,47 @@ const QuizList = ({
           sortBy: filters.sortBy,
           limit: 50
         });
+      }
+      else if (dataSource === "userFavorites") {
+        // If favorites haven't been loaded from the user doc yet, wait.
+        if (userFavorites === undefined) return;
+
+        if (userFavorites.length === 0) {
+          setQuizzes([]);
+          setQuizzesToDisplay([]);
+          setLoading(false);
+          return;
+        } else { 
+          try {
+            const favoriteIds = userFavorites.slice(0, 30);
+
+            //const quizzesCollection = collection(db, "custom_quizzes");
+            
+            const q = query(
+              collection(db, "custom_quizzes"),
+              where("__name__", "in", favoriteIds)
+            );
+
+            const querySnapshot = await getDocs(q);
+            const favs = querySnapshot.docs.map(doc => {
+              const data = doc.data();
+              return {
+                ...data,
+                id: doc.id,
+                uid:doc.id,
+                title: data.metadata?.title || data.title,
+                numQuestions: data.metadata?.questionCount || data.numQuestions || 0,
+              };
+            });
+
+            result = { quizzes: favs };
+          } catch (err) {
+            console.error("Error fetching favorite quizzes:", err);
+            setError("Failed to load favorite quizzes");
+            //setLoading(false);
+            result = { quizzes: [] };
+          }
+      }
       }
 
       const quizArray = result?.quizzes || [];
@@ -269,6 +356,26 @@ const QuizList = ({
     setVisibleCount(6);
   }, [debouncedSearchTerm, filters.searchTerm, filters.privacy, filters.sortBy]);
 
+  useEffect(() => {
+  // Only "Wait" for favorites if we are on the favorites page
+    const isFavoritesPage = dataSource === "userFavorites";
+    if (isFavoritesPage){
+      if (userFavorites === undefined) return;
+    }
+
+    fetchQuizzes();
+  
+  }, [
+    dataSource,  
+    debouncedSearchTerm, 
+    filters.sortBy, 
+    filters.privacy,
+    currentUser?.uid, 
+    userFavorites
+  ]);
+
+   //[userFavorites?.length, dataSource];
+
   const renderQuizCard = (quiz) => {
     const quizData = normalizeQuizData(quiz);
 
@@ -307,6 +414,9 @@ const QuizList = ({
           currentUserId={currentUser?.uid}
           linkCreatorToProfile={linkCreatorToProfile}
           onDeleted={handleQuizDeleted}
+
+          isFavorited={userFavorites ? userFavorites.includes(quizData.id) : false}
+          onToggleFavorite={() => toggleFavorite(quizData.id)}
         />
       </div>
     );

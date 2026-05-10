@@ -15,6 +15,7 @@ import {
 import { db } from "../../../services/firebase/firebaseService";
 import { useAuth } from "../../../contexts/AuthContext";
 import { toast } from "react-toastify";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const formatQuizCreatedAt = (timestamp) => {
   if (!timestamp) return null;
@@ -79,6 +80,8 @@ const CustomQuizSelectButton = ({
   createdAt,
   alwaysShowStartButton = true,
   showCreatedAtFooter = true,
+  isFavorited,
+  onToggleFavorite,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -431,6 +434,25 @@ const CustomQuizSelectButton = ({
     </button>
   );
 
+const FavoriteButton = () => (
+  <button
+    type="button"
+    aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+    title={isFavorited ? "Remove from favorites" : "Add to favorites"}
+    className={`inline-flex h-9 w-9 items-center justify-center rounded-full border shadow-md transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 
+      ${isFavorited 
+        ? "border-red-500 bg-red-500/10 text-red-500 focus:ring-red-500/40" 
+        : "border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-red-400 hover:bg-red-500/10 hover:text-red-500 focus:ring-red-500/40"
+      }`}
+    onClick={(e) => {
+      e.preventDefault();
+      onToggleFavorite();
+    }}
+  >
+    {isFavorited ? <FaHeart className="h-4 w-4" /> : <FaRegHeart className="h-4 w-4" />}
+  </button>
+);
+
   const handleQuizPasswordChange = (e) => {
     setQuizPasswordAttempt(e.target.value);
   };
@@ -624,6 +646,7 @@ const CustomQuizSelectButton = ({
                 currentUserId={currentUserId}
                 onDeleted={onDeleted}
               />
+              <FavoriteButton />
 
               <ShareQuizButton />
             </div>
@@ -752,6 +775,8 @@ const CustomQuizSelectButton = ({
                   Edit
                 </Link>
               ) : null}
+
+              <FavoriteButton />
 
               <ShareQuizButton />
             </div>
