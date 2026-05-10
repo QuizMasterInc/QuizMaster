@@ -129,7 +129,7 @@ const getQuizArray = (value) => {
 const QuizList = ({
   title,
   dataSource = "browseCustomQuizzes",
-  filters: enabledFilters = ["search", "privacy", "sort"],
+  filters: enabledFilters = ["search", "creator", "privacy", "sort"],
   showRefreshButton = true,
   className = "",
   linkCreatorToProfile = false,
@@ -143,6 +143,7 @@ const QuizList = ({
   const {
     filters,
     debouncedSearchTerm,
+	debouncedCreatorSearchTerm,
     updateFilters,
     applyClientSideFilters
   } = useQuizFiltering(enabledFilters);
@@ -159,6 +160,7 @@ const QuizList = ({
 
         const options = {
           searchTerm: debouncedSearchTerm.trim(),
+		  creatorSearchTerm: debouncedCreatorSearchTerm,
           sortBy: filters.sortBy,
           privacy: privacySafe,
           limit: 50,
@@ -219,7 +221,7 @@ const QuizList = ({
     } finally {
       setLoading(false);
     }
-  }, [dataSource, debouncedSearchTerm, filters.sortBy, filters.privacy, currentUser?.uid]);
+  }, [dataSource, debouncedSearchTerm, debouncedCreatorSearchTerm, filters.sortBy, filters.privacy, currentUser?.uid]);
 
   useEffect(() => {
     if (dataSource === "teacherQuizzes") {
@@ -231,7 +233,7 @@ const QuizList = ({
     if (dataSource === "browseCustomQuizzes") {
       fetchQuizzes();
     }
-  }, [dataSource, currentUser?.uid, debouncedSearchTerm, filters.sortBy, filters.privacy]);
+  }, [dataSource, currentUser?.uid, debouncedSearchTerm, debouncedCreatorSearchTerm, filters.sortBy, filters.privacy]);
 
   useEffect(() => {
     if (dataSource === "teacherQuizzes") {

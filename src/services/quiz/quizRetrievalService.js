@@ -127,6 +127,7 @@ class QuizRetrievalService {
   async browseCustomQuizzes(options = {}) {
     const {
       searchTerm = '',
+	  creatorSearchTerm = '',
       sortBy = 'newest',
       privacy = 'all',
       limit = 50,
@@ -134,10 +135,11 @@ class QuizRetrievalService {
       useIndexes = true
       // fields is accepted but not used by the cloud function call here
     } = options;
-
+	
     try {
       const data = await cloudFunctionsAPI.browseCustomQuizzes({
         searchTerm,
+		creatorSearchTerm,
         sortBy,
         privacy,
         limit,
@@ -148,7 +150,7 @@ class QuizRetrievalService {
         category: 'all',
         difficulty: 'all'
       });
-
+	  
       if (!data.success) {
         throw new Error(data.error || 'Failed to browse quizzes');
       }
