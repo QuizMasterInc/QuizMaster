@@ -630,7 +630,7 @@ const CustomQuizSelectButton = ({
           </div>
         </div>
       ) : (
-        <div className="card min-h-[530px] relative w-full min-w-0 rounded-2xl shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col transition-all duration-200">
+        <div className="card min-h-[570px] relative w-full min-w-0 rounded-2xl shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col transition-all duration-200">
           {quizPassword && isCreator ? (
             <>
               <div className="p-6 flex-grow flex flex-col text-center">
