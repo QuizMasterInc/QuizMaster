@@ -19,7 +19,7 @@
     "firebase-functions": "^6.4.0",
     "firebase-tools": "^14.26.0",
     "g": "^2.0.1",
-    "leo-profanity": "^1.8.0",
+    "leo-profanity": "^1.9.0",
     "node": "^18.0.0",
     "picomatch": "^4.0.4"
   },

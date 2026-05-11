@@ -11,10 +11,8 @@ import { useQuizFiltering } from "../../../hooks/useQuizFiltering";
 import quizRetrievalService from "../../../services/quiz/quizRetrievalService";
 import cloudFunctionsAPI from "../../../services/api/cloudFunctions";
 import { fetchUsernamesByUids, isValidUsername } from "../../../services/firebase/usernameService";
-import QuizCarousel from "../../carousels/QuizCarousel";
-import { db } from "../../../services/firebase/firebaseService";
 import { doc, getDoc, getDocs, collection, query, where, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
-
+import { db } from "../../../services/firebase/firebaseService";
 
 // --- Username helpers (for all viewers, including public browsing) ---
 const collectCreatorUid = (item) => {
@@ -144,7 +142,6 @@ const QuizList = ({
   const [quizzes, setQuizzes] = useState([]);
   const [quizzesToDisplay, setQuizzesToDisplay] = useState([]);
 
-
   //New Coltin Rogge
   const [userFavorites, setUserFavorites] = useState(undefined);
 
@@ -197,9 +194,6 @@ const QuizList = ({
     }
   };
 
-
-  // Data fetching logic based on dataSource
-
   const fetchQuizzes = useCallback(async () => {
     try {
       setLoading(true);
@@ -250,6 +244,7 @@ const QuizList = ({
           limit: 50
         });
       }
+
       else if (dataSource === "userFavorites") {
         // If favorites haven't been loaded from the user doc yet, wait.
         if (userFavorites === undefined) return;
@@ -267,7 +262,8 @@ const QuizList = ({
             
             const q = query(
               collection(db, "custom_quizzes"),
-              where("__name__", "in", favoriteIds)
+              where("__name__", "in", favoriteIds),
+              where("metadata.isPublic", "==", true)
             );
 
             const querySnapshot = await getDocs(q);
@@ -314,7 +310,7 @@ const QuizList = ({
     } finally {
       setLoading(false);
     }
-  }, [dataSource, debouncedSearchTerm, debouncedCreatorSearchTerm, filters.sortBy, filters.privacy, currentUser?.uid]);
+  }, [dataSource, debouncedSearchTerm, debouncedCreatorSearchTerm, filters.sortBy, filters.privacy, currentUser?.uid, userFavorites]);
 
   useEffect(() => {
     if (dataSource === "teacherQuizzes") {
@@ -334,6 +330,27 @@ const QuizList = ({
       setQuizzesToDisplay(filtered);
     }
   }, [dataSource, filters, quizzes, applyClientSideFilters]);
+
+  // Unified trigger for all data sources
+  useEffect(() => {
+    const isFavoritesPage = dataSource === "userFavorites";
+    
+    // Wait for IDs if we are on the Favorites page
+    if (isFavoritesPage && userFavorites === undefined) return;
+
+    fetchQuizzes();
+  
+  // This dependency array ensures the page refreshes automatically 
+  // when your favorites load or a heart is clicked.
+  }, [
+    fetchQuizzes, 
+    dataSource, 
+    userFavorites, 
+    debouncedSearchTerm, 
+    filters.sortBy, 
+    filters.privacy,
+    currentUser?.uid
+  ]);
 
   const normalizeQuizData = (quiz) => {
     if (dataSource === "browseCustomQuizzes") {
@@ -383,121 +400,6 @@ const QuizList = ({
       })
     );
   };
-
-
-  const hasActiveFilters =
-    Boolean(filters.searchTerm?.trim()) ||
-    Boolean(debouncedSearchTerm?.trim());
-
-  // Scores and ranks quizzes using popularity, quality, metadata richness, and recency to generate suggested quiz recommendations.
-  const getQuizScore = (quiz, index) => {
-    const quizData = normalizeQuizData(quiz);
-
-    const attempts = Number(quizData.attempts || quiz.quizTaken || quiz.attempts || 0);
-    const averageScore = Number(quizData.averageScore || quiz.averageScore || 0);
-    const questionCount = Number(quizData.numQuestions || quiz.numQuestions || quiz.metadata?.questionCount || 0);
-    const hasTags = Array.isArray(quizData.tags)
-      ? quizData.tags.length > 0
-      : Boolean(quizData.tags);
-
-    const createdAtValue =
-      quizData.createdAt?.seconds ||
-      quiz.createdAt?.seconds ||
-      quiz.timestamps?.createdAt?.seconds ||
-      0;
-
-    return (
-      attempts * 5 +
-      averageScore * 0.5 +
-      questionCount * 0.2 +
-      (hasTags ? 8 : 0) +
-      createdAtValue / 100000000 -
-      index * 0.01
-    );
-  };
-
-  const suggestedQuizzes = [...quizzes]
-    .map((quiz, index) => ({
-      quiz,
-      score: getQuizScore(quiz, index),
-    }))
-    .sort((a, b) => b.score - a.score)
-    .map((item) => item.quiz)
-    .slice(0, 6);
-  
-  const visibleQuizzes = quizzesToDisplay.slice(0, visibleCount);
-  const hasMoreQuizzes = visibleCount < quizzesToDisplay.length;
-
-  useEffect(() => {
-    setVisibleCount(6);
-  }, [debouncedSearchTerm, filters.searchTerm, filters.privacy, filters.sortBy]);
-
-  useEffect(() => {
-  // Only "Wait" for favorites if we are on the favorites page
-    const isFavoritesPage = dataSource === "userFavorites";
-    if (isFavoritesPage){
-      if (userFavorites === undefined) return;
-    }
-
-    fetchQuizzes();
-  
-  }, [
-    dataSource,  
-    debouncedSearchTerm, 
-    filters.sortBy, 
-    filters.privacy,
-    currentUser?.uid, 
-    userFavorites
-  ]);
-
-   //[userFavorites?.length, dataSource];
-
-  const renderQuizCard = (quiz) => {
-    const quizData = normalizeQuizData(quiz);
-
-    let creatorId = null;
-    if (dataSource === "browseCustomQuizzes") {
-      creatorId = collectCreatorUid(quiz);
-    }
-
-    return (
-      <div className="w-full max-w-[420px]" key={quizData.id + quizData.title}>
-        <CustomQuizSelectButton
-          title={quizData.title}
-          numQuestions={quizData.numQuestions}
-          tags={Array.isArray(quizData.tags) ? quizData.tags.join(", ") : quizData.tags}
-          uid={quizData.id}
-          quizPassword={quizData.password}
-          creatorUsername={
-            (typeof quiz?.creatorUsername === "string" && quiz.creatorUsername.trim())
-              ? quiz.creatorUsername.trim()
-              : null
-          }
-          creator={{
-            ...(quizData.creator || {}),
-            username: getCreatorHandle(quiz)
-              ? getCreatorHandle(quiz).replace(/^@/, "")
-              : (quizData.creator?.username || null),
-            handle: getCreatorHandle(quiz) || null,
-          }}
-          difficulty={quizData.difficulty}
-          category={quizData.category}
-          attempts={quizData.attempts}
-          averageScore={quizData.averageScore}
-          createdAt={quizData.createdAt}
-          isPrivate={quizData.isPrivate}
-          creatorId={creatorId}
-          currentUserId={currentUser?.uid}
-          linkCreatorToProfile={linkCreatorToProfile}
-          onDeleted={handleQuizDeleted}
-
-          isFavorited={userFavorites ? userFavorites.includes(quizData.id) : false}
-          onToggleFavorite={() => toggleFavorite(quizData.id)}
-        />
-      </div>
-    );
-  };
-
 
   return (
     <div
@@ -585,6 +487,8 @@ const QuizList = ({
                     currentUserId={currentUser?.uid}
                     linkCreatorToProfile={linkCreatorToProfile}
                     onDeleted={handleQuizDeleted}
+                    isFavorited={userFavorites ? userFavorites.includes(quizData.id) : false}
+                    onToggleFavorite={() => toggleFavorite(quizData.id)}
                   />
                 </div>
               );
