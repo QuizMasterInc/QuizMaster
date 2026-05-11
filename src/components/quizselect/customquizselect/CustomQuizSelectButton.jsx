@@ -592,7 +592,7 @@ const FavoriteButton = () => (
       {quizPassword && !isCreator ? (
         <div className="card relative w-full min-w-0 rounded-2xl shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col transition-all duration-200">
           <div className="p-6 flex-grow flex flex-col text-center">
-            <div className="min-h-[72px] line-clamp-2 overflow-hidden flex items-center justify-center text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center">
+            <div className="min-h-[72px] line-clamp-2 overflow-hidden text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center">
               {title}
             </div>
 
@@ -658,7 +658,7 @@ const FavoriteButton = () => (
             <>
               <div className="p-6 flex-grow flex flex-col text-center">
                 <div
-                  className="min-h-[72px] line-clamp-2 overflow-hidden flex items-center justify-center text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center cursor-pointer"
+                  className="min-h-[72px] line-clamp-2 overflow-hidden text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center cursor-pointer"
                   onClick={handleCreatorStart}
                 >
                   {title}
@@ -698,7 +698,7 @@ const FavoriteButton = () => (
                   to={`/customquiz/settings/${uid}`}
                   state={{ from: location.pathname }}
                 >
-                  <div className="min-h-[72px] line-clamp-2 overflow-hidden flex items-center justify-center text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center">
+                  <div className="min-h-[72px] line-clamp-2 overflow-hidden text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center">
                     {title}
                   </div>
                 </Link>
