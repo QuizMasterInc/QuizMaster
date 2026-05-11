@@ -1,3 +1,23 @@
+/*
+  pollService.js
+
+  Purpose:
+  Central Firebase service layer for the live polling system.
+
+  Responsibilities:
+  - Creates and manages polls
+  - Generates unique join codes
+  - Handles live poll subscriptions
+  - Processes votes securely with Firestore transactions
+  - Controls poll lifecycle states (open, closed, ended)
+  - Restricts creator-only poll actions
+  - Sanitizes and validates poll content
+
+  Notes:
+  - Anonymous users can join polls without accounts
+  - Poll creators must be authenticated
+  - Uses Firestore real-time listeners for live updates
+*/
 import {
   addDoc,
   collection,
@@ -38,8 +58,8 @@ async function ensureUniqueJoinCode() {
 export async function createPoll({ question, options, createdBy }) {
   try {
     if (!createdBy) throw new Error("You must be signed in to create a poll.");
-    if (!Array.isArray(options) || options.length < 2 || options.length > 6) {
-      throw new Error("Poll options must be an array with 2 to 6 choices.");
+    if (!Array.isArray(options) || options.length < 2 || options.length > 10) {
+      throw new Error("Poll options must be an array with 2 to 10 choices.");
     }
 
     const profanityValidation = validateNoProfanity([
@@ -84,8 +104,19 @@ export async function findPollByCode(joinCode) {
   try {
     const snapshot = await getDocs(query(pollsRef, where("joinCode", "==", joinCode)));
     if (snapshot.empty) return null;
+
     const docSnap = snapshot.docs[0];
-    return { id: docSnap.id, data: docSnap.data() };
+    const pollData = docSnap.data();
+
+    if (pollData.status === "closed") {
+      throw new Error("This poll is currently closed by the creator.");
+    }
+
+    if (pollData.status === "ended") {
+      return null;
+    }
+
+    return { id: docSnap.id, data: pollData };
   } catch (error) {
     throw handleFirebaseError(error);
   }
@@ -97,7 +128,6 @@ export function subscribeToPoll(pollId, callback) {
     ref,
     (snap) => {
       if (snap.exists()) {
-        callback({ id: snap.id, data: snap.data() });
         callback({
           id: snap.id,
           data: {
@@ -178,6 +208,7 @@ export async function submitVote(pollId, optionIndexes, userId) {
   }
 }
 
+
 export async function closePoll(pollId, userId) {
   if (!userId) throw handleFirebaseError(new Error("Only the creator can close the poll."));
   try {
@@ -187,6 +218,26 @@ export async function closePoll(pollId, userId) {
       if (!snap.exists()) throw new Error("Poll not found");
       if (snap.data().createdBy !== userId) throw new Error("Only the creator can close this poll.");
       transaction.update(ref, { status: "closed", updatedAt: serverTimestamp() });
+    });
+  } catch (error) {
+    throw handleFirebaseError(error);
+  }
+}
+
+export async function endPoll(pollId, userId) {
+  if (!userId) throw handleFirebaseError(new Error("Only the creator can end the poll."));
+  try {
+    await runTransaction(db, async (transaction) => {
+      const ref = doc(db, POLLS_COLLECTION, pollId);
+      const snap = await transaction.get(ref);
+      if (!snap.exists()) throw new Error("Poll not found");
+      if (snap.data().createdBy !== userId) throw new Error("Only the creator can end this poll.");
+
+      transaction.update(ref, {
+        status: "ended",
+        endedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
     });
   } catch (error) {
     throw handleFirebaseError(error);

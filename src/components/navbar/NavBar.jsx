@@ -4,6 +4,7 @@ import { FiLogOut } from "react-icons/fi";
 import { School, Computer, Profile, SignIn, Q, Scroll, Book } from "../icons/index.jsx";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { FaHeart} from "react-icons/fa";
 import '../../styles/nav.css';
 
 const authenticatedSidebarLinks = [
@@ -11,6 +12,7 @@ const authenticatedSidebarLinks = [
     { label: "Take a Poll", path: "/poll", icon: FaPoll, dividerBefore: true},
     { label: "Take Quizzes", path: "/allcustomquizzes", icon: FaUsers, dividerBefore: true },
     { label: "My Quizzes", path: "/myquizzes", icon: FaListAlt },
+    { label: "My Favorite Quizzes", path: "/favorites", icon: FaHeart },
     { label: "Make Quiz", path: "/customquiz", icon: FaEdit, dividerBefore: true },
     { label: "Make Flashcards", path: "/flashcards", icon: Computer },
     { label: "Browse Flashcards", path: "/browse-flashcards", icon: Book, dividerBefore: true },
@@ -195,23 +197,23 @@ export default function NavBar() {
                     </div>
 
                     {isAuthenticated && (
-                        <div className="pb-6 pt-4 bg-[var(--btn-primary-bg)] shadow-[0_-10px_24px_rgba(0,0,0,0.08)] transition-all duration-300">
+                        <div className="pt-2 bg-[color-mix(in_srgb,var(--btn-primary-bg)_65%,transparent)] shadow-[0_-10px_24px_rgba(0,0,0,0.08)] transition-all duration-300">
                             <div className={`transition-all duration-300 ${sidebarExpanded ? "px-3" : "px-2"}`}>
                                 <button
                                     onClick={handleLogout}
                                     title={!sidebarExpanded ? "Logout" : undefined}
-                                    className={`group flex h-12 items-start overflow-hidden rounded-lg font-medium text-[var(--btn-primary-text)] hover:bg-white/10 transition-all duration-200 w-full ${
+                                    className={`group flex h-10 items-center overflow-hidden rounded-lg font-medium text-[var(--text-primary)] hover:bg-white/10 transition-all duration-200 w-full ${
                                         sidebarExpanded
                                             ? "justify-start gap-3 px-3"
                                             : "justify-center px-0"
                                     }`}
                                 >
-                                    <span className="flex h-5 w-5 shrink-0 items-center justify-center text-current">
+                                    <span className="flex h-5 w-6 shrink-0 items-center justify-center text-current -translate-y-1">
                                         <FiLogOut className="h-5 w-5" />
                                     </span>
 
                                     <span
-                                        className={`whitespace-nowrap text-base transition-[max-width,opacity,transform] duration-300 ease-[cubic-bezier(0.2,0,0,1)] ${
+                                        className={`flex items-center whitespace-nowrap text-base font-semibold leading-none -translate-y-[4px] transition-[max-width,opacity,transform] duration-300 ease-[cubic-bezier(0.2,0,0,1)] ${
                                             sidebarExpanded
                                                 ? "max-w-[150px] translate-x-0 opacity-100 delay-75"
                                                 : "max-w-0 -translate-x-3 opacity-0"

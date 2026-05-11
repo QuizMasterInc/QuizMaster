@@ -6,7 +6,7 @@
  * Presentational component for poll creators.
  *
  * Responsibilities:
- * - Renders the poll creation form (question + 2–6 options).
+ * - Renders the poll creation form (question + 2–10 options).
  * - Allows dynamic adding/removing of options.
  * - Starts a poll (via onStart handler).
  * - Displays and manages creator-only controls:
@@ -50,7 +50,7 @@ setOptions(next);
 };
 
 const addOption = () => {
-if (options.length >= 6) return;
+if (options.length >= 10) return;
 setOptions([...options, ""]);
 };
 
@@ -70,7 +70,7 @@ return (
     <p className="text-secondary mt-2 leading-relaxed">
     Create a poll, share the join code, and manage visibility.
     <br />
-    Options: 2–6. {" "}
+    Options: 2–10. {" "}
     {!isSignedIn && (
         <span className="text-accent font-semibold">Sign in required to start a poll.</span>
     )}
@@ -109,9 +109,9 @@ return (
     <div className="flex flex-wrap items-center gap-3">
         <button
         onClick={addOption}
-        disabled={options.length >= 6}
+        disabled={options.length >= 10}
         className={`px-3 py-2 rounded-full text-sm font-semibold border border-accent transition ${
-            options.length >= 6
+            options.length >= 10
             ? "text-secondary border-accent/50 cursor-not-allowed"
             : "text-accent hover:-translate-y-0.5"
         }`}
