@@ -16,6 +16,7 @@ import {
 import { db } from "../../../services/firebase/firebaseService";
 import { useAuth } from "../../../contexts/AuthContext";
 import { toast } from "react-toastify";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 
 const getCreatedAtFromQuizData = (data) =>
   data?.timestamps?.createdAt ||
@@ -58,6 +59,8 @@ const CustomQuizSelectButton = ({
   createdAt,
   alwaysShowStartButton = true,
   showCreatedAtFooter = true,
+  isFavorited,
+  onToggleFavorite,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -410,6 +413,25 @@ const CustomQuizSelectButton = ({
     </button>
   );
 
+const FavoriteButton = () => (
+  <button
+    type="button"
+    aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+    title={isFavorited ? "Remove from favorites" : "Add to favorites"}
+    className={`inline-flex h-9 w-9 items-center justify-center rounded-full border shadow-md transition-all duration-200 hover:-translate-y-0.5 focus:outline-none focus:ring-2 
+      ${isFavorited 
+        ? "border-red-500 bg-red-500/10 text-red-500 focus:ring-red-500/40" 
+        : "border-[var(--border)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:border-red-400 hover:bg-red-500/10 hover:text-red-500 focus:ring-red-500/40"
+      }`}
+    onClick={(e) => {
+      e.preventDefault();
+      onToggleFavorite();
+    }}
+  >
+    {isFavorited ? <FaHeart className="h-4 w-4" /> : <FaRegHeart className="h-4 w-4" />}
+  </button>
+);
+
   const handleQuizPasswordChange = (e) => {
     setQuizPasswordAttempt(e.target.value);
   };
@@ -549,7 +571,7 @@ const CustomQuizSelectButton = ({
       {quizPassword && !isCreator ? (
         <div className="card relative w-full min-w-0 rounded-2xl shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col transition-all duration-200">
           <div className="p-6 flex-grow flex flex-col text-center">
-            <div className="min-h-[72px] line-clamp-2 overflow-hidden flex items-center justify-center text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center">
+            <div className="min-h-[72px] line-clamp-2 overflow-hidden text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center">
               {title}
             </div>
 
@@ -605,18 +627,19 @@ const CustomQuizSelectButton = ({
                 currentUserId={currentUserId}
                 onDeleted={onDeleted}
               />
+              <FavoriteButton />
 
               <ShareQuizButton />
             </div>
           </div>
         </div>
       ) : (
-        <div className="card min-h-[530px] relative w-full min-w-0 rounded-2xl shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col transition-all duration-200">
+        <div className="card min-h-[570px] relative w-full min-w-0 rounded-2xl shadow-lg hover:shadow-xl border border-[var(--border)] h-full flex flex-col transition-all duration-200">
           {quizPassword && isCreator ? (
             <>
               <div className="p-6 flex-grow flex flex-col text-center">
                 <div
-                  className="min-h-[72px] line-clamp-2 overflow-hidden flex items-center justify-center text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center cursor-pointer"
+                  className="min-h-[72px] line-clamp-2 overflow-hidden text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center cursor-pointer"
                   onClick={handleCreatorStart}
                 >
                   {title}
@@ -658,7 +681,7 @@ const CustomQuizSelectButton = ({
                   to={`/customquiz/settings/${uid}`}
                   state={{ from: location.pathname }}
                 >
-                  <div className="min-h-[72px] line-clamp-2 overflow-hidden flex items-center justify-center text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center">
+                  <div className="min-h-[72px] line-clamp-2 overflow-hidden text-2xl text-[var(--accent)] font-bold mb-3 leading-tight text-center">
                     {title}
                   </div>
                 </Link>
@@ -737,6 +760,8 @@ const CustomQuizSelectButton = ({
                   Edit
                 </Link>
               ) : null}
+
+              <FavoriteButton />
 
               <ShareQuizButton />
             </div>

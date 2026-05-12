@@ -11,6 +11,8 @@ import { useQuizFiltering } from "../../../hooks/useQuizFiltering";
 import quizRetrievalService from "../../../services/quiz/quizRetrievalService";
 import cloudFunctionsAPI from "../../../services/api/cloudFunctions";
 import { fetchUsernamesByUids, isValidUsername } from "../../../services/firebase/usernameService";
+import { doc, getDoc, getDocs, collection, query, where, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { db } from "../../../services/firebase/firebaseService";
 
 // --- Username helpers (for all viewers, including public browsing) ---
 const collectCreatorUid = (item) => {
@@ -129,7 +131,7 @@ const getQuizArray = (value) => {
 const QuizList = ({
   title,
   dataSource = "browseCustomQuizzes",
-  filters: enabledFilters = ["search", "privacy", "sort"],
+  filters: enabledFilters = ["search", "creator", "privacy", "sort"],
   showRefreshButton = true,
   className = "",
   linkCreatorToProfile = false,
@@ -140,12 +142,57 @@ const QuizList = ({
   const [quizzes, setQuizzes] = useState([]);
   const [quizzesToDisplay, setQuizzesToDisplay] = useState([]);
 
+  //New Coltin Rogge
+  const [userFavorites, setUserFavorites] = useState(undefined);
+
   const {
     filters,
     debouncedSearchTerm,
+	debouncedCreatorSearchTerm,
     updateFilters,
     applyClientSideFilters
   } = useQuizFiltering(enabledFilters);
+
+
+  // New again Coltin Rogge - fetch user favorites for potential use in filtering or display
+  useEffect(() => {
+      const fetchUserFavorites = async () => {
+        if (!currentUser?.uid) return;
+        try{
+          const userData = await getDoc(doc(db, 'users', currentUser.uid));
+          if(userData.exists()){
+            setUserFavorites(userData.data().favorites || []);
+          }
+        } catch (error) {
+          console.error("Error fetching user favorites:", error);
+        }
+      };
+      fetchUserFavorites();
+  }, [currentUser?.uid]);
+
+  //Coltin Rogge again
+  const toggleFavorite = async (quizId) => {
+    if (!currentUser) return alert("You must be logged in to favorite quizzes.");
+    
+    const userRef = doc(db, 'users', currentUser.uid);
+    const isFavorited = userFavorites.includes(quizId);
+
+    try{
+      if (isFavorited) {
+        await updateDoc(userRef, {
+          favorites: arrayRemove(quizId)
+        });
+        setUserFavorites((prev) => prev.filter(id => id !== quizId));
+      } else {
+        await updateDoc(userRef, {
+          favorites: arrayUnion(quizId)
+        });
+        setUserFavorites((prev) => [...prev, quizId]);
+      }
+    } catch (error) {
+      console.error("Error updating favorite quizzes:", error);
+    }
+  };
 
   const fetchQuizzes = useCallback(async () => {
     try {
@@ -159,6 +206,7 @@ const QuizList = ({
 
         const options = {
           searchTerm: debouncedSearchTerm.trim(),
+		  creatorSearchTerm: debouncedCreatorSearchTerm,
           sortBy: filters.sortBy,
           privacy: privacySafe,
           limit: 50,
@@ -197,6 +245,49 @@ const QuizList = ({
         });
       }
 
+      else if (dataSource === "userFavorites") {
+        // If favorites haven't been loaded from the user doc yet, wait.
+        if (userFavorites === undefined) return;
+
+        if (userFavorites.length === 0) {
+          setQuizzes([]);
+          setQuizzesToDisplay([]);
+          setLoading(false);
+          return;
+        } else { 
+          try {
+            const favoriteIds = userFavorites.slice(0, 30);
+
+            //const quizzesCollection = collection(db, "custom_quizzes");
+            
+            const q = query(
+              collection(db, "custom_quizzes"),
+              where("__name__", "in", favoriteIds),
+              where("metadata.isPublic", "==", true)
+            );
+
+            const querySnapshot = await getDocs(q);
+            const favs = querySnapshot.docs.map(doc => {
+              const data = doc.data();
+              return {
+                ...data,
+                id: doc.id,
+                uid:doc.id,
+                title: data.metadata?.title || data.title,
+                numQuestions: data.metadata?.questionCount || data.numQuestions || 0,
+              };
+            });
+
+            result = { quizzes: favs };
+          } catch (err) {
+            console.error("Error fetching favorite quizzes:", err);
+            setError("Failed to load favorite quizzes");
+            //setLoading(false);
+            result = { quizzes: [] };
+          }
+      }
+      }
+
       const quizArray = getQuizArray(result);
 
       let quizArrayWithUsernames = quizArray;
@@ -219,7 +310,7 @@ const QuizList = ({
     } finally {
       setLoading(false);
     }
-  }, [dataSource, debouncedSearchTerm, filters.sortBy, filters.privacy, currentUser?.uid]);
+  }, [dataSource, debouncedSearchTerm, debouncedCreatorSearchTerm, filters.sortBy, filters.privacy, currentUser?.uid, userFavorites]);
 
   useEffect(() => {
     if (dataSource === "teacherQuizzes") {
@@ -231,7 +322,7 @@ const QuizList = ({
     if (dataSource === "browseCustomQuizzes") {
       fetchQuizzes();
     }
-  }, [dataSource, currentUser?.uid, debouncedSearchTerm, filters.sortBy, filters.privacy]);
+  }, [dataSource, currentUser?.uid, debouncedSearchTerm, debouncedCreatorSearchTerm, filters.sortBy, filters.privacy]);
 
   useEffect(() => {
     if (dataSource === "teacherQuizzes") {
@@ -239,6 +330,27 @@ const QuizList = ({
       setQuizzesToDisplay(filtered);
     }
   }, [dataSource, filters, quizzes, applyClientSideFilters]);
+
+  // Unified trigger for all data sources
+  useEffect(() => {
+    const isFavoritesPage = dataSource === "userFavorites";
+    
+    // Wait for IDs if we are on the Favorites page
+    if (isFavoritesPage && userFavorites === undefined) return;
+
+    fetchQuizzes();
+  
+  // This dependency array ensures the page refreshes automatically 
+  // when your favorites load or a heart is clicked.
+  }, [
+    fetchQuizzes, 
+    dataSource, 
+    userFavorites, 
+    debouncedSearchTerm, 
+    filters.sortBy, 
+    filters.privacy,
+    currentUser?.uid
+  ]);
 
   const normalizeQuizData = (quiz) => {
     if (dataSource === "browseCustomQuizzes") {
@@ -375,6 +487,8 @@ const QuizList = ({
                     currentUserId={currentUser?.uid}
                     linkCreatorToProfile={linkCreatorToProfile}
                     onDeleted={handleQuizDeleted}
+                    isFavorited={userFavorites ? userFavorites.includes(quizData.id) : false}
+                    onToggleFavorite={() => toggleFavorite(quizData.id)}
                   />
                 </div>
               );

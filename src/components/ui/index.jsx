@@ -159,7 +159,7 @@ export const Footer = () => {
 
   return (
     <>
-      <footer className="w-full fixed bottom-0 left-0 bg-gradient-to-r from-[#1a0533] via-[#220b47] to-[#100222] text-center py-3 text-sm text-gray-300 border-t border-purple-800 shadow-inner z-50">
+      <footer className="w-full mt-16 bg-gradient-to-r from-[#1a0533] via-[#220b47] to-[#100222] text-center py-3 text-sm text-gray-300 border-t border-purple-800 shadow-inner">
         <div className="w-full px-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
             <p className="font-medium tracking-wide text-gray-400 md:ml-24">

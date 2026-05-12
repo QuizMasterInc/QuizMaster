@@ -34,6 +34,22 @@ export default function QuizFilters({
         </div>
       )}
 
+	  {enabledFilters.includes('creator') && (
+        <div className="flex items-center gap-2">
+          <label htmlFor="quiz-creator-search-input" className={labelClasses}>
+            Creator:
+          </label>
+          <input
+            id="quiz-creator-search-input"
+            type="text"
+            placeholder="Search by creator..."
+            value={filters.creator || ""}
+            onChange={(e) => onFilterChange({ creator: e.target.value })}
+            className={`${inputBaseClasses} w-[240px] md:w-[340px]`}
+          />
+        </div>
+      )}
+
       {enabledFilters.includes('privacy') && (
         <div className="flex items-center gap-2">
           <label htmlFor="quiz-privacy-select" className={labelClasses}>

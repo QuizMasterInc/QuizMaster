@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import '../config/firebase';
-import { appVersionState, updateAppVersion } from '../components/ui';
+import { appVersion } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 import useProfileSectionData from '../hooks/useProfileSectionData';
 
 const emptyForm = {
-  version: appVersionState.value,
+  version: appVersion,
   title: '',
   description: '',
   changesText: '',
@@ -78,14 +78,6 @@ const Changelog = () => {
           return secondCreatedAt - firstCreatedAt;
         });
 
-      const newestPublishedEntry = changelogEntries.find((entry) => (
-        entry.published === true && entry.status === 'published' && entry.version
-      ));
-
-      if (newestPublishedEntry) {
-        updateAppVersion(newestPublishedEntry.version);
-      }
-
       setEntries(changelogEntries);
     } catch (err) {
       console.error('Unable to load changelog entries:', err);
@@ -102,7 +94,7 @@ const Changelog = () => {
 
   const resetForm = () => {
     setForm({
-      version: appVersionState.value,
+      version: appVersion,
       title: '',
       description: '',
       changesText: '',
@@ -198,7 +190,7 @@ const Changelog = () => {
     setSuccessMessage('');
     setEditingEntry(entry);
     setForm({
-      version: source.version || appVersionState.value,
+      version: source.version || appVersion,
       title: source.title || '',
       description: source.description || '',
       changesText: Array.isArray(source.changes) ? source.changes.join('\n') : '',
@@ -353,7 +345,7 @@ const Changelog = () => {
                   } else {
                     setEditingEntry(null);
                     setForm({
-                      version: appVersionState.value,
+                      version: appVersion,
                       title: '',
                       description: '',
                       changesText: '',
@@ -507,7 +499,7 @@ const Changelog = () => {
               <div className="mb-4 border-b border-gray-200 pb-4 dark:border-gray-800">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h2 className="text-2xl font-semibold text-gray-950 dark:text-white">
-                    Version {entry.version || appVersionState.value}
+                    Version {entry.version || appVersion}
                   </h2>
 
                   {isAdmin && (

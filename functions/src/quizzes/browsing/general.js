@@ -9,13 +9,14 @@ exports.browseCustomQuizzesOptimized = onRequest(async (req, res) => {
         try {
             const {
                 searchTerm = '',
+				creatorSearchTerm = '',
                 sortBy = 'newest',
                 privacy = 'all',
                 limit = 50,
                 currentUserId = null
             } = req.method === 'POST' ? req.body : req.query;
 
-            console.log('Query params:', { searchTerm, sortBy, privacy, limit, currentUserId });
+            console.log('Query params:', { searchTerm, creatorSearchTerm, sortBy, privacy, limit, currentUserId });
 
             const collectionRef = admin.firestore().collection('custom_quizzes');
             const indexesUsed = {};
@@ -150,7 +151,15 @@ exports.browseCustomQuizzesOptimized = onRequest(async (req, res) => {
                         return titleMatch || tagMatch;
                     }
                     return true;
-                });
+                })
+				.filter((quiz) => {
+					if (creatorSearchTerm && creatorSearchTerm.trim()) {
+						const lowerSearch = creatorSearchTerm.toLowerCase();
+						const creatorMatch = (quiz.creator.displayName || '').trim().toLowerCase().includes(lowerSearch);
+						return creatorMatch;
+					}
+					return true;
+				});
 
             const sortResults = (quizArray) => {
                 return quizArray.sort((a, b) => {
