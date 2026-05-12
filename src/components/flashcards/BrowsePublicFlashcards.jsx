@@ -5,6 +5,7 @@ import FlashcardPreview from './FlashcardPreview';
 import { FaShare } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { fetchUsernamesByUids, isValidUsername } from '../../services/firebase/usernameService';
+import { formatCreatedTimestamp } from '../../utils/dateFormatter';
 
 /**
  * Helper to resolve creator label.
@@ -48,30 +49,6 @@ const getFlashcardCreatedAt = (deck) =>
   deck?.creationDate ||
   deck?.created ||
   null;
-
-const formatFlashcardCreatedAt = (timestamp) => {
-  if (!timestamp) return null;
-
-  let date;
-
-  if (typeof timestamp?.toDate === 'function') {
-    date = timestamp.toDate();
-  } else if (timestamp?.seconds) {
-    date = new Date(timestamp.seconds * 1000);
-  } else if (typeof timestamp === 'number') {
-    date = new Date(timestamp > 1e12 ? timestamp : timestamp * 1000);
-  } else {
-    date = new Date(timestamp);
-  }
-
-  if (Number.isNaN(date.getTime())) return null;
-
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
-};
 
 export default function BrowsePublicFlashcards() {
   const location = useLocation();
@@ -351,7 +328,7 @@ export default function BrowsePublicFlashcards() {
         ) : (
           <div id="flashcardDecks" className="flex flex-wrap justify-center gap-8 mt-14 px-6">
             {filteredFlashcardDecks.map((deck, index) => {
-              const formattedCreatedAt = formatFlashcardCreatedAt(getFlashcardCreatedAt(deck));
+              const formattedCreatedAt = formatCreatedTimestamp(getFlashcardCreatedAt(deck));
 
               return (
                 <div key={deck.id || index} className="w-full md:w-1/2 lg:w-1/3 p-5 text-center">

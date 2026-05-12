@@ -150,6 +150,8 @@ class FlashcardService {
             };
         }
 
+        const currentTimestamp = new Date().toISOString();
+
         // Create deck object matching our flattened schema
         const deckObject = {
             // Basic metadata
@@ -180,8 +182,12 @@ class FlashcardService {
             },
             
             // Timestamps (will be set by backend)
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: currentTimestamp,
+            updatedAt: currentTimestamp,
+            timestamps: {
+                createdAt: currentTimestamp,
+                updatedAt: currentTimestamp
+            },
             lastStudiedAt: null,
             
             // Status
@@ -482,8 +488,12 @@ class FlashcardService {
             lastStudiedAt: deck.analytics?.stats?.lastStudiedAt || deck.lastStudiedAt || null,
             
             // Timestamps
-            createdAt: deck.createdAt,
-            updatedAt: deck.updatedAt,
+            createdAt: deck.createdAt || deck.timestamps?.createdAt,
+            updatedAt: deck.updatedAt || deck.timestamps?.updatedAt,
+            timestamps: deck.timestamps || {
+                createdAt: deck.createdAt || null,
+                updatedAt: deck.updatedAt || null
+            },
             
             // Status
             isActive: deck.isActive !== false

@@ -100,6 +100,10 @@ exports.addCustomFlashcardDeck = onRequest(async (req, res) => {
 
           createdAt: currentDate,
           updatedAt: currentDate,
+          timestamps: {
+            createdAt: currentDate,
+            updatedAt: currentDate,
+          },
           lastStudiedAt: null,
 
           isActive: true,
