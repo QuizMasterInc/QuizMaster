@@ -45,7 +45,7 @@ export default function CustomQuiz() {
       }
 
       setIsCreatingQuiz(true);
-      const normalizedDescription = quizDescription.trim();
+      const normalizedDescription = typeof quizDescription === 'string' ? quizDescription.trim() : '';
 
       const quizInput = {
         quizName,
@@ -56,10 +56,21 @@ export default function CustomQuiz() {
         currentUserId: currentUser.uid,
         teacherQuiz,
         description: normalizedDescription,
+        quizDescription: normalizedDescription,
+        metadata: {
+          description: normalizedDescription
+        },
         category: ""
       };
 
       const validationResult = await quizCreationService.createValidatedQuizObject(quizInput);
+
+      if (validationResult?.quizObject) {
+        validationResult.quizObject.metadata = {
+          ...(validationResult.quizObject.metadata || {}),
+          description: normalizedDescription
+        };
+      }
 
       if (!validationResult.success) {
         toast.error(validationResult.error);

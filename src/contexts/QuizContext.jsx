@@ -162,13 +162,102 @@ export const QuizProvider = ({ children }) => {
         }
     }, []);
 
+    /**
+     * Update current quiz in local state (supports updater callback)
+     */
+    const updateQuiz = useCallback((updater) => {
+        const previousQuiz = state.currentQuiz;
+        if (!previousQuiz) return null;
+
+        const nextQuiz = typeof updater === 'function' ? updater(previousQuiz) : updater;
+        if (!nextQuiz) return previousQuiz;
+
+        const normalizedQuestions = nextQuiz.questions || nextQuiz.content?.questions || {};
+        const questionCount =
+            nextQuiz.metadata?.questionCount ||
+            nextQuiz.content?.totalQuestions ||
+            Object.keys(normalizedQuestions).length;
+
+        const mergedQuiz = {
+            ...nextQuiz,
+            questions: normalizedQuestions,
+            content: {
+                ...nextQuiz.content,
+                questions: normalizedQuestions,
+                totalQuestions: questionCount
+            },
+            metadata: {
+                ...nextQuiz.metadata,
+                questionCount
+            },
+            numQuestions: questionCount
+        };
+
+        dispatch({ type: 'SET_CURRENT_QUIZ', payload: mergedQuiz });
+        return mergedQuiz;
+    }, [state.currentQuiz]);
+
+    /**
+     * Persist current quiz edits to Firestore
+     */
+    const updateQuizDB = useCallback(async (quizId, overrideQuiz = null) => {
+        const activeQuiz = overrideQuiz || state.currentQuiz;
+        if (!activeQuiz) {
+            throw new Error('No quiz loaded');
+        }
+
+        const normalizedQuestions = activeQuiz.questions || activeQuiz.content?.questions || {};
+        const questionCount = Object.keys(normalizedQuestions).length;
+
+        const payload = {
+            metadata: {
+                ...activeQuiz.metadata,
+                title: activeQuiz.metadata?.title || activeQuiz.title || 'Untitled Quiz',
+                questionCount
+            },
+            content: {
+                ...activeQuiz.content,
+                questions: normalizedQuestions,
+                totalQuestions: questionCount
+            }
+        };
+
+        await quizRetrievalService.updateCustomQuiz(quizId, payload);
+
+        const refreshedQuiz = {
+            ...activeQuiz,
+            ...payload,
+            questions: normalizedQuestions,
+            numQuestions: questionCount,
+            timestamps: {
+                ...activeQuiz.timestamps,
+                updatedAt: new Date().toISOString()
+            }
+        };
+
+        dispatch({ type: 'SET_CURRENT_QUIZ', payload: refreshedQuiz });
+        return refreshedQuiz;
+    }, [state.currentQuiz]);
+
+    /**
+     * Delete quiz and clear local state
+     */
+    const deleteQuiz = useCallback(async (quizId) => {
+        await quizRetrievalService.deleteCustomQuiz(quizId);
+        dispatch({ type: 'REMOVE_QUIZ', payload: quizId });
+        return { success: true };
+    }, []);
+
     // Context value
     const value = {
         ...state,
         loadQuizzes,
         getQuizById,
         quiz: state.currentQuiz,
-        getQuiz: getQuizById
+        getQuiz: getQuizById,
+        updateQuiz,
+        updateQuizDB,
+        deleteQuiz
     };
 
     return (

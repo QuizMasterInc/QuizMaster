@@ -11,11 +11,11 @@ export default function CSVUploadSection({
   uploadError
 }) {
   return (
-    <div className="bg-card border border-primary rounded-xl p-6 md:p-8 shadow-lg">
-      <h2 className="text-xl md:text-2xl font-semibold text-primary mb-4 md:mb-6">
+    <div className="space-y-5 rounded-2xl border border-[var(--border)] bg-[var(--card-bg)] p-6 text-[var(--text-primary)] shadow-inner transition-colors duration-200 md:p-8">
+      <h2 className="text-xl font-semibold text-[var(--text-primary)] md:text-2xl">
         📤 Bulk Upload from CSV
       </h2>
-      <p className="text-sm md:text-base text-secondary mb-4 md:mb-6">
+      <p className="text-sm text-[var(--text-secondary)] md:text-base">
         Upload a CSV file with multiple questions to add them all at once.
       </p>
 
@@ -24,7 +24,7 @@ export default function CSVUploadSection({
         <div className="space-y-3">
           <label
             htmlFor="csv-file-input"
-            className="block w-full px-4 py-3 bg-accent hover:bg-accent-hover text-white text-center rounded-lg font-medium transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
+            className="flex w-full cursor-pointer items-center justify-center rounded-xl border border-[var(--accent)] bg-[var(--btn-primary-bg)] px-5 py-3 text-center font-semibold text-[var(--btn-primary-text)] shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--accent-hover)] hover:shadow-xl"
           >
             {selectedFile ? `📄 ${selectedFile.name}` : '📁 Choose CSV File'}
           </label>
@@ -38,38 +38,38 @@ export default function CSVUploadSection({
           />
 
           {uploadError && (
-            <p className="text-sm text-error">{uploadError}</p>
+            <div className="rounded-xl border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm font-medium text-[var(--error-text)]">
+              {uploadError}
+            </div>
           )}
 
-          {selectedFile && (
-            <button
-              onClick={onUpload}
-              disabled={isUploading}
-              className="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isUploading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Uploading...
-                </>
-              ) : (
-                '⬆️ Upload CSV'
-              )}
-            </button>
-          )}
+          <button
+            onClick={onUpload}
+            disabled={isUploading || !selectedFile}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--success)] bg-[var(--success)] px-5 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:brightness-95 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+          >
+            {isUploading ? (
+              <>
+                <svg className="h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Uploading...
+              </>
+            ) : (
+              '⬆️ Upload CSV'
+            )}
+          </button>
         </div>
 
         {/* CSV Format Info - Collapsible */}
-        <details className="p-4 bg-secondary rounded-lg border border-primary">
-          <summary className="font-semibold text-primary cursor-pointer text-sm md:text-base">
+        <details className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] p-4 transition-colors duration-200">
+          <summary className="cursor-pointer text-sm font-semibold text-[var(--text-primary)] md:text-base">
             📋 CSV Format Requirements
           </summary>
-          <div className="mt-3 space-y-2 text-xs md:text-sm text-secondary">
+          <div className="mt-3 space-y-2 text-xs text-[var(--text-secondary)] md:text-sm">
             <p>Your CSV must have these columns in order:</p>
-            <code className="block bg-primary text-secondary px-2 py-1 rounded overflow-x-auto text-xs">
+            <code className="block overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--input-bg)] px-3 py-2 text-xs text-[var(--text-primary)]">
               question,option_1,option_2,option_3,option_4,correct_answer,difficulty
             </code>
             <ul className="list-disc list-inside space-y-1 ml-2">

@@ -17,6 +17,7 @@ import About from './components/about/About';
 import Contact from './components/contact/Contact';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import Changelog from './pages/changelog';
 import Support from './pages/Support';
 import SupportDashboard from './pages/SupportDashboard';
 import { AppProvider } from './contexts/AppContext';
@@ -57,6 +58,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useEffect } from "react";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import FavoritesPage from './components/favorites/FavoritesPage';
 
 const AdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -145,6 +147,7 @@ function App() {
               } />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/changelog" element={<Changelog />} />
               <Route path="/settings" element={
                 <Settings />
               }/>
@@ -254,6 +257,12 @@ function App() {
               <Route path="/myquizzes" element={
                 <PrivateRoute>
                   <MyQuiz title="My Quizzes" dataSource="browseCustomQuizzes" showRefreshButton={true} />
+                </PrivateRoute>
+              }/>
+
+              <Route path="/favorites" element={
+                <PrivateRoute>
+                  <FavoritesPage />
                 </PrivateRoute>
               }/>
 

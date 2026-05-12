@@ -10,6 +10,7 @@ import HelpModal from './HelpModal';
 import ProgressBar from './ProgressBar';
 import DownloadQuiz from './DownloadQuiz';
 import BackToTopButton from './BackToTopButton';
+import QuizNavigator from './QuizNavigator';
 
 // Custom Hooks
 import { useDefaultQuiz, useQuestionChoices } from '../../hooks/useQuizEngine';
@@ -353,6 +354,7 @@ function QuizActivity() {
                   onAnswerChange={recordAnswered}
                   answerCount={answerCount}
                   onReviewToggle={handleReviewToggle}
+                  isMarkedForReview={reviewQueue.includes(i)}
                 />
               </div>
             ))}
@@ -454,6 +456,16 @@ function QuizActivity() {
           </div>
         )}
       </div>
+
+      {!showResults && questions.length > 0 && (
+        <QuizNavigator
+          questions={questions}
+          userAnswers={userAnswers}
+          reviewQueue={reviewQueue}
+          onNavigate={scrollToQuestion}
+          onToggleReview={handleReviewToggle}
+        />
+      )}
 
       {/* Top button */}
       <BackToTopButton />

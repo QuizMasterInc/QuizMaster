@@ -3,6 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import {
   closePoll,
   createPoll,
+  endPoll,
   findPollByCode,
   getUserVote,
   openPoll,
@@ -13,8 +14,9 @@ import {
 import CreatePollPanel from "./components/CreatePollPanel.jsx";
 import PollQuestionSection from "./components/PollQuestionSection.jsx";
 import StudentPanel from "./components/StudentPanel.jsx";
-import ResultsSection from "./components/ResultSection.jsx";
+// import ResultsSection from "./components/ResultSection.jsx";
 import VotingSection from "./components/VotingSection.jsx";
+import PollLanding from "./components/PollLanding.jsx";
 
 /**
  * ============================================================
@@ -56,17 +58,6 @@ import VotingSection from "./components/VotingSection.jsx";
  * 5) UI State Orchestration
  *    - Manages loading, error, and informational messages.
  *    - Computes derived state (totalVotes, results visibility, etc.).
- *
- * Architectural Notes:
- * ------------------------------------------------------------
- * - This file should remain a "container" component.
- * - Business logic lives here.
- * - Rendering logic lives inside the subcomponents.
- * - Security is enforced in Firestore rules and pollService,
- *   NOT only by hiding UI elements.
- *
- * If this file grows significantly larger, subscription logic
- * can be extracted into a custom hook (e.g., usePollSubscription).
  * ============================================================
  */
 
@@ -78,6 +69,7 @@ const defaultOptions = ["", "", "", ""];
 export default function Poll() {
   const { currentUser } = useAuth();
 
+  const [pollMode, setPollMode] = useState(null);
   const [teacherQuestion, setTeacherQuestion] = useState(defaultQuestion);
   const [teacherOptions, setTeacherOptions] = useState(defaultOptions);
   const [currentPollId, setCurrentPollId] = useState(null);
@@ -132,8 +124,12 @@ export default function Poll() {
         return;
       }
       if (!payload) {
-        setStudentError("Poll was removed or is unavailable.");
+        setStudentError("This poll has ended or is no longer available.");
+        setInfoMessage("This poll has ended or is no longer available.");
         setPollData(null);
+        setCurrentPollId(null);
+        setHasSubmitted(false);
+        setStudentSelection([]);
         return;
       }
       setPollData(payload.data);
@@ -158,8 +154,8 @@ export default function Poll() {
         setTeacherError("Please enter a question.");
         return;
       }
-      if (cleanedOptions.length < 2 || cleanedOptions.length > 6) {
-        setTeacherError("Enter between 2 and 6 options.");
+      if (cleanedOptions.length < 2 || cleanedOptions.length > 10) {
+        setTeacherError("Enter between 2 and 10 options.");
         return;
       }
 
@@ -177,7 +173,7 @@ export default function Poll() {
       setHasSubmitted(false);
       setStudentSelection([]);
       setStudentJoinCode(code);
-      setInfoMessage("Poll started. Share the join code with participants.");
+      // setInfoMessage("Poll started. Share the join code with participants.");
       attachListener(id);
     } catch (error) {
       setTeacherError(error.message || "Failed to start poll.");
@@ -272,7 +268,7 @@ export default function Poll() {
     }
   };
 
-  const handleReset = () => {
+  const resetPollState = () => {
     setPollData(null);
     setCurrentPollId(null);
     setJoinCode("");
@@ -282,7 +278,32 @@ export default function Poll() {
     setStudentError("");
     setTeacherError("");
     setInfoMessage("");
+    setTeacherQuestion(defaultQuestion);
+    setTeacherOptions(defaultOptions);
+    setPollMode(null);
     resetSubscription();
+  };
+
+  const handleReset = () => {
+    resetPollState();
+  };
+
+  const handleEndPollAndReset = async () => {
+    const shouldEndActivePoll = currentPollId && isCreator;
+
+    if (!shouldEndActivePoll) {
+      resetPollState();
+      return;
+    }
+
+    try {
+      await endPoll(currentPollId, currentUser?.uid);
+    } catch (error) {
+      setTeacherError(error.message || "Failed to end poll.");
+      return;
+    }
+
+    resetPollState();
   };
 
   const pollQuestion = pollData?.question || teacherQuestion;
@@ -290,8 +311,8 @@ export default function Poll() {
   const votes = pollData?.votes || pollOptions.map(() => 0);
 
   return (
-    <div className="min-h-screen bg-primary text-primary px-6 py-16">
-      <div className="max-w-6xl mx-auto">
+    <div className="flex min-h-screen items-center justify-center overflow-x-hidden bg-primary px-3 py-8 text-primary sm:px-6 sm:py-16">
+      <div className="w-full max-w-6xl mx-auto">
         {/* <PollQuestionSection
           pollQuestion={pollQuestion}
           currentPollId={currentPollId}
@@ -299,69 +320,86 @@ export default function Poll() {
           status={pollData?.status}
         /> */}
 
-        {infoMessage && (
+        {/* {infoMessage && (
           <div className="mt-6 p-3 rounded-xl border border-primary text-sm text-primary bg-secondary">
             {infoMessage}
           </div>
+        )} */}
+
+        {!pollMode && <PollLanding onChooseMode={setPollMode} />}
+
+        {pollMode && (
+          <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-start gap-6 pt-4 sm:min-h-[calc(100vh-8rem)] sm:gap-8 sm:pt-6">
+            <div className="w-full max-w-4xl">
+              <button
+                type="button"
+                onClick={handleEndPollAndReset}
+                className="rounded-xl border border-primary bg-[var(--card-bg)] px-3 py-2 text-sm font-medium text-secondary shadow-[0_0_18px_rgba(168,85,247,0.18),0_8px_30px_rgba(59,130,246,0.10)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-secondary hover:shadow-[0_0_26px_rgba(168,85,247,0.28),0_12px_38px_rgba(59,130,246,0.16)]"
+              >
+                ← Back
+              </button>
+            </div>
+
+            <div
+              className="grid w-full max-w-4xl gap-6"
+            >
+              <VotingSection>
+                {pollMode === "create" && (
+                  <CreatePollPanel
+                    isCreator={isCreator}
+                    isSignedIn={!!currentUser?.uid}
+                    question={teacherQuestion}
+                    options={teacherOptions}
+                    setQuestion={setTeacherQuestion}
+                    setOptions={setTeacherOptions}
+                    onStart={handleStartPoll}
+                    onClose={handleClosePoll}
+                    onOpen={handleOpenPoll}
+                    onToggleLive={handleToggleLiveResults}
+                    poll={pollData}
+                    joinCode={joinCode}
+                    isCreating={isCreating}
+                    error={teacherError}
+                    onReset={handleEndPollAndReset}
+                  />
+                )}
+
+                {pollMode === "take" && (
+                  <StudentPanel
+                    joinCodeInput={studentJoinCode}
+                    setJoinCodeInput={setStudentJoinCode}
+                    onJoin={handleJoinPoll}
+                    isJoining={isJoining}
+                    poll={pollData}
+                    totalVotes={totalVotes}
+                    options={pollOptions}
+                    votes={votes}
+                    selected={studentSelection}
+                    setSelected={setStudentSelection}
+                    hasSubmitted={hasSubmitted}
+                    resultsVisible={resultsVisible}
+                    onSubmit={handleSubmitVote}
+                    error={studentError}
+                    currentPollId={currentPollId}
+                    isFetchingVote={isFetchingVote}
+                    onReset={handleReset}
+                  />
+                )}
+              </VotingSection>
+
+              {/* {pollData && (
+                <ResultsSection
+                  pollQuestion={pollQuestion}
+                  options={pollOptions}
+                  votes={votes}
+                  totalVotes={totalVotes}
+                  resultsVisible={resultsVisible}
+                  status={pollData?.status}
+                />
+              )} */}
+            </div>
+          </div>
         )}
-
-        <div className="mt-8 space-y-8">
-          <VotingSection>
-            <CreatePollPanel
-              isCreator={isCreator}
-              isSignedIn={!!currentUser?.uid}
-              question={teacherQuestion}
-              options={teacherOptions}
-              setQuestion={setTeacherQuestion}
-              setOptions={setTeacherOptions}
-              onStart={handleStartPoll}
-              onClose={handleClosePoll}
-              onOpen={handleOpenPoll}
-              onToggleLive={handleToggleLiveResults}
-              poll={pollData}
-              joinCode={joinCode}
-              isCreating={isCreating}
-              error={teacherError}
-              onReset={handleReset}
-            />
-
-            <StudentPanel
-              joinCodeInput={studentJoinCode}
-              setJoinCodeInput={setStudentJoinCode}
-              onJoin={handleJoinPoll}
-              isJoining={isJoining}
-              poll={pollData}
-              totalVotes={totalVotes}
-              options={pollOptions}
-              votes={votes}
-              selected={studentSelection}
-              setSelected={setStudentSelection}
-              hasSubmitted={hasSubmitted}
-              resultsVisible={resultsVisible}
-              onSubmit={handleSubmitVote}
-              error={studentError}
-              currentPollId={currentPollId}
-              isFetchingVote={isFetchingVote}
-              onReset={handleReset}
-            />
-          </VotingSection>
-          
-        {/* <PollQuestionSection
-          pollQuestion={pollQuestion}
-          currentPollId={currentPollId}
-          totalVotes={totalVotes}
-          status={pollData?.status}
-        /> */}
-
-          <ResultsSection
-            pollQuestion={pollQuestion}
-            options={pollOptions}
-            votes={votes}
-            totalVotes={totalVotes}
-            resultsVisible={resultsVisible}
-            status={pollData?.status}
-          />
-        </div>
       </div>
     </div>
   );

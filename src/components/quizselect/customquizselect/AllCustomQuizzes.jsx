@@ -5,9 +5,10 @@ const AllCustomQuizzes = () => {
     <QuizList
       title="User-Made Quizzes"
       dataSource="browseCustomQuizzes"
-      filters={["search", "privacy", "sort"]}
+      filters={["search", "creator", "privacy", "sort"]}
       showRefreshButton={true}
       linkCreatorToProfile={true}
+      className="all-custom-quizzes-page"
     />
   );
 };

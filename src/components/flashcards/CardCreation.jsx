@@ -74,7 +74,30 @@ export default function CardCreation({ saveDeck, isLoading, initialData }) {
       cards,
     };
 
-    await saveDeck(deckData);
+    const savingToastId = toast.loading(
+      isEditMode ? "Saving changes..." : "Saving deck..."
+    );
+
+    try {
+      await saveDeck(deckData);
+
+      toast.update(savingToastId, {
+        render: isEditMode ? "Flashcard deck updated!" : "Flashcard deck saved!",
+        type: "success",
+        isLoading: false,
+        autoClose: 2500,
+        closeOnClick: true,
+      });
+    } catch (error) {
+      toast.update(savingToastId, {
+        render: error?.message || "Failed to save flashcard deck.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3500,
+        closeOnClick: true,
+      });
+      return;
+    }
 
     // Only reset form if we are NOT in edit mode (creating a new deck)
     if (!initialData) {
@@ -255,20 +278,22 @@ export default function CardCreation({ saveDeck, isLoading, initialData }) {
       </div>
 
       {/* Accordion: Upload CSV */}
-      <div className="border-t pt-4 mt-2">
+      <div className="border-t border-[var(--border)] pt-4 mt-2">
         <button
           type="button"
           onClick={() => setShowCSV((prev) => !prev)}
           className="w-full flex justify-between items-center text-left py-3 px-2"
         >
-          <span className="text-lg font-semibold">Upload Cards from CSV</span>
-          <span className="text-sm text-[var(--neutral-600)]">
+          <span className="text-lg font-semibold text-primary">Upload Cards from CSV</span>
+          <span className="text-sm text-[var(--text-secondary)]">
             {showCSV ? "▲" : "▼"}
           </span>
         </button>
 
         {showCSV && (
-          <CSVUpload onQuestionsAdded={handleCSVQuestionsAdded} />
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-5 shadow-lg">
+            <CSVUpload onQuestionsAdded={handleCSVQuestionsAdded} />
+          </div>
         )}
       </div>
 
@@ -282,34 +307,34 @@ export default function CardCreation({ saveDeck, isLoading, initialData }) {
             {cards.map((card, index) => (
               <div
                 key={index}
-                className="bg-[var(--neutral-100)] p-4 rounded-lg border flex justify-between items-start"
+                className="rounded-xl border border-[var(--border)] bg-[var(--bg-secondary)] p-4 shadow-sm flex justify-between items-start gap-4"
               >
                 <div className="flex-1 whitespace-pre-line">
                   <div className="mb-2">
-                    <span className="font-semibold text-blue-600">Front:</span>
-                    <span className="ml-2 text-[var(--neutral-600)]">
+                    <span className="font-semibold text-[var(--primary-300)]">Front:</span>
+                    <span className="ml-2 text-primary">
                       {card.front}
                     </span>
                   </div>
                   <div>
-                    <span className="font-semibold text-green-600">Back:</span>
-                    <span className="ml-2 text-[var(--neutral-600)]">
+                    <span className="font-semibold text-green-300">Back:</span>
+                    <span className="ml-2 text-primary">
                       {card.back}
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 ml-4">
+                <div className="flex flex-col gap-2 shrink-0">
                   <button
                     onClick={() => handleEditCard(index)}
                     disabled={isLoading}
-                    className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors disabled:opacity-50"
+                    className="rounded-lg border border-yellow-400/40 bg-yellow-500/20 px-3 py-1 text-sm font-semibold text-yellow-200 transition hover:bg-yellow-500/30 disabled:opacity-50"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => removeCard(index)}
                     disabled={isLoading}
-                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
+                    className="rounded-lg border border-red-400/40 bg-red-500/20 px-3 py-1 text-sm font-semibold text-red-200 transition hover:bg-red-500/30 disabled:opacity-50"
                   >
                     Remove
                   </button>
@@ -326,7 +351,7 @@ export default function CardCreation({ saveDeck, isLoading, initialData }) {
         disabled={isLoading || cards.length === 0 || !deckName.trim()}
         className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? (isEditMode ? "Saving Changes..." : "Creating Deck...") : (isEditMode ? "Save Changes" : "Save Deck")}
+        {isEditMode ? "Save Changes" : "Save Deck"}
       </button>
     </div>
   );

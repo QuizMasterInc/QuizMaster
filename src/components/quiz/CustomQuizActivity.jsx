@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { ScaleLoader } from 'react-spinners';
 import Question from './Question';
@@ -6,6 +6,7 @@ import DoneModal from './DoneModal';
 import HelpModal from './HelpModal';
 import ProgressBar from './ProgressBar';
 import BackToTop from './BackToTopButton';
+import QuizNavigator from './QuizNavigator';
 import { useAuth } from '../../contexts/AuthContext';
 import { useResults } from '../../contexts/ResultsContext';
 import quizDraftService from '../../services/quiz/quizDraftService';
@@ -13,6 +14,7 @@ import { useCustomQuiz, useQuestionChoices } from '../../hooks/useQuizEngine';
 import { useQuizState } from '../../hooks/useQuizState';
 import { useQuizSubmission } from '../../hooks/useQuizSubmission';
 import { useQuizUI } from '../../hooks/useQuizUI';
+import { shuffle } from '../../utils/shuffle';
 
 function CustomQuizActivity() {
   const { quizID } = useParams();
@@ -23,6 +25,11 @@ function CustomQuizActivity() {
   const { refreshResults } = useResults();
 
   const { questions, setQuestions, quizMetadata, loading, error, needsPassword, retryWithPassword } = useCustomQuiz(quizID, password);
+
+  // Shuffle toggles — locked once the user starts answering, so saved
+  // answers stay aligned with the question order they actually saw.
+  const [shuffleQuestions, setShuffleQuestions] = useState(false);
+  const [shuffleAnswers, setShuffleAnswers] = useState(false);
 
   const {
     answeredCount,
@@ -63,10 +70,15 @@ function CustomQuizActivity() {
   } = useQuizUI();
 
   const [draftLoaded, setDraftLoaded] = useState(false);
+  // reviewQueue is now an array of questionIds
   const [reviewQueue, setReviewQueue] = useState([]);
-  const [resultsByIndex, setResultsByIndex] = useState({});
+  // resultsByQid is keyed by questionId
+  const [resultsByQid, setResultsByQid] = useState({});
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
+  // Lock shuffle toggles once the user has answered anything
+  const shuffleLocked = answeredCount > 0 || completed;
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
@@ -81,14 +93,15 @@ function CustomQuizActivity() {
   useEffect(() => {
     const loadDraftData = async () => {
       if (!currentUser?.uid || !quizID || draftLoaded) return;
-      
+
       try {
         const draft = await quizDraftService.loadDraft({
           userId: currentUser.uid,
           quizId: quizID
         });
-        
+
         if (draft && draft.userAnswers) {
+          // userAnswers comes back already migrated (questionId-keyed)
           setUserAnswers(draft.userAnswers);
           setAnsweredCount(Object.keys(draft.userAnswers).length);
           setDraftLoaded(true);
@@ -97,34 +110,60 @@ function CustomQuizActivity() {
         console.error('Error loading draft:', err);
       }
     };
-    
+
     loadDraftData();
   }, [currentUser?.uid, quizID, draftLoaded, setUserAnswers, setAnsweredCount]);
 
-  const handleReviewToggle = (index, isMarked) => {
-    if (index === null || index === undefined) return;
-    
+  /**
+   * Apply shuffle toggles to produce the rendered question list.
+   * Original `questions` is left untouched so grading stays stable.
+   */
+  const displayQuestions = useMemo(() => {
+    if (questions.length === 0) return [];
+
+    let result = questions;
+    if (shuffleQuestions) {
+      result = shuffle(result);
+    }
+    if (shuffleAnswers) {
+      result = result.map((q) =>
+        q.type === 'fill' ? q : { ...q, choices: shuffle(q.choices) }
+      );
+    }
+    return result;
+    // We intentionally re-run only when toggles flip or questions reload.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [questions, shuffleQuestions, shuffleAnswers]);
+
+  const handleReviewToggle = (questionId, isMarked) => {
+    if (!questionId) return;
+
     if (isMarked) {
-      setReviewQueue((prev) => (prev.includes(index) ? prev : [...prev, index]));
+      setReviewQueue((prev) => (prev.includes(questionId) ? prev : [...prev, questionId]));
     } else {
-      setReviewQueue((prev) => prev.filter((i) => i !== index));
+      setReviewQueue((prev) => prev.filter((id) => id !== questionId));
     }
   };
 
+  // Question.jsx still passes index — we resolve it to questionId here.
   const handleAnswerResult = (index, isCorrect, answer) => {
     if (typeof index !== 'number') return;
+
+    const q = displayQuestions[index];
+    if (!q) return;
+    const qid = q.questionId;
 
     if (answer !== undefined && answer !== null) {
       setUserAnswers((prev) => ({
         ...prev,
-        [index]: answer
+        [qid]: answer
       }));
     }
 
     if (isCorrect !== null) {
-      setResultsByIndex((prev) => ({
+      setResultsByQid((prev) => ({
         ...prev,
-        [index]: isCorrect
+        [qid]: isCorrect
       }));
 
       if (typeof isCorrect === 'boolean') {
@@ -142,7 +181,10 @@ function CustomQuizActivity() {
 
   const goToNextReview = () => {
     if (!reviewQueue || reviewQueue.length === 0) return;
-    scrollToQuestion(reviewQueue[0]);
+    // reviewQueue stores questionIds — find the index in the current display
+    const firstQid = reviewQueue[0];
+    const index = displayQuestions.findIndex((q) => q.questionId === firstQid);
+    if (index !== -1) scrollToQuestion(index);
   };
 
   useQuestionChoices(questions, setQuestions, answerCount);
@@ -150,11 +192,11 @@ function CustomQuizActivity() {
 
   const handleSubmit = async () => {
     startSubmission();
-    
+
     await submitQuiz({
       currentUser,
-      questions,
-      setUserAnswers,
+      questions: displayQuestions,
+      userAnswers,
       setCompleted,
       refreshResults,
       quizStartTime,
@@ -168,15 +210,15 @@ function CustomQuizActivity() {
         sessionId: `custom_quiz_${Date.now()}`
       }
     });
-    
+
     setDoneActive(true);
   };
 
-  const handleReviewAgain = (incorrectIndexes) => {
-    if (!Array.isArray(incorrectIndexes) || incorrectIndexes.length === 0) return;
+  const handleReviewAgain = (incorrectQids) => {
+    if (!Array.isArray(incorrectQids) || incorrectQids.length === 0) return;
 
-    const reviewQuestions = incorrectIndexes
-      .map((i) => questions[i])
+    const reviewQuestions = incorrectQids
+      .map((qid) => questions.find((q) => q.questionId === qid))
       .filter(Boolean);
 
     if (reviewQuestions.length === 0) return;
@@ -185,7 +227,7 @@ function CustomQuizActivity() {
     setQuestions(reviewQuestions);
     setDoneActive(false);
     setReviewQueue([]);
-    setResultsByIndex({});
+    setResultsByQid({});
   };
 
   if (loading) {
@@ -301,6 +343,46 @@ function CustomQuizActivity() {
                     ))}
                   </select>
                 </div>
+
+                {/* Shuffle toggles — disabled once user has started answering */}
+                <div className="mb-4 space-y-3">
+                  <label className={`flex items-center justify-between ${shuffleLocked ? 'opacity-50' : 'cursor-pointer'}`}>
+                    <span className="text-base text-secondary">Shuffle questions</span>
+                    <div
+                      onClick={() => !shuffleLocked && setShuffleQuestions(!shuffleQuestions)}
+                      className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${
+                        shuffleQuestions ? 'bg-[var(--primary-400)]' : 'bg-gray-300'
+                      } ${shuffleLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                    >
+                      <div
+                        className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
+                          shuffleQuestions ? 'translate-x-7' : 'translate-x-1'
+                        }`}
+                      />
+                    </div>
+                  </label>
+                  <label className={`flex items-center justify-between ${shuffleLocked ? 'opacity-50' : 'cursor-pointer'}`}>
+                    <span className="text-base text-secondary">Shuffle answers</span>
+                    <div
+                      onClick={() => !shuffleLocked && setShuffleAnswers(!shuffleAnswers)}
+                      className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${
+                        shuffleAnswers ? 'bg-[var(--primary-400)]' : 'bg-gray-300'
+                      } ${shuffleLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                    >
+                      <div
+                        className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ${
+                          shuffleAnswers ? 'translate-x-7' : 'translate-x-1'
+                        }`}
+                      />
+                    </div>
+                  </label>
+                  {shuffleLocked && (
+                    <p className="text-xs text-secondary italic">
+                      Shuffle locked once you start answering.
+                    </p>
+                  )}
+                </div>
+
                 <button
                   onClick={() => setHelpActive(true)}
                   className="w-full px-6 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-accent"
@@ -378,22 +460,23 @@ function CustomQuizActivity() {
             </div>
 
             <div className="space-y-8">
-              {questions.map((q, i) => (
+              {displayQuestions.map((q, i) => (
                 <div
-                  key={i}
+                  key={q.questionId}
                   className="bg-card rounded-3xl p-8 shadow-xl border border-accent"
                   data-question-index={i}
                 >
                   <Question
-                    key={`${i}-${userAnswers[i] || 'empty'}`}
+                    key={`${q.questionId}-${userAnswers[q.questionId] || 'empty'}`}
                     question={q}
                     questionIndex={i}
                     isCompleted={completed}
                     onAnswer={handleAnswerResult}
                     onAnswerChange={recordAnswered}
                     answerCount={answerCount}
-                    onReviewToggle={handleReviewToggle}
-                    savedAnswer={userAnswers[i]}
+                    onReviewToggle={(_idx, marked) => handleReviewToggle(q.questionId, marked)}
+                    isMarkedForReview={reviewQueue.includes(q.questionId)}
+                    savedAnswer={userAnswers[q.questionId]}
                   />
                 </div>
               ))}
@@ -421,8 +504,8 @@ function CustomQuizActivity() {
             </div>
 
             <div className="space-y-6">
-              {questions.map((question, index) => {
-                const userAnswer = userAnswers[index];
+              {displayQuestions.map((question, index) => {
+                const userAnswer = userAnswers[question.questionId];
                 const isCorrect = (() => {
                   if (!userAnswer) return false;
                   const correctAnswer = String(question.correctAnswer).trim().toLowerCase();
@@ -440,7 +523,7 @@ function CustomQuizActivity() {
                 })();
 
                 return (
-                  <div key={index} className={`p-6 rounded-xl border-2 bg-card ${isCorrect ? 'border-green-400' : 'border-red-400'}`}>
+                  <div key={question.questionId} className={`p-6 rounded-xl border-2 bg-card ${isCorrect ? 'border-green-400' : 'border-red-400'}`}>
                     <div className="flex items-start justify-between mb-4">
                       <h3 className="text-lg font-semibold text-primary flex-1">
                         Question {index + 1}: {question.questionText}
@@ -485,6 +568,16 @@ function CustomQuizActivity() {
         )}
       </div>
 
+      {!showResults && displayQuestions.length > 0 && (
+        <QuizNavigator
+          questions={displayQuestions}
+          userAnswers={userAnswers}
+          reviewQueue={reviewQueue}
+          onNavigate={scrollToQuestion}
+          onToggleReview={handleReviewToggle}
+        />
+      )}
+
       {helpActive && (
         <HelpModal
           isActive={setHelpActive}
@@ -499,7 +592,7 @@ function CustomQuizActivity() {
           active={doneActive}
           amountCorrect={correctCount}
           totalAmount={questions.length}
-          questions={questions}
+          questions={displayQuestions}
           userAnswers={userAnswers}
           quizId={quizID}
           isCustomQuiz={true}
