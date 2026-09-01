@@ -106,44 +106,9 @@ const Contact = () => (
 
             <div className="py-16 mx-auto max-w-7xl sm:px-6 lg:px-8 xl:px-12 2xl:px-24 mt-12">
                 <h2 className="text-gradient-primary text-4xl font-bold text-center mb-12">
-                    Spring 2026 Dream Team
+                    Fall 2026 Dream Team
                 </h2>
                 <div className="grid-cols-1 gap-6 flex flex-wrap justify-center mt-8">
-                    <TeamMember
-                        image={benC}
-                        name="Benjamin Campa"
-                        group="ElectricalSquirrels Group"
-                        email="benjaminacampa@lewisu.edu"
-                        githubLink="https://github.com/campabenjamin"
-                    />
-                    <TeamMember
-                        image={adrian}
-                        name="Adrian Salinas"
-                        group="ElectricalSquirrels Group"
-                        email="adriansalinas@lewisu.edu"
-                        githubLink="https://github.com/adrian57831"
-                    />
-                    <TeamMember
-                        image={faiza}
-                        name="Faiza Khan"
-                        group="ElectricalSquirrels Group"
-                        email="faizaakhan@lewisu.edu"
-                        githubLink="https://github.com/faizak2521"
-                    />
-                    <TeamMember
-                        image={salah}
-                        name="Salah Abdelmajid"
-                        group="ElectricalSquirrels Group"
-                        email="salahjabdelmajid@lewisu.edu"
-                        githubLink={"https://github.com/salahmajid"}
-                    />
-                    <TeamMember
-                        image={joseph}
-                        name="Joseph Chavez"
-                        group="ElectricalSquirrels Group"
-                        email="josephrchavez1@lewisu.edu"
-                        githubLink="https://github.com/Jchave2000"
-                    />
 					<TeamMember
 						image={michael}
 						name="Michael Analitis"
@@ -158,15 +123,53 @@ const Contact = () => (
 						email="coltinwrogge@lewisu.edu"
 						githubLink="https://github.com/coltin14"
 					/>
-                    <TeamMember
-                        image={neil}
-                        name="Neil Mamparo"
-                        group="TheNullPointers Group"
-                        email="neilamamparo@lewisu.edu"
-                        githubLink="https://github.com/neilmamparo"
-                    />
                 </div>
             </div>
+
+			<TeamSection title="Spring 2026 Team">
+                <TeamMember
+					image={benC}
+					name="Benjamin Campa"
+					group="ElectricalSquirrels Group"
+					email="benjaminacampa@lewisu.edu"
+					githubLink="https://github.com/campabenjamin"
+				/>
+				<TeamMember
+					image={adrian}
+					name="Adrian Salinas"
+					group="ElectricalSquirrels Group"
+					email="adriansalinas@lewisu.edu"
+					githubLink="https://github.com/adrian57831"
+				/>
+				<TeamMember
+					image={faiza}
+					name="Faiza Khan"
+					group="ElectricalSquirrels Group"
+					email="faizaakhan@lewisu.edu"
+					githubLink="https://github.com/faizak2521"
+				/>
+				<TeamMember
+					image={salah}
+					name="Salah Abdelmajid"
+					group="ElectricalSquirrels Group"
+					email="salahjabdelmajid@lewisu.edu"
+					githubLink={"https://github.com/salahmajid"}
+				/>
+				<TeamMember
+					image={joseph}
+					name="Joseph Chavez"
+					group="ElectricalSquirrels Group"
+					email="josephrchavez1@lewisu.edu"
+					githubLink="https://github.com/Jchave2000"
+				/>
+				<TeamMember
+					image={neil}
+					name="Neil Mamparo"
+					group="TheNullPointers Group"
+					email="neilamamparo@lewisu.edu"
+					githubLink="https://github.com/neilmamparo"
+				/>
+            </TeamSection>
 
             <TeamSection title="Fall 2025 Team">
                 <TeamMember
