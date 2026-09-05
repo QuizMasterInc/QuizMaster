@@ -1,5 +1,11 @@
 Scrum will be implemented by assigning the following roles: Product Owner, Scrum Master, and Development Members. Each new Sprint, there will be a new Product Owner and Scrum Master assigned. 
 
+### Fall 2026 Team Roles
+
+Michael Analitis - Product Owner
+
+Coltin Rogge - Scrum Master
+
 ### Spring 2026 Team Roles
 
 Adrian Salinas - Development Team

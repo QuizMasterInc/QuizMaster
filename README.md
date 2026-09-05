@@ -33,7 +33,19 @@ Team Fun | Software Systems Capstone Project
 Our capstone project that allows users to take quizzes on a variety of different topics and create custom flashcard decks for enhanced learning.
 </h4>
 
-# Development Team (ElectricalSquirrels Team)
+# Development Team (TheNullPointers Team)
+<div>
+<h4>Michael Analitis</h4>
+
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:michaeltanalitis@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/m-analitis)
+</div>
+<div>
+<h4>Coltin Rogge</h4>
+
+[![Gmail](https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:coltinwrogge@lewisu.edu)[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/coltin14)
+</div>
+
+## Development Team (ElectricalSquirrels Team)
 <div>
 <h4>Benjamin Campa</h4>
 
