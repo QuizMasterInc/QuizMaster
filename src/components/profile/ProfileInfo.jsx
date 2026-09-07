@@ -23,6 +23,7 @@ const ProfileInfo = ({ profile, userId }) => {
     lastName: profile?.profile?.lastName || '',
     email: profile?.email || '',
     username: profile?.username || '',
+    isDeleted: profile?.isDeleted || false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -39,6 +40,7 @@ const ProfileInfo = ({ profile, userId }) => {
       lastName: profile?.profile?.lastName || '',
       email: profile?.email || '',
       username: profile?.username || '',
+      isDeleted: profile?.isDeleted || false,
     });
   }, [profile, isEditing]);
 
@@ -184,6 +186,20 @@ const ProfileInfo = ({ profile, userId }) => {
       setPasswordLoading(false);
     }
   };
+
+  const handleDeleteAccount = async () => {
+    const confirmation = window.confirm('Are you sure that you want to delete your account? This action is permanent');
+    if (!confirmation) return;
+
+    try {
+      await AuthService.deleteUserAccount(userId);
+      alert('Your account has been deleted successfully.');
+
+      window.location.href = '/';
+    } catch (err) {
+      alert('Failed to delete account: ' + (err.message || 'Unknown error'));
+    }
+  }
 
   const handleCancel = () => {
     setFormData({
@@ -345,6 +361,14 @@ const ProfileInfo = ({ profile, userId }) => {
           >
             {loading ? 'Saving...' : 'Save Changes'}
           </button>
+
+          <button
+            onClick={handleDeleteAccount}
+            className="px-4 py-2 bg-[var(--error-bg)] hover:bg-[var(--error-border)] text-white rounded-md transition-colors"
+          >
+            Delete Account
+          </button>
+
           <button
             onClick={handleCancel}
             className="px-4 py-2 bg-[var(--neutral-400)] hover:bg-[var(--neutral-500)] text-white rounded-md transition-colors"

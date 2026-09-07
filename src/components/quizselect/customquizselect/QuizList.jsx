@@ -142,19 +142,20 @@ const QuizList = ({
   const [quizzes, setQuizzes] = useState([]);
   const [quizzesToDisplay, setQuizzesToDisplay] = useState([]);
 
-  //New Coltin Rogge
+  // Coltin Rogge: state to hold the list of quiz IDs that the user has favorited, fetched from their user document in Firestore
   const [userFavorites, setUserFavorites] = useState(undefined);
 
+  // Manage filters and debounced search terms
   const {
     filters,
     debouncedSearchTerm,
-	debouncedCreatorSearchTerm,
+	  debouncedCreatorSearchTerm,
     updateFilters,
     applyClientSideFilters
   } = useQuizFiltering(enabledFilters);
 
 
-  // New again Coltin Rogge - fetch user favorites for potential use in filtering or display
+  // Coltin Rogge - fetch user favorites for potential use in filtering or display
   useEffect(() => {
       const fetchUserFavorites = async () => {
         if (!currentUser?.uid) return;
@@ -170,13 +171,14 @@ const QuizList = ({
       fetchUserFavorites();
   }, [currentUser?.uid]);
 
-  //Coltin Rogge again
+  // Coltin Rogge: function to toggle a quiz as favorite/unfavorite by updating the user document in Firestore
   const toggleFavorite = async (quizId) => {
     if (!currentUser) return alert("You must be logged in to favorite quizzes.");
     
     const userRef = doc(db, 'users', currentUser.uid);
     const isFavorited = userFavorites.includes(quizId);
 
+    // update Firestore and local state for instant feedback
     try{
       if (isFavorited) {
         await updateDoc(userRef, {
@@ -189,7 +191,7 @@ const QuizList = ({
         });
         setUserFavorites((prev) => [...prev, quizId]);
       }
-    } catch (error) {
+    } catch (error) { 
       console.error("Error updating favorite quizzes:", error);
     }
   };
@@ -245,16 +247,18 @@ const QuizList = ({
         });
       }
 
+      // Coltin Rogge: logic for fetching favorite quizzes based on IDs stored in user doc
       else if (dataSource === "userFavorites") {
         // If favorites haven't been loaded from the user doc yet, wait.
         if (userFavorites === undefined) return;
 
+        // If user has no favorites, skip the query and just set empty state
         if (userFavorites.length === 0) {
           setQuizzes([]);
           setQuizzesToDisplay([]);
           setLoading(false);
           return;
-        } else { 
+        } else { // Otherwise, fetch the quiz data for the favorited quiz IDs
           try {
             const favoriteIds = userFavorites.slice(0, 30);
 
@@ -266,6 +270,7 @@ const QuizList = ({
               where("metadata.isPublic", "==", true)
             );
 
+            // Inlude user's own quizzes in favorites even if private
             const querySnapshot = await getDocs(q);
             const favs = querySnapshot.docs.map(doc => {
               const data = doc.data();
@@ -278,8 +283,9 @@ const QuizList = ({
               };
             });
 
+            
             result = { quizzes: favs };
-          } catch (err) {
+          } catch (err) { // If quizzes are quizzes aren't found or there's and error, log and set an empty set
             console.error("Error fetching favorite quizzes:", err);
             setError("Failed to load favorite quizzes");
             //setLoading(false);
@@ -331,17 +337,16 @@ const QuizList = ({
     }
   }, [dataSource, filters, quizzes, applyClientSideFilters]);
 
-  // Unified trigger for all data sources
+  // Coltin Rogge: trigger for all data sources
   useEffect(() => {
     const isFavoritesPage = dataSource === "userFavorites";
     
-    // Wait for IDs if we are on the Favorites page
+    // Wait for IDs if on the Favorites page
     if (isFavoritesPage && userFavorites === undefined) return;
 
     fetchQuizzes();
   
-  // This dependency array ensures the page refreshes automatically 
-  // when your favorites load or a heart is clicked.
+  // Ensures the page refreshes automatically when your favorites load or a heart is clicked.
   }, [
     fetchQuizzes, 
     dataSource, 
