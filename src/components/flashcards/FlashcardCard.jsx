@@ -5,6 +5,7 @@
 
 import { useNavigate, useLocation } from 'react-router-dom';
 import FlashcardPreview from './FlashcardPreview';
+import { formatCreatedTimestamp } from '../../utils/dateFormatter';
 
 const getCreatorLabel = (deck) => {
   const username = deck?.creatorUsername || deck?.creator?.username || deck?.username;
@@ -21,6 +22,7 @@ const getCreatorLabel = (deck) => {
 export default function FlashcardCard({ deck, onDelete, isDeleting }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const formattedCreatedAt = formatCreatedTimestamp(deck?.createdAt || deck?.timestamps?.createdAt);
 
   const getDifficultyLabel = (difficulty) => {
     if (difficulty === '1') return 'Easy';
@@ -67,6 +69,9 @@ export default function FlashcardCard({ deck, onDelete, isDeleting }) {
             </div>
             <div className="text-sm text-secondary">
               <strong>Created by:</strong> {getCreatorLabel(deck)}
+            </div>
+            <div className="text-sm text-secondary">
+              <strong>Created:</strong> {formattedCreatedAt || 'Date unavailable'}
             </div>
             <div className="text-sm text-secondary">
               <strong>Difficulty:</strong> {getDifficultyLabel(deck.difficulty)}

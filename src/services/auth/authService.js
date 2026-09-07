@@ -8,6 +8,7 @@ import {
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db, handleFirebaseError, withRetry, timestamp } from '../firebase/firebaseService';
 import { validateNoProfanity } from '../../utils/profanityFilter';
+import { deleteUser } from 'firebase/auth';
 
 class AuthService {
     constructor() {
@@ -930,6 +931,33 @@ class AuthService {
 
         } catch (error) {
             throw this.handleAuthError(error);
+        }
+    }
+
+    async deleteUserAccount(uid) {
+        try {
+            const user = auth.currentUser;
+            if (!user) throw new Error('No user is currently logged in.');
+
+            // Delete username document first (using the current user's username)
+            const currentUsername = 'sourcometpenguin85'; // Pass your actual username variable here
+            if (currentUsername) {
+                await deleteDoc(doc(db, 'usernames', currentUsername.toLowerCase()));
+            }
+
+            // Delete public profile document
+            await deleteDoc(doc(db, 'users_public', user.uid));
+
+            // Delete main user profile document
+            await deleteDoc(doc(db, 'users', user.uid));
+
+            // Delete Firebase Auth user last
+            await deleteUser(user);
+
+            alert('Account successfully deleted.');
+        } catch (error) {
+        console.error(error);
+        alert(`Failed to delete account: ${error.message}`);
         }
     }
 

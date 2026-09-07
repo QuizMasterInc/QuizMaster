@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import DeleteQuizButton from "./DeleteQuizButton";
 import { FaShare } from "react-icons/fa";
+import { formatCreatedTimestamp } from "../../../utils/dateFormatter";
 import {
   collection,
   doc,
@@ -16,28 +17,6 @@ import { db } from "../../../services/firebase/firebaseService";
 import { useAuth } from "../../../contexts/AuthContext";
 import { toast } from "react-toastify";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
-
-const formatQuizCreatedAt = (timestamp) => {
-  if (!timestamp) return null;
-
-  let date;
-
-  if (typeof timestamp?.toDate === "function") {
-    date = timestamp.toDate();
-  } else if (timestamp?.seconds) {
-    date = new Date(timestamp.seconds * 1000);
-  } else {
-    date = new Date(timestamp);
-  }
-
-  if (Number.isNaN(date.getTime())) return null;
-
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
 
 const getCreatedAtFromQuizData = (data) =>
   data?.timestamps?.createdAt ||
@@ -105,7 +84,7 @@ const CustomQuizSelectButton = ({
   const isCreator = currentUserId && creatorId && currentUserId === creatorId;
   const showOwnerPasswordTools = isCreator && location.pathname === "/myquizzes";
   const showOwnerEditAction = isCreator && location.pathname === "/myquizzes";
-  const formattedCreatedAt = formatQuizCreatedAt(createdAt || fetchedCreatedAt);
+  const formattedCreatedAt = formatCreatedTimestamp(createdAt || fetchedCreatedAt);
   const shouldShowCreatedAtFooter = showCreatedAtFooter && formattedCreatedAt;
   const shouldShowPublicStartButton = alwaysShowStartButton && !quizPassword;
 
@@ -624,10 +603,12 @@ const FavoriteButton = () => (
               />
 
               <button
+                type="button"
+                aria-label={`Start ${title || "quiz"}`}
                 className="w-full px-4 py-2 bg-[var(--btn-primary-bg)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
                 onClick={() => quizPasswordCheck(quizPasswordAttempt)}
               >
-                Start
+                Start Quiz
               </button>
             </div>
           </div>
@@ -682,10 +663,12 @@ const FavoriteButton = () => (
                 </div>
 
                 <button
+                  type="button"
+                  aria-label={`Start ${title || "quiz"}`}
                   className="w-full px-4 py-2 bg-[var(--btn-primary-bg)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
                   onClick={handleCreatorStart}
                 >
-                  Start
+                  Start Quiz
                 </button>
 
                 {renderPasswordManager()}
@@ -740,10 +723,12 @@ const FavoriteButton = () => (
                 <div className="mt-auto">
                   {shouldShowPublicStartButton ? (
                     <button
+                      type="button"
+                      aria-label={`Start ${title || "quiz"}`}
                       className="w-full px-4 py-2 bg-[var(--btn-primary-bg)] hover:bg-[var(--accent-hover)] text-[var(--btn-primary-text)] rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg"
                       onClick={handleCreatorStart}
                     >
-                      Start
+                      Start Quiz
                     </button>
                   ) : null}
                 </div>
