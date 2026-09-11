@@ -1,14 +1,14 @@
 ### Overview
 
-The team plans to meet on Tuesdays before normal class hours (12PM) every week in order to review the progress that has been made.
+The team plans to meet on Tuesdays before normal class hours (2 pm) every week in order to review the progress that has been made, but since Michael has classes everyday but Thursday and Coltin has to only go this class we decided that if Michael doesn't feel like coming in for the second week of the sprint then Michael will notify Coltin and we will be in touch through Discord.
 
-We also plan on using our Discord server for consistent communication throughout each sprint nearly every day. 
+We also plan on using our Discord server for consistent communication throughout each sprint. 
 
 The team uses an organized spreadsheet for management of the development of this project.
 
-### Recent Changes During Sprint 2
+### Recent Changes During Sprint 1
 
-During Sprint 2, the team focused on continuous improvement by enhancing both functionality and user experience within QuizMaster. Key updates included the implementation of a Recent Activity landing page displaying saved quiz progress, the addition of username creation and user profile functionality, and interface refinements such as improved navigation and more accessible button placement. Flashcard interactions were streamlined by replacing rating-based feedback with simplified knowledge indicators and adding options to review or retake quizzes. Additional enhancements included the integration of a survey questionnaire feature supported by backend and frontend connectivity, dynamic rendering, and randomized access code generation to support anonymous participation. These improvements demonstrate the team’s commitment to iterative refinement, usability optimization, and sustainable sprint execution.
+Since we are just starting with Sprint 1, our main focus was getting back up to speed with how the system worked. We downsized from 3 people to 2 people so adjusting to that has been a priority. We felt like we needed to do something so we tried to do some code because we felt like if we didn't do some code we would be slacking almost.
 
 ### Plans for CI/CD
 
@@ -30,7 +30,7 @@ When a new user comes to our product, we plan on having clear instruction on how
 
 Here is our definition of done.
 
-- In production
+- Merged from development to production
 - Can be demoed
-- Everyone agrees that it meets the expectations outlined in the story 
-- At least one GitHub commit to the product branch with a commit message ‘Story [[STORY-NUMBER]] done.
+- Everyone agrees that it meets story's expectations
+- At least one GitHub commit to the product branch with a commit message "'Story Number' done".
