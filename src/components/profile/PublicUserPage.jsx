@@ -117,6 +117,7 @@ const PUBLIC_CONTENT_CATEGORIES = [
   'Environment',
   'Travel',
   'Food',
+  'Other'
 ];
 
 export default function PublicUserPage() {
