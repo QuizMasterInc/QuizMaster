@@ -259,7 +259,6 @@ export default function Poll() {
   const handleToggleLiveResults = async () => {
     if (!currentPollId) return;
     try {
-		console.log(pollData)
       await setShowLiveResults(
         currentPollId,
         !(pollData?.showLiveResults ?? false),
