@@ -35,18 +35,27 @@ export default function QuizQuestionsList({ quizData, setQuizData, handleDeleteQ
   const handleQuestionChange = (e, index, questionIndex) => {
     setQuizData((prevQuizData) => {
       const newQuizData = [...prevQuizData];
-      newQuizData[index][questionIndex] = e.target.value;
+      const updatedQuestion = [...newQuizData[index]];
+      updatedQuestion[questionIndex] = e.target.value;
+      newQuizData[index] = updatedQuestion;
       return newQuizData;
     });
   };
 
-  const verifyQuestionChange = (quizData, index) => {
-    for (let i = 0; i < 6; i++) {
-      if (quizData[index][i] === '') {
+  const verifyQuestionChange = (index) => {
+    const currentQuestion = quizData[index];
+
+    if (!currentQuestion || !currentQuestion[0] || !currentQuestion[5]) {
+      toast.warn('Please fill out all changes');
+      return;
+    }
+
+    
+      if (!currentQuestion[1] || !currentQuestion[2]) {
         toast.warn('Please fill out all changes');
         return;
       }
-    }
+    
     doneEditing();
   };
 
@@ -186,7 +195,7 @@ export default function QuizQuestionsList({ quizData, setQuizData, handleDeleteQ
                     {/* Action Buttons */}
                     <div className="flex flex-wrap gap-3">
                       <button
-                        onClick={() => verifyQuestionChange(quizData, index)}
+                        onClick={() => verifyQuestionChange(index)}
                         className="px-6 py-2 bg-accent hover:bg-accent-hover text-btn-primary rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg border border-accent"
                       >
                         Done Editing
