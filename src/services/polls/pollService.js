@@ -90,6 +90,7 @@ export async function createPoll({ question, options, createdBy }) {
       status: "open",
       question,
       options,
+	  numVoters: 0, 
       votes,
       showLiveResults: false,
     });
@@ -191,12 +192,13 @@ export async function submitVote(pollId, optionIndexes, userId) {
       const existingVote = await transaction.get(voteRef);
       if (existingVote.exists()) throw new Error("You already voted.");
 
+	  const newNumVoters = data.numVoters + 1;
       const newVotes = [...data.votes];
       optionIndexes.forEach((i) => {
         newVotes[i] = (newVotes[i] || 0) + 1;
       });
 
-      transaction.update(ref, { votes: newVotes, updatedAt: serverTimestamp() });
+      transaction.update(ref, { numVoters: newNumVoters, votes: newVotes, updatedAt: serverTimestamp() });
       transaction.set(voteRef, {
         optionIndexes,
         userId,

@@ -87,9 +87,10 @@ export default function Poll() {
 
   const unsubscribeRef = useRef(null);
 
+  // use the old system as a fallback in case the new one doesn't work
   const totalVotes = useMemo(
-    () => (pollData?.votes || []).reduce((sum, v) => sum + v, 0),
-    [pollData]
+	() => (pollData?.numVoters || (pollData?.votes || []).reduce((sum, v) => sum + v, 0)),
+	[pollData]
   );
 
   const resultsVisible =
